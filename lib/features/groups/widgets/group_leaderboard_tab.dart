@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../models/group_member_model.dart';
@@ -21,10 +21,7 @@ class GroupLeaderboardTab extends ConsumerWidget {
     final brandPrimary = AppColors.brandPrimary(context);
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final borderColor = isDark ? Colors.white10 : const Color(0xFFE2E8F5);
-    String currentUid = '';
-    try {
-      currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
-    } catch (_) {}
+    final currentUid = ref.watch(currentUserIdProvider) ?? '';
 
     final leaderboard = ref.watch(groupLeaderboardProvider(groupId));
 

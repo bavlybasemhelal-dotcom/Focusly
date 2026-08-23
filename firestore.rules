@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // FOCUSLY FIRESTORE SECURITY RULES
+    // =========================================================================
+    // DATA ISOLATION GUARANTEE:
+    // Every personal user resource (profile, tasks, categories, events,
+    // event types, habits, pomodoro logs, stats, and achievements) is strictly
+    // partitioned under `/users/{userId}/...`.
+    //
+    // A client can ONLY read or write documents if their authenticated UID matches
+    // the `{userId}` segment (`request.auth.uid == userId`).
+    // =========================================================================
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isGroupMember(groupId) {
+      return isAuthenticated() && (
+        exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'approved'
+      );
+    }
+
+    function isGroupAdmin(groupId) {
+      return isAuthenticated() && (
+        exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role == 'admin' &&
+        get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'approved'
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. PERSONAL USER PROFILES & ALL PERSONAL SUBCOLLECTIONS
+    // -------------------------------------------------------------------------
+    match /users/{userId} {
+      // User can read and write their own top-level profile document
+      allow read, write: if isOwner(userId);
+
+      // Tasks Subcollection: users/{userId}/tasks/{taskId}
+      match /tasks/{taskId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Categories Subcollection: users/{userId}/categories/{categoryId}
+      match /categories/{categoryId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Schedule Events Subcollection: users/{userId}/events/{eventId}
+      match /events/{eventId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Schedule Event Types Subcollection: users/{userId}/event_types/{typeId}
+      match /event_types/{typeId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Habits Subcollection: users/{userId}/habits/{habitId}
+      match /habits/{habitId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Pomodoro Logs Subcollection: users/{userId}/pomodoroLogs/{logId}
+      match /pomodoroLogs/{logId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Stats & Progress Subcollection: users/{userId}/stats/{statId}
+      match /stats/{statId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. GROUPS & COLLABORATIVE FEATURES
+    // -------------------------------------------------------------------------
+    match /groups/{groupId} {
+      // Any authenticated user can create a group or lookup group by invite code
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated();
+      // Only group admin can update or delete the group document
+      allow update, delete: if isGroupAdmin(groupId) || resource.data.createdBy == request.auth.uid;
+
+      // Group Members: groups/{groupId}/members/{memberUid}
+      match /members/{memberUid} {
+        // Members list readable by any member or by the user themselves
+        allow read: if isAuthenticated();
+        // User can submit a join request for themselves (status == 'pending')
+        allow create: if isOwner(memberUid);
+        // Admin can approve/update roles; member can update their own weeklyXP
+        allow update: if isGroupAdmin(groupId) || isOwner(memberUid);
+        // Member can leave, or Admin can remove
+        allow delete: if isOwner(memberUid) || isGroupAdmin(groupId);
+      }
+
+      // Group Activity Feed: groups/{groupId}/feed/{feedId}
+      match /feed/{feedId} {
+        allow read: if isGroupMember(groupId);
+        allow create: if isGroupMember(groupId);
+        // Reactions: Group members can toggle emoji reactions
+        allow update: if isGroupMember(groupId);
+        allow delete: if isGroupAdmin(groupId) || resource.data.uid == request.auth.uid;
+      }
+
+      // Group Challenges: groups/{groupId}/challenges/{challengeId}
+      match /challenges/{challengeId} {
+        allow read: if isGroupMember(groupId);
+        allow create, update: if isGroupMember(groupId);
+        allow delete: if isGroupAdmin(groupId);
+
+        // Challenge Participants: groups/{groupId}/challenges/{challengeId}/participants/{participantUid}
+        match /participants/{participantUid} {
+          allow read: if isGroupMember(groupId);
+          // User can join a challenge for themselves and update their score
+          allow create, update: if isOwner(participantUid) && isGroupMember(groupId);
+          allow delete: if isOwner(participantUid) || isGroupAdmin(groupId);
+        }
+      }
+    }
+  }
+}

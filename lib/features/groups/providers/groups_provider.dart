@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../models/challenge_model.dart';
 import '../models/challenge_participant_model.dart';
 import '../models/group_feed_model.dart';
@@ -18,39 +18,42 @@ FirebaseFirestore? get _firestoreInstance {
 }
 
 /// Stream of all Groups the current user belongs to (via users/{uid}.groupIds)
+///
+/// DATA ISOLATION & REAL-TIME SYNC:
+/// 1. Watches [currentUserIdProvider] so user's group memberships are isolated per account.
+/// 2. Uses [asyncExpand] with `where(FieldPath.documentId, whereIn: groupIds).snapshots()`
+///    to ensure live real-time updates whenever group details (memberCount, name, icon, status)
+///    change in Firestore without requiring a logout/login cycle or manual refresh.
 final myGroupsStreamProvider =
     StreamProvider.autoDispose<List<GroupModel>>((ref) {
-  String? uid;
-  try {
-    uid = FirebaseAuth.instance.currentUser?.uid;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
   if (uid == null || uid.isEmpty) {
-    return Stream.value([]);
+    return Stream.value(<GroupModel>[]);
   }
 
   final firestore = _firestoreInstance;
-  if (firestore == null) return Stream.value([]);
+  if (firestore == null) return Stream.value(<GroupModel>[]);
 
   return firestore
       .collection('users')
       .doc(uid)
       .snapshots()
-      .asyncMap((userSnap) async {
-    if (!userSnap.exists) return <GroupModel>[];
+      .asyncExpand((userSnap) {
+    if (!userSnap.exists) return Stream.value(<GroupModel>[]);
     final groupIds = List<String>.from(userSnap.data()?['groupIds'] ?? []);
-    if (groupIds.isEmpty) return <GroupModel>[];
+    if (groupIds.isEmpty) return Stream.value(<GroupModel>[]);
 
-    final groups = <GroupModel>[];
-    for (final id in groupIds) {
-      try {
-        final gDoc = await firestore.collection('groups').doc(id).get();
-        if (gDoc.exists && gDoc.data() != null) {
-          groups.add(GroupModel.fromMap(gDoc.data()!, gDoc.id));
-        }
-      } catch (_) {}
-    }
-    return groups;
+    // whereIn supports up to 10 IDs (Focusly caps max groups per user to 5)
+    return firestore
+        .collection('groups')
+        .where(FieldPath.documentId, whereIn: groupIds)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => GroupModel.fromMap(doc.data(), doc.id))
+          .toList();
+    });
   });
 });
 

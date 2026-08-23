@@ -1,1 +1,26 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"focusly-87187","appId":"1:1069563055495:android:27f9489a615e22247ad722","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"focusly-87187","configurations":{"android":"1:1069563055495:android:27f9489a615e22247ad722","web":"1:1069563055495:web:92c73938076c85bd7ad722","windows":"1:1069563055495:web:a9b07a0fd54d63147ad722"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "focusly-87187",
+          "appId": "1:1069563055495:android:27f9489a615e22247ad722",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "focusly-87187",
+          "configurations": {
+            "android": "1:1069563055495:android:27f9489a615e22247ad722",
+            "web": "1:1069563055495:web:92c73938076c85bd7ad722",
+            "windows": "1:1069563055495:web:a9b07a0fd54d63147ad722"
+          }
+        }
+      }
+    }
+  }
+}

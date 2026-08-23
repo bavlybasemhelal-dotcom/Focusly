@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../models/pomodoro_config_model.dart';
 import '../models/pomodoro_log_model.dart';
 import '../models/pomodoro_state.dart';
@@ -9,15 +10,14 @@ import '../services/pomodoro_notification_service.dart';
 import '../../progress/services/progress_service.dart';
 
 /// Stream of Pomodoro work session logs from Firestore for the current user
+///
+/// DATA ISOLATION: Watches [currentUserIdProvider] so session histories never leak across accounts.
 final pomodoroLogsStreamProvider =
     StreamProvider.autoDispose<List<PomodoroLogModel>>((ref) {
-  String? uid;
-  try {
-    uid = FirebaseAuth.instance.currentUser?.uid;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
   if (uid == null || uid.isEmpty) {
-    return Stream.value([]);
+    return Stream.value(<PomodoroLogModel>[]);
   }
 
   return FirebaseFirestore.instance

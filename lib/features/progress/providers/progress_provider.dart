@@ -1,18 +1,17 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../habits/providers/habits_provider.dart';
 import '../../pomodoro/providers/pomodoro_provider.dart';
 import '../../tasks/providers/tasks_provider.dart';
 import '../models/level_logic.dart';
 
 /// Stream of user total XP from Firestore
+///
+/// DATA ISOLATION: Watches [currentUserIdProvider] so XP & level are always 100% account-specific.
 final userXpStreamProvider = StreamProvider.autoDispose<int>((ref) {
-  String? uid;
-  try {
-    uid = FirebaseAuth.instance.currentUser?.uid;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
   if (uid == null || uid.isEmpty) return Stream.value(0);
 
@@ -29,14 +28,13 @@ final userXpStreamProvider = StreamProvider.autoDispose<int>((ref) {
 });
 
 /// Stream of unlocked achievement IDs mapped to their unlock timestamp
+///
+/// DATA ISOLATION: Watches [currentUserIdProvider] so achievements are never retained on logout.
 final unlockedAchievementsStreamProvider =
     StreamProvider.autoDispose<Map<String, DateTime>>((ref) {
-  String? uid;
-  try {
-    uid = FirebaseAuth.instance.currentUser?.uid;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
-  if (uid == null || uid.isEmpty) return Stream.value({});
+  if (uid == null || uid.isEmpty) return Stream.value(<String, DateTime>{});
 
   return FirebaseFirestore.instance
       .collection('users')

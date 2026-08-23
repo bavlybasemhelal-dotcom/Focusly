@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../helpers/recurrence_helper.dart';
 import '../models/event_model.dart';
@@ -86,20 +87,20 @@ final focusedMonthProvider =
 );
 
 /// Stream of all event types (seeded defaults + custom types stored in Firestore)
+///
+/// DATA ISOLATION: Watches [currentUserIdProvider] to ensure real-time isolation
+/// and instant stream destruction on logout.
 final eventTypesStreamProvider = StreamProvider<List<EventType>>((ref) {
-  User? user;
-  try {
-    user = FirebaseAuth.instance.currentUser;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
-  if (user == null) {
+  if (uid == null || uid.isEmpty) {
     return Stream.value(EventType.defaultEventTypes);
   }
 
   try {
     return FirebaseFirestore.instance
         .collection('users')
-        .doc(user.uid)
+        .doc(uid)
         .collection('event_types')
         .snapshots()
         .map((snapshot) {
@@ -115,20 +116,20 @@ final eventTypesStreamProvider = StreamProvider<List<EventType>>((ref) {
 });
 
 /// Stream of all raw events for the authenticated user from Firestore
+///
+/// DATA ISOLATION: Scoped strictly to `users/{uid}/events`. Watching [currentUserIdProvider]
+/// guarantees zero calendar event bleed between distinct accounts.
 final eventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
-  User? user;
-  try {
-    user = FirebaseAuth.instance.currentUser;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
-  if (user == null) {
-    return Stream.value([]);
+  if (uid == null || uid.isEmpty) {
+    return Stream.value(<EventModel>[]);
   }
 
   try {
     return FirebaseFirestore.instance
         .collection('users')
-        .doc(user.uid)
+        .doc(uid)
         .collection('events')
         .orderBy('date', descending: false)
         .snapshots()

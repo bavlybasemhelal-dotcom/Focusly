@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/auth/auth_provider.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_controller.dart';
 import '../../core/theme/app_colors.dart';
@@ -895,9 +895,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
 
     if (shouldLogout == true) {
-      try {
-        await FirebaseAuth.instance.signOut();
-      } catch (_) {}
+      await logoutAndClearSession(ref);
 
       if (!mounted) return;
 

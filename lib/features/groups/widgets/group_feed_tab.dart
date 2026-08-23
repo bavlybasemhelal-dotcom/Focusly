@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../models/group_feed_model.dart';
@@ -40,10 +40,7 @@ class GroupFeedTab extends ConsumerWidget {
 
     final stats = ref.watch(groupStatsSummaryProvider(groupId));
     final feedAsync = ref.watch(groupFeedStreamProvider(groupId));
-    String currentUid = '';
-    try {
-      currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
-    } catch (_) {}
+    final currentUid = ref.watch(currentUserIdProvider) ?? '';
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),

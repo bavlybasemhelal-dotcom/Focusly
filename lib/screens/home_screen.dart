@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/auth/auth_provider.dart';
 import '../core/localization/app_localizations.dart';
 import '../core/theme/app_colors.dart';
 import '../features/settings/settings_page.dart';
@@ -13,14 +15,14 @@ import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
 /// and tab view switching with rich Light and Dark mode aesthetics.
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentTabIndex = 0;
 
   @override
@@ -36,17 +38,13 @@ class _HomeScreenState extends State<HomeScreen> {
     String displayName = context.tr('there');
     String userEmail = 'user@focusly.com';
 
-    try {
-      final User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser?.displayName != null &&
-          currentUser!.displayName!.trim().isNotEmpty) {
-        displayName = currentUser.displayName!;
-      }
-      if (currentUser?.email != null && currentUser!.email!.isNotEmpty) {
-        userEmail = currentUser.email!;
-      }
-    } catch (_) {
-      // Safe fallback if Firebase is not initialized in widget test environment
+    final User? currentUser = ref.watch(currentUserProvider);
+    if (currentUser?.displayName != null &&
+        currentUser!.displayName!.trim().isNotEmpty) {
+      displayName = currentUser.displayName!;
+    }
+    if (currentUser?.email != null && currentUser!.email!.isNotEmpty) {
+      userEmail = currentUser.email!;
     }
 
     return Scaffold(
@@ -669,9 +667,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (shouldLogout == true) {
-      try {
-        await FirebaseAuth.instance.signOut();
-      } catch (_) {}
+      await logoutAndClearSession(ref);
 
       if (!mounted) return;
 

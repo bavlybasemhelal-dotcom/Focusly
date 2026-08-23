@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../models/category_model.dart';
 import '../models/task_model.dart';
@@ -48,20 +49,21 @@ final selectedCategoryFilterProvider =
 );
 
 /// Stream of task categories (default seeded + custom from Firestore)
+///
+/// DATA ISOLATION: Watches [currentUserIdProvider] so when the user logs out
+/// or switches accounts, the stream subscription is immediately torn down
+/// and rebuilt for the new user UID.
 final categoriesProvider = StreamProvider<List<TaskCategory>>((ref) {
-  User? user;
-  try {
-    user = FirebaseAuth.instance.currentUser;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
-  if (user == null) {
+  if (uid == null || uid.isEmpty) {
     return Stream.value(TaskCategory.defaultCategories);
   }
 
   try {
     return FirebaseFirestore.instance
         .collection('users')
-        .doc(user.uid)
+        .doc(uid)
         .collection('categories')
         .snapshots()
         .map((snapshot) {
@@ -77,20 +79,21 @@ final categoriesProvider = StreamProvider<List<TaskCategory>>((ref) {
 });
 
 /// Stream of all tasks for the authenticated user from Firestore
+///
+/// DATA ISOLATION: Strictly scoped to `users/{uid}/tasks`. Watching [currentUserIdProvider]
+/// ensures that if Account A logs out and Account B logs in, Account A's tasks are
+/// immediately dropped from memory and cannot leak to Account B.
 final tasksStreamProvider = StreamProvider<List<TaskModel>>((ref) {
-  User? user;
-  try {
-    user = FirebaseAuth.instance.currentUser;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
-  if (user == null) {
-    return Stream.value([]);
+  if (uid == null || uid.isEmpty) {
+    return Stream.value(<TaskModel>[]);
   }
 
   try {
     return FirebaseFirestore.instance
         .collection('users')
-        .doc(user.uid)
+        .doc(uid)
         .collection('tasks')
         .orderBy('date', descending: false)
         .snapshots()

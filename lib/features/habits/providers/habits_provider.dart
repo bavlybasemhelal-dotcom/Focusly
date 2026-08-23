@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../helpers/streak_logic.dart';
@@ -13,14 +14,13 @@ import '../../groups/services/group_feed_service.dart';
 
 /// Stream provider that listens to real-time habits subcollection in Firestore
 /// and applies automatic weekly reset checks on the fly.
+///
+/// DATA ISOLATION: Watches [currentUserIdProvider] so habits never leak between accounts.
 final habitsStreamProvider = StreamProvider.autoDispose<List<HabitModel>>((ref) {
-  String? uid;
-  try {
-    uid = FirebaseAuth.instance.currentUser?.uid;
-  } catch (_) {}
+  final uid = ref.watch(currentUserIdProvider);
 
   if (uid == null || uid.isEmpty) {
-    return Stream.value([]);
+    return Stream.value(<HabitModel>[]);
   }
 
   return FirebaseFirestore.instance
