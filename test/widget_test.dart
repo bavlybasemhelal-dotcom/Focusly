@@ -7,6 +7,7 @@ import 'package:focusly/core/theme/app_theme.dart';
 import 'package:focusly/features/settings/change_password_page.dart';
 import 'package:focusly/features/settings/profile_page.dart';
 import 'package:focusly/features/settings/settings_page.dart';
+import 'package:focusly/features/tasks/tasks_screen.dart';
 import 'package:focusly/screens/home_screen.dart';
 import 'package:focusly/screens/login_screen.dart';
 import 'package:focusly/screens/onboarding_screen.dart';
@@ -411,5 +412,49 @@ void main() {
       expect(find.text('Update Password'), findsOneWidget);
     });
   });
+
+  group('Focusly Tasks Module Tests', () {
+    testWidgets('Renders TasksScreen, toggles List/Matrix views, and opens Add Task sheet',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const TasksScreen(),
+        ),
+      );
+
+      // Verify Screen Header and Toggle Buttons
+      expect(find.text('Tasks'), findsOneWidget);
+      expect(find.text('List'), findsOneWidget);
+      expect(find.text('Matrix'), findsOneWidget);
+
+      // Verify List view empty state
+      expect(find.text('No tasks here yet'), findsOneWidget);
+
+      // Switch to Matrix view
+      await tester.tap(find.text('Matrix'));
+      await tester.pumpAndSettle();
+
+      // Verify 4 Eisenhower Quadrants are rendered
+      expect(find.text('Do Now'), findsOneWidget);
+      expect(find.text('Schedule'), findsOneWidget);
+      expect(find.text('Delegate'), findsOneWidget);
+      expect(find.text('Eliminate'), findsOneWidget);
+
+      // Switch back to List view
+      await tester.tap(find.text('List'));
+      await tester.pumpAndSettle();
+
+      // Open Add Task Sheet via Floating Action Button
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('New Task'), findsOneWidget);
+      expect(find.text('Quick Matrix Placement'), findsOneWidget);
+      expect(find.text('Category'), findsOneWidget);
+      expect(find.text('Priority'), findsOneWidget);
+      expect(find.text('Create Task'), findsOneWidget);
+    });
+  });
 }
+
 

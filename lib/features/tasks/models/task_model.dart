@@ -1,0 +1,354 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
+/// Task priority enum with localized title key and color tokens.
+enum TaskPriority {
+  high(
+    titleKey: 'priority_high',
+    colorValue: 0xFFEF4444, // Error Red
+  ),
+  medium(
+    titleKey: 'priority_medium',
+    colorValue: 0xFFF59E0B, // Amber Gold
+  ),
+  low(
+    titleKey: 'priority_low',
+    colorValue: 0xFF10B981, // Emerald Green
+  );
+
+  final String titleKey;
+  final int colorValue;
+
+  const TaskPriority({
+    required this.titleKey,
+    required this.colorValue,
+  });
+
+  Color get color => Color(colorValue);
+
+  static TaskPriority fromString(String? value) {
+    switch (value?.toLowerCase()) {
+      case 'high':
+        return TaskPriority.high;
+      case 'low':
+        return TaskPriority.low;
+      case 'medium':
+      default:
+        return TaskPriority.medium;
+    }
+  }
+}
+
+/// The 4 Eisenhower Decision Matrix Quadrants.
+enum EisenhowerQuadrant {
+  q1DoNow(
+    titleKey: 'matrix_q1_title',
+    subtitleKey: 'matrix_q1_sub',
+    emptyKey: 'matrix_q1_empty',
+    accentColorValue: 0xFFEF4444, // Vibrant Red
+    badgeIcon: Icons.local_fire_department_rounded,
+  ),
+  q2Schedule(
+    titleKey: 'matrix_q2_title',
+    subtitleKey: 'matrix_q2_sub',
+    emptyKey: 'matrix_q2_empty',
+    accentColorValue: 0xFF10B981, // Vibrant Emerald
+    badgeIcon: Icons.event_available_rounded,
+  ),
+  q3Delegate(
+    titleKey: 'matrix_q3_title',
+    subtitleKey: 'matrix_q3_sub',
+    emptyKey: 'matrix_q3_empty',
+    accentColorValue: 0xFFF59E0B, // Vibrant Amber
+    badgeIcon: Icons.group_work_rounded,
+  ),
+  q4Eliminate(
+    titleKey: 'matrix_q4_title',
+    subtitleKey: 'matrix_q4_sub',
+    emptyKey: 'matrix_q4_empty',
+    accentColorValue: 0xFF64748B, // Slate Muted
+    badgeIcon: Icons.delete_sweep_rounded,
+  );
+
+  final String titleKey;
+  final String subtitleKey;
+  final String emptyKey;
+  final int accentColorValue;
+  final IconData badgeIcon;
+
+  const EisenhowerQuadrant({
+    required this.titleKey,
+    required this.subtitleKey,
+    required this.emptyKey,
+    required this.accentColorValue,
+    required this.badgeIcon,
+  });
+
+  Color get accentColor => Color(accentColorValue);
+}
+
+/// Single subtask item model (one-level checklist only).
+class SubtaskModel {
+  final String id;
+  final String title;
+  final bool done;
+
+  const SubtaskModel({
+    required this.id,
+    required this.title,
+    this.done = false,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'done': done,
+    };
+  }
+
+  factory SubtaskModel.fromMap(Map<String, dynamic> map) {
+    return SubtaskModel(
+      id: map['id'] ?? UniqueKey().toString(),
+      title: map['title'] ?? '',
+      done: map['done'] ?? false,
+    );
+  }
+
+  SubtaskModel copyWith({
+    String? id,
+    String? title,
+    bool? done,
+  }) {
+    return SubtaskModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      done: done ?? this.done,
+    );
+  }
+}
+
+/// Main Task data model stored in Firestore under users/{uid}/tasks/{taskId}.
+class TaskModel {
+  final String id;
+  final String title;
+  final String? notes;
+  final String categoryId;
+  final TaskPriority priority;
+  final DateTime date;
+  final TimeOfDay? time;
+  final DateTime? deadline;
+  final bool done;
+  final List<SubtaskModel> subtasks;
+  final DateTime createdAt;
+
+  const TaskModel({
+    required this.id,
+    required this.title,
+    this.notes,
+    required this.categoryId,
+    this.priority = TaskPriority.medium,
+    required this.date,
+    this.time,
+    this.deadline,
+    this.done = false,
+    this.subtasks = const [],
+    required this.createdAt,
+  });
+
+  /// Calculates completed subtasks count
+  int get completedSubtasksCount => subtasks.where((s) => s.done).length;
+
+  /// Pure computation function: Computes the Eisenhower Quadrant for a task
+  /// without mutating state.
+  ///
+  /// Rule:
+  /// - isUrgent = task's date is today/past OR deadline is within 2 days (<= 48h)
+  /// - isImportant = priority is high or medium
+  ///
+  /// Q1 (Do Now): Urgent AND Important
+  /// Q2 (Schedule): Important AND NOT Urgent
+  /// Q3 (Delegate): Urgent AND NOT Important
+  /// Q4 (Eliminate): Neither Urgent nor Important
+  EisenhowerQuadrant get computedQuadrant {
+    return computeQuadrant(this);
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'notes': notes,
+      'categoryId': categoryId,
+      'priority': priority.name,
+      'date': Timestamp.fromDate(date),
+      'time': time != null ? '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}' : null,
+      'deadline': deadline != null ? Timestamp.fromDate(deadline!) : null,
+      'done': done,
+      'subtasks': subtasks.map((s) => s.toMap()).toList(),
+      'createdAt': Timestamp.fromDate(createdAt),
+    };
+  }
+
+  factory TaskModel.fromMap(Map<String, dynamic> map, String docId) {
+    DateTime parsedDate;
+    if (map['date'] is Timestamp) {
+      parsedDate = (map['date'] as Timestamp).toDate();
+    } else if (map['date'] is String) {
+      parsedDate = DateTime.tryParse(map['date']) ?? DateTime.now();
+    } else {
+      parsedDate = DateTime.now();
+    }
+
+    DateTime? parsedDeadline;
+    if (map['deadline'] is Timestamp) {
+      parsedDeadline = (map['deadline'] as Timestamp).toDate();
+    } else if (map['deadline'] is String) {
+      parsedDeadline = DateTime.tryParse(map['deadline']);
+    }
+
+    DateTime parsedCreatedAt;
+    if (map['createdAt'] is Timestamp) {
+      parsedCreatedAt = (map['createdAt'] as Timestamp).toDate();
+    } else {
+      parsedCreatedAt = DateTime.now();
+    }
+
+    TimeOfDay? parsedTime;
+    if (map['time'] is String && (map['time'] as String).contains(':')) {
+      final parts = (map['time'] as String).split(':');
+      if (parts.length == 2) {
+        final hour = int.tryParse(parts[0]);
+        final minute = int.tryParse(parts[1]);
+        if (hour != null && minute != null) {
+          parsedTime = TimeOfDay(hour: hour, minute: minute);
+        }
+      }
+    }
+
+    List<SubtaskModel> subtasksList = [];
+    if (map['subtasks'] is List) {
+      subtasksList = (map['subtasks'] as List)
+          .map((item) => SubtaskModel.fromMap(Map<String, dynamic>.from(item)))
+          .toList();
+    }
+
+    return TaskModel(
+      id: docId,
+      title: map['title'] ?? '',
+      notes: map['notes'],
+      categoryId: map['categoryId'] ?? 'personal',
+      priority: TaskPriority.fromString(map['priority']),
+      date: parsedDate,
+      time: parsedTime,
+      deadline: parsedDeadline,
+      done: map['done'] ?? false,
+      subtasks: subtasksList,
+      createdAt: parsedCreatedAt,
+    );
+  }
+
+  TaskModel copyWith({
+    String? id,
+    String? title,
+    String? notes,
+    String? categoryId,
+    TaskPriority? priority,
+    DateTime? date,
+    TimeOfDay? time,
+    DateTime? deadline,
+    bool? done,
+    List<SubtaskModel>? subtasks,
+    DateTime? createdAt,
+    bool clearTime = false,
+    bool clearDeadline = false,
+  }) {
+    return TaskModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      notes: notes ?? this.notes,
+      categoryId: categoryId ?? this.categoryId,
+      priority: priority ?? this.priority,
+      date: date ?? this.date,
+      time: clearTime ? null : (time ?? this.time),
+      deadline: clearDeadline ? null : (deadline ?? this.deadline),
+      done: done ?? this.done,
+      subtasks: subtasks ?? this.subtasks,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+}
+
+/// Pure standalone calculation of the Eisenhower Quadrant for a given task.
+EisenhowerQuadrant computeQuadrant(TaskModel task) {
+  final now = DateTime.now();
+  final todayStart = DateTime(now.year, now.month, now.day);
+  final taskDateStart = DateTime(task.date.year, task.date.month, task.date.day);
+
+  // Urgent condition: date is today/past OR deadline is within 48 hours
+  final bool isDateTodayOrPast = taskDateStart.isBefore(todayStart) ||
+      taskDateStart.isAtSameMomentAs(todayStart);
+
+  bool isDeadlineUrgent = false;
+  if (task.deadline != null) {
+    final difference = task.deadline!.difference(now);
+    if (difference.inHours <= 48 && !difference.isNegative) {
+      isDeadlineUrgent = true;
+    }
+  }
+
+  final bool isUrgent = isDateTodayOrPast || isDeadlineUrgent;
+
+  // Important condition: Priority is High or Medium
+  final bool isImportant =
+      task.priority == TaskPriority.high || task.priority == TaskPriority.medium;
+
+  if (isImportant && isUrgent) {
+    return EisenhowerQuadrant.q1DoNow;
+  } else if (isImportant && !isUrgent) {
+    return EisenhowerQuadrant.q2Schedule;
+  } else if (!isImportant && isUrgent) {
+    return EisenhowerQuadrant.q3Delegate;
+  } else {
+    return EisenhowerQuadrant.q4Eliminate;
+  }
+}
+
+/// Pure rule engine that modifies a task's priority/date when assigned or dropped
+/// into a specific quadrant.
+TaskModel applyQuadrantRule(TaskModel task, EisenhowerQuadrant quadrant) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final nextWeek = today.add(const Duration(days: 7));
+
+  switch (quadrant) {
+    case EisenhowerQuadrant.q1DoNow:
+      // Q1: Urgent + Important -> Priority = High, Date = Today
+      return task.copyWith(
+        priority: TaskPriority.high,
+        date: today,
+      );
+
+    case EisenhowerQuadrant.q2Schedule:
+      // Q2: Not Urgent + Important -> Priority = High, Date = +7 days
+      return task.copyWith(
+        priority: TaskPriority.high,
+        date: nextWeek,
+      );
+
+    case EisenhowerQuadrant.q3Delegate:
+      // Q3: Urgent + Not Important -> Priority = Low, Date = Today
+      return task.copyWith(
+        priority: TaskPriority.low,
+        date: today,
+      );
+
+    case EisenhowerQuadrant.q4Eliminate:
+      // Q4: Neither -> Priority = Low, Date = +7 days, Clear deadline
+      return task.copyWith(
+        priority: TaskPriority.low,
+        date: nextWeek,
+        clearDeadline: true,
+      );
+  }
+}

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/localization/app_localizations.dart';
 import '../core/theme/app_colors.dart';
 import '../features/settings/settings_page.dart';
+import '../features/tasks/tasks_screen.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -316,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
             index: _currentTabIndex,
             children: [
               _HomeTabContent(userName: displayName),
-              const _TasksTabPlaceholder(),
+              const TasksScreen(),
               const _HabitsTabPlaceholder(),
               const _ProfileTabPlaceholder(),
             ],
@@ -740,27 +741,6 @@ class _HomeTabContent extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ==============================================================================
-// PLACEHOLDER TAB 1: TASKS
-// ==============================================================================
-class _TasksTabPlaceholder extends StatelessWidget {
-  const _TasksTabPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        context.tr('tasks'),
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w900,
-          color: AppColors.textPrimary(context),
         ),
       ),
     );
