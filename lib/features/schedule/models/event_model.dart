@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../time_blocker/models/time_block_type.dart';
 
 /// Recurrence pattern options for calendar events
 enum EventRecurrence {
@@ -30,6 +31,8 @@ enum EventRecurrence {
 }
 
 /// Calendar event data model stored in Firestore under users/{uid}/events/{eventId}.
+///
+/// If [blockType] is non-null, this event also acts as a Time Block in the Time Blocker view.
 class EventModel {
   final String id;
   final String title;
@@ -41,6 +44,10 @@ class EventModel {
   final DateTime? recurrenceEnd;
   final DateTime createdAt;
 
+  // Time Blocker Specific Fields
+  final String? blockType; // 'deep' | 'shallow' | 'health' | 'leisure' | 'admin' | null
+  final int? durationMinutes; // Duration in minutes (e.g. 30, 60, 90, 120...)
+
   const EventModel({
     required this.id,
     required this.title,
@@ -51,10 +58,30 @@ class EventModel {
     this.recurrence = EventRecurrence.none,
     this.recurrenceEnd,
     required this.createdAt,
+    this.blockType,
+    this.durationMinutes,
   });
 
   /// Returns true if this event repeats
   bool get isRecurring => recurrence != EventRecurrence.none;
+
+  /// Returns true if this event is configured as a Time Block
+  bool get isTimeBlock => blockType != null && blockType!.trim().isNotEmpty;
+
+  /// Parsed [TimeBlockType] enum if valid
+  TimeBlockType? get timeBlockType => TimeBlockType.fromString(blockType);
+
+  /// Effective duration in minutes (defaults to 60 if unspecified)
+  int get effectiveDurationMinutes => durationMinutes ?? 60;
+
+  /// Computed end [TimeOfDay] from start time + effective duration
+  TimeOfDay get endTime {
+    final startMinutes = time.hour * 60 + time.minute;
+    final endTotalMinutes = startMinutes + effectiveDurationMinutes;
+    final endHour = (endTotalMinutes ~/ 60) % 24;
+    final endMinute = endTotalMinutes % 60;
+    return TimeOfDay(hour: endHour, minute: endMinute);
+  }
 
   /// Combined start DateTime from date and time components
   DateTime get startDateTime => DateTime(
@@ -85,6 +112,8 @@ class EventModel {
             ))
           : null,
       'createdAt': Timestamp.fromDate(createdAt),
+      'blockType': blockType,
+      'durationMinutes': durationMinutes,
     };
   }
 
@@ -124,6 +153,13 @@ class EventModel {
       }
     }
 
+    int? parsedDuration;
+    if (map['durationMinutes'] is int) {
+      parsedDuration = map['durationMinutes'] as int;
+    } else if (map['durationMinutes'] is num) {
+      parsedDuration = (map['durationMinutes'] as num).toInt();
+    }
+
     return EventModel(
       id: docId,
       title: map['title'] ?? '',
@@ -140,6 +176,8 @@ class EventModel {
             )
           : null,
       createdAt: parsedCreatedAt,
+      blockType: map['blockType'] as String?,
+      durationMinutes: parsedDuration,
     );
   }
 
@@ -154,6 +192,9 @@ class EventModel {
     DateTime? recurrenceEnd,
     DateTime? createdAt,
     bool clearRecurrenceEnd = false,
+    String? blockType,
+    bool clearBlockType = false,
+    int? durationMinutes,
   }) {
     return EventModel(
       id: id ?? this.id,
@@ -165,6 +206,8 @@ class EventModel {
       recurrence: recurrence ?? this.recurrence,
       recurrenceEnd: clearRecurrenceEnd ? null : (recurrenceEnd ?? this.recurrenceEnd),
       createdAt: createdAt ?? this.createdAt,
+      blockType: clearBlockType ? null : (blockType ?? this.blockType),
+      durationMinutes: durationMinutes ?? this.durationMinutes,
     );
   }
 }

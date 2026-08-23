@@ -6,18 +6,27 @@ import '../../../core/theme/app_colors.dart';
 import '../models/event_model.dart';
 import '../models/event_type_model.dart';
 import '../providers/schedule_provider.dart';
+import '../../time_blocker/models/time_block_type.dart';
+import '../../time_blocker/helpers/time_blocker_helper.dart';
 
 /// Modal bottom sheet for creating a new calendar event or editing an existing one.
+/// Also used for creating/editing Time Blocks when blockType is specified.
 class AddEditEventSheet extends ConsumerStatefulWidget {
   final EventModel? eventToEdit;
   final DateTime? initialDate;
+  final TimeOfDay? initialTime;
   final String? initialTitle;
+  final String? initialBlockType;
+  final int? initialDurationMinutes;
 
   const AddEditEventSheet({
     super.key,
     this.eventToEdit,
     this.initialDate,
+    this.initialTime,
     this.initialTitle,
+    this.initialBlockType,
+    this.initialDurationMinutes,
   });
 
   @override
@@ -34,6 +43,8 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
   late String _selectedTypeId;
   late EventRecurrence _selectedRecurrence;
   DateTime? _selectedRecurrenceEnd;
+  String? _selectedBlockType;
+  late int _selectedDurationMinutes;
 
   bool _isSaving = false;
 
@@ -46,10 +57,13 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
         TextEditingController(text: event?.title ?? (widget.initialTitle ?? ''));
     _noteController = TextEditingController(text: event?.note ?? '');
     _selectedDate = event?.date ?? (widget.initialDate ?? DateTime.now());
-    _selectedTime = event?.time ?? const TimeOfDay(hour: 10, minute: 0);
+    _selectedTime = event?.time ?? (widget.initialTime ?? const TimeOfDay(hour: 10, minute: 0));
     _selectedTypeId = event?.typeId ?? 'work_meeting';
     _selectedRecurrence = event?.recurrence ?? EventRecurrence.none;
     _selectedRecurrenceEnd = event?.recurrenceEnd;
+    _selectedBlockType = event?.blockType ?? widget.initialBlockType;
+    _selectedDurationMinutes =
+        event?.effectiveDurationMinutes ?? (widget.initialDurationMinutes ?? 60);
   }
 
   @override
@@ -91,6 +105,9 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
             ? _selectedRecurrenceEnd
             : null,
         clearRecurrenceEnd: _selectedRecurrence == EventRecurrence.none,
+        blockType: _selectedBlockType,
+        clearBlockType: _selectedBlockType == null,
+        durationMinutes: _selectedDurationMinutes,
       );
       if (!mounted) return;
       await controller.updateEvent(updated, context);
@@ -107,6 +124,8 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
             ? _selectedRecurrenceEnd
             : null,
         createdAt: DateTime.now(),
+        blockType: _selectedBlockType,
+        durationMinutes: _selectedDurationMinutes,
       );
       if (!mounted) return;
       await controller.addEvent(newEvent, context);
@@ -510,6 +529,144 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                         tooltip: context.tr('add_event_type_title'),
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // 3.5. Time Block Type (Optional / Time Blocker Mode)
+                _buildFieldLabel(context.tr('block_type_label'), primaryTextColor),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      // Standard Event (None)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 8.0),
+                        child: ChoiceChip(
+                          avatar: const Icon(Icons.event_outlined, size: 14),
+                          label: Text(context.tr('block_type_none')),
+                          labelStyle: TextStyle(
+                            fontSize: 12,
+                            fontWeight: _selectedBlockType == null ? FontWeight.w800 : FontWeight.w600,
+                            color: _selectedBlockType == null
+                                ? Colors.white
+                                : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
+                          ),
+                          selected: _selectedBlockType == null,
+                          selectedColor: brandPrimary,
+                          backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: _selectedBlockType == null ? brandPrimary : borderColor,
+                              width: 1.2,
+                            ),
+                          ),
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() => _selectedBlockType = null);
+                            }
+                          },
+                        ),
+                      ),
+                      // 5 Time Block Types
+                      ...TimeBlockType.values.map((block) {
+                        final isSelected = _selectedBlockType == block.id;
+                        return Padding(
+                          padding: const EdgeInsetsDirectional.only(end: 8.0),
+                          child: ChoiceChip(
+                            avatar: Text(block.emoji, style: const TextStyle(fontSize: 13)),
+                            label: Text(context.tr(block.labelKey)),
+                            labelStyle: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white
+                                  : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
+                            ),
+                            selected: isSelected,
+                            selectedColor: block.color,
+                            backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: isSelected ? block.color : borderColor,
+                                width: 1.2,
+                              ),
+                            ),
+                            onSelected: (selected) {
+                              if (selected) {
+                                setState(() => _selectedBlockType = block.id);
+                              }
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 3.6. Duration Selector (with live range computation)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildFieldLabel(context.tr('duration_label'), primaryTextColor),
+                    // Live Computed Time Range Display
+                    Builder(builder: (_) {
+                      final startM = _selectedTime.hour * 60 + _selectedTime.minute;
+                      final endTot = startM + _selectedDurationMinutes;
+                      final computedEnd = TimeOfDay(hour: (endTot ~/ 60) % 24, minute: endTot % 60);
+                      final rangeStr = TimeBlockerHelper.formatTimeRange(_selectedTime, computedEnd);
+                      final durStr = TimeBlockerHelper.formatDuration(_selectedDurationMinutes);
+                      return Text(
+                        '$rangeStr ($durStr)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: brandPrimary,
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [30, 45, 60, 90, 120, 180].map((dur) {
+                      final isSelected = _selectedDurationMinutes == dur;
+                      final durLabel = TimeBlockerHelper.formatDuration(dur);
+                      return Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 8.0),
+                        child: ChoiceChip(
+                          label: Text(durLabel),
+                          labelStyle: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            color: isSelected
+                                ? Colors.white
+                                : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
+                          ),
+                          selected: isSelected,
+                          selectedColor: brandPrimary,
+                          backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: isSelected ? brandPrimary : borderColor,
+                              width: 1.2,
+                            ),
+                          ),
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() => _selectedDurationMinutes = dur);
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
                 const SizedBox(height: 20),

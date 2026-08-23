@@ -1211,6 +1211,25 @@ class AppLocalizations {
       'focus_add_subtask_hint': 'Enter new subtask title...',
       'choose_next_task': 'Switch Task',
       'task_completed_inline': 'Task completed! Great progress ✨',
+
+      // Time Blocker
+      'time_blocker_title': 'Time Blocker',
+      'block_type_label': 'Time Block Type',
+      'block_type_none': 'Standard Event',
+      'block_type_deep': 'Deep Work',
+      'block_type_shallow': 'Shallow Work',
+      'block_type_health': 'Health & Gym',
+      'block_type_leisure': 'Leisure & Rest',
+      'block_type_admin': 'Admin & Errands',
+      'empty_slot_tap_to_book': '+ Empty slot (tap to book)',
+      'add_block_btn': 'Add Block',
+      'edit_block_title': 'Edit Time Block',
+      'duration_label': 'Duration',
+      'planned_blocks_summary': '{count} blocks • {duration} planned',
+      'delete_block_confirm_title': 'Delete Time Block',
+      'delete_block_confirm_msg': 'Are you sure you want to delete the time block "{title}"?',
+      'block_continuing': 'Continuing',
+      'event_deleted_toast': 'Event deleted',
     },
     'ar': {
       // App General
@@ -2404,6 +2423,25 @@ class AppLocalizations {
       'focus_add_subtask_hint': 'اكتب عنوان المهمة الفرعية...',
       'choose_next_task': 'تبديل المهمة',
       'task_completed_inline': 'تم إنجاز المهمة! تقدم رائع ✨',
+
+      // Time Blocker
+      'time_blocker_title': 'حاجز الوقت (Time Blocker)',
+      'block_type_label': 'نوع الحجز الزمني',
+      'block_type_none': 'حدث قياسي',
+      'block_type_deep': 'عمل عميق',
+      'block_type_shallow': 'عمل إجرائي/سطحي',
+      'block_type_health': 'صحة ورياضة',
+      'block_type_leisure': 'ترفيه وراحة',
+      'block_type_admin': 'إداريات ومراجعات',
+      'empty_slot_tap_to_book': '+ خانة فارغة (اضغط للحجز)',
+      'add_block_btn': 'إضافة حجز زمني',
+      'edit_block_title': 'تعديل الحجز الزمني',
+      'duration_label': 'المدة',
+      'planned_blocks_summary': '{count} حجوزات • {duration} مخطط',
+      'delete_block_confirm_title': 'حذف الحجز الزمني',
+      'delete_block_confirm_msg': 'هل أنت متأكد من رغبتك في حذف الحجز الزمني "{title}"؟',
+      'block_continuing': 'مستمر',
+      'event_deleted_toast': 'تم حذف الحدث بنجاح',
     },
   };
 
