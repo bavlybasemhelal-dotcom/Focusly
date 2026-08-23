@@ -4,6 +4,7 @@ import '../core/localization/app_localizations.dart';
 import '../core/theme/app_colors.dart';
 import '../features/settings/settings_page.dart';
 import '../features/tasks/tasks_screen.dart';
+import '../features/schedule/schedule_screen.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -318,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _HomeTabContent(userName: displayName),
               const TasksScreen(),
-              const _HabitsTabPlaceholder(),
+              const ScheduleScreen(),
               const _ProfileTabPlaceholder(),
             ],
           ),
@@ -380,9 +381,9 @@ class _HomeScreenState extends State<HomeScreen> {
               label: context.tr('tasks'),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.local_fire_department_outlined),
-              activeIcon: const Icon(Icons.local_fire_department_rounded),
-              label: context.tr('habits'),
+              icon: const Icon(Icons.calendar_month_outlined),
+              activeIcon: const Icon(Icons.calendar_month_rounded),
+              label: context.tr('schedule'),
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.person_outline_rounded),
@@ -741,27 +742,6 @@ class _HomeTabContent extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ==============================================================================
-// PLACEHOLDER TAB 2: HABITS
-// ==============================================================================
-class _HabitsTabPlaceholder extends StatelessWidget {
-  const _HabitsTabPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        context.tr('habits'),
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w900,
-          color: AppColors.textPrimary(context),
         ),
       ),
     );

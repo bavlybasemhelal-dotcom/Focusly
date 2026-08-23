@@ -8,6 +8,7 @@ import 'package:focusly/features/settings/change_password_page.dart';
 import 'package:focusly/features/settings/profile_page.dart';
 import 'package:focusly/features/settings/settings_page.dart';
 import 'package:focusly/features/tasks/tasks_screen.dart';
+import 'package:focusly/features/schedule/schedule_screen.dart';
 import 'package:focusly/screens/home_screen.dart';
 import 'package:focusly/screens/login_screen.dart';
 import 'package:focusly/screens/onboarding_screen.dart';
@@ -90,10 +91,11 @@ void main() {
         ),
       );
 
-      // Advance past 5 seconds
-      await tester.pump(const Duration(milliseconds: 5001));
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 700));
+      // Advance past 5 seconds and settle transition
+      await tester.pump(const Duration(milliseconds: 2500));
+      await tester.pump(const Duration(milliseconds: 2600));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Verify navigation to HomeScreen
       expect(find.byType(HomeScreen), findsOneWidget);
@@ -245,10 +247,10 @@ void main() {
       await tester.pump();
       expect(find.text('Tasks'), findsWidgets);
 
-      // 3. Switch to Habits tab
-      await tester.tap(find.text('Habits'));
+      // 3. Switch to Schedule tab
+      await tester.tap(find.text('Schedule'));
       await tester.pump();
-      expect(find.text('Habits'), findsWidgets);
+      expect(find.text('Schedule'), findsWidgets);
 
       // 4. Switch to Profile tab
       await tester.tap(find.text('Profile'));
@@ -267,7 +269,8 @@ void main() {
 
       // 6. Navigate to Settings
       await tester.tap(find.byTooltip('Settings'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
       expect(find.byType(SettingsPage), findsOneWidget);
     });
   });
@@ -341,8 +344,6 @@ void main() {
       await tester.ensureVisible(find.text('Save Changes'));
       expect(find.text('Save Changes'), findsOneWidget);
     });
-
-
 
     testWidgets('Opens Font Size modal sheet and displays Small, Standard, Large options',
         (WidgetTester tester) async {
@@ -455,6 +456,47 @@ void main() {
       expect(find.text('Create Task'), findsOneWidget);
     });
   });
+
+  group('Focusly Schedule Module Tests', () {
+    testWidgets('Renders ScheduleScreen, toggles Month/Week/Day views, and opens Add Event sheet',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const ScheduleScreen(),
+        ),
+      );
+
+      // Verify Screen Header and View Mode Switcher
+      expect(find.text('Month'), findsOneWidget);
+      expect(find.text('Week'), findsOneWidget);
+      expect(find.text('Day'), findsOneWidget);
+      expect(find.text('Today'), findsOneWidget);
+
+      // Switch to Week view
+      await tester.tap(find.text('Week'));
+      await tester.pumpAndSettle();
+      expect(find.text('No events scheduled for this day'), findsWidgets);
+
+      // Switch to Day / Agenda view
+      await tester.tap(find.text('Day'));
+      await tester.pumpAndSettle();
+      expect(find.text('No events scheduled for this day'), findsWidgets);
+      expect(
+        find.text('Enjoy your free time or tap (+) to schedule a new event!'),
+        findsOneWidget,
+      );
+
+      // Open Add Event Sheet via Floating Action Button
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('New Event'), findsOneWidget);
+      expect(find.text('Event Type'), findsOneWidget);
+      expect(find.text('Recurrence'), findsOneWidget);
+      expect(find.text('Create Event'), findsOneWidget);
+    });
+  });
 }
+
 
 

@@ -145,6 +145,7 @@ class TasksScreen extends ConsumerWidget {
           ],
         ),
         child: FloatingActionButton(
+          heroTag: 'tasks_fab',
           onPressed: () {
             showModalBottomSheet(
               context: context,

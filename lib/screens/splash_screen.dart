@@ -191,6 +191,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _onSplashCompleted() {
+    _risingSymbolsController.stop();
+    _ringsPulseController.stop();
     if (!mounted) return;
 
     User? currentUser;
@@ -205,18 +207,8 @@ class _SplashScreenState extends State<SplashScreen>
             : const HomeScreen());
 
     Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => targetScreen,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeInOut,
-            ),
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 600),
+      MaterialPageRoute(
+        builder: (context) => targetScreen,
       ),
     );
   }
