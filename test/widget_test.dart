@@ -1,27 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:focusly/core/localization/app_localizations.dart';
+import 'package:focusly/core/theme/app_theme.dart';
+import 'package:focusly/features/settings/change_password_page.dart';
+import 'package:focusly/features/settings/profile_page.dart';
+import 'package:focusly/features/settings/settings_page.dart';
 import 'package:focusly/screens/home_screen.dart';
 import 'package:focusly/screens/login_screen.dart';
 import 'package:focusly/screens/onboarding_screen.dart';
 import 'package:focusly/screens/signup_screen.dart';
 import 'package:focusly/screens/splash_screen.dart';
 
+import 'package:focusly/core/localization/locale_controller.dart';
+import 'package:focusly/core/theme/theme_controller.dart';
+
+Widget _buildTestApp({required Widget home}) {
+  return ProviderScope(
+    child: Consumer(
+      builder: (context, ref, _) {
+        final themeMode = ref.watch(themeControllerProvider);
+        final locale = ref.watch(localeControllerProvider);
+
+        return MaterialApp(
+          locale: locale,
+          themeMode: themeMode,
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          home: home,
+        );
+      },
+    ),
+  );
+}
+
+
 void main() {
   group('Focusly SplashScreen Tests', () {
     testWidgets('Renders centered logo, rising productivity icons, and progress bar',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: SplashScreen(isFirstLaunch: true),
+        _buildTestApp(
+          home: const SplashScreen(isFirstLaunch: true),
         ),
       );
 
-      // Verify rising productivity icons are present in the tree
-      expect(find.byIcon(Icons.check_circle_rounded), findsWidgets);
-      expect(find.byIcon(Icons.checklist_rounded), findsWidgets);
-      expect(find.byIcon(Icons.bolt_rounded), findsWidgets);
-      expect(find.byIcon(Icons.local_fire_department_rounded), findsWidgets);
-      expect(find.byIcon(Icons.task_alt_rounded), findsWidgets);
+      // Verify CustomPaint is present for rising productivity particles
+      expect(find.byType(CustomPaint), findsWidgets);
 
       // Verify progress status text
       expect(find.text('⚡ Initializing smart task engine...'), findsOneWidget);
@@ -33,14 +66,15 @@ void main() {
     testWidgets('Navigates to OnboardingScreen after 5 seconds when isFirstLaunch is true',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: SplashScreen(isFirstLaunch: true),
+        _buildTestApp(
+          home: const SplashScreen(isFirstLaunch: true),
         ),
       );
 
       // Advance past the 5-second mark to complete progress
-      await tester.pump(const Duration(milliseconds: 5000));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 5001));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 700));
 
       // Verify navigation to OnboardingScreen
       expect(find.byType(OnboardingScreen), findsOneWidget);
@@ -50,27 +84,30 @@ void main() {
     testWidgets('Navigates to HomeScreen after 5 seconds when isFirstLaunch is false',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: SplashScreen(isFirstLaunch: false),
+        _buildTestApp(
+          home: const SplashScreen(isFirstLaunch: false),
         ),
       );
 
       // Advance past 5 seconds
-      await tester.pump(const Duration(milliseconds: 5000));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 5001));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 700));
 
       // Verify navigation to HomeScreen
       expect(find.byType(HomeScreen), findsOneWidget);
-      expect(find.textContaining('Hello,'), findsOneWidget);
+      expect(find.textContaining('Hello'), findsOneWidget);
     });
+
+
   });
 
   group('Focusly OnboardingScreen Tests', () {
     testWidgets('Renders 4-page flow with Next buttons, indicators, and transitions to LoginScreen',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: OnboardingScreen(),
+        _buildTestApp(
+          home: const OnboardingScreen(),
         ),
       );
 
@@ -105,8 +142,8 @@ void main() {
     testWidgets('Skip button jumps straight to LoginScreen',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: OnboardingScreen(),
+        _buildTestApp(
+          home: const OnboardingScreen(),
         ),
       );
 
@@ -126,8 +163,8 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       await tester.pumpWidget(
-        const MaterialApp(
-          home: LoginScreen(),
+        _buildTestApp(
+          home: const LoginScreen(),
         ),
       );
 
@@ -162,8 +199,8 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       await tester.pumpWidget(
-        const MaterialApp(
-          home: SignupScreen(),
+        _buildTestApp(
+          home: const SignupScreen(),
         ),
       );
 
@@ -193,8 +230,8 @@ void main() {
     testWidgets('Renders greeting, date, switches bottom tabs, opens drawer and settings',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: HomeScreen(),
+        _buildTestApp(
+          home: const HomeScreen(),
         ),
       );
 
@@ -230,7 +267,149 @@ void main() {
       // 6. Navigate to Settings
       await tester.tap(find.byTooltip('Settings'));
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(find.byType(SettingsPage), findsOneWidget);
+    });
+  });
+
+  group('Focusly Settings Module Tests', () {
+    testWidgets('Renders Settings sections and opens Language modal sheet',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const SettingsPage(),
+        ),
+      );
+
+      expect(find.text('Settings'), findsOneWidget);
+      expect(find.text('Account'), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Change Password'), findsOneWidget);
+      expect(find.text('Preferences'), findsOneWidget);
+      expect(find.text('Language'), findsOneWidget);
+      expect(find.text('Theme'), findsOneWidget);
+
+      // Open Language sheet
+      await tester.tap(find.text('Language'));
+      await tester.pumpAndSettle();
+      expect(find.text('العربية (Arabic)'), findsOneWidget);
+      expect(find.text('English'), findsWidgets);
+
+      // Switch to Arabic
+      await tester.tap(find.text('العربية (Arabic)'));
+      await tester.pumpAndSettle();
+      expect(find.text('الإعدادات'), findsOneWidget);
+    });
+
+    testWidgets('Opens Theme modal sheet and displays options',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const SettingsPage(),
+        ),
+      );
+
+      // Open Theme sheet
+      await tester.tap(find.text('Theme'));
+      await tester.pumpAndSettle();
+      expect(find.text('Light Mode'), findsOneWidget);
+      expect(find.text('Dark Mode'), findsOneWidget);
+      expect(find.text('System Default'), findsWidgets);
+
+      // Select Dark mode
+      await tester.tap(find.text('Dark Mode'));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('Navigates to ProfilePage and renders editable fields',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const SettingsPage(),
+        ),
+      );
+
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ProfilePage), findsOneWidget);
+      expect(find.text('Full Name'), findsOneWidget);
+      expect(find.text('Job Title / Profession'), findsOneWidget);
+      expect(find.text('Bio / About Me'), findsOneWidget);
+      expect(find.text('Email'), findsOneWidget);
+      expect(find.text('Phone Number'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Save Changes'));
+      expect(find.text('Save Changes'), findsOneWidget);
+    });
+
+
+
+    testWidgets('Opens Font Size modal sheet and displays Small, Standard, Large options',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const SettingsPage(),
+        ),
+      );
+
+      // Scroll to and tap Font Size
+      await tester.scrollUntilVisible(find.text('Font Size'), 50);
+      await tester.tap(find.text('Font Size'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Small'), findsOneWidget);
+      expect(find.text('Standard'), findsWidgets);
+      expect(find.text('Large'), findsOneWidget);
+
+      // Select Large
+      await tester.tap(find.text('Large'));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('Renders Default Reminder Time and Terms/Privacy screens',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const SettingsPage(),
+        ),
+      );
+
+      // Verify Default Reminder Time row
+      await tester.scrollUntilVisible(find.text('Default Reminder Time'), 50);
+      expect(find.text('Default Reminder Time'), findsOneWidget);
+
+      // Verify Terms of Service navigation
+      await tester.scrollUntilVisible(find.text('Terms of Service'), 50);
+      await tester.tap(find.text('Terms of Service'));
+      await tester.pumpAndSettle();
+      expect(find.text('Last updated: August 2026'), findsOneWidget);
+
+      // Pop back to Settings
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      // Verify Privacy Policy navigation
+      await tester.scrollUntilVisible(find.text('Privacy Policy'), 50);
+      await tester.tap(find.text('Privacy Policy'));
+      await tester.pumpAndSettle();
+      expect(find.text('1. Information We Collect'), findsOneWidget);
+    });
+
+    testWidgets('Navigates to ChangePasswordPage and renders password fields',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const SettingsPage(),
+        ),
+      );
+
+      await tester.tap(find.text('Change Password'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ChangePasswordPage), findsOneWidget);
+      expect(find.text('Current Password'), findsOneWidget);
+      expect(find.text('New Password'), findsOneWidget);
+      expect(find.text('Confirm New Password'), findsOneWidget);
+      expect(find.text('Update Password'), findsOneWidget);
     });
   });
 }
+

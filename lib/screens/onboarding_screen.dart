@@ -1,42 +1,22 @@
 import 'package:flutter/material.dart';
+import '../core/localization/app_localizations.dart';
+import '../core/theme/app_colors.dart';
 import 'login_screen.dart';
 
-// ==============================================================================
-// FOCUSLY COLOR PALETTE (Matched with Splash Screen)
-// ==============================================================================
-const Color kBgDark = Color(0xFF060B24);
-const Color kBgMidnight = Color(0xFF0B1647);
-const Color kNavyDeep = Color(0xFF08123A);
-const Color kCyanElectric = Color(0xFF00E5FF);
-const Color kBlueSky = Color(0xFF29A9FF);
-const Color kBlueRoyal = Color(0xFF1E58F6);
-const Color kGreenNeon = Color(0xFF4ADE80);
-const Color kGreenVibrant = Color(0xFF22C55E);
-const Color kAmberGold = Color(0xFFFFB020);
-const Color kTextWhite = Color(0xFFFFFFFF);
-const Color kTextSlate = Color(0xFF94A3B8);
-
 /// Data model representing a single onboarding slide.
-/// Adding more onboarding pages in the future is as simple as adding a new entry to the data list.
 class OnboardingPageData {
-  final String title;
-  final String subtitle;
-  final String tag;
-  final String imagePath;
+  final String titleKey;
+  final String subtitleKey;
   final IconData heroIcon;
-  final Color primaryGlowColor;
-  final Color secondaryGlowColor;
-  final List<String> badges;
+  final Color glowColorDark;
+  final Color glowColorLight;
 
   const OnboardingPageData({
-    required this.title,
-    required this.subtitle,
-    required this.tag,
-    required this.imagePath,
+    required this.titleKey,
+    required this.subtitleKey,
     required this.heroIcon,
-    required this.primaryGlowColor,
-    required this.secondaryGlowColor,
-    required this.badges,
+    required this.glowColorDark,
+    required this.glowColorLight,
   });
 }
 
@@ -51,57 +31,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   late final PageController _pageController;
   int _currentPageIndex = 0;
 
-  // ---------------------------------------------------------------------------
-  // ONBOARDING DATA DEFINITIONS
-  // ---------------------------------------------------------------------------
   static const List<OnboardingPageData> _pages = [
     // Page 1: Organize Everything
     OnboardingPageData(
-      title: 'Organize Everything',
-      subtitle:
-          'Unify your daily tasks, habits, and schedule in one smart workspace powered by adaptive AI planning.',
-      tag: 'ALL-IN-ONE SYSTEM',
-      imagePath: 'assets/images/onboarding_1.png',
+      titleKey: 'onboarding_title_1',
+      subtitleKey: 'onboarding_sub_1',
       heroIcon: Icons.checklist_rounded,
-      primaryGlowColor: kCyanElectric,
-      secondaryGlowColor: kBlueRoyal,
-      badges: ['Smart Task Engine', 'Calendar Sync', 'Daily Priorities'],
+      glowColorDark: AppColors.cyanElectric,
+      glowColorLight: Color(0xFF2563EB),
     ),
     // Page 2: Build Better Habits
     OnboardingPageData(
-      title: 'Build Better Habits',
-      subtitle:
-          'Turn consistency into a habit with daily streak trackers, visual progress rings, and milestone celebrations.',
-      tag: 'STREAK & TRACKING',
-      imagePath: 'assets/images/onboarding_2.png',
+      titleKey: 'onboarding_title_2',
+      subtitleKey: 'onboarding_sub_2',
       heroIcon: Icons.local_fire_department_rounded,
-      primaryGlowColor: kAmberGold,
-      secondaryGlowColor: kGreenNeon,
-      badges: ['7-Day Streaks', 'Habit Heatmaps', 'XP Rewards'],
+      glowColorDark: AppColors.amberGold,
+      glowColorLight: Color(0xFFF59E0B),
     ),
     // Page 3: Stay Focused
     OnboardingPageData(
-      title: 'Stay Focused',
-      subtitle:
-          'Eliminate distractions and enter flow state with Pomodoro sprints, ambient soundscapes, and deep focus timers.',
-      tag: 'DEEP WORK FLOW',
-      imagePath: 'assets/images/onboarding_3.png',
+      titleKey: 'onboarding_title_3',
+      subtitleKey: 'onboarding_sub_3',
       heroIcon: Icons.timer_rounded,
-      primaryGlowColor: kGreenNeon,
-      secondaryGlowColor: kCyanElectric,
-      badges: ['25m Focus Block', 'Flow State 98%', 'Ambient Noise'],
+      glowColorDark: AppColors.accentGreenNeon,
+      glowColorLight: Color(0xFF10B981),
     ),
     // Page 4: Grow With Your Team
     OnboardingPageData(
-      title: 'Grow With Your Team',
-      subtitle:
-          'Form accountability squads, join group productivity challenges, and push your team goals together.',
-      tag: 'COMMUNITY & CHALLENGES',
-      imagePath: 'assets/images/onboarding_4.png',
+      titleKey: 'onboarding_title_4',
+      subtitleKey: 'onboarding_sub_4',
       heroIcon: Icons.groups_rounded,
-      primaryGlowColor: kBlueSky,
-      secondaryGlowColor: kGreenNeon,
-      badges: ['Squad Challenges', 'Leaderboards', 'Shared Goals'],
+      glowColorDark: AppColors.primaryBlueLight,
+      glowColorLight: Color(0xFF6366F1),
     ),
   ];
 
@@ -117,24 +78,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  /// Navigates forward to next page or finishes onboarding.
-  void _onNextPressed() {
-    if (_currentPageIndex < _pages.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 380),
-        curve: Curves.easeInOutCubic,
-      );
-    } else {
-      _finishOnboarding();
-    }
-  }
-
-  /// Finalizes the onboarding flow and navigates to the Auth/Login screen.
-  void _finishOnboarding() {
-    // TODO: Persist onboarding completion flag in persistent storage
-    // e.g.: final prefs = await SharedPreferences.getInstance();
-    //       await prefs.setBool('has_seen_onboarding', true);
-
+  void _navigateToLogin() {
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -153,30 +97,120 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  void _onNextPressed() {
+    if (_currentPageIndex < _pages.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+      );
+    } else {
+      _navigateToLogin();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.sizeOf(context);
-    final bool isLastPage = _currentPageIndex == _pages.length - 1;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryTextColor = AppColors.textPrimary(context);
+    final secondaryTextColor = AppColors.textSecondary(context);
+    final brandPrimary = AppColors.brandPrimary(context);
+    final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
+    final isLastPage = _currentPageIndex == _pages.length - 1;
 
     return Scaffold(
-      backgroundColor: kBgDark,
+      backgroundColor: bgColor,
       body: Stack(
         children: [
           // -----------------------------------------------------------------
-          // 1. AMBIENT AURORA BLOOMS
+          // 1. DYNAMIC AMBIENT AURORA BLOOM
           // -----------------------------------------------------------------
-          _buildAmbientGlowBlooms(),
+          _buildAmbientGlowBlooms(isDark),
 
           // -----------------------------------------------------------------
-          // 2. MAIN CONTENT (Top Bar + PageView + Indicators + Bottom Button)
+          // 2. MAIN ONBOARDING PAGEVIEW & CONTROLS
           // -----------------------------------------------------------------
           SafeArea(
             child: Column(
               children: [
-                // Top Header Bar (Brand Logo & Skip Button)
-                _buildTopNavigationBar(isLastPage),
+                // Top Header with Logo & Skip Button
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 12.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Mini Brand Mark
+                      Row(
+                        children: [
+                          Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isDark
+                                  ? const Color(0xFF0F1B4C)
+                                  : Colors.white,
+                              border: Border.all(
+                                color: brandPrimary,
+                                width: 1.8,
+                              ),
+                              boxShadow: isDark
+                                  ? null
+                                  : [
+                                      BoxShadow(
+                                        color: const Color(0xFF2E6FF2).withValues(alpha: 0.1),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                            ),
+                            child: Icon(
+                              Icons.track_changes_rounded,
+                              color: brandPrimary,
+                              size: 19,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            context.tr('app_name'),
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w900,
+                              color: primaryTextColor,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+                        ],
+                      ),
 
-                // Swipeable PageView Area
+                      // Skip Button
+                      if (!isLastPage)
+                        TextButton(
+                          onPressed: _navigateToLogin,
+                          style: TextButton.styleFrom(
+                            foregroundColor: secondaryTextColor,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 6.0,
+                            ),
+                          ),
+                          child: Text(
+                            context.tr('skip'),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: secondaryTextColor,
+                            ),
+                          ),
+                        )
+                      else
+                        const SizedBox(width: 48),
+                    ],
+                  ),
+                ),
+
+                // PageView with Slides
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
@@ -187,29 +221,99 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       });
                     },
                     itemBuilder: (context, index) {
-                      return _buildOnboardingPage(
-                        _pages[index],
-                        screenSize,
+                      final page = _pages[index];
+                      return _buildPageContent(
+                        page: page,
+                        isDark: isDark,
+                        primaryTextColor: primaryTextColor,
+                        secondaryTextColor: secondaryTextColor,
+                        brandPrimary: brandPrimary,
                       );
                     },
                   ),
                 ),
 
-                // Bottom Controls: Animated Pill Indicators & Action Button
+                // Bottom Indicator & Action Buttons
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 20.0,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(28.0, 12.0, 28.0, 28.0),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Animated Neon Page Indicator Dots
-                      _buildPageIndicators(),
+                      // Animated Indicator Pills
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(_pages.length, (index) {
+                          final isSelected = index == _currentPageIndex;
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                            width: isSelected ? 28.0 : 8.0,
+                            height: 8.0,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? brandPrimary
+                                  : (isDark
+                                      ? Colors.white.withValues(alpha: 0.15)
+                                      : const Color(0xFFCBD5E1)),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                          );
+                        }),
+                      ),
                       const SizedBox(height: 24),
 
-                      // Full-width Gradient Action Button ("Next" -> "Get Started")
-                      _buildActionButton(isLastPage),
+                      // Full-width Gradient Next / Get Started Button
+                      Container(
+                        width: double.infinity,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.primaryGradient(context),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? AppColors.cyanElectric.withValues(alpha: 0.35)
+                                  : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                              blurRadius: 18,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _onNextPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            foregroundColor:
+                                isDark ? const Color(0xFF060B24) : Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                isLastPage
+                                    ? context.tr('get_started')
+                                    : context.tr('next'),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 18,
+                                color: isDark
+                                    ? const Color(0xFF060B24)
+                                    : Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -221,45 +325,113 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  /// Ambient background aurora light-blooms
-  Widget _buildAmbientGlowBlooms() {
-    final currentPage = _pages[_currentPageIndex];
+  Widget _buildPageContent({
+    required OnboardingPageData page,
+    required bool isDark,
+    required Color primaryTextColor,
+    required Color secondaryTextColor,
+    required Color brandPrimary,
+  }) {
+    final glowColor = isDark ? page.glowColorDark : page.glowColorLight;
 
-    return Stack(
-      children: [
-        // Top-right dynamic bloom
-        Positioned(
-          top: -60,
-          right: -60,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 600),
-            width: 320,
-            height: 320,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 28.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Hero Illustration Box with Luminous Rim
+          Container(
+            width: 220,
+            height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  currentPage.primaryGlowColor.withValues(alpha: 0.18),
-                  kBlueRoyal.withValues(alpha: 0.05),
-                  Colors.transparent,
-                ],
+              color: isDark
+                  ? const Color(0xFF0F1B4C).withValues(alpha: 0.7)
+                  : Colors.white,
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : const Color(0xFFDBEAFE),
+                width: 2.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: glowColor.withValues(alpha: isDark ? 0.35 : 0.22),
+                  blurRadius: 36,
+                  spreadRadius: 4,
+                ),
+              ],
+            ),
+            child: Center(
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: glowColor.withValues(alpha: isDark ? 0.12 : 0.09),
+                ),
+                child: Center(
+                  child: Icon(
+                    page.heroIcon,
+                    size: 78,
+                    color: glowColor,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-        // Bottom-left dynamic bloom
+          const SizedBox(height: 36),
+
+          // Title
+          Text(
+            context.tr(page.titleKey),
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: primaryTextColor,
+              letterSpacing: -0.6,
+              height: 1.2,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+
+          // Subtitle
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              context.tr(page.subtitleKey),
+              style: TextStyle(
+                fontSize: 15,
+                color: secondaryTextColor,
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmbientGlowBlooms(bool isDark) {
+    final page = _pages[_currentPageIndex];
+    final glow = isDark ? page.glowColorDark : page.glowColorLight;
+
+    return Stack(
+      children: [
         Positioned(
-          bottom: -40,
-          left: -50,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 600),
-            width: 300,
-            height: 300,
+          top: -100,
+          right: -100,
+          child: Container(
+            width: 360,
+            height: 360,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  currentPage.secondaryGlowColor.withValues(alpha: 0.15),
+                  glow.withValues(alpha: isDark ? 0.18 : 0.14),
                   Colors.transparent,
                 ],
               ),
@@ -267,363 +439,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  /// Top Bar with brand icon badge and animated "Skip" button
-  Widget _buildTopNavigationBar(bool isLastPage) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Mini Brand Logo Pill
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F1B4C).withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.12),
-                width: 1,
-              ),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.track_changes_rounded,
-                  size: 16,
-                  color: kCyanElectric,
-                ),
-                SizedBox(width: 6),
-                Text(
-                  'Focusly',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: kTextWhite,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // "Skip" button (smoothly fades out on final page)
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 250),
-            opacity: isLastPage ? 0.0 : 1.0,
-            child: IgnorePointer(
-              ignoring: isLastPage,
-              child: TextButton(
-                onPressed: _finishOnboarding,
-                style: TextButton.styleFrom(
-                  foregroundColor: kTextSlate,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: kCyanElectric,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Builds a single onboarding page slide with illustration card, titles, and feature chips
-  Widget _buildOnboardingPage(OnboardingPageData data, Size size) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Spacer(flex: 1),
-
-          // -----------------------------------------------------------------
-          // HERO ILLUSTRATION CARD WITH GLOWING ACCENT
-          // -----------------------------------------------------------------
-          Container(
-            width: double.infinity,
-            height: size.height * 0.34,
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F1B4C).withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: data.primaryGlowColor.withValues(alpha: 0.25),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-                BoxShadow(
-                  color: data.primaryGlowColor.withValues(alpha: 0.15),
-                  blurRadius: 25,
-                  spreadRadius: -4,
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(28),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Radial center highlight
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: RadialGradient(
-                        colors: [
-                          data.primaryGlowColor.withValues(alpha: 0.20),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Image Asset with fallback to high-end vector illustration
-                  Image.asset(
-                    data.imagePath,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 88,
-                            height: 88,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: const Color(0xFF08123A),
-                              border: Border.all(
-                                color: data.primaryGlowColor,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: data.primaryGlowColor.withValues(
-                                    alpha: 0.4,
-                                  ),
-                                  blurRadius: 24,
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              data.heroIcon,
-                              size: 46,
-                              color: data.primaryGlowColor,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          // Mini floating badge inside the card
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 6,
-                            alignment: WrapAlignment.center,
-                            children: data.badges.map((badge) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF08123A),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.12),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  badge,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: kTextSlate,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          // Category Tag Pill
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              color: data.primaryGlowColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: data.primaryGlowColor.withValues(alpha: 0.35),
-                width: 1,
-              ),
-            ),
-            child: Text(
-              data.tag,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: data.primaryGlowColor,
-                letterSpacing: 1.0,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 14),
-
-          // Main Headline
-          Text(
-            data.title,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              color: kTextWhite,
-              letterSpacing: -0.6,
-            ),
-            textAlign: TextAlign.center,
-          ),
-
-          const SizedBox(height: 12),
-
-          // Supporting Description
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Text(
-              data.subtitle,
-              style: const TextStyle(
-                fontSize: 14,
-                height: 1.5,
-                color: kTextSlate,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          const Spacer(flex: 2),
-        ],
-      ),
-    );
-  }
-
-  /// Builds the animated dot/pill page indicators
-  Widget _buildPageIndicators() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_pages.length, (index) {
-        final bool isActive = index == _currentPageIndex;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: isActive ? 32 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            gradient: isActive
-                ? const LinearGradient(
-                    colors: [kCyanElectric, kGreenNeon],
-                  )
-                : null,
-            color: isActive ? null : Colors.white.withValues(alpha: 0.2),
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: kCyanElectric.withValues(alpha: 0.5),
-                      blurRadius: 10,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : null,
-          ),
-        );
-      }),
-    );
-  }
-
-  /// Builds the full-width high-tech action button
-  Widget _buildActionButton(bool isLastPage) {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: ElevatedButton(
-        onPressed: _onNextPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isLastPage
-                  ? [kBlueRoyal, kCyanElectric, kGreenNeon]
-                  : [kBlueRoyal, kCyanElectric],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: isLastPage
-                    ? kGreenNeon.withValues(alpha: 0.4)
-                    : kCyanElectric.withValues(alpha: 0.35),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Container(
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  isLastPage ? 'Get Started' : 'Next',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  isLastPage
-                      ? Icons.rocket_launch_rounded
-                      : Icons.arrow_forward_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1,43 +1,32 @@
 import 'dart:math' as math;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../core/localization/app_localizations.dart';
+import '../core/theme/app_colors.dart';
 import 'home_screen.dart';
 import 'onboarding_screen.dart';
-
-// ==============================================================================
-// FOCUSLY COLOR PALETTE (Extracted directly from the 3D Logo)
-// ==============================================================================
-const Color kBgDark = Color(0xFF060B24);
-const Color kBgMidnight = Color(0xFF0B1647);
-const Color kNavyDeep = Color(0xFF08123A);
-const Color kCyanElectric = Color(0xFF00E5FF);
-const Color kBlueSky = Color(0xFF29A9FF);
-const Color kBlueRoyal = Color(0xFF1E58F6);
-const Color kGreenNeon = Color(0xFF4ADE80);
-const Color kGreenVibrant = Color(0xFF22C55E);
-const Color kAmberGold = Color(0xFFFFB020);
-const Color kTextWhite = Color(0xFFFFFFFF);
-const Color kTextSlate = Color(0xFF94A3B8);
 
 /// Model defining floating and rising productivity symbols across the screen.
 class RisingSymbolConfig {
   final IconData icon;
-  final double xRatio; // Horizontal position (0.0 to 1.0)
-  final double ySeed; // Starting vertical phase offset (0.0 to 1.0)
-  final double size; // Icon size
-  final Color color; // Icon color
-  final double baseOpacity; // Opacity
-  final double floatSpeed; // Vertical travel speed multiplier
-  final double horizontalWobble; // Horizontal sine-wave drift amount
-  final double rotationMultiplier; // Rotation speed
-  final bool hasGlassFrame; // Whether icon has a glowing micro-glass frame
+  final double xRatio;
+  final double ySeed;
+  final double size;
+  final Color darkColor;
+  final Color lightColor;
+  final double baseOpacity;
+  final double floatSpeed;
+  final double horizontalWobble;
+  final double rotationMultiplier;
+  final bool hasGlassFrame;
 
   const RisingSymbolConfig({
     required this.icon,
     required this.xRatio,
     required this.ySeed,
     required this.size,
-    required this.color,
+    required this.darkColor,
+    required this.lightColor,
     this.baseOpacity = 0.35,
     this.floatSpeed = 1.0,
     this.horizontalWobble = 14.0,
@@ -47,7 +36,6 @@ class RisingSymbolConfig {
 }
 
 class SplashScreen extends StatefulWidget {
-  /// Flag to simulate first-launch onboarding vs returning authenticated user.
   final bool isFirstLaunch;
 
   const SplashScreen({
@@ -61,33 +49,22 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  // ---------------------------------------------------------------------------
-  // ANIMATION CONTROLLERS
-  // ---------------------------------------------------------------------------
-  // 1. Entrance Controller (0ms -> 900ms): Logo bounce & scale entrance
   late final AnimationController _entranceController;
   late final Animation<double> _logoScaleAnimation;
   late final Animation<double> _logoFadeAnimation;
-
-  // 2. Rising & Floating Symbols Controller (Continuous upward particle drift)
   late final AnimationController _risingSymbolsController;
-
-  // 3. Central Target Rings Pulse Controller (Looping 2.6s expansion & glow)
   late final AnimationController _ringsPulseController;
-
-  // 4. Master 5-Second Splash & Loading Progress (0ms -> 5000ms)
   late final AnimationController _splashProgressController;
 
-  // Rich collection of productivity & To-Do symbols floating and rising
   static const List<RisingSymbolConfig> _symbols = [
-    // Left Side Symbols
     RisingSymbolConfig(
       icon: Icons.check_circle_rounded,
       xRatio: 0.08,
       ySeed: 0.15,
       size: 20,
-      color: kGreenNeon,
-      baseOpacity: 0.45,
+      darkColor: AppColors.accentGreenNeon,
+      lightColor: Color(0xFF10B981),
+      baseOpacity: 0.55,
       floatSpeed: 0.8,
       horizontalWobble: 16,
       hasGlassFrame: true,
@@ -97,168 +74,71 @@ class _SplashScreenState extends State<SplashScreen>
       xRatio: 0.16,
       ySeed: 0.45,
       size: 22,
-      color: kCyanElectric,
-      baseOpacity: 0.40,
+      darkColor: AppColors.cyanElectric,
+      lightColor: Color(0xFF2563EB),
+      baseOpacity: 0.50,
       floatSpeed: 1.1,
       horizontalWobble: 20,
       hasGlassFrame: true,
     ),
     RisingSymbolConfig(
-      icon: Icons.timer_rounded,
-      xRatio: 0.06,
+      icon: Icons.bolt_rounded,
+      xRatio: 0.12,
       ySeed: 0.75,
       size: 18,
-      color: kBlueSky,
-      baseOpacity: 0.35,
-      floatSpeed: 0.95,
-      horizontalWobble: 14,
-      hasGlassFrame: false,
-    ),
-    RisingSymbolConfig(
-      icon: Icons.bolt_rounded,
-      xRatio: 0.22,
-      ySeed: 0.85,
-      size: 24,
-      color: kGreenNeon,
-      baseOpacity: 0.50,
-      floatSpeed: 1.25,
-      horizontalWobble: 22,
-      hasGlassFrame: true,
-    ),
-    RisingSymbolConfig(
-      icon: Icons.settings_rounded,
-      xRatio: 0.14,
-      ySeed: 0.05,
-      size: 18,
-      color: kCyanElectric,
-      baseOpacity: 0.30,
-      floatSpeed: 0.7,
+      darkColor: AppColors.amberGold,
+      lightColor: Color(0xFFF59E0B),
+      baseOpacity: 0.45,
+      floatSpeed: 0.9,
       horizontalWobble: 12,
       hasGlassFrame: false,
     ),
     RisingSymbolConfig(
-      icon: Icons.track_changes_rounded,
+      icon: Icons.local_fire_department_rounded,
       xRatio: 0.25,
       ySeed: 0.30,
-      size: 22,
-      color: kBlueSky,
-      baseOpacity: 0.40,
+      size: 20,
+      darkColor: AppColors.amberGold,
+      lightColor: Color(0xFFF59E0B),
+      baseOpacity: 0.45,
       floatSpeed: 1.0,
-      horizontalWobble: 18,
-      hasGlassFrame: true,
-    ),
-
-    // Right Side Symbols
-    RisingSymbolConfig(
-      icon: Icons.local_fire_department_rounded,
-      xRatio: 0.88,
-      ySeed: 0.10,
-      size: 22,
-      color: kAmberGold,
-      baseOpacity: 0.50,
-      floatSpeed: 1.15,
-      horizontalWobble: 18,
+      horizontalWobble: 14,
       hasGlassFrame: true,
     ),
     RisingSymbolConfig(
       icon: Icons.task_alt_rounded,
-      xRatio: 0.78,
-      ySeed: 0.38,
-      size: 20,
-      color: kGreenNeon,
-      baseOpacity: 0.45,
-      floatSpeed: 0.9,
-      horizontalWobble: 15,
-      hasGlassFrame: true,
-    ),
-    RisingSymbolConfig(
-      icon: Icons.auto_awesome_rounded,
-      xRatio: 0.92,
-      ySeed: 0.65,
+      xRatio: 0.85,
+      ySeed: 0.20,
       size: 22,
-      color: kCyanElectric,
-      baseOpacity: 0.45,
-      floatSpeed: 1.2,
-      horizontalWobble: 22,
-      hasGlassFrame: false,
-    ),
-    RisingSymbolConfig(
-      icon: Icons.alarm_on_rounded,
-      xRatio: 0.74,
-      ySeed: 0.80,
-      size: 20,
-      color: kBlueSky,
-      baseOpacity: 0.35,
-      floatSpeed: 0.85,
-      horizontalWobble: 14,
+      darkColor: AppColors.accentGreenNeon,
+      lightColor: Color(0xFF10B981),
+      baseOpacity: 0.55,
+      floatSpeed: 0.9,
+      horizontalWobble: 18,
       hasGlassFrame: true,
     ),
     RisingSymbolConfig(
       icon: Icons.flag_rounded,
-      xRatio: 0.84,
-      ySeed: 0.52,
-      size: 18,
-      color: kGreenNeon,
-      baseOpacity: 0.35,
-      floatSpeed: 1.05,
-      horizontalWobble: 16,
-      hasGlassFrame: false,
-    ),
-    RisingSymbolConfig(
-      icon: Icons.format_list_bulleted_rounded,
-      xRatio: 0.70,
-      ySeed: 0.18,
-      size: 22,
-      color: kCyanElectric,
-      baseOpacity: 0.40,
-      floatSpeed: 0.75,
-      horizontalWobble: 18,
+      xRatio: 0.78,
+      ySeed: 0.55,
+      size: 20,
+      darkColor: AppColors.cyanElectric,
+      lightColor: Color(0xFF0EA5E9),
+      baseOpacity: 0.50,
+      floatSpeed: 1.2,
+      horizontalWobble: 15,
       hasGlassFrame: true,
     ),
-
-    // Ambient Center-Flank Symbols
     RisingSymbolConfig(
       icon: Icons.star_rounded,
-      xRatio: 0.34,
-      ySeed: 0.12,
-      size: 16,
-      color: kAmberGold,
-      baseOpacity: 0.30,
-      floatSpeed: 0.7,
-      horizontalWobble: 10,
-      hasGlassFrame: false,
-    ),
-    RisingSymbolConfig(
-      icon: Icons.done_all_rounded,
-      xRatio: 0.64,
-      ySeed: 0.88,
-      size: 20,
-      color: kGreenNeon,
-      baseOpacity: 0.40,
-      floatSpeed: 1.1,
-      horizontalWobble: 14,
-      hasGlassFrame: true,
-    ),
-    RisingSymbolConfig(
-      icon: Icons.calendar_today_rounded,
-      xRatio: 0.32,
-      ySeed: 0.82,
-      size: 18,
-      color: kBlueSky,
-      baseOpacity: 0.30,
-      floatSpeed: 0.9,
+      xRatio: 0.88,
+      ySeed: 0.80,
+      size: 19,
+      darkColor: AppColors.amberGold,
+      lightColor: Color(0xFFF59E0B),
+      baseOpacity: 0.45,
+      floatSpeed: 0.8,
       horizontalWobble: 12,
-      hasGlassFrame: false,
-    ),
-    RisingSymbolConfig(
-      icon: Icons.flash_on_rounded,
-      xRatio: 0.66,
-      ySeed: 0.22,
-      size: 20,
-      color: kCyanElectric,
-      baseOpacity: 0.35,
-      floatSpeed: 1.15,
-      horizontalWobble: 16,
       hasGlassFrame: false,
     ),
   ];
@@ -267,80 +147,66 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // 1. Entrance animation setup
     _entranceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
 
-    _logoScaleAnimation = Tween<double>(
-      begin: 0.70,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const ElasticOutCurve(0.85),
-      ),
+    _logoScaleAnimation = CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.elasticOut,
     );
 
-    _logoFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-      ),
+    _logoFadeAnimation = CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeIn,
     );
 
-    // 2. Rising symbols continuous looping animation
     _risingSymbolsController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 9000),
+      duration: const Duration(seconds: 10),
     )..repeat();
 
-    // 3. Central pulsing target rings controller
     _ringsPulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2400),
+      duration: const Duration(milliseconds: 2600),
     )..repeat(reverse: true);
 
-    // 4. Master 5-second splash progress
     _splashProgressController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 5000),
     );
 
-    _splashProgressController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _navigateToNextScreen();
-      }
-    });
-
-    // Start animations
     _entranceController.forward();
-    _splashProgressController.forward();
+    _splashProgressController.forward().then((_) => _onSplashCompleted());
   }
 
-  /// Handles destination routing
-  void _navigateToNextScreen() {
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    _risingSymbolsController.dispose();
+    _ringsPulseController.dispose();
+    _splashProgressController.dispose();
+    super.dispose();
+  }
+
+  void _onSplashCompleted() {
     if (!mounted) return;
 
-    bool isAuthenticated = false;
+    User? currentUser;
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      isAuthenticated = user != null;
-    } catch (_) {
-      isAuthenticated = !widget.isFirstLaunch;
-    }
+      currentUser = FirebaseAuth.instance.currentUser;
+    } catch (_) {}
 
-    final Widget destination = (isAuthenticated || !widget.isFirstLaunch)
+    final Widget targetScreen = (currentUser != null)
         ? const HomeScreen()
-        : const OnboardingScreen();
+        : (widget.isFirstLaunch
+            ? const OnboardingScreen()
+            : const HomeScreen());
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => destination,
+        pageBuilder: (context, animation, secondaryAnimation) => targetScreen,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
             opacity: CurvedAnimation(
@@ -355,411 +221,362 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  @override
-  void dispose() {
-    _entranceController.dispose();
-    _risingSymbolsController.dispose();
-    _ringsPulseController.dispose();
-    _splashProgressController.dispose();
-    super.dispose();
+  String _getStatusText(double progress) {
+    if (progress < 0.28) {
+      return context.tr('splash_init_engine');
+    } else if (progress < 0.60) {
+      return context.tr('splash_sync_habits');
+    } else if (progress < 0.88) {
+      return context.tr('splash_opt_workspace');
+    } else {
+      return context.tr('splash_ready');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.sizeOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryTextColor = AppColors.textPrimary(context);
+    final secondaryTextColor = AppColors.textSecondary(context);
+    final brandPrimary = AppColors.brandPrimary(context);
+    final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
 
     return Scaffold(
-      backgroundColor: kBgDark,
+      backgroundColor: bgColor,
       body: Stack(
-        clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
-          // -----------------------------------------------------------------
-          // 1. AMBIENT BACKGROUND GLOW BLOOMS
-          // -----------------------------------------------------------------
-          _buildAmbientGlowBlooms(screenSize),
+          // 1. Ambient Glow Blooms
+          _buildAmbientGlowBlooms(isDark),
 
-          // -----------------------------------------------------------------
-          // 2. RISING & FLOATING PRODUCTIVITY SYMBOLS (Bottom -> Up Particle Wave)
-          // -----------------------------------------------------------------
-          ..._buildRisingFloatingSymbols(screenSize),
+          // 2. Rising Productivity Symbols
+          AnimatedBuilder(
+            animation: _risingSymbolsController,
+            builder: (context, child) {
+              return CustomPaint(
+                size: MediaQuery.of(context).size,
+                painter: _RisingSymbolsPainter(
+                  progress: _risingSymbolsController.value,
+                  symbols: _symbols,
+                  isDark: isDark,
+                ),
+              );
+            },
+          ),
 
-          // -----------------------------------------------------------------
-          // 3. CENTER TARGET RINGS & PERFECTLY CENTERED LOGO
-          // -----------------------------------------------------------------
-          _buildCenteredTargetAndLogo(),
+          // 3. Central Target Rings & Logo
+          Center(
+            child: AnimatedBuilder(
+              animation: _ringsPulseController,
+              builder: (context, child) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Concentric Target Rings
+                    _buildPulsingTargetRings(
+                      _ringsPulseController.value,
+                      isDark,
+                      brandPrimary,
+                    ),
 
-          // -----------------------------------------------------------------
-          // 4. BOTTOM NEON LOADING BAR & LIVE STAGE PROGRESS
-          // -----------------------------------------------------------------
+                    // Centered 3D Focusly Logo
+                    ScaleTransition(
+                      scale: _logoScaleAnimation,
+                      child: FadeTransition(
+                        opacity: _logoFadeAnimation,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? brandPrimary.withValues(alpha: 0.45)
+                                    : const Color(0xFF2563EB).withValues(alpha: 0.25),
+                                blurRadius: 40,
+                                spreadRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 140,
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isDark
+                                      ? const Color(0xFF0F1B4C)
+                                      : Colors.white,
+                                  border: Border.all(
+                                    color: brandPrimary,
+                                    width: 3,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.track_changes_rounded,
+                                  color: brandPrimary,
+                                  size: 72,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          // 4. Bottom 5-Second Progress Bar
           Positioned(
-            left: 24,
-            right: 24,
-            bottom: 38,
-            child: _buildFuturisticLoadingSection(),
+            bottom: 48,
+            left: 36,
+            right: 36,
+            child: AnimatedBuilder(
+              animation: _splashProgressController,
+              builder: (context, child) {
+                final progress = _splashProgressController.value;
+                final percentage = (progress * 100).toInt();
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Dynamic Status Text
+                    Text(
+                      _getStatusText(progress),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? secondaryTextColor : const Color(0xFF1E3A8A),
+                        letterSpacing: 0.1,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Progress Track & Bar
+                    Container(
+                      height: 8,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF0F1B4C)
+                            : const Color(0xFFE2E8F5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Stack(
+                        children: [
+                          FractionallySizedBox(
+                            alignment: AlignmentDirectional.centerStart,
+                            widthFactor: progress.clamp(0.0, 1.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: isDark
+                                      ? [
+                                          AppColors.primaryBlue,
+                                          AppColors.cyanElectric,
+                                        ]
+                                      : [
+                                          const Color(0xFF3B82F6),
+                                          const Color(0xFF1D4ED8),
+                                        ],
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: brandPrimary.withValues(
+                                      alpha: isDark ? 0.5 : 0.35,
+                                    ),
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Progress Counter
+                    Text(
+                      '$percentage%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: primaryTextColor,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  /// Ambient background aurora blooms
-  Widget _buildAmbientGlowBlooms(Size size) {
-    return AnimatedBuilder(
-      animation: _ringsPulseController,
-      builder: (context, child) {
-        final double pulse = _ringsPulseController.value;
-        return Stack(
-          children: [
-            // Top-right cyan aurora
-            Positioned(
-              top: -60,
-              right: -60,
-              child: Container(
-                width: 340 + (pulse * 30),
-                height: 340 + (pulse * 30),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      kCyanElectric.withValues(alpha: 0.18 + (pulse * 0.08)),
-                      kBlueRoyal.withValues(alpha: 0.05),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
+  Widget _buildAmbientGlowBlooms(bool isDark) {
+    final cyanGlow = isDark
+        ? AppColors.cyanElectric.withValues(alpha: 0.16)
+        : const Color(0xFF38BDF8).withValues(alpha: 0.20);
+    final greenGlow = isDark
+        ? AppColors.accentGreenNeon.withValues(alpha: 0.14)
+        : const Color(0xFF34D399).withValues(alpha: 0.18);
+
+    return Stack(
+      children: [
+        Positioned(
+          top: -120,
+          right: -120,
+          child: Container(
+            width: 400,
+            height: 400,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [cyanGlow, Colors.transparent],
               ),
             ),
-            // Bottom-left green neon aurora
-            Positioned(
-              bottom: -40,
-              left: -50,
-              child: Container(
-                width: 320 + (pulse * 25),
-                height: 320 + (pulse * 25),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      kGreenNeon.withValues(alpha: 0.15 + (pulse * 0.06)),
-                      kCyanElectric.withValues(alpha: 0.04),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            // Center radial background illumination
-            Center(
-              child: Container(
-                width: 440,
-                height: 440,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      kBlueRoyal.withValues(alpha: 0.26 + (pulse * 0.08)),
-                      kNavyDeep.withValues(alpha: 0.45),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// Builds the perfectly centered concentric rings and the logo right in the middle
-  Widget _buildCenteredTargetAndLogo() {
-    return AnimatedBuilder(
-      animation: _ringsPulseController,
-      builder: (context, child) {
-        final double pulse = _ringsPulseController.value;
-        return Center(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Outer Glowing Ring
-              Container(
-                width: 310 + (pulse * 18),
-                height: 310 + (pulse * 18),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: kCyanElectric.withValues(alpha: 0.14 + (pulse * 0.08)),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: kCyanElectric.withValues(alpha: 0.06 + (pulse * 0.05)),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-              ),
-
-              // Middle Neon Green Target Ring
-              Container(
-                width: 250 + (pulse * 12),
-                height: 250 + (pulse * 12),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: kGreenNeon.withValues(alpha: 0.20 + (pulse * 0.10)),
-                    width: 1.5,
-                  ),
-                ),
-              ),
-
-              // Inner Concentric Cyan Ring
-              Container(
-                width: 190 + (pulse * 8),
-                height: 190 + (pulse * 8),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: kCyanElectric.withValues(alpha: 0.25 + (pulse * 0.12)),
-                    width: 2.0,
-                  ),
-                ),
-              ),
-
-              // 3D Centered Logo (Cleanly in the dead center of the concentric rings)
-              AnimatedBuilder(
-                animation: _entranceController,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _logoScaleAnimation.value,
-                    child: Opacity(
-                      opacity: _logoFadeAnimation.value,
-                      child: child,
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 210,
-                  height: 210,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: kCyanElectric.withValues(alpha: 0.35),
-                        blurRadius: 45,
-                        spreadRadius: 4,
-                      ),
-                      BoxShadow(
-                        color: kGreenNeon.withValues(alpha: 0.25),
-                        blurRadius: 65,
-                        spreadRadius: -2,
-                      ),
-                    ],
-                  ),
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: kNavyDeep,
-                          border: Border.all(color: kCyanElectric, width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.track_changes_rounded,
-                          size: 96,
-                          color: kCyanElectric,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
           ),
-        );
-      },
+        ),
+        Positioned(
+          bottom: -100,
+          left: -100,
+          child: Container(
+            width: 380,
+            height: 380,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [greenGlow, Colors.transparent],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  /// Builds symbols that continuously rise and drift from bottom to top
-  List<Widget> _buildRisingFloatingSymbols(Size size) {
-    return _symbols.map((config) {
-      return AnimatedBuilder(
-        animation: _risingSymbolsController,
-        builder: (context, child) {
-          final double progress = _risingSymbolsController.value;
+  Widget _buildPulsingTargetRings(
+    double pulseValue,
+    bool isDark,
+    Color brandPrimary,
+  ) {
+    final ring1Radius = 170.0 + (pulseValue * 12.0);
+    final ring2Radius = 220.0 + (pulseValue * 18.0);
+    final ring3Radius = 270.0 + (pulseValue * 24.0);
 
-          // Compute continuous vertical rising position with wrapping
-          final double rawY = (config.ySeed - (progress * config.floatSpeed)) % 1.0;
-          final double currentYRatio = rawY < 0 ? rawY + 1.0 : rawY;
-          final double currentY = currentYRatio * size.height;
-
-          // Horizontal sine-wave wobble
-          final double t = (progress * 4 * math.pi) + (config.ySeed * 2 * math.pi);
-          final double dx = math.sin(t) * config.horizontalWobble;
-          final double currentX = (size.width * config.xRatio) + dx;
-
-          // Rotation
-          final double rotation = math.cos(t) * 0.15 * config.rotationMultiplier;
-
-          // Smooth edge fading near top and bottom
-          double opacity = config.baseOpacity;
-          if (currentYRatio < 0.12) {
-            opacity *= (currentYRatio / 0.12);
-          } else if (currentYRatio > 0.88) {
-            opacity *= ((1.0 - currentYRatio) / 0.12);
-          }
-
-          return Positioned(
-            left: currentX - (config.size / 2),
-            top: currentY - (config.size / 2),
-            child: Opacity(
-              opacity: opacity.clamp(0.0, 1.0),
-              child: Transform.rotate(
-                angle: rotation,
-                child: config.hasGlassFrame
-                    ? Container(
-                        padding: const EdgeInsets.all(9),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F1B4C).withValues(alpha: 0.60),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: config.color.withValues(alpha: 0.35),
-                            width: 1.2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: config.color.withValues(alpha: 0.20),
-                              blurRadius: 10,
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          config.icon,
-                          size: config.size,
-                          color: config.color,
-                        ),
-                      )
-                    : Icon(
-                        config.icon,
-                        size: config.size,
-                        color: config.color,
-                      ),
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Outer Ring 3
+        Container(
+          width: ring3Radius,
+          height: ring3Radius,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: brandPrimary.withValues(
+                alpha: (0.16 - (pulseValue * 0.04)).clamp(0.03, 0.20),
               ),
+              width: 1.0,
             ),
-          );
-        },
+          ),
+        ),
+
+        // Middle Ring 2
+        Container(
+          width: ring2Radius,
+          height: ring2Radius,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: brandPrimary.withValues(
+                alpha: (0.22 - (pulseValue * 0.06)).clamp(0.06, 0.28),
+              ),
+              width: 1.2,
+            ),
+          ),
+        ),
+
+        // Inner Ring 1
+        Container(
+          width: ring1Radius,
+          height: ring1Radius,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: brandPrimary.withValues(
+                alpha: (0.32 - (pulseValue * 0.08)).clamp(0.10, 0.40),
+              ),
+              width: 1.5,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Custom painter rendering rising productivity particles
+class _RisingSymbolsPainter extends CustomPainter {
+  final double progress;
+  final List<RisingSymbolConfig> symbols;
+  final bool isDark;
+
+  _RisingSymbolsPainter({
+    required this.progress,
+    required this.symbols,
+    required this.isDark,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final config in symbols) {
+      final effectiveProgress = (progress * config.floatSpeed + config.ySeed) % 1.0;
+      final y = size.height * (1.0 - effectiveProgress);
+
+      final wobble = math.sin(effectiveProgress * 2 * math.pi) * config.horizontalWobble;
+      final x = size.width * config.xRatio + wobble;
+
+      double opacity = config.baseOpacity;
+      if (effectiveProgress < 0.15) {
+        opacity *= (effectiveProgress / 0.15);
+      } else if (effectiveProgress > 0.85) {
+        opacity *= ((1.0 - effectiveProgress) / 0.15);
+      }
+
+      final color = isDark ? config.darkColor : config.lightColor;
+
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: String.fromCharCode(config.icon.codePoint),
+          style: TextStyle(
+            fontSize: config.size,
+            fontFamily: config.icon.fontFamily,
+            package: config.icon.fontPackage,
+            color: color.withValues(alpha: opacity.clamp(0.0, 1.0)),
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      textPainter.paint(
+        canvas,
+        Offset(x - textPainter.width / 2, y - textPainter.height / 2),
       );
-    }).toList();
+    }
   }
 
-  /// Futuristic neon gradient progress bar with live percentage and stage sequencer
-  Widget _buildFuturisticLoadingSection() {
-    return AnimatedBuilder(
-      animation: _splashProgressController,
-      builder: (context, child) {
-        final double progress = _splashProgressController.value.clamp(0.0, 1.0);
-        final int percent = (progress * 100).toInt();
-
-        // 4-Stage Dynamic Status Strings aligned with the 5.0 seconds duration
-        String statusText;
-        if (progress < 0.30) {
-          statusText = '⚡ Initializing smart task engine...';
-        } else if (progress < 0.60) {
-          statusText = '🎯 Syncing habits & focus streaks...';
-        } else if (progress < 0.90) {
-          statusText = '🚀 Preparing your daily workspace...';
-        } else {
-          statusText = '✨ Ready to focus!';
-        }
-
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Top Row: Dynamic Stage Title & Live Percentage
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    statusText,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: kTextSlate,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                  Text(
-                    '$percent%',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: kCyanElectric,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Neon Glowing Multi-Stop Gradient Track
-            Container(
-              height: 7,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFF0D1845),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: kCyanElectric.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                  ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  FractionallySizedBox(
-                    widthFactor: progress,
-                    heightFactor: 1.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            kBlueRoyal,
-                            kCyanElectric,
-                            kGreenNeon,
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: kGreenNeon.withValues(alpha: 0.6),
-                            blurRadius: 10,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  @override
+  bool shouldRepaint(covariant _RisingSymbolsPainter oldDelegate) => true;
 }

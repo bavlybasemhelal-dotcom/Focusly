@@ -1,25 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../core/localization/app_localizations.dart';
+import '../core/theme/app_colors.dart';
+import '../features/settings/settings_page.dart';
 import 'login_screen.dart';
 
-// ==============================================================================
-// FOCUSLY COLOR PALETTE (Matched with Splash, Onboarding, Login & Signup)
-// ==============================================================================
-const Color kBgDark = Color(0xFF060B24);
-const Color kBgMidnight = Color(0xFF0B1647);
-const Color kNavyDeep = Color(0xFF08123A);
-const Color kCyanElectric = Color(0xFF00E5FF);
-const Color kBlueSky = Color(0xFF29A9FF);
-const Color kBlueRoyal = Color(0xFF1E58F6);
-const Color kGreenNeon = Color(0xFF4ADE80);
-const Color kGreenVibrant = Color(0xFF22C55E);
-const Color kAmberGold = Color(0xFFFFB020);
-const Color kTextWhite = Color(0xFFFFFFFF);
-const Color kTextSlate = Color(0xFF94A3B8);
-const Color kErrorRed = Color(0xFFE5484D);
-
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
-/// and tab view switching styled with the midnight-neon aesthetic.
+/// and tab view switching with rich Light and Dark mode aesthetics.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -32,8 +19,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = AppColors.textSecondary(context);
+    final brandPrimary = AppColors.brandPrimary(context);
+    final drawerBg = isDark ? const Color(0xFF08123A) : Colors.white;
+    final bottomBarBg = isDark ? const Color(0xFF0A1238) : Colors.white.withValues(alpha: 0.95);
+    final borderColor = AppColors.border(context);
+
     // Current user reference from Firebase Authentication (safely wrapped for tests)
-    String displayName = 'there';
+    String displayName = context.tr('there');
     String userEmail = 'user@focusly.com';
 
     try {
@@ -50,10 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: kBgDark,
+      backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
 
       // -----------------------------------------------------------------------
-      // 1. APP BAR (Glassmorphic & Transparent)
+      // 1. APP BAR (Glassmorphic in Dark / Frosted Glow in Light)
       // -----------------------------------------------------------------------
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -62,30 +56,43 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         title: const SizedBox.shrink(),
         leading: Builder(
-          builder: (context) {
+          builder: (builderContext) {
             return Padding(
-              padding: const EdgeInsets.only(left: 12.0),
+              padding: const EdgeInsetsDirectional.only(start: 16.0),
               child: Center(
                 child: Container(
-                  width: 40,
-                  height: 40,
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F1B4C).withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(12),
+                    color: isDark
+                        ? const Color(0xFF0F1B4C).withValues(alpha: 0.6)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.12),
-                      width: 1,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.12)
+                          : const Color(0xFFDBEAFE),
+                      width: 1.2,
                     ),
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                   ),
                   child: IconButton(
                     padding: EdgeInsets.zero,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.menu_rounded,
-                      color: kCyanElectric,
+                      color: brandPrimary,
                       size: 22,
                     ),
                     onPressed: () {
-                      Scaffold.of(context).openDrawer();
+                      Scaffold.of(builderContext).openDrawer();
                     },
                     tooltip: 'Open navigation menu',
                   ),
@@ -96,30 +103,43 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: const EdgeInsetsDirectional.only(end: 16.0),
             child: Center(
               child: Container(
-                width: 40,
-                height: 40,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F1B4C).withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(12),
+                  color: isDark
+                      ? const Color(0xFF0F1B4C).withValues(alpha: 0.6)
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.12),
-                    width: 1,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.12)
+                        : const Color(0xFFDBEAFE),
+                    width: 1.2,
                   ),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                            BoxShadow(
+                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.settings_outlined,
-                    color: kCyanElectric,
+                    color: brandPrimary,
                     size: 20,
                   ),
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const SettingsScreen(),
+                        builder: (context) => const SettingsPage(),
                       ),
                     );
                   },
@@ -132,17 +152,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // -----------------------------------------------------------------------
-      // 2. NAVIGATION DRAWER (Midnight Glassmorphic Style)
+      // 2. NAVIGATION DRAWER (Midnight Neon / Radiant Brand Blue Header)
       // -----------------------------------------------------------------------
       drawer: Drawer(
-        backgroundColor: const Color(0xFF08123A),
+        backgroundColor: drawerBg,
         child: Container(
           decoration: BoxDecoration(
             border: Border(
-              right: BorderSide(
-                color: Colors.white.withValues(alpha: 0.1),
-                width: 1,
-              ),
+              right: BorderSide(color: borderColor, width: 1),
             ),
           ),
           child: Column(
@@ -150,37 +167,46 @@ class _HomeScreenState extends State<HomeScreen> {
               // Drawer Header with User Info
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
+                padding: const EdgeInsets.fromLTRB(22, 64, 22, 28),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [kNavyDeep, kBgMidnight],
+                  gradient: LinearGradient(
+                    colors: isDark
+                        ? [const Color(0xFF08123A), const Color(0xFF0B1647)]
+                        : [const Color(0xFF2563EB), const Color(0xFF1D4ED8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      width: 1,
-                    ),
-                  ),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: const Color(0xFF2563EB).withValues(alpha: 0.25),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Avatar Circle
                     Container(
-                      width: 58,
-                      height: 58,
+                      width: 60,
+                      height: 60,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF0F1B4C),
+                        color: isDark
+                            ? const Color(0xFF0F1B4C)
+                            : Colors.white,
                         border: Border.all(
-                          color: kCyanElectric,
-                          width: 2,
+                          color: isDark ? AppColors.cyanElectric : const Color(0xFF93C5FD),
+                          width: 2.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: kCyanElectric.withValues(alpha: 0.3),
+                            color: isDark
+                                ? AppColors.cyanElectric.withValues(alpha: 0.3)
+                                : Colors.black.withValues(alpha: 0.12),
                             blurRadius: 16,
                           ),
                         ],
@@ -190,23 +216,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           displayName.isNotEmpty
                               ? displayName.substring(0, 1).toUpperCase()
                               : 'F',
-                          style: const TextStyle(
-                            fontSize: 24,
+                          style: TextStyle(
+                            fontSize: 26,
                             fontWeight: FontWeight.w900,
-                            color: kCyanElectric,
+                            color: isDark ? AppColors.cyanElectric : const Color(0xFF1D4ED8),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
 
                     // User Display Name
                     Text(
                       displayName,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18,
-                        color: kTextWhite,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 20,
+                        color: Colors.white,
                         letterSpacing: -0.3,
                       ),
                     ),
@@ -215,21 +241,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     // User Email
                     Text(
                       userEmail,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: kTextSlate,
+                        color: isDark ? AppColors.darkTextSecondary : const Color(0xFFDBEAFE),
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
               // Navigation Menu Items
               _buildDrawerItem(
+                context: context,
                 icon: Icons.home_rounded,
-                title: 'Home',
+                title: context.tr('home'),
                 isSelected: _currentTabIndex == 0,
                 onTap: () {
                   Navigator.of(context).pop();
@@ -239,50 +267,49 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
               _buildDrawerItem(
+                context: context,
                 icon: Icons.settings_outlined,
-                title: 'Settings',
+                title: context.tr('settings'),
                 isSelected: false,
                 onTap: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
+                      builder: (context) => const SettingsPage(),
                     ),
                   );
                 },
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                child: Divider(
-                  color: Colors.white.withValues(alpha: 0.08),
-                  height: 1,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                child: Divider(color: borderColor, height: 1),
               ),
 
               const Spacer(),
 
               // Log Out Item
               _buildDrawerItem(
+                context: context,
                 icon: Icons.logout_rounded,
-                title: 'Log Out',
+                title: context.tr('log_out'),
                 isSelected: false,
                 isDestructive: true,
                 onTap: _confirmLogout,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
             ],
           ),
         ),
       ),
 
       // -----------------------------------------------------------------------
-      // 3. BODY (IndexedStack + Ambient Aurora Glows)
+      // 3. BODY (Atmospheric Light/Dark Aurora Glows + IndexedStack)
       // -----------------------------------------------------------------------
       body: Stack(
         children: [
           // Ambient Aurora Background Blooms
-          _buildAmbientGlowBlooms(),
+          _buildAmbientGlowBlooms(isDark),
 
           // IndexedStack Content
           IndexedStack(
@@ -298,20 +325,22 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // -----------------------------------------------------------------------
-      // 4. BOTTOM NAVIGATION BAR (Midnight Glow Style)
+      // 4. BOTTOM NAVIGATION BAR (Vibrant Frosted Pill Navigation)
       // -----------------------------------------------------------------------
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF0A1238),
+          color: bottomBarBg,
           border: Border(
             top: BorderSide(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F5),
               width: 1,
             ),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.35),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.35)
+                  : const Color(0xFF2E6FF2).withValues(alpha: 0.06),
               blurRadius: 20,
               offset: const Offset(0, -4),
             ),
@@ -326,38 +355,38 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
-          selectedItemColor: kCyanElectric,
-          unselectedItemColor: kTextSlate,
+          selectedItemColor: brandPrimary,
+          unselectedItemColor: secondaryTextColor,
           selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
             fontSize: 12,
             letterSpacing: 0.2,
           ),
           unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontSize: 12,
           ),
           elevation: 0,
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Home',
+              icon: const Icon(Icons.home_outlined),
+              activeIcon: const Icon(Icons.home_rounded),
+              label: context.tr('home'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.check_circle_outline_rounded),
-              activeIcon: Icon(Icons.check_circle_rounded),
-              label: 'Tasks',
+              icon: const Icon(Icons.check_circle_outline_rounded),
+              activeIcon: const Icon(Icons.check_circle_rounded),
+              label: context.tr('tasks'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.local_fire_department_outlined),
-              activeIcon: Icon(Icons.local_fire_department_rounded),
-              label: 'Habits',
+              icon: const Icon(Icons.local_fire_department_outlined),
+              activeIcon: const Icon(Icons.local_fire_department_rounded),
+              label: context.tr('habits'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline_rounded),
-              activeIcon: Icon(Icons.person_rounded),
-              label: 'Profile',
+              icon: const Icon(Icons.person_outline_rounded),
+              activeIcon: const Icon(Icons.person_rounded),
+              label: context.tr('profile'),
             ),
           ],
         ),
@@ -366,39 +395,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Ambient background aurora light-blooms
-  Widget _buildAmbientGlowBlooms() {
+  Widget _buildAmbientGlowBlooms(bool isDark) {
+    final cyanGlow = isDark
+        ? AppColors.cyanElectric.withValues(alpha: 0.16)
+        : const Color(0xFF38BDF8).withValues(alpha: 0.18);
+    final greenGlow = isDark
+        ? AppColors.accentGreenNeon.withValues(alpha: 0.14)
+        : const Color(0xFF34D399).withValues(alpha: 0.16);
+
     return Stack(
       children: [
         Positioned(
-          top: -80,
-          right: -80,
+          top: -90,
+          right: -90,
+          child: Container(
+            width: 340,
+            height: 340,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [cyanGlow, Colors.transparent],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: -70,
+          left: -70,
           child: Container(
             width: 320,
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [
-                  kCyanElectric.withValues(alpha: 0.16),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: -60,
-          left: -60,
-          child: Container(
-            width: 300,
-            height: 300,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  kGreenNeon.withValues(alpha: 0.14),
-                  Colors.transparent,
-                ],
+                colors: [greenGlow, Colors.transparent],
               ),
             ),
           ),
@@ -409,68 +439,89 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Drawer Menu Item Builder
   Widget _buildDrawerItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required bool isSelected,
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = AppColors.textSecondary(context);
+    final brandPrimary = AppColors.brandPrimary(context);
+
     final Color itemColor = isDestructive
-        ? kErrorRed
-        : (isSelected ? kCyanElectric : kTextSlate);
+        ? AppColors.errorRed
+        : (isSelected ? brandPrimary : secondaryTextColor);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
+      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: isSelected
-            ? kCyanElectric.withValues(alpha: 0.12)
+            ? (isDark
+                ? brandPrimary.withValues(alpha: 0.14)
+                : const Color(0xFFEFF6FF))
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
+        border: isSelected && !isDark
+            ? Border.all(color: const Color(0xFFBFDBFE), width: 1)
+            : null,
       ),
       child: ListTile(
         leading: Icon(icon, color: itemColor, size: 22),
         title: Text(
           title,
           style: TextStyle(
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isDestructive ? kErrorRed : (isSelected ? kTextWhite : kTextSlate),
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            color: isDestructive
+                ? AppColors.errorRed
+                : (isSelected
+                    ? (isDark ? Colors.white : const Color(0xFF1D4ED8))
+                    : secondaryTextColor),
             fontSize: 14,
           ),
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
         ),
         onTap: onTap,
       ),
     );
   }
 
-  /// Shows confirmation dialog styled with dark midnight theme before logging out
+  /// Shows confirmation dialog before logging out
   Future<void> _confirmLogout() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
+    final primaryTextColor = AppColors.textPrimary(context);
+    final secondaryTextColor = AppColors.textSecondary(context);
+
     final bool? shouldLogout = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF0F1B4C),
+          backgroundColor: dialogBg,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(22),
             side: BorderSide(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : const Color(0xFFE2E8F5),
               width: 1.2,
             ),
           ),
-          title: const Text(
-            'Log Out',
+          title: Text(
+            context.tr('log_out_confirm_title'),
             style: TextStyle(
-              fontWeight: FontWeight.w800,
-              color: kTextWhite,
+              fontWeight: FontWeight.w900,
+              color: primaryTextColor,
               fontSize: 20,
             ),
           ),
-          content: const Text(
-            'Are you sure you want to log out of Focusly?',
+          content: Text(
+            context.tr('log_out_confirm_message'),
             style: TextStyle(
-              color: kTextSlate,
+              color: secondaryTextColor,
               fontSize: 14,
               height: 1.4,
             ),
@@ -478,10 +529,10 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text(
-                'Cancel',
+              child: Text(
+                context.tr('cancel'),
                 style: TextStyle(
-                  color: kTextSlate,
+                  color: secondaryTextColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -489,16 +540,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: kErrorRed,
+                backgroundColor: AppColors.errorRed,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Log Out',
-                style: TextStyle(fontWeight: FontWeight.w700),
+              child: Text(
+                context.tr('log_out'),
+                style: const TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
           ],
@@ -507,14 +558,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (shouldLogout == true) {
-      // 1. Sign out of Firebase
       try {
         await FirebaseAuth.instance.signOut();
       } catch (_) {}
 
       if (!mounted) return;
 
-      // 2. Navigate back to LoginScreen and clear entire navigation stack
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => const LoginScreen(),
@@ -526,50 +575,20 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // ==============================================================================
-// TAB 0: MINIMAL HOME GREETING CONTENT (Midnight-Neon Themed)
+// TAB 0: VIBRANT HOME GREETING & WORKSPACE HERO
 // ==============================================================================
 class _HomeTabContent extends StatelessWidget {
   final String userName;
 
   const _HomeTabContent({required this.userName});
 
-  /// Formats current date into e.g. "Sunday, August 23"
-  String _getFormattedDate() {
-    final now = DateTime.now();
-    const weekdayNames = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ];
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-
-    final weekday = weekdayNames[now.weekday - 1];
-    final month = monthNames[now.month - 1];
-    return '$weekday, $month ${now.day}';
-  }
-
   @override
   Widget build(BuildContext context) {
-    // TODO: This Home content is an intentionally minimal placeholder.
-    // Redesign with task summary cards, productivity stats, and active habits
-    // once the core feature modules are implemented.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryTextColor = AppColors.textPrimary(context);
+    final brandPrimary = AppColors.brandPrimary(context);
+    final localizedDate = AppLocalizations.of(context).formatLocalizedDate(DateTime.now());
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -578,42 +597,143 @@ class _HomeTabContent extends StatelessWidget {
           children: [
             // User Greeting Header
             Text(
-              'Hello, $userName 👋',
-              style: const TextStyle(
-                fontSize: 30,
+              '${context.tr('hello_greeting')}, $userName 👋',
+              style: TextStyle(
+                fontSize: 32,
                 fontWeight: FontWeight.w900,
-                color: kTextWhite,
-                letterSpacing: -0.7,
+                color: primaryTextColor,
+                letterSpacing: -0.8,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
-            // Date Badge Pill
+            // Date Badge Pill with Radiant Border & Soft Gradient
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F1B4C).withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(20),
+                gradient: isDark
+                    ? null
+                    : const LinearGradient(
+                        colors: [Color(0xFFFFFFFF), Color(0xFFF0F6FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                color: isDark ? const Color(0xFF0F1B4C).withValues(alpha: 0.6) : null,
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  width: 1,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : const Color(0xFFBFDBFE),
+                  width: 1.2,
                 ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.calendar_today_rounded,
-                    size: 14,
-                    color: kCyanElectric,
+                    size: 15,
+                    color: brandPrimary,
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    _getFormattedDate(),
-                    style: const TextStyle(
+                    localizedDate,
+                    style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: kTextSlate,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? AppColors.darkTextSecondary : const Color(0xFF1E40AF),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // Radiant Focus Workspace Banner
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                gradient: isDark
+                    ? const LinearGradient(
+                        colors: [Color(0xFF0F1B4C), Color(0xFF0B1647)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : const LinearGradient(
+                        colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: isDark
+                      ? AppColors.cyanElectric.withValues(alpha: 0.25)
+                      : const Color(0xFF93C5FD),
+                  width: 1.4,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.10),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: isDark
+                          ? const LinearGradient(
+                              colors: [Color(0xFF00E5FF), Color(0xFF1E58F6)],
+                            )
+                          : const LinearGradient(
+                              colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                            ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDark
+                              ? AppColors.cyanElectric.withValues(alpha: 0.4)
+                              : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                          blurRadius: 12,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('focus_workspace_ready'),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -634,14 +754,13 @@ class _TasksTabPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with full Tasks list, filter tabs, and creation flows
-    return const Center(
+    return Center(
       child: Text(
-        'Tasks',
+        context.tr('tasks'),
         style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w800,
-          color: kTextWhite,
+          fontWeight: FontWeight.w900,
+          color: AppColors.textPrimary(context),
         ),
       ),
     );
@@ -656,14 +775,13 @@ class _HabitsTabPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with Habit tracking heatmaps, streak rings, and daily check-ins
-    return const Center(
+    return Center(
       child: Text(
-        'Habits',
+        context.tr('habits'),
         style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w800,
-          color: kTextWhite,
+          fontWeight: FontWeight.w900,
+          color: AppColors.textPrimary(context),
         ),
       ),
     );
@@ -678,55 +796,13 @@ class _ProfileTabPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with user profile statistics, badges, and account options
-    return const Center(
+    return Center(
       child: Text(
-        'Profile',
+        context.tr('profile'),
         style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w800,
-          color: kTextWhite,
-        ),
-      ),
-    );
-  }
-}
-
-// ==============================================================================
-// SETTINGS SCREEN PLACEHOLDER (Midnight-Neon Themed)
-// ==============================================================================
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: Build full app settings, notifications, theme, and data management
-    return Scaffold(
-      backgroundColor: kBgDark,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            color: kTextWhite,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: kCyanElectric),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: const Center(
-        child: Text(
-          'Settings',
-          style: TextStyle(
-            fontSize: 20,
-            color: kTextSlate,
-            fontWeight: FontWeight.w600,
-          ),
+          fontWeight: FontWeight.w900,
+          color: AppColors.textPrimary(context),
         ),
       ),
     );
