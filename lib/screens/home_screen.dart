@@ -6,6 +6,7 @@ import '../features/settings/settings_page.dart';
 import '../features/tasks/tasks_screen.dart';
 import '../features/schedule/schedule_screen.dart';
 import '../features/habits/habits_screen.dart';
+import '../features/pomodoro/pomodoro_screen.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -307,6 +308,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               _buildDrawerItem(
                 context: context,
+                icon: Icons.timer_outlined,
+                title: context.tr('pomodoro'),
+                isSelected: _currentTabIndex == 4,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    _currentTabIndex = 4;
+                  });
+                },
+              ),
+              _buildDrawerItem(
+                context: context,
                 icon: Icons.settings_outlined,
                 title: context.tr('settings'),
                 isSelected: false,
@@ -358,6 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const TasksScreen(),
               const ScheduleScreen(),
               const HabitsScreen(),
+              const PomodoroScreen(),
               const _ProfileTabPlaceholder(),
             ],
           ),
@@ -399,12 +413,12 @@ class _HomeScreenState extends State<HomeScreen> {
           unselectedItemColor: secondaryTextColor,
           selectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.w800,
-            fontSize: 11,
+            fontSize: 10,
             letterSpacing: 0.1,
           ),
           unselectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: 11,
+            fontSize: 10,
           ),
           elevation: 0,
           items: [
@@ -427,6 +441,11 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.local_fire_department_outlined),
               activeIcon: const Icon(Icons.local_fire_department_rounded),
               label: context.tr('habits'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.timer_outlined),
+              activeIcon: const Icon(Icons.timer_rounded),
+              label: context.tr('pomodoro'),
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.person_outline_rounded),

@@ -10,6 +10,7 @@ import 'package:focusly/features/settings/settings_page.dart';
 import 'package:focusly/features/tasks/tasks_screen.dart';
 import 'package:focusly/features/schedule/schedule_screen.dart';
 import 'package:focusly/features/habits/habits_screen.dart';
+import 'package:focusly/features/pomodoro/pomodoro_screen.dart';
 import 'package:focusly/screens/home_screen.dart';
 import 'package:focusly/screens/login_screen.dart';
 import 'package:focusly/screens/onboarding_screen.dart';
@@ -258,12 +259,17 @@ void main() {
       await tester.pump();
       expect(find.text('Habits'), findsWidgets);
 
-      // 5. Switch to Profile tab
+      // 5. Switch to Pomodoro tab
+      await tester.tap(find.text('Pomodoro'));
+      await tester.pump();
+      expect(find.text('Pomodoro'), findsWidgets);
+
+      // 6. Switch to Profile tab
       await tester.tap(find.text('Profile'));
       await tester.pump();
       expect(find.text('Profile'), findsWidgets);
 
-      // 6. Open Navigation Drawer
+      // 7. Open Navigation Drawer
       await tester.tap(find.byTooltip('Open navigation menu'));
       await tester.pumpAndSettle();
       expect(find.byType(Drawer), findsOneWidget);
@@ -539,7 +545,53 @@ void main() {
       expect(find.text('Create Habit'), findsOneWidget);
     });
   });
+
+  group('Focusly Pomodoro Module Tests', () {
+    testWidgets('Renders PomodoroScreen, circular ring, controls, and opens settings sheet',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const PomodoroScreen(),
+        ),
+      );
+      await tester.pump();
+
+      // Verify Header Title & Subtitle
+      expect(find.text('Pomodoro'), findsOneWidget);
+      expect(find.text('Focus cycles & deep work'), findsOneWidget);
+
+      // Verify Circular Ring MM:SS and Phase Badge
+      expect(find.text('25:00'), findsOneWidget);
+      expect(find.text('Focus Time'), findsOneWidget);
+
+      // Verify Link Task chip
+      expect(find.text('Link a task (Optional)'), findsOneWidget);
+
+      // Verify Today's Stats & Weekly Chart
+      expect(find.textContaining('sessions today'), findsOneWidget);
+      expect(find.textContaining('minutes focused today'), findsOneWidget);
+      expect(find.text('Weekly Focus Activity'), findsOneWidget);
+
+      // Verify Action Controls (Play, Reset, Skip)
+      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.replay_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.skip_next_rounded), findsOneWidget);
+
+      // Open Settings Sheet
+      await tester.tap(find.byIcon(Icons.tune_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pomodoro Settings'), findsOneWidget);
+      expect(find.text('Focus Duration'), findsOneWidget);
+      expect(find.text('Short Break Duration'), findsOneWidget);
+      expect(find.text('Long Break Duration'), findsOneWidget);
+      expect(find.text('Sessions Until Long Break'), findsOneWidget);
+      expect(find.text('Auto-start Next Phase'), findsOneWidget);
+      expect(find.text('Save Settings'), findsOneWidget);
+    });
+  });
 }
+
 
 
 
