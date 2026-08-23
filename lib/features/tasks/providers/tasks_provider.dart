@@ -8,6 +8,8 @@ import '../models/category_model.dart';
 import '../models/task_model.dart';
 import '../services/task_notification_service.dart';
 import '../../progress/services/progress_service.dart';
+import '../../groups/services/challenge_service.dart';
+import '../../groups/services/group_feed_service.dart';
 
 /// Available view modes in the Tasks screen
 enum TasksViewMode {
@@ -184,6 +186,14 @@ class TasksController {
     // XP award and Achievement check hook: +10 XP for completing task
     if (updated.done) {
       ProgressService().awardXp(10);
+
+      // Group feed hook & Challenge progress sync
+      GroupFeedService().pushToAllUserGroups(
+        type: 'task_milestone',
+        message: 'Completed task: "${updated.title}"! 🎯',
+        icon: '🎯',
+      );
+      ChallengeService().triggerProgressSync();
     }
   }
 

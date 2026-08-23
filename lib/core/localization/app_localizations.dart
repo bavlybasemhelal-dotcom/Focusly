@@ -416,6 +416,135 @@ class AppLocalizations {
       'achieve_perfect_week_desc':
           'Completed tasks on 7 consecutive days',
 
+      // Groups & Challenges Feature
+      'groups': 'Groups',
+      'groups_and_challenges_title': 'Groups & Challenges',
+      'groups_subtitle': 'Collaborate, compete, and level up together',
+      'create_group_btn': 'Create Group',
+      'join_group_btn': 'Join Group',
+      'create_first_group_btn': 'Create Your First Group',
+      'empty_groups_title': 'No Groups Yet',
+      'empty_groups_subtitle':
+          'Create a group with friends or join an existing one with an invite code!',
+      'groups_load_error': 'Failed to load groups',
+      'group_load_error': 'Failed to load group details',
+      'new_activity_badge': 'NEW',
+      'members_label': 'members',
+
+      // Create Group Modal
+      'create_group_title': 'Create New Group',
+      'create_group_subtitle':
+          'Form a squad to boost productivity together',
+      'group_icon_label': 'Group Icon',
+      'group_name_label': 'Group Name',
+      'group_name_hint': 'e.g. Morning Routine Squad',
+      'group_name_required': 'Please enter a group name',
+      'group_desc_label': 'Description (Optional)',
+      'group_desc_hint': 'What is this group about?',
+      'group_cap_reached':
+          'You have reached the maximum limit of 5 groups.',
+
+      // Join Group Modal
+      'join_group_title': 'Join a Group',
+      'join_group_subtitle': 'Enter the group invite code to join',
+      'invite_code_label': 'Invite Code',
+      'invite_code_required': 'Please enter the invite code',
+      'group_not_found': 'No group found with this invite code',
+      'group_is_full': 'This group is full (max 20 members)',
+      'already_member':
+          'You are already an approved member of this group',
+      'already_pending':
+          'Your join request is already pending admin review',
+      'send_join_request_btn': 'Send Join Request',
+      'join_request_sent_success':
+          'Join request sent! An admin will review it.',
+
+      // Group Detail & Tabs
+      'copy_btn': 'Copy',
+      'invite_code_copied': 'Invite code copied to clipboard!',
+      'tab_group_feed': 'Feed',
+      'tab_group_leaderboard': 'Leaderboard',
+      'tab_group_challenges': 'Challenges',
+      'tab_group_members': 'Members',
+
+      // Feed Tab
+      'group_stat_weekly_xp': 'Weekly XP',
+      'group_stat_active_members': 'Active',
+      'group_stat_activities': 'Activities',
+      'group_activity_feed_title': 'Group Activity',
+      'empty_feed_title': 'No Activity Yet',
+      'empty_feed_subtitle':
+          'Milestones, level ups, and challenge events will appear here!',
+      'feed_load_error': 'Failed to load group feed',
+
+      // Leaderboard Tab
+      'leaderboard_weekly_notice':
+          'Leaderboard resets weekly • Keep the momentum!',
+      'no_leaderboard_members': 'No members on the leaderboard yet',
+      'you_badge': 'YOU',
+      'role_admin': 'Admin',
+      'role_member': 'Member',
+
+      // Challenges Tab
+      'create_challenge_btn': 'Create Challenge',
+      'create_challenge_title': 'Create Group Challenge',
+      'create_challenge_subtitle':
+          'Challenge your group to achieve new heights',
+      'challenge_title_label': 'Challenge Title',
+      'challenge_title_hint': 'e.g. 50 Tasks Sprint',
+      'challenge_title_required': 'Please enter a challenge title',
+      'challenge_type_label': 'Challenge Goal Type',
+      'challenge_type_tasks': 'Tasks',
+      'challenge_type_habits': 'Habits',
+      'challenge_type_xp': 'XP',
+      'challenge_goal_label': 'Target Amount',
+      'invalid_goal': 'Please enter a valid goal greater than 0',
+      'challenge_duration_label': 'Duration',
+      'days_short': 'Days',
+      'launch_challenge_btn': 'Launch Challenge 🚀',
+      'challenge_created_success':
+          'Challenge created and announced to the group!',
+      'active_challenges_title': 'Active Challenges',
+      'finished_challenges_title': 'Finished Challenges',
+      'no_active_challenges_title': 'No Active Challenges',
+      'no_active_challenges_subtitle':
+          'Launch a new competition to challenge your members!',
+      'goal_prefix': 'Goal',
+      'left_short': 'left',
+      'participants_label': 'participants',
+      'join_btn': 'Join',
+      'joined_challenge_success':
+          'You joined the challenge! Good luck!',
+      'winner_prefix': 'Winner',
+      'challenge_ended_no_winner': 'Challenge ended without winners',
+      'challenge_victory_title': 'CHAMPION! 🏆',
+      'challenge_victory_msg': 'Congratulations! You won the challenge',
+      'celebrate_btn': 'Celebrate! 🎉',
+      'challenges_load_error': 'Failed to load challenges',
+
+      // Members Tab
+      'pending_requests_title': 'Pending Requests',
+      'members_title': 'Members',
+      'members_load_error': 'Failed to load group members',
+      'approve_btn': 'Approve',
+      'reject_btn': 'Reject',
+      'remove_member_btn': 'Remove',
+      'remove_member_title': 'Remove Member',
+      'remove_member_confirm': 'Are you sure you want to remove',
+      'leave_group_btn': 'Leave Group',
+      'leave_group_title': 'Leave Group',
+      'leave_group_confirm':
+          'Are you sure you want to leave this group?',
+      'delete_group_btn': 'Delete Group',
+      'delete_group_title': 'Delete Group',
+      'delete_group_confirm':
+          'Are you sure you want to permanently delete this group? This action cannot be undone.',
+
+      // Settings Integration
+      'group_activity_setting': 'Group Activity Badges',
+      'group_activity_setting_desc':
+          'Show unread badges for new group feed activity',
+
       // Settings Main
       'settings_title': 'Settings',
       'account_section': 'Account',
@@ -908,6 +1037,136 @@ class AppLocalizations {
       'achieve_early_bird_desc': 'أضفت مهمة قبل الساعة 7 صباحاً',
       'achieve_perfect_week_title': 'أسبوع مثالي',
       'achieve_perfect_week_desc': 'أكملت مهاماً لمدة 7 أيام متتالية',
+
+      // Groups & Challenges Feature
+      'groups': 'المجموعات',
+      'groups_and_challenges_title': 'المجموعات والتحديات',
+      'groups_subtitle': 'تعاون، نافس، وارتقِ بإنتاجيتك مع فريقك',
+      'create_group_btn': 'إنشاء مجموعة',
+      'join_group_btn': 'انضمام بمفتاح',
+      'create_first_group_btn': 'أنشئ مجموعتك الأولى',
+      'empty_groups_title': 'لا توجد مجموعات بعد',
+      'empty_groups_subtitle':
+          'أنشئ مجموعة مع أصدقائك أو انضم لمجموعة موجودة باستخدام رمز الدعوة!',
+      'groups_load_error': 'فشل في تحميل المجموعات',
+      'group_load_error': 'فشل في تحميل تفاصيل المجموعة',
+      'new_activity_badge': 'جديد',
+      'members_label': 'أعضاء',
+
+      // Create Group Modal
+      'create_group_title': 'إنشاء مجموعة جديدة',
+      'create_group_subtitle':
+          'كوّن فريقك لتحفيز الإنجاز والإنتاجية معاً',
+      'group_icon_label': 'أيقونة المجموعة',
+      'group_name_label': 'اسم المجموعة',
+      'group_name_hint': 'مثال: فريق الإنتاج الصباحي',
+      'group_name_required': 'يرجى إدخال اسم المجموعة',
+      'group_desc_label': 'الوصف (اختياري)',
+      'group_desc_hint': 'ما هو هدف هذه المجموعة؟',
+      'group_cap_reached':
+          'لقد وصلت للحد الأقصى المسموح به (5 مجموعات).',
+
+      // Join Group Modal
+      'join_group_title': 'الانضمام إلى مجموعة',
+      'join_group_subtitle':
+          'أدخل رمز الدعوة الخاص بالمجموعة للانضمام',
+      'invite_code_label': 'رمز الدعوة',
+      'invite_code_required': 'يرجى إدخال رمز الدعوة',
+      'group_not_found': 'لم يتم العثور على مجموعة بهذا الرمز',
+      'group_is_full': 'هذه المجموعة ممتلئة (الحد الأقصى 20 عضواً)',
+      'already_member':
+          'أنت عضو معتمد بالفعل في هذه المجموعة',
+      'already_pending':
+          'طلب انضمامك قيد مراجعة المشرف بالفعل',
+      'send_join_request_btn': 'إرسال طلب الانضمام',
+      'join_request_sent_success':
+          'تم إرسال طلب الانضمام! ستتم مراجعته من المشرف.',
+
+      // Group Detail & Tabs
+      'copy_btn': 'نسخ',
+      'invite_code_copied': 'تم نسخ رمز الدعوة إلى الحافظة!',
+      'tab_group_feed': 'النشاط',
+      'tab_group_leaderboard': 'المتصدرين',
+      'tab_group_challenges': 'التحديات',
+      'tab_group_members': 'الأعضاء',
+
+      // Feed Tab
+      'group_stat_weekly_xp': 'XP الأسبوعي',
+      'group_stat_active_members': 'النشطين',
+      'group_stat_activities': 'الأنشطة',
+      'group_activity_feed_title': 'سجل أنشطة المجموعة',
+      'empty_feed_title': 'لا توجد أنشطة بعد',
+      'empty_feed_subtitle':
+          'ستظهر هنا إنجازات الأعضاء، الترقية في المستويات، وأحداث التحديات!',
+      'feed_load_error': 'فشل في تحميل سجل الأنشطة',
+
+      // Leaderboard Tab
+      'leaderboard_weekly_notice':
+          'تتم إعادة ضبط لوحة المتصدرين أسبوعياً • حافظ على الزخم!',
+      'no_leaderboard_members': 'لا يوجد أعضاء في لوحة الصدارة بعد',
+      'you_badge': 'أنت',
+      'role_admin': 'مشرف',
+      'role_member': 'عضو',
+
+      // Challenges Tab
+      'create_challenge_btn': 'إنشاء تحدي جديد',
+      'create_challenge_title': 'إنشاء تحدي جماعي',
+      'create_challenge_subtitle':
+          'أطلق منافسة ممتعة لتحفيز أعضاء المجموعة',
+      'challenge_title_label': 'عنوان التحدي',
+      'challenge_title_hint': 'مثال: سباق 50 مهمة',
+      'challenge_title_required': 'يرجى إدخال عنوان التحدي',
+      'challenge_type_label': 'نوع هدف التحدي',
+      'challenge_type_tasks': 'المهام',
+      'challenge_type_habits': 'العادات',
+      'challenge_type_xp': 'نقاط XP',
+      'challenge_goal_label': 'الهدف المطلوب',
+      'invalid_goal': 'يرجى إدخال هدف صحيح أكبر من 0',
+      'challenge_duration_label': 'المدة',
+      'days_short': 'أيام',
+      'launch_challenge_btn': 'إطلاق التحدي 🚀',
+      'challenge_created_success':
+          'تم إنشاء التحدي وإعلانه لجميع الأعضاء!',
+      'active_challenges_title': 'التحديات النشطة',
+      'finished_challenges_title': 'التحديات المكتملة',
+      'no_active_challenges_title': 'لا توجد تحديات نشطة',
+      'no_active_challenges_subtitle':
+          'أطلق منافسة جديدة لتحدي أعضاء فريقك!',
+      'goal_prefix': 'الهدف',
+      'left_short': 'متبقي',
+      'participants_label': 'مشاركين',
+      'join_btn': 'انضمام',
+      'joined_challenge_success':
+          'انضممت إلى التحدي بنجاح! حظاً موفقاً!',
+      'winner_prefix': 'الفائز',
+      'challenge_ended_no_winner': 'انتهى التحدي دون فائزين',
+      'challenge_victory_title': 'البطل! 🏆',
+      'challenge_victory_msg': 'تهانينا! لقد فزت في التحدي',
+      'celebrate_btn': 'احتفال! 🎉',
+      'challenges_load_error': 'فشل في تحميل التحديات',
+
+      // Members Tab
+      'pending_requests_title': 'طلبات الانضمام المعلقة',
+      'members_title': 'الأعضاء',
+      'members_load_error': 'فشل في تحميل أعضاء المجموعة',
+      'approve_btn': 'قبول',
+      'reject_btn': 'رفض',
+      'remove_member_btn': 'إزالة',
+      'remove_member_title': 'إزالة العضو',
+      'remove_member_confirm': 'هل أنت متأكد من رغبتك في إزالة',
+      'leave_group_btn': 'مغادرة المجموعة',
+      'leave_group_title': 'مغادرة المجموعة',
+      'leave_group_confirm':
+          'هل أنت متأكد من رغبتك في مغادرة هذه المجموعة؟',
+      'delete_group_btn': 'حذف المجموعة',
+      'delete_group_title': 'حذف المجموعة نهائياً',
+      'delete_group_confirm':
+          'هل أنت متأكد من حذف هذه المجموعة نهائياً لجميع الأعضاء؟ لا يمكن التراجع عن هذا الإجراء.',
+
+      // Settings Integration
+      'group_activity_setting': 'شارات نشاط المجموعات',
+      'group_activity_setting_desc':
+          'إظهار شارة الأنشطة الجديدة في المجموعات',
 
       // Settings Main
       'settings_title': 'الإعدادات',

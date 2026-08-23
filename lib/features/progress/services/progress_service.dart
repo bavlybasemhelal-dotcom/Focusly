@@ -11,6 +11,8 @@ import '../models/achievement_model.dart';
 import '../models/achievements_data.dart';
 import '../models/level_logic.dart';
 import '../providers/progress_provider.dart';
+import '../../groups/services/challenge_service.dart';
+import '../../groups/services/group_feed_service.dart';
 
 /// Shared service for XP awards, level progression, and achievement verification.
 ///
@@ -39,6 +41,11 @@ class ProgressService {
   Future<void> awardXp(int amount, {BuildContext? context, WidgetRef? ref}) async {
     if (amount <= 0) return;
 
+    String? uid;
+    try {
+      uid = FirebaseAuth.instance.currentUser?.uid;
+    } catch (_) {}
+
     try {
       final doc = _progressDoc;
       if (doc != null) {
@@ -50,6 +57,26 @@ class ProgressService {
           SetOptions(merge: true),
         );
       }
+
+      // Group weeklyXP update & Challenge progress sync
+      if (uid != null && uid.isNotEmpty) {
+        final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        final groupIds = List<String>.from(userDoc.data()?['groupIds'] ?? []);
+        if (groupIds.isNotEmpty) {
+          final batch = FirebaseFirestore.instance.batch();
+          for (final gId in groupIds) {
+            final memberRef = FirebaseFirestore.instance
+                .collection('groups')
+                .doc(gId)
+                .collection('members')
+                .doc(uid);
+            batch.update(memberRef, {'weeklyXP': FieldValue.increment(amount)});
+          }
+          await batch.commit();
+        }
+      }
+
+      ChallengeService().triggerProgressSync();
     } catch (_) {}
 
     if (context != null && ref != null && context.mounted) {
@@ -111,6 +138,15 @@ class ProgressService {
       if (context.mounted) {
         for (final achievement in newlyUnlocked) {
           _showAchievementCelebration(context, achievement);
+
+          // Group feed hook: post achievement to group feeds
+          if (achievement.category == AchievementCategory.levels) {
+            GroupFeedService().pushToAllUserGroups(
+              type: 'level_up',
+              message: 'Earned achievement: "${context.tr(achievement.titleKey)}" (${achievement.emoji})! 🌟',
+              icon: achievement.emoji,
+            );
+          }
         }
       }
     } catch (_) {}

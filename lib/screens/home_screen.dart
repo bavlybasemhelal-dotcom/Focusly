@@ -7,6 +7,7 @@ import '../features/tasks/tasks_screen.dart';
 import '../features/schedule/schedule_screen.dart';
 import '../features/habits/habits_screen.dart';
 import '../features/pomodoro/pomodoro_screen.dart';
+import '../features/groups/groups_home_page.dart';
 import '../features/progress/progress_screen.dart';
 import 'login_screen.dart';
 
@@ -172,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Drawer Header with User Info
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(22, 64, 22, 28),
+                padding: const EdgeInsets.fromLTRB(20, 52, 20, 20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isDark
@@ -196,8 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     // Avatar Circle
                     Container(
-                      width: 60,
-                      height: 60,
+                      width: 52,
+                      height: 52,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: isDark
@@ -222,32 +223,32 @@ class _HomeScreenState extends State<HomeScreen> {
                               ? displayName.substring(0, 1).toUpperCase()
                               : 'F',
                           style: TextStyle(
-                            fontSize: 26,
+                            fontSize: 22,
                             fontWeight: FontWeight.w900,
                             color: isDark ? AppColors.cyanElectric : const Color(0xFF1D4ED8),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // User Display Name
                     Text(
                       displayName,
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
-                        fontSize: 20,
+                        fontSize: 18,
                         color: Colors.white,
                         letterSpacing: -0.3,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
 
                     // User Email
                     Text(
                       userEmail,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         color: isDark ? AppColors.darkTextSecondary : const Color(0xFFDBEAFE),
                         fontWeight: FontWeight.w500,
                       ),
@@ -256,102 +257,120 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              const SizedBox(height: 16),
-
-              // Navigation Menu Items
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.home_rounded,
-                title: context.tr('home'),
-                isSelected: _currentTabIndex == 0,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    _currentTabIndex = 0;
-                  });
-                },
-              ),
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.check_circle_outline_rounded,
-                title: context.tr('tasks'),
-                isSelected: _currentTabIndex == 1,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    _currentTabIndex = 1;
-                  });
-                },
-              ),
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.calendar_month_outlined,
-                title: context.tr('schedule'),
-                isSelected: _currentTabIndex == 2,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    _currentTabIndex = 2;
-                  });
-                },
-              ),
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.local_fire_department_outlined,
-                title: context.tr('habits'),
-                isSelected: _currentTabIndex == 3,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    _currentTabIndex = 3;
-                  });
-                },
-              ),
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.timer_outlined,
-                title: context.tr('pomodoro'),
-                isSelected: _currentTabIndex == 4,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    _currentTabIndex = 4;
-                  });
-                },
-              ),
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.insights_rounded,
-                title: context.tr('progress'),
-                isSelected: _currentTabIndex == 5,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    _currentTabIndex = 5;
-                  });
-                },
-              ),
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.settings_outlined,
-                title: context.tr('settings'),
-                isSelected: false,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsPage(),
-                    ),
-                  );
-                },
+              // Scrollable Navigation Menu Items
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    children: [
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.home_rounded,
+                        title: context.tr('home'),
+                        isSelected: _currentTabIndex == 0,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _currentTabIndex = 0;
+                          });
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.check_circle_outline_rounded,
+                        title: context.tr('tasks'),
+                        isSelected: _currentTabIndex == 1,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _currentTabIndex = 1;
+                          });
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.calendar_month_outlined,
+                        title: context.tr('schedule'),
+                        isSelected: _currentTabIndex == 2,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _currentTabIndex = 2;
+                          });
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.local_fire_department_outlined,
+                        title: context.tr('habits'),
+                        isSelected: _currentTabIndex == 3,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _currentTabIndex = 3;
+                          });
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.timer_outlined,
+                        title: context.tr('pomodoro'),
+                        isSelected: _currentTabIndex == 4,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _currentTabIndex = 4;
+                          });
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.groups_rounded,
+                        title: context.tr('groups'),
+                        isSelected: _currentTabIndex == 5,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _currentTabIndex = 5;
+                          });
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.insights_rounded,
+                        title: context.tr('progress'),
+                        isSelected: _currentTabIndex == 6,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _currentTabIndex = 6;
+                          });
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.settings_outlined,
+                        title: context.tr('settings'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const SettingsPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
                 child: Divider(color: borderColor, height: 1),
               ),
-
-              const Spacer(),
 
               // Log Out Item
               _buildDrawerItem(
@@ -362,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 isDestructive: true,
                 onTap: _confirmLogout,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
             ],
           ),
         ),
@@ -385,6 +404,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const ScheduleScreen(),
               const HabitsScreen(),
               const PomodoroScreen(),
+              const GroupsHomePage(),
               const ProgressScreen(),
               const _ProfileTabPlaceholder(),
             ],
@@ -460,6 +480,11 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.timer_outlined),
               activeIcon: const Icon(Icons.timer_rounded),
               label: context.tr('pomodoro'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.groups_outlined),
+              activeIcon: const Icon(Icons.groups_rounded),
+              label: context.tr('groups'),
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.insights_outlined),
@@ -538,7 +563,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : (isSelected ? brandPrimary : secondaryTextColor);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 4.0),
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
       decoration: BoxDecoration(
         color: isSelected
             ? (isDark
@@ -551,6 +576,9 @@ class _HomeScreenState extends State<HomeScreen> {
             : null,
       ),
       child: ListTile(
+        visualDensity: const VisualDensity(vertical: -2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+        minLeadingWidth: 26,
         leading: Icon(icon, color: itemColor, size: 22),
         title: Text(
           title,

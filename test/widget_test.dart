@@ -11,6 +11,10 @@ import 'package:focusly/features/tasks/tasks_screen.dart';
 import 'package:focusly/features/schedule/schedule_screen.dart';
 import 'package:focusly/features/habits/habits_screen.dart';
 import 'package:focusly/features/pomodoro/pomodoro_screen.dart';
+import 'package:focusly/features/groups/models/group_model.dart';
+import 'package:focusly/features/groups/providers/groups_provider.dart';
+import 'package:focusly/features/groups/groups_home_page.dart';
+import 'package:focusly/features/groups/group_detail_page.dart';
 import 'package:focusly/features/progress/progress_screen.dart';
 import 'package:focusly/screens/home_screen.dart';
 import 'package:focusly/screens/login_screen.dart';
@@ -21,8 +25,12 @@ import 'package:focusly/screens/splash_screen.dart';
 import 'package:focusly/core/localization/locale_controller.dart';
 import 'package:focusly/core/theme/theme_controller.dart';
 
-Widget _buildTestApp({required Widget home}) {
+Widget _buildTestApp({
+  required Widget home,
+  List<dynamic> overrides = const [],
+}) {
   return ProviderScope(
+    overrides: overrides.isEmpty ? const [] : overrides.cast(),
     child: Consumer(
       builder: (context, ref, _) {
         final themeMode = ref.watch(themeControllerProvider);
@@ -265,17 +273,22 @@ void main() {
       await tester.pump();
       expect(find.text('Pomodoro'), findsWidgets);
 
-      // 6. Switch to Progress tab
+      // 6. Switch to Groups tab
+      await tester.tap(find.text('Groups'));
+      await tester.pump();
+      expect(find.text('Groups'), findsWidgets);
+
+      // 7. Switch to Progress tab
       await tester.tap(find.text('Progress'));
       await tester.pump();
       expect(find.text('Progress'), findsWidgets);
 
-      // 7. Switch to Profile tab
+      // 8. Switch to Profile tab
       await tester.tap(find.text('Profile'));
       await tester.pump();
       expect(find.text('Profile'), findsWidgets);
 
-      // 8. Open Navigation Drawer
+      // 9. Open Navigation Drawer
       await tester.tap(find.byTooltip('Open navigation menu'));
       await tester.pumpAndSettle();
       expect(find.byType(Drawer), findsOneWidget);
@@ -643,7 +656,106 @@ void main() {
       expect(find.text('First Focus'), findsOneWidget);
     });
   });
+
+  group('Focusly Groups & Challenges Module Tests', () {
+    testWidgets('Renders GroupsHomePage, action buttons, and opens Create & Join modals',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const GroupsHomePage(),
+        ),
+      );
+      await tester.pump();
+
+      // Verify Screen Header
+      expect(find.text('Groups & Challenges'), findsOneWidget);
+      expect(find.text('Collaborate, compete, and level up together'), findsOneWidget);
+
+      // Verify Action Buttons
+      expect(find.text('Create Group'), findsOneWidget);
+      expect(find.text('Join Group'), findsOneWidget);
+
+      // Open Create Group Sheet
+      await tester.tap(find.text('Create Group'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Create New Group'), findsOneWidget);
+      expect(find.text('Group Icon'), findsOneWidget);
+      expect(find.text('Group Name'), findsOneWidget);
+      expect(find.text('Description (Optional)'), findsOneWidget);
+
+      // Close Create Group sheet
+      Navigator.of(tester.element(find.text('Create New Group'))).pop();
+      await tester.pumpAndSettle();
+
+      // Open Join Group Sheet
+      await tester.tap(find.text('Join Group'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Join a Group'), findsOneWidget);
+      expect(find.text('Invite Code'), findsOneWidget);
+      expect(find.text('Send Join Request'), findsOneWidget);
+    });
+
+    testWidgets('Renders GroupDetailPage and switches across Feed, Leaderboard, Challenges, Members tabs',
+        (WidgetTester tester) async {
+      final mockGroup = GroupModel(
+        id: 'test_group_123',
+        name: 'Morning Squad',
+        icon: '🚀',
+        description: 'Focus and Win',
+        inviteCode: 'GRP-TEST99',
+        createdBy: 'user_1',
+        createdAt: DateTime.now(),
+        memberCount: 5,
+      );
+
+      await tester.pumpWidget(
+        _buildTestApp(
+          overrides: [
+            groupDetailStreamProvider('test_group_123')
+                .overrideWith((ref) => Stream.value(mockGroup)),
+            groupFeedStreamProvider('test_group_123')
+                .overrideWith((ref) => Stream.value([])),
+            groupMembersStreamProvider('test_group_123')
+                .overrideWith((ref) => Stream.value([])),
+            groupChallengesStreamProvider('test_group_123')
+                .overrideWith((ref) => Stream.value([])),
+          ],
+          home: const GroupDetailPage(groupId: 'test_group_123'),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Verify Group Title and 4 Tab Headers
+      expect(find.text('Morning Squad'), findsOneWidget);
+      expect(find.text('Feed'), findsOneWidget);
+      expect(find.text('Leaderboard'), findsOneWidget);
+      expect(find.text('Challenges'), findsOneWidget);
+      expect(find.text('Members'), findsOneWidget);
+
+      // Switch to Leaderboard
+      await tester.tap(find.text('Leaderboard'));
+      await tester.pump();
+      expect(find.text('Leaderboard'), findsOneWidget);
+
+      // Switch to Challenges
+      await tester.tap(find.text('Challenges'));
+      await tester.pump();
+      expect(find.text('Challenges'), findsOneWidget);
+
+      // Switch to Members
+      await tester.tap(find.text('Members'));
+      await tester.pump();
+      expect(find.text('Members'), findsOneWidget);
+    });
+  });
 }
+
+
+
+
 
 
 

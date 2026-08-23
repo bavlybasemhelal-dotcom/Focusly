@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_controller.dart';
@@ -23,6 +24,23 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _notificationsEnabled = true;
+  bool _groupActivityBadgesEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGroupActivitySetting();
+  }
+
+  Future<void> _loadGroupActivitySetting() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _groupActivityBadgesEnabled =
+            prefs.getBool('group_activity_badges_enabled') ?? true;
+      });
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +230,69 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 _notificationsEnabled = val;
                               });
                               // TODO: Connect with real push-notification permission service (Firebase Cloud Messaging)
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildDivider(borderColor),
+
+                    // Group Activity Badges Switch
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(9),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF38BDF8).withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.groups_outlined,
+                              color: Color(0xFF38BDF8),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.tr('group_activity_setting'),
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: primaryTextColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  context.tr('group_activity_setting_desc'),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: secondaryTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: _groupActivityBadgesEnabled,
+                            activeThumbColor: brandPrimary,
+                            onChanged: (val) async {
+                              setState(() {
+                                _groupActivityBadgesEnabled = val;
+                              });
+                              try {
+                                final prefs = await SharedPreferences.getInstance();
+                                await prefs.setBool('group_activity_badges_enabled', val);
+                              } catch (_) {}
+                              // TODO: True cross-device push notifications for group activity while the app is closed would require Firebase Cloud Messaging + a Cloud Function trigger on new feed entries, which needs the Firebase Blaze (paid) plan. Out of scope for now; real-time Firestore listeners cover the live feel while the app is open.
                             },
                           ),
                         ],

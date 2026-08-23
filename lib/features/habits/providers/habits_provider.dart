@@ -8,6 +8,8 @@ import '../helpers/streak_logic.dart';
 import '../models/habit_model.dart';
 import '../services/habit_notification_service.dart';
 import '../../progress/services/progress_service.dart';
+import '../../groups/services/challenge_service.dart';
+import '../../groups/services/group_feed_service.dart';
 
 /// Stream provider that listens to real-time habits subcollection in Firestore
 /// and applies automatic weekly reset checks on the fly.
@@ -202,11 +204,19 @@ class HabitsController {
 
     if (milestone != null && context.mounted) {
       _showMilestoneCelebration(context, updatedHabit.title, milestone);
+
+      // Group feed hook: habit streak milestone
+      GroupFeedService().pushToAllUserGroups(
+        type: 'streak_milestone',
+        message: 'Reached a $milestone-day streak on "${updatedHabit.title}"! 🔥',
+        icon: '🔥',
+      );
     }
 
     // XP award and Achievement check hook: +5 XP for completing habit day
     if (updatedHabit.isDayCompleted(dayIndex)) {
       ProgressService().awardXp(5);
+      ChallengeService().triggerProgressSync();
     }
 
     try {
