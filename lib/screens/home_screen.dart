@@ -11,6 +11,12 @@ import '../features/habits/habits_screen.dart';
 import '../features/pomodoro/pomodoro_screen.dart';
 import '../features/groups/groups_home_page.dart';
 import '../features/progress/progress_screen.dart';
+import '../features/gtd/inbox_screen.dart';
+import '../features/gtd/providers/gtd_provider.dart';
+import '../features/gtd/reference_screen.dart';
+import '../features/gtd/someday_screen.dart';
+import '../features/gtd/waiting_screen.dart';
+import '../features/gtd/widgets/quick_capture_sheet.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -106,6 +112,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           },
         ),
         actions: [
+          // Quick Capture Action Button
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8.0),
+            child: Center(
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF2E6FF2).withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(
+                    Icons.bolt_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                  onPressed: () => QuickCaptureSheet.show(context),
+                  tooltip: context.tr('quick_capture_title'),
+                ),
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 16.0),
             child: Center(
@@ -346,6 +387,92 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           });
                         },
                       ),
+
+                      // -------------------------------------------------------
+                      // GTD PRODUCTIVITY SYSTEM SECTION
+                      // -------------------------------------------------------
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              context.tr('gtd_section_header'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
+                                height: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.inbox_rounded,
+                        title: context.tr('inbox'),
+                        isSelected: false,
+                        badgeCount: ref.watch(unprocessedInboxCountProvider),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const InboxScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.hourglass_top_rounded,
+                        title: context.tr('waiting_for'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const WaitingScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.nightlight_round,
+                        title: context.tr('someday_maybe'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const SomedayScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.bookmark_outline_rounded,
+                        title: context.tr('reference'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ReferenceScreen(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 6),
                       _buildDrawerItem(
                         context: context,
                         icon: Icons.settings_outlined,
@@ -551,6 +678,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     required bool isSelected,
     required VoidCallback onTap,
     bool isDestructive = false,
+    int? badgeCount,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryTextColor = AppColors.textSecondary(context);
@@ -590,6 +718,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             fontSize: 14,
           ),
         ),
+        trailing: (badgeCount != null && badgeCount > 0)
+            ? Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  badgeCount.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 11,
+                  ),
+                ),
+              )
+            : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),

@@ -79,6 +79,11 @@ service cloud.firestore {
       match /stats/{statId} {
         allow read, write: if isOwner(userId);
       }
+
+      // GTD Inbox Subcollection: users/{userId}/inbox/{itemId}
+      match /inbox/{itemId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // -------------------------------------------------------------------------

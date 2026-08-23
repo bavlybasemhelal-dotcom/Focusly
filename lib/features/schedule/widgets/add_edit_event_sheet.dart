@@ -11,11 +11,13 @@ import '../providers/schedule_provider.dart';
 class AddEditEventSheet extends ConsumerStatefulWidget {
   final EventModel? eventToEdit;
   final DateTime? initialDate;
+  final String? initialTitle;
 
   const AddEditEventSheet({
     super.key,
     this.eventToEdit,
     this.initialDate,
+    this.initialTitle,
   });
 
   @override
@@ -40,7 +42,8 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
     super.initState();
     final event = widget.eventToEdit;
 
-    _titleController = TextEditingController(text: event?.title ?? '');
+    _titleController =
+        TextEditingController(text: event?.title ?? (widget.initialTitle ?? ''));
     _noteController = TextEditingController(text: event?.note ?? '');
     _selectedDate = event?.date ?? (widget.initialDate ?? DateTime.now());
     _selectedTime = event?.time ?? const TimeOfDay(hour: 10, minute: 0);
@@ -110,7 +113,7 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
     }
 
     if (mounted) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
     }
   }
 

@@ -142,6 +142,11 @@ class TaskModel {
   final List<SubtaskModel> subtasks;
   final DateTime createdAt;
 
+  // GTD Specific Optional Fields
+  final String? listType; // 'waiting' | 'someday' | 'reference' | null (standard task)
+  final String? waitingFor; // Name of person / organization being waited on
+  final DateTime? waitingSince; // Date when waiting started
+
   const TaskModel({
     required this.id,
     required this.title,
@@ -154,6 +159,9 @@ class TaskModel {
     this.done = false,
     this.subtasks = const [],
     required this.createdAt,
+    this.listType,
+    this.waitingFor,
+    this.waitingSince,
   });
 
   /// Calculates completed subtasks count
@@ -187,6 +195,9 @@ class TaskModel {
       'done': done,
       'subtasks': subtasks.map((s) => s.toMap()).toList(),
       'createdAt': Timestamp.fromDate(createdAt),
+      'listType': listType,
+      'waitingFor': waitingFor,
+      'waitingSince': waitingSince != null ? Timestamp.fromDate(waitingSince!) : null,
     };
   }
 
@@ -212,6 +223,13 @@ class TaskModel {
       parsedCreatedAt = (map['createdAt'] as Timestamp).toDate();
     } else {
       parsedCreatedAt = DateTime.now();
+    }
+
+    DateTime? parsedWaitingSince;
+    if (map['waitingSince'] is Timestamp) {
+      parsedWaitingSince = (map['waitingSince'] as Timestamp).toDate();
+    } else if (map['waitingSince'] is String) {
+      parsedWaitingSince = DateTime.tryParse(map['waitingSince']);
     }
 
     TimeOfDay? parsedTime;
@@ -245,6 +263,9 @@ class TaskModel {
       done: map['done'] ?? false,
       subtasks: subtasksList,
       createdAt: parsedCreatedAt,
+      listType: map['listType'],
+      waitingFor: map['waitingFor'],
+      waitingSince: parsedWaitingSince,
     );
   }
 
@@ -260,8 +281,14 @@ class TaskModel {
     bool? done,
     List<SubtaskModel>? subtasks,
     DateTime? createdAt,
+    String? listType,
+    String? waitingFor,
+    DateTime? waitingSince,
     bool clearTime = false,
     bool clearDeadline = false,
+    bool clearListType = false,
+    bool clearWaitingFor = false,
+    bool clearWaitingSince = false,
   }) {
     return TaskModel(
       id: id ?? this.id,
@@ -275,6 +302,9 @@ class TaskModel {
       done: done ?? this.done,
       subtasks: subtasks ?? this.subtasks,
       createdAt: createdAt ?? this.createdAt,
+      listType: clearListType ? null : (listType ?? this.listType),
+      waitingFor: clearWaitingFor ? null : (waitingFor ?? this.waitingFor),
+      waitingSince: clearWaitingSince ? null : (waitingSince ?? this.waitingSince),
     );
   }
 }

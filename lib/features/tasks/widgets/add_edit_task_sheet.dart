@@ -11,11 +11,13 @@ import '../providers/tasks_provider.dart';
 class AddEditTaskSheet extends ConsumerStatefulWidget {
   final TaskModel? taskToEdit;
   final EisenhowerQuadrant? initialQuadrant;
+  final String? initialTitle;
 
   const AddEditTaskSheet({
     super.key,
     this.taskToEdit,
     this.initialQuadrant,
+    this.initialTitle,
   });
 
   @override
@@ -40,7 +42,8 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
     super.initState();
     final task = widget.taskToEdit;
 
-    _titleController = TextEditingController(text: task?.title ?? '');
+    _titleController =
+        TextEditingController(text: task?.title ?? (widget.initialTitle ?? ''));
     _notesController = TextEditingController(text: task?.notes ?? '');
     _selectedCategoryId = task?.categoryId ?? 'work';
     _selectedPriority = task?.priority ?? TaskPriority.medium;
@@ -125,7 +128,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
     }
 
     if (mounted) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
     }
   }
 

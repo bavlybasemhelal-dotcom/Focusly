@@ -642,6 +642,117 @@ class AppLocalizations {
       'reauth_failed': 'Current password is incorrect.',
       'requires_recent_login':
           'This operation requires a recent login. Please log in again.',
+
+      // GTD (Getting Things Done) Module
+      'gtd_section_header': 'GTD',
+      'inbox': 'Inbox',
+      'waiting_for': 'Waiting For',
+      'someday_maybe': 'Someday / Maybe',
+      'reference': 'Reference',
+      'quick_capture_title': 'Quick Capture',
+      'quick_capture_subtitle': 'Jot down a raw thought instantly',
+      'quick_capture_hint': 'What is on your mind?...',
+      'quick_captured_toast': 'Captured to Inbox ⚡',
+      'inbox_screen_title': 'GTD Inbox',
+      'inbox_screen_subtitle': 'Process raw captures into clear actions',
+      'inbox_filter_all': 'All',
+      'inbox_filter_unprocessed': 'Unprocessed',
+      'inbox_filter_processed': 'Processed',
+      'inbox_load_error': 'Failed to load inbox items',
+      'inbox_clarify_btn': 'Clarify',
+      'inbox_empty_title': 'Your Inbox is Clean!',
+      'inbox_empty_prompt':
+          'Capture fleeting thoughts, ideas, or commitments quickly and process them using the GTD method.',
+      'mark_processed': 'Mark as Processed',
+      'mark_unprocessed': 'Mark as Unprocessed',
+      'clarify_wizard_title': 'Clarify Decision Wizard',
+      'clarify_step1_question': 'Does this need action?',
+      'clarify_step1_prompt':
+          'Decide if there is a concrete next physical action required.',
+      'clarify_yes_actionable': 'Yes, Actionable',
+      'clarify_yes_actionable_sub': 'Something needs to be done',
+      'clarify_no_actionable': 'No Action Needed',
+      'clarify_no_actionable_sub': 'Info, trash, or future idea',
+      'clarify_step1b_question': 'What should happen to it?',
+      'clarify_step1b_prompt':
+          'Since no action is required, choose how to file it.',
+      'clarify_choice_reference': 'Save as Reference',
+      'clarify_choice_reference_sub': 'Store useful facts, notes, or links',
+      'clarify_choice_archive': 'Archive & Dismiss',
+      'clarify_choice_archive_sub': 'Mark processed without a task',
+      'clarify_choice_delete': 'Trash & Delete',
+      'clarify_choice_delete_sub': 'Completely remove this capture',
+      'clarify_step2_question': 'Does it take less than 2 minutes?',
+      'clarify_step2_prompt':
+          'The GTD 2-Minute Rule: If it takes under 2 minutes, do it immediately!',
+      'clarify_two_min_yes': 'Do it now!',
+      'clarify_two_min_yes_sub': 'Under 2 minutes',
+      'clarify_two_min_no': 'Takes longer',
+      'clarify_two_min_no_sub': 'Need to plan/schedule',
+      'clarify_step3_question': 'When will you act on it?',
+      'clarify_step3_prompt': 'Choose the right destination for this action.',
+      'clarify_dest_task': 'Now / Next Action',
+      'clarify_dest_task_sub': 'Create active task with category & priority',
+      'clarify_dest_someday': 'Someday / Maybe',
+      'clarify_dest_someday_sub': 'Save to review periodically in the future',
+      'clarify_dest_waiting': 'Waiting For (Delegated)',
+      'clarify_dest_waiting_sub': 'Delegated to someone else to deliver',
+      'clarify_dest_event': 'Calendar Event',
+      'clarify_dest_event_sub': 'Happens on a specific date & time',
+      'clarify_waiting_prompt_title': 'Who are you waiting for?',
+      'clarify_waiting_prompt_sub':
+          'Specify the person or organization handling this.',
+      'clarify_waiting_input_hint': 'e.g. John Doe, HR Team, Vendor...',
+      'clarify_save_waiting_btn': 'Save to Waiting For',
+      'clarify_moved_to_reference': 'Saved to Reference 📁',
+      'clarify_archived_toast': 'Item Archived 📦',
+      'clarify_deleted_toast': 'Item Deleted 🗑',
+      'clarify_two_min_celebrate': '⏱ Nice! Under-2-minute task done!',
+      'clarify_moved_to_someday': 'Moved to Someday / Maybe 🌙',
+      'clarify_moved_to_waiting': 'Moved to Waiting For ⏳',
+      'waiting_screen_title': 'Waiting For',
+      'waiting_screen_subtitle': 'Delegated commitments and pending replies',
+      'add_waiting_title': 'Add Waiting Item',
+      'edit_waiting_title': 'Edit Waiting Item',
+      'waiting_task_title_label': 'What are you waiting on?',
+      'waiting_task_title_hint':
+          'e.g. Reviewing report draft, Package delivery...',
+      'waiting_for_person_label': 'Waiting for (Person / Entity)',
+      'waiting_for_person_hint': 'e.g. Sarah, Legal Dept...',
+      'add_waiting_btn': 'Add to Waiting For',
+      'waiting_for_prefix': 'Waiting for',
+      'mark_resolved': 'Mark as Resolved',
+      'waiting_resolved_toast': 'Waiting item resolved! 🎉',
+      'waiting_empty_title': 'No Pending Delegations',
+      'waiting_empty_prompt':
+          'When you delegate a task or await an external reply, log it here to track elapsed days.',
+      'someday_screen_title': 'Someday / Maybe',
+      'someday_screen_subtitle': 'Ideas, aspirations, and future possibilities',
+      'add_someday_title': 'Add Someday Idea',
+      'someday_title_label': 'Idea / Possibility',
+      'someday_title_hint': 'e.g. Learn Spanish, Travel to Japan...',
+      'someday_notes_hint': 'Add additional thoughts or inspiration...',
+      'add_someday_btn': 'Save to Someday',
+      'someday_tag': 'Someday',
+      'promote_to_task': 'Promote to Task',
+      'someday_promoted_toast': 'Promoted to active tasks! 🚀',
+      'someday_review_nudge': 'You have {count} someday ideas — review them?',
+      'someday_empty_title': 'No Someday Ideas Yet',
+      'someday_empty_prompt':
+          'Log books you want to read, skills to learn, or future projects without cluttering your daily tasks.',
+      'reference_screen_title': 'Reference',
+      'reference_screen_subtitle':
+          'Non-actionable knowledge, documents, and notes',
+      'add_reference_title': 'Add Reference Note',
+      'reference_title_label': 'Topic / Document Title',
+      'reference_title_hint': 'e.g. Wi-Fi codes, Insurance policy notes...',
+      'reference_notes_label': 'Details / Notes / Content',
+      'reference_notes_hint': 'Enter useful information to keep handy...',
+      'add_reference_btn': 'Save Reference',
+      'reference_tag': 'Reference',
+      'reference_empty_title': 'No Reference Notes',
+      'reference_empty_prompt':
+          'Save non-actionable reference material, checklists, and key notes for quick access anytime.',
     },
     'ar': {
       // App General
@@ -1257,7 +1368,6 @@ class AppLocalizations {
           'فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.',
       'avatar_coming_soon': 'خاصية رفع الصورة الشخصية قادمة قريباً!',
 
-      // Change Password Page
       'current_password': 'كلمة المرور الحالية',
       'new_password': 'كلمة المرور الجديدة',
       'confirm_new_password': 'تأكيد كلمة المرور الجديدة',
@@ -1268,15 +1378,135 @@ class AppLocalizations {
       'reauth_failed': 'كلمة المرور الحالية غير صحيحة.',
       'requires_recent_login':
           'هذه العملية الحساسة تتطلب تسجيل دخول حديث. يرجى تسجيل الدخول مجدداً.',
+
+      // GTD (Getting Things Done) Module
+      'gtd_section_header': 'نظام GTD',
+      'inbox': 'صندوق الوارد',
+      'waiting_for': 'قائمة الانتظار',
+      'someday_maybe': 'يوماً ما / ربما',
+      'reference': 'المراجع والملاحظات',
+      'quick_capture_title': 'التقاط سريع',
+      'quick_capture_subtitle': 'دوّن أي فكرة واردة فوراً',
+      'quick_capture_hint': 'ما الذي يدور في ذهنك؟...',
+      'quick_captured_toast': 'تم الحفظ في صندوق الوارد ⚡',
+      'inbox_screen_title': 'صندوق الوارد (GTD)',
+      'inbox_screen_subtitle': 'حوّل أفكارك الملتقطة إلى قرارات واضحة',
+      'inbox_filter_all': 'الكل',
+      'inbox_filter_unprocessed': 'غير معالج',
+      'inbox_filter_processed': 'تمت معالجته',
+      'inbox_load_error': 'تعذر تحميل عناصر صندوق الوارد',
+      'inbox_clarify_btn': 'توضيح ومعالجة',
+      'inbox_empty_title': 'صندوق الوارد فارغ تماماً!',
+      'inbox_empty_prompt':
+          'التقط الأفكار العابرة والالتزامات بسرعة، ثم قم بمعالجتها وفق منهجية GTD.',
+      'mark_processed': 'تحديد كمعالج',
+      'mark_unprocessed': 'تحديد كغير معالج',
+      'clarify_wizard_title': 'معالج توضيح القرارات',
+      'clarify_step1_question': 'هل يتطلب هذا العنصر إجراءً عملياً؟',
+      'clarify_step1_prompt':
+          'حدد ما إذا كان هناك إجراء فعلي ملموس مطلوب القيام به.',
+      'clarify_yes_actionable': 'نعم، يتطلب إجراءً',
+      'clarify_yes_actionable_sub': 'هناك عمل يجب إنجازه',
+      'clarify_no_actionable': 'لا يتطلب أي إجراء',
+      'clarify_no_actionable_sub': 'معلومة، مهمل، أو فكرة مستقبلية',
+      'clarify_step1b_question': 'ماذا يجب أن تفعل به؟',
+      'clarify_step1b_prompt':
+          'بما أنه لا يوجد إجراء، اختر المكان المناسب لحفظه.',
+      'clarify_choice_reference': 'حفظ كمرجع أو معلومة',
+      'clarify_choice_reference_sub':
+          'حفظ ملاحظات أو روابط أو معلومات مفيدة',
+      'clarify_choice_archive': 'أرشفة وتجاهل',
+      'clarify_choice_archive_sub': 'وضع علامة معالجة دون إنشاء مهمة',
+      'clarify_choice_delete': 'حذف نهائياً',
+      'clarify_choice_delete_sub': 'حذف هذه الفكرة تماماً',
+      'clarify_step2_question': 'هل يستغرق إنجازه أقل من دقيقتين؟',
+      'clarify_step2_prompt':
+          'قاعدة الدقيقتين: إذا كان يستغرق أقل من دقيقتين، أنجزه فوراً!',
+      'clarify_two_min_yes': 'سأنجزه الآن فوراً!',
+      'clarify_two_min_yes_sub': 'أقل من دقيقتين',
+      'clarify_two_min_no': 'يستغرق وقتاً أطول',
+      'clarify_two_min_no_sub': 'يحتاج لتخطيط وجدولة',
+      'clarify_step3_question': 'متى ستقوم بتنفيذه؟',
+      'clarify_step3_prompt': 'اختر المكان الأنسب لتنظيم هذا الإجراء.',
+      'clarify_dest_task': 'مهمة تالية (قريباً)',
+      'clarify_dest_task_sub': 'إنشاء مهمة نشطة مع التصنيف والأولوية',
+      'clarify_dest_someday': 'يوماً ما / ربما',
+      'clarify_dest_someday_sub':
+          'حفظ للمراجعة في وقت لاحق بالمستقبل',
+      'clarify_dest_waiting': 'في انتظار شخص أو جهة',
+      'clarify_dest_waiting_sub': 'مفوّض لشخص أو جهة لمتابعته',
+      'clarify_dest_event': 'حدث مجدول في التقويم',
+      'clarify_dest_event_sub': 'يرتبط بوقت ويوم محددين',
+      'clarify_waiting_prompt_title': 'من الشخص أو الجهة التي تنتظرها؟',
+      'clarify_waiting_prompt_sub':
+          'حدد اسم الشخص أو الجهة المسؤولة عن التسليم.',
+      'clarify_waiting_input_hint': 'مثال: أحمد، فريق الموارد البشرية، الشركة...',
+      'clarify_save_waiting_btn': 'حفظ في قائمة الانتظار',
+      'clarify_moved_to_reference': 'تم الحفظ في قائمة المراجع 📁',
+      'clarify_archived_toast': 'تمت الأرشفة 📦',
+      'clarify_deleted_toast': 'تم الحذف 🗑',
+      'clarify_two_min_celebrate': '⏱ رائع! أنجزت مهمة أقل من دقيقتين!',
+      'clarify_moved_to_someday': 'تم النقل إلى يوماً ما / ربما 🌙',
+      'clarify_moved_to_waiting': 'تم النقل إلى قائمة الانتظار ⏳',
+      'waiting_screen_title': 'قائمة الانتظار',
+      'waiting_screen_subtitle': 'المهام المفوضة والردود المعلقة',
+      'add_waiting_title': 'إضافة عنصر انتظار',
+      'edit_waiting_title': 'تعديل عنصر الانتظار',
+      'waiting_task_title_label': 'ما الأمر المعلق؟',
+      'waiting_task_title_hint':
+          'مثال: مراجعة مسودة التقرير، وصول الشحنة...',
+      'waiting_for_person_label': 'في انتظار (الشخص أو الجهة)',
+      'waiting_for_person_hint': 'مثال: سارة، قسم الشؤون القانونية...',
+      'add_waiting_btn': 'إضافة لقائمة الانتظار',
+      'waiting_for_prefix': 'في انتظار',
+      'mark_resolved': 'تحديد كمكتمل ومحلول',
+      'waiting_resolved_toast': 'تم إنهاء عنصر الانتظار بنجاح! 🎉',
+      'waiting_empty_title': 'لا توجد عناصر معلقة',
+      'waiting_empty_prompt':
+          'عندما تفوض مهمة أو تنتظر رداً خارجياً، سجله هنا لمتابعة الأيام المنقضية.',
+      'someday_screen_title': 'يوماً ما / ربما',
+      'someday_screen_subtitle': 'أفكار وتطلعات للمستقبل',
+      'add_someday_title': 'إضافة فكرة مستقبلية',
+      'someday_title_label': 'الفكرة / الهدف المستقبلي',
+      'someday_title_hint': 'مثال: تعلم الإسبانية، السفر لليابان...',
+      'someday_notes_hint': 'أضف تفاصيل أو روابط ملهمة...',
+      'add_someday_btn': 'حفظ في يوماً ما',
+      'someday_tag': 'يوماً ما',
+      'promote_to_task': 'ترقية إلى مهمة نشطة',
+      'someday_promoted_toast': 'تمت ترقية الفكرة إلى مهمة نشطة! 🚀',
+      'someday_review_nudge':
+          'لديك {count} فكرة مستقبلية — هل تود مراجعتها؟',
+      'someday_empty_title': 'لا توجد أفكار مستقبلية بعد',
+      'someday_empty_prompt':
+          'سجل الكتب التي ترغب بقراءتها أو المشاريع المستقبلية دون إرباك جدولك اليومي.',
+      'reference_screen_title': 'المراجع والمعلومات',
+      'reference_screen_subtitle':
+          'معلومات وملاحظات ومراجع غير قابلة للتنفيذ',
+      'add_reference_title': 'إضافة مرجع أو معلومة',
+      'reference_title_label': 'عنوان المرجع / الملاحظة',
+      'reference_title_hint': 'مثال: إرشادات، ملاحظات وثيقة التأمين...',
+      'reference_notes_label': 'التفاصيل / المحتوى / الروابط',
+      'reference_notes_hint': 'أدخل المعلومات المفيدة لتصل إليها بسهولة...',
+      'add_reference_btn': 'حفظ في المراجع',
+      'reference_tag': 'مرجع',
+      'reference_empty_title': 'لا توجد مراجع محفوظة',
+      'reference_empty_prompt':
+          'احفظ المواد المرجعية والمعلومات المفيدة للوصول السريع إليها في أي وقت.',
     },
   };
 
-  /// Translates the given key or returns fallback
-  String tr(String key) {
+  /// Translates the given key or returns fallback, replacing placeholder arguments if provided
+  String tr(String key, {Map<String, String>? args}) {
     final languageCode = locale.languageCode;
-    return _localizedValues[languageCode]?[key] ??
+    String text = _localizedValues[languageCode]?[key] ??
         _localizedValues['en']?[key] ??
         key;
+    if (args != null) {
+      args.forEach((k, v) {
+        text = text.replaceAll('{$k}', v);
+      });
+    }
+    return text;
   }
 
   /// Formats date according to active locale
@@ -1364,5 +1594,6 @@ class _AppLocalizationsDelegate
 }
 
 extension AppLocalizationsExtension on BuildContext {
-  String tr(String key) => AppLocalizations.of(this).tr(key);
+  String tr(String key, {Map<String, String>? args}) =>
+      AppLocalizations.of(this).tr(key, args: args);
 }
