@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../para/providers/para_provider.dart';
 import '../models/category_model.dart';
 import '../models/task_model.dart';
 import '../providers/tasks_provider.dart';
@@ -474,6 +475,52 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                         ),
                                       ],
                                     ),
+                                  ),
+                                ],
+
+                                // PARA Project Chip (if task is linked to a Project)
+                                if (task.projectId != null) ...[
+                                  Consumer(
+                                    builder: (context, ref, _) {
+                                      final allProjectsAsync = ref.watch(allParaProjectsStreamProvider);
+                                      final project = allProjectsAsync.value
+                                          ?.where((p) => p.id == task.projectId)
+                                          .firstOrNull;
+                                      if (project == null) return const SizedBox.shrink();
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 7,
+                                          vertical: 2.5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(
+                                            color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                                            width: 0.8,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.folder_special_rounded,
+                                              size: 10.5,
+                                              color: Color(0xFF2E6FF2),
+                                            ),
+                                            const SizedBox(width: 3.5),
+                                            Text(
+                                              project.title,
+                                              style: const TextStyle(
+                                                fontSize: 10.5,
+                                                fontWeight: FontWeight.w700,
+                                                color: Color(0xFF2E6FF2),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ],

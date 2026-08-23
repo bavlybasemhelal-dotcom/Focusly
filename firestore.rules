@@ -84,6 +84,22 @@ service cloud.firestore {
       match /inbox/{itemId} {
         allow read, write: if isOwner(userId);
       }
+
+      // PARA Organizational System Subcollections:
+      // Areas (users/{userId}/paraAreas/{areaId})
+      match /paraAreas/{areaId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Projects (users/{userId}/paraProjects/{projectId})
+      match /paraProjects/{projectId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Resources (users/{userId}/paraResources/{resourceId})
+      match /paraResources/{resourceId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // -------------------------------------------------------------------------

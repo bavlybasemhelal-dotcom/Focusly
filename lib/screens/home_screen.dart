@@ -17,6 +17,11 @@ import '../features/gtd/reference_screen.dart';
 import '../features/gtd/someday_screen.dart';
 import '../features/gtd/waiting_screen.dart';
 import '../features/gtd/widgets/quick_capture_sheet.dart';
+import '../features/para/areas_page.dart';
+import '../features/para/archive_page.dart';
+import '../features/para/para_guide_page.dart';
+import '../features/para/projects_page.dart';
+import '../features/para/resources_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -467,6 +472,103 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const ReferenceScreen(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // -------------------------------------------------------
+                      // PARA ORGANIZATIONAL SYSTEM SECTION
+                      // -------------------------------------------------------
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              context.tr('para_section_header'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
+                                height: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.folder_special_rounded,
+                        title: context.tr('para_projects_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ProjectsPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.domain_rounded,
+                        title: context.tr('para_areas_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const AreasPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.source_rounded,
+                        title: context.tr('para_resources_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ResourcesPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.inventory_2_rounded,
+                        title: context.tr('para_archive_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ArchivePage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.menu_book_rounded,
+                        title: context.tr('para_guide_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ParaGuidePage(),
                             ),
                           );
                         },

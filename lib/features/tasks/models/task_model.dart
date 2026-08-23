@@ -147,6 +147,9 @@ class TaskModel {
   final String? waitingFor; // Name of person / organization being waited on
   final DateTime? waitingSince; // Date when waiting started
 
+  // PARA Specific Optional Fields
+  final String? projectId; // Linked PARA Project ID
+
   const TaskModel({
     required this.id,
     required this.title,
@@ -162,6 +165,7 @@ class TaskModel {
     this.listType,
     this.waitingFor,
     this.waitingSince,
+    this.projectId,
   });
 
   /// Calculates completed subtasks count
@@ -198,6 +202,7 @@ class TaskModel {
       'listType': listType,
       'waitingFor': waitingFor,
       'waitingSince': waitingSince != null ? Timestamp.fromDate(waitingSince!) : null,
+      'projectId': projectId,
     };
   }
 
@@ -266,6 +271,7 @@ class TaskModel {
       listType: map['listType'],
       waitingFor: map['waitingFor'],
       waitingSince: parsedWaitingSince,
+      projectId: map['projectId'],
     );
   }
 
@@ -284,11 +290,13 @@ class TaskModel {
     String? listType,
     String? waitingFor,
     DateTime? waitingSince,
+    String? projectId,
     bool clearTime = false,
     bool clearDeadline = false,
     bool clearListType = false,
     bool clearWaitingFor = false,
     bool clearWaitingSince = false,
+    bool clearProjectId = false,
   }) {
     return TaskModel(
       id: id ?? this.id,
@@ -305,6 +313,7 @@ class TaskModel {
       listType: clearListType ? null : (listType ?? this.listType),
       waitingFor: clearWaitingFor ? null : (waitingFor ?? this.waitingFor),
       waitingSince: clearWaitingSince ? null : (waitingSince ?? this.waitingSince),
+      projectId: clearProjectId ? null : (projectId ?? this.projectId),
     );
   }
 }

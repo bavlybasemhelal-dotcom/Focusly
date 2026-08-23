@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../para/providers/para_provider.dart';
 import '../models/category_model.dart';
 import '../models/task_model.dart';
 import '../providers/tasks_provider.dart';
@@ -12,13 +13,36 @@ class AddEditTaskSheet extends ConsumerStatefulWidget {
   final TaskModel? taskToEdit;
   final EisenhowerQuadrant? initialQuadrant;
   final String? initialTitle;
+  final String? initialProjectId;
 
   const AddEditTaskSheet({
     super.key,
     this.taskToEdit,
     this.initialQuadrant,
     this.initialTitle,
+    this.initialProjectId,
   });
+
+  /// Convenient helper to open the Add/Edit Task Sheet
+  static Future<bool?> show(
+    BuildContext context, {
+    TaskModel? taskToEdit,
+    EisenhowerQuadrant? initialQuadrant,
+    String? initialTitle,
+    String? initialProjectId,
+  }) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddEditTaskSheet(
+        taskToEdit: taskToEdit,
+        initialQuadrant: initialQuadrant,
+        initialTitle: initialTitle,
+        initialProjectId: initialProjectId,
+      ),
+    );
+  }
 
   @override
   ConsumerState<AddEditTaskSheet> createState() => _AddEditTaskSheetState();
@@ -34,6 +58,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
   late DateTime _selectedDate;
   TimeOfDay? _selectedTime;
   DateTime? _selectedDeadline;
+  String? _selectedProjectId;
 
   bool _isSaving = false;
 
@@ -50,6 +75,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
     _selectedDate = task?.date ?? DateTime.now();
     _selectedTime = task?.time;
     _selectedDeadline = task?.deadline;
+    _selectedProjectId = task?.projectId ?? widget.initialProjectId;
 
     // If opened with an initial quadrant pre-selected, apply its defaults
     if (task == null && widget.initialQuadrant != null) {
@@ -106,8 +132,10 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
         date: _selectedDate,
         time: _selectedTime,
         deadline: _selectedDeadline,
+        projectId: _selectedProjectId,
         clearTime: _selectedTime == null,
         clearDeadline: _selectedDeadline == null,
+        clearProjectId: _selectedProjectId == null,
       );
       await controller.updateTask(updated, context);
     } else {
@@ -123,6 +151,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
         done: false,
         subtasks: const [],
         createdAt: DateTime.now(),
+        projectId: _selectedProjectId,
       );
       await controller.addTask(newTask, context);
     }
@@ -645,6 +674,110 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                         );
                       });
                     }
+                  },
+                ),
+                // Optional PARA Project Link
+                _buildFieldLabel(context.tr('link_to_project_label'), primaryTextColor),
+                const SizedBox(height: 8),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final projectsAsync = ref.watch(paraProjectsStreamProvider);
+                    final secondaryTextColor = AppColors.textSecondary(context);
+                    return projectsAsync.when(
+                      data: (projects) {
+                        if (projects.isEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: borderColor),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.folder_outlined, color: secondaryTextColor, size: 18),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    context.tr('no_active_projects_hint'),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: secondaryTextColor,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String?>(
+                              value: projects.any((p) => p.id == _selectedProjectId)
+                                  ? _selectedProjectId
+                                  : null,
+                              isExpanded: true,
+                              dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                              hint: Row(
+                                children: [
+                                  Icon(Icons.folder_outlined, color: secondaryTextColor, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    context.tr('no_project_linked'),
+                                    style: TextStyle(color: secondaryTextColor, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              items: [
+                                DropdownMenuItem<String?>(
+                                  value: null,
+                                  child: Text(
+                                    context.tr('no_project_linked'),
+                                    style: TextStyle(color: secondaryTextColor, fontSize: 13),
+                                  ),
+                                ),
+                                ...projects.map((p) {
+                                  return DropdownMenuItem<String?>(
+                                    value: p.id,
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.folder_special_rounded, color: Color(0xFF2E6FF2), size: 18),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            p.title,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                              color: primaryTextColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ],
+                              onChanged: (val) {
+                                setState(() {
+                                  _selectedProjectId = val;
+                                });
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (err, stack) => const SizedBox.shrink(),
+                    );
                   },
                 ),
                 const SizedBox(height: 28),

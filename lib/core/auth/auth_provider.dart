@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/groups/providers/groups_provider.dart';
 import '../../features/gtd/providers/gtd_provider.dart';
 import '../../features/habits/providers/habits_provider.dart';
+import '../../features/para/providers/para_provider.dart';
 import '../../features/pomodoro/providers/pomodoro_provider.dart';
 import '../../features/progress/providers/progress_provider.dart';
 import '../../features/schedule/providers/schedule_provider.dart';
@@ -84,6 +85,9 @@ Future<void> logoutAndClearSession(WidgetRef ref) async {
   ref.invalidate(unlockedAchievementsStreamProvider);
   ref.invalidate(myGroupsStreamProvider);
   ref.invalidate(inboxStreamProvider);
+  ref.invalidate(paraAreasStreamProvider);
+  ref.invalidate(allParaProjectsStreamProvider);
+  ref.invalidate(allParaResourcesStreamProvider);
 
   // 3. Reset Pomodoro active timer state if running
   try {
