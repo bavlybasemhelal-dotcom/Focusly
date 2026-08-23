@@ -35,6 +35,7 @@ import '../features/rituals/widgets/morning_intention_modal.dart';
 import '../features/rituals/widgets/shutdown_wizard_modal.dart';
 import '../features/weekly_review/providers/weekly_review_provider.dart';
 import '../features/weekly_review/widgets/weekly_review_wizard.dart';
+import '../features/focus_mode/focus_mode_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -409,6 +410,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           setState(() {
                             _currentTabIndex = 4;
                           });
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.center_focus_strong_rounded,
+                        title: context.tr('focus_mode_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const FocusModePage()),
+                          );
                         },
                       ),
                       _buildDrawerItem(

@@ -13,6 +13,8 @@ import '../models/level_logic.dart';
 import '../providers/progress_provider.dart';
 import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
+import '../../focus_mode/providers/focus_mode_provider.dart';
+import '../../focus_mode/services/notification_queue.dart';
 
 /// Shared service for XP awards, level progression, and achievement verification.
 ///
@@ -134,10 +136,21 @@ class ProgressService {
         await doc.set(updates, SetOptions(merge: true));
       }
 
-      // Show celebratory notifications for each new achievement
+      // Show or queue celebratory notifications for each new achievement
       if (context.mounted) {
+        final isFocusActive = ref.read(focusModeActiveProvider);
+
         for (final achievement in newlyUnlocked) {
-          _showAchievementCelebration(context, achievement);
+          if (isFocusActive) {
+            // Queue celebratory notification until Focus Mode exits
+            NotificationQueue().queueCelebration((ctx) {
+              if (ctx.mounted) {
+                _showAchievementCelebration(ctx, achievement);
+              }
+            });
+          } else {
+            _showAchievementCelebration(context, achievement);
+          }
 
           // Group feed hook: post achievement to group feeds
           if (achievement.category == AchievementCategory.levels) {

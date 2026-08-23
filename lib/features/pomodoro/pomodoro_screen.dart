@@ -9,6 +9,7 @@ import 'widgets/circular_timer_ring.dart';
 import 'widgets/pomodoro_controls.dart';
 import 'widgets/pomodoro_settings_sheet.dart';
 import 'widgets/weekly_focus_chart.dart';
+import '../focus_mode/focus_mode_page.dart';
 
 /// Main Pomodoro Timer screen in Focusly.
 ///
@@ -229,26 +230,58 @@ class PomodoroScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      // Settings Gear Action
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
-                          border: Border.all(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.1)
-                                : const Color(0xFFE2E8F5),
+                      // Header Action Buttons (Focus Mode + Settings)
+                      Row(
+                        children: [
+                          // Enter Focus Mode Button
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                              border: Border.all(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.1)
+                                    : const Color(0xFFE2E8F5),
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.center_focus_strong_rounded,
+                                color: brandPrimary,
+                                size: 20,
+                              ),
+                              tooltip: context.tr('enter_focus_mode_btn'),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const FocusModePage()),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.tune_rounded,
-                            color: brandPrimary,
-                            size: 20,
+                          const SizedBox(width: 8),
+
+                          // Settings Gear Action
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                              border: Border.all(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.1)
+                                    : const Color(0xFFE2E8F5),
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.tune_rounded,
+                                color: brandPrimary,
+                                size: 20,
+                              ),
+                              tooltip: context.tr('pomodoro_settings'),
+                              onPressed: () => _openSettingsSheet(context),
+                            ),
                           ),
-                          tooltip: context.tr('pomodoro_settings'),
-                          onPressed: () => _openSettingsSheet(context),
-                        ),
+                        ],
                       ),
                     ],
                   ),

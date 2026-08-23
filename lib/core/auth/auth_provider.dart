@@ -16,6 +16,7 @@ import '../../features/schedule/providers/schedule_provider.dart';
 import '../../features/tasks/providers/tasks_provider.dart';
 import '../../features/time_audit/providers/time_audit_provider.dart';
 import '../../features/weekly_review/providers/weekly_review_provider.dart';
+import '../../features/focus_mode/providers/focus_mode_provider.dart';
 
 /// Stream provider for Firebase Auth state changes.
 ///
@@ -102,6 +103,7 @@ Future<void> logoutAndClearSession(WidgetRef ref) async {
   ref.invalidate(todayRitualStreamProvider);
   ref.invalidate(lastReviewDateStreamProvider);
   ref.invalidate(weeklyReviewsStreamProvider);
+  ref.invalidate(focusModeActiveProvider);
 
   // 3. Reset Pomodoro active timer state if running
   try {

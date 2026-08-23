@@ -1195,6 +1195,22 @@ class AppLocalizations {
       'finish_review_btn': 'Finish Review (+40 XP)',
       'weekly_review_completed_toast':
           '🗓 Weekly review complete! Thanks for keeping your system organized.',
+
+      // Focus Mode Module
+      'focus_mode_title': 'Focus Mode',
+      'distraction_free_badge': 'Distraction-free',
+      'enter_focus_mode_btn': 'Enter Focus Mode',
+      'exit_focus_mode_btn': 'Exit Focus Mode',
+      'focus_mode_locked_toast':
+          "🔒 Can't exit Focus Mode until the session ends or you pause/reset it",
+      'select_task_to_focus': 'Select Task to Focus On',
+      'no_active_tasks_to_focus': 'No active tasks available to link',
+      'live_subtasks_title': 'Subtasks Checklist',
+      'no_subtasks_yet': 'No subtasks yet',
+      'focus_add_subtask_btn': 'Add Subtask',
+      'focus_add_subtask_hint': 'Enter new subtask title...',
+      'choose_next_task': 'Switch Task',
+      'task_completed_inline': 'Task completed! Great progress ✨',
     },
     'ar': {
       // App General
@@ -2372,6 +2388,22 @@ class AppLocalizations {
       'finish_review_btn': 'إنهاء المراجعة (+40 XP)',
       'weekly_review_completed_toast':
           '🗓 اكتملت المراجعة الأسبوعية! شكراً لحرصك على تنظيم نظامك الإنتاجي.',
+
+      // Focus Mode Module
+      'focus_mode_title': 'وضع التركيز',
+      'distraction_free_badge': 'وضع خالٍ من المشتتات',
+      'enter_focus_mode_btn': 'الدخول في وضع التركيز',
+      'exit_focus_mode_btn': 'الخروج من وضع التركيز',
+      'focus_mode_locked_toast':
+          '🔒 لا يمكن الخروج من وضع التركيز حتى تنتهي الجلسة أو توقف المؤقت مؤقتاً',
+      'select_task_to_focus': 'اختر مهمة للتركيز عليها',
+      'no_active_tasks_to_focus': 'لا توجد مهام نشطة متاحة للربط',
+      'live_subtasks_title': 'قائمة المهام الفرعية المباشرة',
+      'no_subtasks_yet': 'لا توجد مهام فرعية بعد',
+      'focus_add_subtask_btn': 'إضافة مهمة فرعية',
+      'focus_add_subtask_hint': 'اكتب عنوان المهمة الفرعية...',
+      'choose_next_task': 'تبديل المهمة',
+      'task_completed_inline': 'تم إنجاز المهمة! تقدم رائع ✨',
     },
   };
 
