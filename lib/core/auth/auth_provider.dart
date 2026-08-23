@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/contacts/providers/contacts_provider.dart';
 import '../../features/energy_mood/providers/energy_mood_provider.dart';
+import '../../features/goals/providers/goals_provider.dart';
 import '../../features/groups/providers/groups_provider.dart';
 import '../../features/gtd/providers/gtd_provider.dart';
 import '../../features/habits/providers/habits_provider.dart';
@@ -93,6 +94,7 @@ Future<void> logoutAndClearSession(WidgetRef ref) async {
   ref.invalidate(todayCheckinStreamProvider);
   ref.invalidate(checkinsHistoryStreamProvider);
   ref.invalidate(contactsStreamProvider);
+  ref.invalidate(goalsStreamProvider);
 
   // 3. Reset Pomodoro active timer state if running
   try {

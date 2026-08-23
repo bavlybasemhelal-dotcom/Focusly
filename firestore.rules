@@ -110,6 +110,11 @@ service cloud.firestore {
       match /contacts/{contactId} {
         allow read, write: if isOwner(userId);
       }
+
+      // Life Map Goals Subcollection: users/{userId}/goals/{goalId}
+      match /goals/{goalId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // -------------------------------------------------------------------------
