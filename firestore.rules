@@ -120,6 +120,16 @@ service cloud.firestore {
       match /timeAuditLogs/{logId} {
         allow read, write: if isOwner(userId);
       }
+
+      // Daily Rituals Subcollection: users/{userId}/rituals/{dateStr}
+      match /rituals/{dateStr} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Gratitude Subcollection: users/{userId}/gratitude/{gratitudeId}
+      match /gratitude/{gratitudeId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // -------------------------------------------------------------------------

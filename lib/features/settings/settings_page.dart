@@ -11,6 +11,7 @@ import '../../core/theme/reminder_time_controller.dart';
 import '../../core/theme/theme_controller.dart';
 import '../../screens/login_screen.dart';
 import '../energy_mood/providers/energy_mood_provider.dart';
+import '../rituals/providers/rituals_provider.dart';
 import 'change_password_page.dart';
 import 'privacy_policy_page.dart';
 import 'profile_page.dart';
@@ -395,6 +396,88 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
                       onTap: () => _showWaterTargetDialog(context, ref),
+                    ),
+                    _buildDivider(borderColor),
+
+                    // Morning Intention Prompt Toggle
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF59E0B),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.light_mode_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.tr('morning_intention_prompt_setting'),
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: primaryTextColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  context.tr('morning_intention_prompt_setting_desc'),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: secondaryTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch.adaptive(
+                            value: ref.watch(morningIntentionPromptSettingProvider),
+                            activeTrackColor: brandPrimary,
+                            activeThumbColor: Colors.white,
+                            onChanged: (val) {
+                              ref
+                                  .read(morningIntentionPromptSettingProvider.notifier)
+                                  .setEnabled(val);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildDivider(borderColor),
+
+                    // Preferred Shutdown Time Picker Row
+                    _buildSettingsRow(
+                      icon: Icons.nightlight_round,
+                      iconBg: const Color(0xFF8B5CF6),
+                      title: context.tr('preferred_shutdown_time_setting'),
+                      subtitle: context.tr('preferred_shutdown_time_setting_desc'),
+                      trailingText: ref.watch(preferredShutdownTimeSettingProvider).format(context),
+                      primaryColor: primaryTextColor,
+                      secondaryColor: secondaryTextColor,
+                      brandPrimary: brandPrimary,
+                      onTap: () async {
+                        final current = ref.read(preferredShutdownTimeSettingProvider);
+                        final picked = await showTimePicker(
+                          context: context,
+                          initialTime: current,
+                        );
+                        if (picked != null) {
+                          await ref
+                              .read(preferredShutdownTimeSettingProvider.notifier)
+                              .setTime(picked);
+                        }
+                      },
                     ),
                     _buildDivider(borderColor),
 

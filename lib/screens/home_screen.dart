@@ -28,6 +28,11 @@ import '../features/para/archive_page.dart';
 import '../features/para/para_guide_page.dart';
 import '../features/para/projects_page.dart';
 import '../features/para/resources_page.dart';
+import '../features/rituals/daily_rituals_page.dart';
+import '../features/rituals/providers/rituals_provider.dart';
+import '../features/rituals/widgets/morning_intention_banner.dart';
+import '../features/rituals/widgets/morning_intention_modal.dart';
+import '../features/rituals/widgets/shutdown_wizard_modal.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -41,6 +46,36 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentTabIndex = 0;
+  bool _promptChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkMorningIntentionPrompt());
+  }
+
+  void _checkMorningIntentionPrompt() {
+    if (_promptChecked || !mounted) return;
+    _promptChecked = true;
+
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
+
+    final promptSetting = ref.read(morningIntentionPromptSettingProvider);
+    if (!promptSetting) return;
+
+    final dismissed = ref.read(morningIntentionDismissedProvider);
+    if (dismissed) return;
+
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) {
+        final currentRitual = ref.read(todayRitualStreamProvider).value;
+        if (currentRitual == null || !currentRitual.hasIntention) {
+          MorningIntentionModal.show(context);
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -664,6 +699,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       _buildDrawerItem(
                         context: context,
+                        icon: Icons.wb_twilight_rounded,
+                        title: context.tr('daily_rituals_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const DailyRitualsPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
                         icon: Icons.bolt_rounded,
                         title: context.tr('energy_mood_title'),
                         isSelected: false,
@@ -1175,12 +1224,96 @@ class _HomeTabContent extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
+            // Morning Intention Banner
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.0),
+              child: MorningIntentionBanner(),
+            ),
+
             // Daily Check-in & Energy Mood Banner/Summary Widget
             const HomeEnergyMoodWidget(),
             const SizedBox(height: 8),
 
             // People to Reach Out To (Personal CRM Overdue Widget)
             const HomeContactsWidget(),
+            const SizedBox(height: 12),
+
+            // End My Day (Evening Shutdown Ritual Card)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: InkWell(
+                onTap: () => ShutdownWizardModal.show(context),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    gradient: isDark
+                        ? const LinearGradient(
+                            colors: [Color(0xFF3B0764), Color(0xFF1E1B4B)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : const LinearGradient(
+                            colors: [Color(0xFFF3E8FF), Color(0xFFEDE9FE)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFFA855F7).withValues(alpha: 0.3)
+                          : const Color(0xFFC084FC),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Center(
+                          child: Text('🌙', style: TextStyle(fontSize: 20)),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context.tr('end_my_day_title'),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white : const Color(0xFF581C87),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              context.tr('end_my_day_subtitle'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark ? Colors.white70 : const Color(0xFF6B21A8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: isDark ? Colors.white60 : const Color(0xFF7E22CE),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 12),
 
             // Radiant Focus Workspace Banner

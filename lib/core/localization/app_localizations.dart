@@ -1063,6 +1063,86 @@ class AppLocalizations {
       'clear_all_btn': 'Clear All',
       'all_logs_cleared_toast': 'All manual time entries cleared',
       'log_deleted_toast': 'Time entry deleted',
+
+      // Daily Rituals Module
+      'daily_rituals_title': 'Daily Rituals',
+      'morning_intention_title': 'Morning Intention',
+      'morning_intention_subtitle':
+          'Set your primary focus and clarity for today',
+      'morning_intention_hint':
+          'What is your main focus for today?...',
+      'morning_intention_required': 'Please enter your focus for today',
+      'save_intention_btn': 'Set Intention',
+      'edit_intention_btn': 'Edit Intention',
+      'set_intention_btn': 'Set Intention',
+      'morning_intention_saved_toast':
+          'Morning intention set! 🎯 Have a great day',
+      'todays_focus_label': 'TODAY\'S FOCUS',
+      'set_morning_intention_prompt_title': 'Set Morning Intention',
+      'set_morning_intention_prompt_sub':
+          'What is your single most important focus today?',
+      'set_btn': 'Set',
+      'end_my_day_title': 'End My Day',
+      'end_my_day_subtitle':
+          'Review today, plan tomorrow, log gratitude (+30 XP)',
+      'shutdown_ritual_title': 'Shutdown Ritual',
+      'shutdown_ritual_card_desc':
+          'Review today\'s achievements, plan tomorrow, and capture gratitude.',
+      'shutdown_completed_today_sub':
+          'You closed out today successfully! Sleep well 🌙',
+      'start_shutdown_btn': 'Start Shutdown',
+      'view_shutdown_btn': 'View Summary',
+      'already_closed_today_title': 'You\'ve already closed out today! 🌙',
+      'already_closed_today_subtitle':
+          'Great work today. Rest well and get ready for tomorrow.',
+      'early_shutdown_warning_title': 'Close Out Early?',
+      'early_shutdown_warning_msg':
+          'It\'s recommended to do this at your chosen time ({time}). If you continue now, you won\'t be able to do it again today. Continue?',
+      'continue_btn': 'Continue',
+      'back_btn': 'Back',
+      'finish_shutdown_btn': 'Finish & Close Day',
+      'shutdown_step_1_title': 'Review Today',
+      'shutdown_step_1_sub':
+          'See what you accomplished today and roll over unfinished tasks.',
+      'today_task_completion_summary':
+          '{completed} of {total} tasks completed today',
+      'postpone_tasks_btn': 'Postpone incomplete tasks to tomorrow',
+      'tasks_postponed_toast': '{count} tasks moved to tomorrow',
+      'no_unfinished_tasks_toast': 'No unfinished tasks to postpone! 🎉',
+      'shutdown_step_2_title': 'Plan Tomorrow',
+      'shutdown_step_2_sub':
+          'List up to 3 top priority tasks for tomorrow (optional).',
+      'tomorrow_task_1_hint': 'Tomorrow top task #1',
+      'tomorrow_task_2_hint': 'Tomorrow top task #2',
+      'tomorrow_task_3_hint': 'Tomorrow top task #3',
+      'shutdown_step_3_title': 'Quick Check-In',
+      'shutdown_step_3_sub':
+          'How was your energy and mood throughout today?',
+      'shutdown_step_4_title': 'Lesson Learned',
+      'shutdown_step_4_sub':
+          'What\'s one valuable lesson or insight you learned today?',
+      'lesson_learned_hint': 'One insight or takeaway... (optional)',
+      'shutdown_step_5_title': 'Daily Gratitude',
+      'shutdown_step_5_sub':
+          'Name 3 things you are genuinely grateful for today.',
+      'gratitude_1_hint': '1. Something that made you smile...',
+      'gratitude_2_hint': '2. A person or relationship you appreciate...',
+      'gratitude_3_hint': '3. A simple comfort or opportunity...',
+      'gratitude_all_required_error': 'Please fill in all 3 items',
+      'shutdown_completed_celebration_toast':
+          '🌙 Day closed out. Sleep well 💤 (+30 XP earned)',
+      'rituals_history_header': 'Rituals History',
+      'no_rituals_history_title': 'No Rituals Logged Yet',
+      'no_rituals_history_sub':
+          'Your completed morning intentions and shutdown reviews will appear here.',
+      'status_set': 'Set',
+      'status_pending': 'Pending',
+      'morning_intention_prompt_setting': 'Morning Intention Prompt',
+      'morning_intention_prompt_setting_desc':
+          'Show intention prompt automatically on Home load',
+      'preferred_shutdown_time_setting': 'Preferred Shutdown Time',
+      'preferred_shutdown_time_setting_desc':
+          'Time for end-of-day review timing nudge',
     },
     'ar': {
       // App General
@@ -2111,6 +2191,83 @@ class AppLocalizations {
       'clear_all_btn': 'مسح الكل',
       'all_logs_cleared_toast': 'تم مسح جميع السجلات اليدوية',
       'log_deleted_toast': 'تم حذف السجل',
+
+      // Daily Rituals Module
+      'daily_rituals_title': 'الطقوس اليومية',
+      'morning_intention_title': 'نية الصباح',
+      'morning_intention_subtitle': 'حدد تركيزك الأساسي ووضوحك لليوم',
+      'morning_intention_hint': 'ما هو تركيزك الأساسي لهذا اليوم؟...',
+      'morning_intention_required': 'يرجى إدخال تركيزك لهذا اليوم',
+      'save_intention_btn': 'حفظ النية',
+      'edit_intention_btn': 'تعديل النية',
+      'set_intention_btn': 'تحديد النية',
+      'morning_intention_saved_toast':
+          'تم تحديد نية الصباح! 🎯 نتمنى لك يوماً رائعاً',
+      'todays_focus_label': 'تركيز اليوم',
+      'set_morning_intention_prompt_title': 'حدد نية الصباح',
+      'set_morning_intention_prompt_sub':
+          'ما هو أهم هدف أو تركيز لديك اليوم؟',
+      'set_btn': 'تحديد',
+      'end_my_day_title': 'إغلاق اليوم',
+      'end_my_day_subtitle':
+          'راجع يومك، خطط للغد، ودون امتنانك (+30 XP)',
+      'shutdown_ritual_title': 'طقس إغلاق اليوم',
+      'shutdown_ritual_card_desc':
+          'راجع إنجازات اليوم، خطط للغد، واختم بيومك بمشاعر الامتنان.',
+      'shutdown_completed_today_sub':
+          'لقد أغلقت يومك بنجاح! طابت ليلتك 🌙',
+      'start_shutdown_btn': 'بدء إغلاق اليوم',
+      'view_shutdown_btn': 'عرض الملخص',
+      'already_closed_today_title': 'لقد قمت بإغلاق يومك بالفعل اليوم! 🌙',
+      'already_closed_today_subtitle':
+          'عمل رائع اليوم. خذ قسطاً من الراحة واستعد ليوم غد.',
+      'early_shutdown_warning_title': 'إغلاق اليوم مبكراً؟',
+      'early_shutdown_warning_msg':
+          'من المستحسن إجراء هذا الطقس في الوقت المفضل ({time}). إذا تابعت الآن، لن تتمكن من إجرائه مجدداً اليوم. هل ترغب في المتابعة؟',
+      'continue_btn': 'متابعة',
+      'back_btn': 'السابق',
+      'finish_shutdown_btn': 'إنهاء وإغلاق اليوم',
+      'shutdown_step_1_title': 'مراجعة اليوم',
+      'shutdown_step_1_sub':
+          'تعرف على ما أنجزته اليوم وقم بترحيل المهام المتبقية.',
+      'today_task_completion_summary':
+          'تم إنجاز {completed} من أصل {total} مهام اليوم',
+      'postpone_tasks_btn': 'ترحيل المهام غير المكتملة إلى الغد',
+      'tasks_postponed_toast': 'تم ترحيل {count} مهام إلى الغد',
+      'no_unfinished_tasks_toast': 'لا توجد مهام متبقية لترحيلها! 🎉',
+      'shutdown_step_2_title': 'التخطيط للغد',
+      'shutdown_step_2_sub':
+          'حدد أهم 3 مهام ذات أولوية ليوم غد (اختياري).',
+      'tomorrow_task_1_hint': 'المهمة الأولى للغد',
+      'tomorrow_task_2_hint': 'المهمة الثانية للغد',
+      'tomorrow_task_3_hint': 'المهمة الثالثة للغد',
+      'shutdown_step_3_title': 'تسجيل سريع',
+      'shutdown_step_3_sub': 'كيف كانت طاقتك ومزاجك على مدار اليوم؟',
+      'shutdown_step_4_title': 'الدرس المستفاد',
+      'shutdown_step_4_sub':
+          'ما هو الدرس أو الفائدة القيمة التي تعلمتها اليوم؟',
+      'lesson_learned_hint': 'فائدة أو درس تعلمته اليوم... (اختياري)',
+      'shutdown_step_5_title': 'الامتنان اليومي',
+      'shutdown_step_5_sub':
+          'اذكر 3 أشياء تشعر بالامتنان الصادق لها اليوم.',
+      'gratitude_1_hint': '1. شيء رسم البسمة على وجهك...',
+      'gratitude_2_hint': '2. شخص أو علاقة تقدرها...',
+      'gratitude_3_hint': '3. نعمة أو فرصة ممتن لها...',
+      'gratitude_all_required_error': 'يرجى كتابة العناصر الثلاثة كاملة',
+      'shutdown_completed_celebration_toast':
+          '🌙 تم إغلاق اليوم. طابت ليلتك 💤 (+30 XP)',
+      'rituals_history_header': 'سجل الطقوس',
+      'no_rituals_history_title': 'لا يوجد سجل للطقوس بعد',
+      'no_rituals_history_sub':
+          'ستظهر نوايا الصباح ومراجعات إغلاق اليوم المكتملة هنا.',
+      'status_set': 'مكتمل',
+      'status_pending': 'معلق',
+      'morning_intention_prompt_setting': 'منبه نية الصباح',
+      'morning_intention_prompt_setting_desc':
+          'إظهار نافذة نية الصباح تلقائياً عند فتح التطبيق',
+      'preferred_shutdown_time_setting': 'وقت إغلاق اليوم المفضل',
+      'preferred_shutdown_time_setting_desc':
+          'الوقت المفضل لتذكير إغلاق ومراجعة اليوم',
     },
   };
 

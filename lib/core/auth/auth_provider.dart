@@ -11,6 +11,7 @@ import '../../features/habits/providers/habits_provider.dart';
 import '../../features/para/providers/para_provider.dart';
 import '../../features/pomodoro/providers/pomodoro_provider.dart';
 import '../../features/progress/providers/progress_provider.dart';
+import '../../features/rituals/providers/rituals_provider.dart';
 import '../../features/schedule/providers/schedule_provider.dart';
 import '../../features/tasks/providers/tasks_provider.dart';
 import '../../features/time_audit/providers/time_audit_provider.dart';
@@ -97,6 +98,7 @@ Future<void> logoutAndClearSession(WidgetRef ref) async {
   ref.invalidate(contactsStreamProvider);
   ref.invalidate(goalsStreamProvider);
   ref.invalidate(timeAuditLogsStreamProvider);
+  ref.invalidate(todayRitualStreamProvider);
 
   // 3. Reset Pomodoro active timer state if running
   try {
