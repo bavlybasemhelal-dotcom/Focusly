@@ -23,6 +23,7 @@ import '../features/energy_mood/widgets/home_energy_mood_widget.dart';
 import '../features/goals/life_map_page.dart';
 import '../features/gtd/widgets/quick_capture_sheet.dart';
 import '../features/para/areas_page.dart';
+import '../features/time_audit/time_audit_page.dart';
 import '../features/para/archive_page.dart';
 import '../features/para/para_guide_page.dart';
 import '../features/para/projects_page.dart';
@@ -615,6 +616,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const LifeMapPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.access_time_rounded,
+                        title: context.tr('time_audit_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const TimeAuditPage(),
                             ),
                           );
                         },

@@ -1034,6 +1034,35 @@ class AppLocalizations {
           'Set an exciting goal for this timeframe to stay focused and motivated.',
       'add_first_goal_btn': 'Add Your First Goal',
       'goal_not_found': 'Goal not found',
+
+      // Time Audit Module
+      'time_audit_title': 'Time Audit',
+      'quick_log_title': 'Quick Log',
+      'hours_label': 'Hours',
+      'hours_invalid_error': 'Enter > 0',
+      'description_hint': 'What did you work on? (Optional)',
+      'log_time_btn': 'Log Time',
+      'time_logged_toast': '⏱️ Time logged!',
+      'time_distribution_title': 'Time Distribution',
+      'time_audit_estimation_note':
+          'Estimated hours include completed tasks based on their priority.',
+      'time_audit_empty_chart':
+          'No logged time or completed tasks to show yet.',
+      'period_this_week': 'This Week',
+      'period_this_month': 'This Month',
+      'period_all_time': 'All Time',
+      'manual_entries_header': 'Manual Entries',
+      'entries_unit': 'entries',
+      'no_manual_entries_title': 'No Manual Entries',
+      'no_manual_entries_subtitle':
+          'Use the Quick Log bar above to log time spent on your activities.',
+      'manual_activity_default': 'Manual activity',
+      'clear_all_logs_title': 'Clear All Logs',
+      'clear_all_logs_msg':
+          'Are you sure you want to clear all manually logged time entries?',
+      'clear_all_btn': 'Clear All',
+      'all_logs_cleared_toast': 'All manual time entries cleared',
+      'log_deleted_toast': 'Time entry deleted',
     },
     'ar': {
       // App General
@@ -2053,6 +2082,35 @@ class AppLocalizations {
           'حدد هدفاً ملهماً لهذا الإطار الزمني لتبقى في قمة حماسك وتركيزك.',
       'add_first_goal_btn': 'أضف هدفك الأول',
       'goal_not_found': 'الهدف غير موجود',
+
+      // Time Audit Module
+      'time_audit_title': 'تدقيق الوقت',
+      'quick_log_title': 'تسجيل سريع',
+      'hours_label': 'الساعات',
+      'hours_invalid_error': 'أدخل قيمة > 0',
+      'description_hint': 'على ماذا عملت؟ (اختياري)',
+      'log_time_btn': 'تسجيل',
+      'time_logged_toast': '⏱️ تم تسجيل الوقت!',
+      'time_distribution_title': 'توزيع الوقت',
+      'time_audit_estimation_note':
+          'تشمل الساعات التقديرية المهام المكتملة بناءً على أولوياتها.',
+      'time_audit_empty_chart':
+          'لا يوجد وقت مسجل أو مهام مكتملة في هذه الفترة بعد.',
+      'period_this_week': 'هذا الأسبوع',
+      'period_this_month': 'هذا الشهر',
+      'period_all_time': 'كل الوقت',
+      'manual_entries_header': 'السجلات اليدوية',
+      'entries_unit': 'سجلات',
+      'no_manual_entries_title': 'لا توجد سجلات يدوية',
+      'no_manual_entries_subtitle':
+          'استخدم شريط التسجيل السريع أعلاه لتدوين أوقات أنشطتك.',
+      'manual_activity_default': 'نشاط يدوي',
+      'clear_all_logs_title': 'مسح جميع السجلات',
+      'clear_all_logs_msg':
+          'هل أنت متأكد من رغبتك في مسح جميع السجلات اليدوية؟',
+      'clear_all_btn': 'مسح الكل',
+      'all_logs_cleared_toast': 'تم مسح جميع السجلات اليدوية',
+      'log_deleted_toast': 'تم حذف السجل',
     },
   };
 

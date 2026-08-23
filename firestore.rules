@@ -115,6 +115,11 @@ service cloud.firestore {
       match /goals/{goalId} {
         allow read, write: if isOwner(userId);
       }
+
+      // Time Audit Logs Subcollection: users/{userId}/timeAuditLogs/{logId}
+      match /timeAuditLogs/{logId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // -------------------------------------------------------------------------
