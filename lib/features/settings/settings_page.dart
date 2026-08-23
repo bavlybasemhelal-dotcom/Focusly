@@ -10,6 +10,7 @@ import '../../core/theme/font_size_controller.dart';
 import '../../core/theme/reminder_time_controller.dart';
 import '../../core/theme/theme_controller.dart';
 import '../../screens/login_screen.dart';
+import '../energy_mood/providers/energy_mood_provider.dart';
 import 'change_password_page.dart';
 import 'privacy_policy_page.dart';
 import 'profile_page.dart';
@@ -326,6 +327,74 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
                       onTap: () => _pickReminderTime(context, currentReminderTime),
+                    ),
+                    _buildDivider(borderColor),
+
+                    // Daily Check-in Reminder Toggle
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4F46E5).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.bolt_rounded,
+                              color: Color(0xFF4F46E5),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.tr('daily_checkin_reminder_setting'),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: primaryTextColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  context.tr('daily_checkin_reminder_setting_desc'),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: secondaryTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: ref.watch(dailyCheckinReminderProvider),
+                            activeThumbColor: brandPrimary,
+                            onChanged: (val) {
+                              ref.read(dailyCheckinReminderProvider.notifier).setEnabled(val);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildDivider(borderColor),
+
+                    // Daily Water Target Stepper Row
+                    _buildSettingsRow(
+                      icon: Icons.water_drop_rounded,
+                      iconBg: const Color(0xFF06B6D4),
+                      title: context.tr('water_target_setting'),
+                      subtitle: context.tr('water_target_setting_desc'),
+                      trailingText: '${ref.watch(dailyWaterTargetProvider)} ${context.tr('glasses_unit')}',
+                      primaryColor: primaryTextColor,
+                      secondaryColor: secondaryTextColor,
+                      brandPrimary: brandPrimary,
+                      onTap: () => _showWaterTargetDialog(context, ref),
                     ),
                     _buildDivider(borderColor),
 
@@ -1126,6 +1195,91 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       color: borderColor,
       indent: 16,
       endIndent: 16,
+    );
+  }
+
+  void _showWaterTargetDialog(BuildContext context, WidgetRef ref) {
+    int current = ref.read(dailyWaterTargetProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Text(
+                context.tr('water_target_setting'),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary(context),
+                ),
+              ),
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: current > 1
+                        ? () {
+                            setDialogState(() => current--);
+                          }
+                        : null,
+                    icon: const Icon(Icons.remove_circle_outline_rounded, size: 28),
+                    color: const Color(0xFF06B6D4),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    '$current',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimary(context),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    context.tr('glasses_unit'),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary(context),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  IconButton(
+                    onPressed: current < 30
+                        ? () {
+                            setDialogState(() => current++);
+                          }
+                        : null,
+                    icon: const Icon(Icons.add_circle_outline_rounded, size: 28),
+                    color: const Color(0xFF06B6D4),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(context.tr('cancel')),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF06B6D4),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    ref.read(dailyWaterTargetProvider.notifier).setTarget(current);
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Text(context.tr('save')),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

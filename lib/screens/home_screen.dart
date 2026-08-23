@@ -17,6 +17,8 @@ import '../features/gtd/reference_screen.dart';
 import '../features/gtd/someday_screen.dart';
 import '../features/gtd/waiting_screen.dart';
 import '../features/gtd/widgets/quick_capture_sheet.dart';
+import '../features/energy_mood/energy_mood_history_page.dart';
+import '../features/energy_mood/widgets/home_energy_mood_widget.dart';
 import '../features/para/areas_page.dart';
 import '../features/para/archive_page.dart';
 import '../features/para/para_guide_page.dart';
@@ -574,6 +576,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         },
                       ),
 
+                      // -------------------------------------------------------
+                      // WELLNESS SECTION
+                      // -------------------------------------------------------
+                      // TODO: Future wellness features (Daily Rituals, Mood Journal, Mindfulness) should join this same section.
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              context.tr('wellness_section_header'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
+                                height: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.bolt_rounded,
+                        title: context.tr('energy_mood_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const EnergyMoodHistoryPage(),
+                            ),
+                          );
+                        },
+                      ),
+
                       const SizedBox(height: 6),
                       _buildDrawerItem(
                         context: context,
@@ -953,153 +997,168 @@ class _HomeTabContent extends StatelessWidget {
     final localizedDate = AppLocalizations.of(context).formatLocalizedDate(DateTime.now());
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User Greeting Header
-            Text(
-              '${context.tr('hello_greeting')}, $userName 👋',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: primaryTextColor,
-                letterSpacing: -0.8,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Date Badge Pill with Radiant Border & Soft Gradient
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                gradient: isDark
-                    ? null
-                    : const LinearGradient(
-                        colors: [Color(0xFFFFFFFF), Color(0xFFF0F6FF)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                color: isDark ? const Color(0xFF0F1B4C).withValues(alpha: 0.6) : null,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.12)
-                      : const Color(0xFFBFDBFE),
-                  width: 1.2,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
-                          blurRadius: 12,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            // User Greeting Header & Date Badge
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.calendar_today_rounded,
-                    size: 15,
-                    color: brandPrimary,
-                  ),
-                  const SizedBox(width: 8),
                   Text(
-                    localizedDate,
+                    '${context.tr('hello_greeting')}, $userName 👋',
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? AppColors.darkTextSecondary : const Color(0xFF1E40AF),
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: primaryTextColor,
+                      letterSpacing: -0.8,
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
+                  const SizedBox(height: 12),
 
-            // Radiant Focus Workspace Banner
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                gradient: isDark
-                    ? const LinearGradient(
-                        colors: [Color(0xFF0F1B4C), Color(0xFF0B1647)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : const LinearGradient(
-                        colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: isDark
-                      ? AppColors.cyanElectric.withValues(alpha: 0.25)
-                      : const Color(0xFF93C5FD),
-                  width: 1.4,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.10),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-              ),
-              child: Row(
-                children: [
+                  // Date Badge Pill with Radiant Border & Soft Gradient
                   Container(
-                    width: 48,
-                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
                       gradient: isDark
-                          ? const LinearGradient(
-                              colors: [Color(0xFF00E5FF), Color(0xFF1E58F6)],
-                            )
+                          ? null
                           : const LinearGradient(
-                              colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                              colors: [Color(0xFFFFFFFF), Color(0xFFF0F6FF)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDark
-                              ? AppColors.cyanElectric.withValues(alpha: 0.4)
-                              : const Color(0xFF2563EB).withValues(alpha: 0.35),
-                          blurRadius: 12,
-                        ),
-                      ],
+                      color: isDark ? const Color(0xFF0F1B4C).withValues(alpha: 0.6) : null,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.12)
+                            : const Color(0xFFBFDBFE),
+                        width: 1.2,
+                      ),
+                      boxShadow: isDark
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                     ),
-                    child: const Icon(
-                      Icons.auto_awesome_rounded,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          size: 15,
+                          color: brandPrimary,
+                        ),
+                        const SizedBox(width: 8),
                         Text(
-                          context.tr('focus_workspace_ready'),
+                          localizedDate,
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? AppColors.darkTextSecondary : const Color(0xFF1E40AF),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Daily Check-in & Energy Mood Banner/Summary Widget
+            const HomeEnergyMoodWidget(),
+            const SizedBox(height: 12),
+
+            // Radiant Focus Workspace Banner
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  gradient: isDark
+                      ? const LinearGradient(
+                          colors: [Color(0xFF0F1B4C), Color(0xFF0B1647)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : const LinearGradient(
+                          colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.cyanElectric.withValues(alpha: 0.25)
+                        : const Color(0xFF93C5FD),
+                    width: 1.4,
+                  ),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: const Color(0xFF2E6FF2).withValues(alpha: 0.10),
+                            blurRadius: 18,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: isDark
+                            ? const LinearGradient(
+                                colors: [Color(0xFF00E5FF), Color(0xFF1E58F6)],
+                              )
+                            : const LinearGradient(
+                                colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                              ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark
+                                ? AppColors.cyanElectric.withValues(alpha: 0.4)
+                                : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                            blurRadius: 12,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.tr('focus_workspace_ready'),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
