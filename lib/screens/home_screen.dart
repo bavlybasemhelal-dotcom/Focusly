@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../features/settings/settings_page.dart';
 import '../features/tasks/tasks_screen.dart';
 import '../features/schedule/schedule_screen.dart';
+import '../features/habits/habits_screen.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -270,6 +271,42 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               _buildDrawerItem(
                 context: context,
+                icon: Icons.check_circle_outline_rounded,
+                title: context.tr('tasks'),
+                isSelected: _currentTabIndex == 1,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    _currentTabIndex = 1;
+                  });
+                },
+              ),
+              _buildDrawerItem(
+                context: context,
+                icon: Icons.calendar_month_outlined,
+                title: context.tr('schedule'),
+                isSelected: _currentTabIndex == 2,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    _currentTabIndex = 2;
+                  });
+                },
+              ),
+              _buildDrawerItem(
+                context: context,
+                icon: Icons.local_fire_department_outlined,
+                title: context.tr('habits'),
+                isSelected: _currentTabIndex == 3,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    _currentTabIndex = 3;
+                  });
+                },
+              ),
+              _buildDrawerItem(
+                context: context,
                 icon: Icons.settings_outlined,
                 title: context.tr('settings'),
                 isSelected: false,
@@ -320,6 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _HomeTabContent(userName: displayName),
               const TasksScreen(),
               const ScheduleScreen(),
+              const HabitsScreen(),
               const _ProfileTabPlaceholder(),
             ],
           ),
@@ -361,12 +399,12 @@ class _HomeScreenState extends State<HomeScreen> {
           unselectedItemColor: secondaryTextColor,
           selectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.w800,
-            fontSize: 12,
-            letterSpacing: 0.2,
+            fontSize: 11,
+            letterSpacing: 0.1,
           ),
           unselectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: 12,
+            fontSize: 11,
           ),
           elevation: 0,
           items: [
@@ -384,6 +422,11 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.calendar_month_outlined),
               activeIcon: const Icon(Icons.calendar_month_rounded),
               label: context.tr('schedule'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.local_fire_department_outlined),
+              activeIcon: const Icon(Icons.local_fire_department_rounded),
+              label: context.tr('habits'),
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.person_outline_rounded),

@@ -9,6 +9,7 @@ import 'package:focusly/features/settings/profile_page.dart';
 import 'package:focusly/features/settings/settings_page.dart';
 import 'package:focusly/features/tasks/tasks_screen.dart';
 import 'package:focusly/features/schedule/schedule_screen.dart';
+import 'package:focusly/features/habits/habits_screen.dart';
 import 'package:focusly/screens/home_screen.dart';
 import 'package:focusly/screens/login_screen.dart';
 import 'package:focusly/screens/onboarding_screen.dart';
@@ -252,12 +253,17 @@ void main() {
       await tester.pump();
       expect(find.text('Schedule'), findsWidgets);
 
-      // 4. Switch to Profile tab
+      // 4. Switch to Habits tab
+      await tester.tap(find.text('Habits'));
+      await tester.pump();
+      expect(find.text('Habits'), findsWidgets);
+
+      // 5. Switch to Profile tab
       await tester.tap(find.text('Profile'));
       await tester.pump();
       expect(find.text('Profile'), findsWidgets);
 
-      // 5. Open Navigation Drawer
+      // 6. Open Navigation Drawer
       await tester.tap(find.byTooltip('Open navigation menu'));
       await tester.pumpAndSettle();
       expect(find.byType(Drawer), findsOneWidget);
@@ -267,7 +273,7 @@ void main() {
       await tester.tap(find.descendant(of: find.byType(Drawer), matching: find.text('Home')));
       await tester.pumpAndSettle();
 
-      // 6. Navigate to Settings
+      // 7. Navigate to Settings
       await tester.tap(find.byTooltip('Settings'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
@@ -496,7 +502,45 @@ void main() {
       expect(find.text('Create Event'), findsOneWidget);
     });
   });
+
+  group('Focusly Habits Module Tests', () {
+    testWidgets('Renders HabitsScreen, stat summary cards, and opens Add Habit sheet',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const HabitsScreen(),
+        ),
+      );
+      await tester.pump();
+
+      // Verify Header Title & Subtitle
+      expect(find.text('Habits'), findsOneWidget);
+      expect(find.text('Build streaks & anchor daily routines'), findsOneWidget);
+
+      // Verify Stat Summary Cards
+      expect(find.text('Total Habits'), findsOneWidget);
+      expect(find.text('Longest Streak'), findsOneWidget);
+      expect(find.text('Total Days'), findsOneWidget);
+
+      // Verify Empty State
+      expect(find.text('No habits created yet'), findsOneWidget);
+      expect(
+        find.text('Start small and build unstoppable momentum with daily habit streaks!'),
+        findsOneWidget,
+      );
+
+      // Open Add Habit Sheet via Floating Action Button
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('New Habit'), findsOneWidget);
+      expect(find.text('Habit Stacking Cue (Optional)'), findsOneWidget);
+      expect(find.text('Daily Reminder Time (Optional)'), findsOneWidget);
+      expect(find.text('Create Habit'), findsOneWidget);
+    });
+  });
 }
+
 
 
 

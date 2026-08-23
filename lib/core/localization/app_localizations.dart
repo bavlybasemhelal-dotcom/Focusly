@@ -207,6 +207,44 @@ class AppLocalizations {
       'type_important_urgent': 'Important / Urgent',
       'notification_event_title': '📅 Upcoming event!',
 
+      // Habits Feature
+      'habits_subtitle': 'Build streaks & anchor daily routines',
+      'total_habits': 'Total Habits',
+      'longest_streak': 'Longest Streak',
+      'total_streak_days': 'Total Days',
+      'days_streak': 'days streak',
+      'add_habit': 'Add Habit',
+      'new_habit': 'New Habit',
+      'edit_habit': 'Edit Habit',
+      'delete_habit': 'Delete Habit',
+      'habit_title_hint': 'Habit title (e.g. Read 15 mins)',
+      'habit_title_required': 'Please enter a habit title',
+      'stack_trigger_title': 'Habit Stacking Cue (Optional)',
+      'stack_trigger_hint': 'e.g. Right after morning coffee',
+      'stack_trigger_help':
+          'Habit Stacking anchors a new habit to an existing daily routine so it sticks effortlessly.',
+      'reminder_time_optional': 'Daily Reminder Time (Optional)',
+      'no_reminder_set': 'No reminder set',
+      'set_time': 'Set Time',
+      'advanced_options': 'Advanced & Reset Options',
+      'auto_reset_title': 'Auto Weekly Rollover',
+      'auto_reset_desc':
+          'Automatically calculate and roll over completed streaks each week',
+      'create_habit': 'Create Habit',
+      'update_habit': 'Update Habit',
+      'delete_habit_confirm_title': 'Delete Habit',
+      'delete_habit_confirm_message':
+          'Are you sure you want to delete this habit and its streak history?',
+      'no_habits_yet': 'No habits created yet',
+      'no_habits_subtitle':
+          'Start small and build unstoppable momentum with daily habit streaks!',
+      'habit_added_success': 'Habit created successfully!',
+      'habit_updated_success': 'Habit updated successfully!',
+      'habit_deleted_success': 'Habit deleted successfully!',
+      'habit_error_saving': 'Error saving habit. Please try again.',
+      'habit_error_deleting': 'Error deleting habit. Please try again.',
+      'notification_habit_title': '🔥 Habit Reminder!',
+
       // Settings Main
       'settings_title': 'Settings',
       'account_section': 'Account',
@@ -494,6 +532,43 @@ class AppLocalizations {
       'type_exam': 'امتحان',
       'type_important_urgent': 'هام / عاجل',
       'notification_event_title': '📅 تذكير بموعد حدث قادم!',
+
+      // Habits Feature
+      'habits_subtitle': 'ابنِ عاداتك وواظب على أهدافك اليومية',
+      'total_habits': 'إجمالي العادات',
+      'longest_streak': 'أطول ستريك',
+      'total_streak_days': 'مجموع الأيام',
+      'days_streak': 'أيام ستريك',
+      'add_habit': 'إضافة عادة',
+      'new_habit': 'عادة جديدة',
+      'edit_habit': 'تعديل العادة',
+      'delete_habit': 'حذف العادة',
+      'habit_title_hint': 'عنوان العادة (مثال: قراءة ١٥ دقيقة / شرب ماء)',
+      'habit_title_required': 'يرجى إدخال عنوان العادة',
+      'stack_trigger_title': 'ربط العادة بروتين يومي (اختياري)',
+      'stack_trigger_hint': 'مثال: فور الانتهاء من قهوة الصباح',
+      'stack_trigger_help':
+          'ربط العادات هو أسلوب لربط العادة الجديدة بروتين يومي معتاد لتثبيتها بسهولة وتلقائية.',
+      'reminder_time_optional': 'وقت التذكير اليومي (اختياري)',
+      'no_reminder_set': 'لم يتم ضبط تذكير',
+      'set_time': 'تحديد الوقت',
+      'advanced_options': 'خيارات متقدمة وإعادة الضبط',
+      'auto_reset_title': 'الترحيل التلقائي الأسبوعي',
+      'auto_reset_desc': 'حساب وترحيل أيام الستريك تلقائياً كل أسبوع',
+      'create_habit': 'إنشاء العادة',
+      'update_habit': 'تحديث العادة',
+      'delete_habit_confirm_title': 'حذف العادة',
+      'delete_habit_confirm_message':
+          'هل أنت متأكد من رغبتك في حذف هذه العادة وسجل الستريك الخاص بها؟',
+      'no_habits_yet': 'لا توجد عادات بعد',
+      'no_habits_subtitle':
+          'ابدأ بخطوة بسيطة وابنِ زخماً لا يتوقف مع الستريك اليومي!',
+      'habit_added_success': 'تم إنشاء العادة بنجاح!',
+      'habit_updated_success': 'تم تحديث العادة بنجاح!',
+      'habit_deleted_success': 'تم حذف العادة بنجاح!',
+      'habit_error_saving': 'حدث خطأ أثناء حفظ العادة. يرجى المحاولة مرة أخرى.',
+      'habit_error_deleting': 'حدث خطأ أثناء حذف العادة. يرجى المحاولة مرة أخرى.',
+      'notification_habit_title': '🔥 تذكير بموعد عادتك اليومية!',
 
       // Settings Main
       'settings_title': 'الإعدادات',
