@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/contacts/providers/contacts_provider.dart';
 import '../../features/energy_mood/providers/energy_mood_provider.dart';
 import '../../features/groups/providers/groups_provider.dart';
 import '../../features/gtd/providers/gtd_provider.dart';
@@ -91,6 +92,7 @@ Future<void> logoutAndClearSession(WidgetRef ref) async {
   ref.invalidate(allParaResourcesStreamProvider);
   ref.invalidate(todayCheckinStreamProvider);
   ref.invalidate(checkinsHistoryStreamProvider);
+  ref.invalidate(contactsStreamProvider);
 
   // 3. Reset Pomodoro active timer state if running
   try {

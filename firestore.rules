@@ -105,6 +105,11 @@ service cloud.firestore {
       match /checkins/{dateStr} {
         allow read, write: if isOwner(userId);
       }
+
+      // Personal CRM Contacts Subcollection: users/{userId}/contacts/{contactId}
+      match /contacts/{contactId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // -------------------------------------------------------------------------

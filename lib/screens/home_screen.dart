@@ -16,9 +16,11 @@ import '../features/gtd/providers/gtd_provider.dart';
 import '../features/gtd/reference_screen.dart';
 import '../features/gtd/someday_screen.dart';
 import '../features/gtd/waiting_screen.dart';
-import '../features/gtd/widgets/quick_capture_sheet.dart';
+import '../features/contacts/contacts_page.dart';
+import '../features/contacts/widgets/home_contacts_widget.dart';
 import '../features/energy_mood/energy_mood_history_page.dart';
 import '../features/energy_mood/widgets/home_energy_mood_widget.dart';
+import '../features/gtd/widgets/quick_capture_sheet.dart';
 import '../features/para/areas_page.dart';
 import '../features/para/archive_page.dart';
 import '../features/para/para_guide_page.dart';
@@ -618,6 +620,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         },
                       ),
 
+                      // =========================================================
+                      // SECTION: RELATIONSHIPS
+                      // TODO: Relationship Health, Social Battery, and Gratitude Log features will join this same Relationships section when built.
+                      // =========================================================
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              context.tr('relationships_section_header'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.people_alt_rounded,
+                        title: context.tr('contacts_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ContactsPage(),
+                            ),
+                          );
+                        },
+                      ),
+
                       const SizedBox(height: 6),
                       _buildDrawerItem(
                         context: context,
@@ -1075,6 +1120,10 @@ class _HomeTabContent extends StatelessWidget {
 
             // Daily Check-in & Energy Mood Banner/Summary Widget
             const HomeEnergyMoodWidget(),
+            const SizedBox(height: 8),
+
+            // People to Reach Out To (Personal CRM Overdue Widget)
+            const HomeContactsWidget(),
             const SizedBox(height: 12),
 
             // Radiant Focus Workspace Banner
