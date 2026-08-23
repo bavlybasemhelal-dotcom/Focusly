@@ -7,6 +7,7 @@ import '../../../core/localization/app_localizations.dart';
 import '../models/category_model.dart';
 import '../models/task_model.dart';
 import '../services/task_notification_service.dart';
+import '../../progress/services/progress_service.dart';
 
 /// Available view modes in the Tasks screen
 enum TasksViewMode {
@@ -138,6 +139,9 @@ class TasksController {
 
       // Schedule notifications
       await _notificationService.scheduleTaskNotifications(newTask, localizations);
+
+      // Achievement check hook (Early bird, night owl, 20 tasks, etc.)
+      ProgressService().awardXp(0);
     } catch (e) {
       debugPrint('Error adding task: $e');
     }
@@ -176,6 +180,11 @@ class TasksController {
   Future<void> toggleTaskDone(TaskModel task, BuildContext context) async {
     final updated = task.copyWith(done: !task.done);
     await updateTask(updated, context);
+
+    // XP award and Achievement check hook: +10 XP for completing task
+    if (updated.done) {
+      ProgressService().awardXp(10);
+    }
   }
 
   /// Appends a new subtask item
@@ -192,6 +201,8 @@ class TasksController {
     if (col == null) return;
     try {
       await col.doc(task.id).update({'subtasks': updatedSubtasks.map((s) => s.toMap()).toList()});
+      // Achievement check hook for adding subtask
+      ProgressService().awardXp(0);
     } catch (e) {
       debugPrint('Error adding subtask: $e');
     }

@@ -11,6 +11,7 @@ import 'package:focusly/features/tasks/tasks_screen.dart';
 import 'package:focusly/features/schedule/schedule_screen.dart';
 import 'package:focusly/features/habits/habits_screen.dart';
 import 'package:focusly/features/pomodoro/pomodoro_screen.dart';
+import 'package:focusly/features/progress/progress_screen.dart';
 import 'package:focusly/screens/home_screen.dart';
 import 'package:focusly/screens/login_screen.dart';
 import 'package:focusly/screens/onboarding_screen.dart';
@@ -264,12 +265,17 @@ void main() {
       await tester.pump();
       expect(find.text('Pomodoro'), findsWidgets);
 
-      // 6. Switch to Profile tab
+      // 6. Switch to Progress tab
+      await tester.tap(find.text('Progress'));
+      await tester.pump();
+      expect(find.text('Progress'), findsWidgets);
+
+      // 7. Switch to Profile tab
       await tester.tap(find.text('Profile'));
       await tester.pump();
       expect(find.text('Profile'), findsWidgets);
 
-      // 7. Open Navigation Drawer
+      // 8. Open Navigation Drawer
       await tester.tap(find.byTooltip('Open navigation menu'));
       await tester.pumpAndSettle();
       expect(find.byType(Drawer), findsOneWidget);
@@ -590,7 +596,55 @@ void main() {
       expect(find.text('Save Settings'), findsOneWidget);
     });
   });
+
+  group('Focusly Progress & Achievements Module Tests', () {
+    testWidgets('Renders ProgressScreen, Level header card, Overview stats, and switches to Achievements tab',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const ProgressScreen(),
+        ),
+      );
+      await tester.pump();
+
+      // Verify Header Title & Subtitle
+      expect(find.text('Progress & Achievements'), findsOneWidget);
+      expect(find.text('Level up your daily momentum'), findsOneWidget);
+
+      // Verify Level Header Card (Level 1, Beginner, 0 total XP)
+      expect(find.text('Level 1'), findsOneWidget);
+      expect(find.text('Beginner'), findsOneWidget);
+      expect(find.text('0 total XP'), findsOneWidget);
+
+      // Verify Overview Sub-tab Components
+      expect(find.text('Tasks Completed'), findsOneWidget);
+      expect(find.text('Longest Streak'), findsOneWidget);
+      expect(find.text('Pomodoro Sessions'), findsOneWidget);
+      expect(find.text('Total Focus Time'), findsOneWidget);
+      expect(find.text('Weekly Productivity Score'), findsOneWidget);
+
+      // Switch to Achievements Sub-tab
+      await tester.tap(find.text('Achievements'));
+      await tester.pumpAndSettle();
+
+      // Verify Achievement Category Headers
+      expect(find.text('Tasks'), findsWidgets);
+      expect(find.text('Habits'), findsWidgets);
+      expect(find.text('Pomodoro'), findsWidgets);
+      expect(find.text('Events'), findsWidgets);
+      expect(find.text('XP & Levels'), findsWidgets);
+      expect(find.text('Organization'), findsWidgets);
+      expect(find.text('Special'), findsWidgets);
+
+      // Verify Achievement Badges Rendered
+      expect(find.text('First Step'), findsOneWidget);
+      expect(find.text('High Five'), findsOneWidget);
+      expect(find.text('New Habit'), findsOneWidget);
+      expect(find.text('First Focus'), findsOneWidget);
+    });
+  });
 }
+
 
 
 

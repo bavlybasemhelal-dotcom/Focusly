@@ -7,6 +7,7 @@ import '../features/tasks/tasks_screen.dart';
 import '../features/schedule/schedule_screen.dart';
 import '../features/habits/habits_screen.dart';
 import '../features/pomodoro/pomodoro_screen.dart';
+import '../features/progress/progress_screen.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -320,6 +321,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               _buildDrawerItem(
                 context: context,
+                icon: Icons.insights_rounded,
+                title: context.tr('progress'),
+                isSelected: _currentTabIndex == 5,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    _currentTabIndex = 5;
+                  });
+                },
+              ),
+              _buildDrawerItem(
+                context: context,
                 icon: Icons.settings_outlined,
                 title: context.tr('settings'),
                 isSelected: false,
@@ -372,6 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const ScheduleScreen(),
               const HabitsScreen(),
               const PomodoroScreen(),
+              const ProgressScreen(),
               const _ProfileTabPlaceholder(),
             ],
           ),
@@ -446,6 +460,11 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.timer_outlined),
               activeIcon: const Icon(Icons.timer_rounded),
               label: context.tr('pomodoro'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.insights_outlined),
+              activeIcon: const Icon(Icons.insights_rounded),
+              label: context.tr('progress'),
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.person_outline_rounded),

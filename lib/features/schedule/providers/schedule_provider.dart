@@ -8,6 +8,7 @@ import '../helpers/recurrence_helper.dart';
 import '../models/event_model.dart';
 import '../models/event_type_model.dart';
 import '../services/event_notification_service.dart';
+import '../../progress/services/progress_service.dart';
 
 /// Available view modes in the Schedule calendar
 enum ScheduleViewMode {
@@ -182,6 +183,9 @@ class ScheduleController {
         newEvent,
         localizations,
       );
+
+      // Achievement check hook for adding events (1st, 5th, 20th)
+      ProgressService().awardXp(0);
     } catch (e) {
       debugPrint('Error adding schedule event: $e');
     }

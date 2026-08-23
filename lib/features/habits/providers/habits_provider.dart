@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../helpers/streak_logic.dart';
 import '../models/habit_model.dart';
 import '../services/habit_notification_service.dart';
+import '../../progress/services/progress_service.dart';
 
 /// Stream provider that listens to real-time habits subcollection in Firestore
 /// and applies automatic weekly reset checks on the fly.
@@ -200,8 +201,12 @@ class HabitsController {
     );
 
     if (milestone != null && context.mounted) {
-      // TODO: Hook into Future Achievements module here
       _showMilestoneCelebration(context, updatedHabit.title, milestone);
+    }
+
+    // XP award and Achievement check hook: +5 XP for completing habit day
+    if (updatedHabit.isDayCompleted(dayIndex)) {
+      ProgressService().awardXp(5);
     }
 
     try {
