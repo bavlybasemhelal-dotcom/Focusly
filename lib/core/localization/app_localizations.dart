@@ -1143,6 +1143,58 @@ class AppLocalizations {
       'preferred_shutdown_time_setting': 'Preferred Shutdown Time',
       'preferred_shutdown_time_setting_desc':
           'Time for end-of-day review timing nudge',
+
+      // Weekly Review Module
+      'weekly_review_title': 'Weekly Review',
+      'review_due_badge': 'Review due',
+      'review_step_1_title': 'Mind Sweep',
+      'review_step_1_sub':
+          'Write down everything on your mind — one thought per line.',
+      'mind_sweep_hint':
+          'Call plumber\nBuy groceries\nSchedule Q3 review\nRenew passport...',
+      'mind_sweep_footer_hint':
+          'Items will be added to your GTD Inbox automatically upon continuing.',
+      'mind_sweep_added_toast': '🧹 Added {count} items to your Inbox',
+      'review_step_2_title': 'Get Clear',
+      'review_step_2_sub':
+          'Empty your inboxes and process unprocessed inputs.',
+      'unprocessed_inbox_items_label': 'Unprocessed Inbox Items',
+      'inbox_zero_congrats':
+          'Inbox Zero! All thoughts and tasks are neatly clarified.',
+      'inbox_process_reminder':
+          'Process these items to achieve clarity before next week begins.',
+      'go_to_inbox_btn': 'Go to Inbox',
+      'review_step_3_title': 'Get Current',
+      'review_step_3_sub':
+          'Review active projects, update milestones, and archive finished ones.',
+      'active_projects_count_label': 'Active PARA Projects',
+      'projects_review_reminder':
+          'Ensure each active project has at least one clear next action.',
+      'review_view_projects_btn': 'View Projects',
+      'review_step_4_title': 'Get Current',
+      'review_step_4_sub':
+          'Review your active tasks and prune no-longer-relevant items.',
+      'active_tasks_count_label': 'Active Tasks',
+      'tasks_prune_reminder':
+          'Prune stale tasks and keep your focus on what truly matters.',
+      'review_step_5_title': 'Someday / Maybe',
+      'review_step_5_sub':
+          'Review ideas on hold. Tap "Activate ⚡" to promote any item to an active task.',
+      'no_someday_items_title': 'No Someday Items',
+      'no_someday_items_sub':
+          'Capture creative backlogged ideas in your Someday list anytime.',
+      'activate_btn': 'Activate',
+      'review_someday_promoted_toast': '⚡ Promoted "{title}" to active task',
+      'review_step_6_title': 'Get Creative',
+      'review_step_6_sub':
+          'List your top 3 high-impact priorities for the coming week.',
+      'weekly_priority_1_hint': 'Top Priority #1',
+      'weekly_priority_2_hint': 'Top Priority #2',
+      'weekly_priority_3_hint': 'Top Priority #3',
+      'weekly_priority_inbox_prefix': 'Week priority:',
+      'finish_review_btn': 'Finish Review (+40 XP)',
+      'weekly_review_completed_toast':
+          '🗓 Weekly review complete! Thanks for keeping your system organized.',
     },
     'ar': {
       // App General
@@ -2268,6 +2320,58 @@ class AppLocalizations {
       'preferred_shutdown_time_setting': 'وقت إغلاق اليوم المفضل',
       'preferred_shutdown_time_setting_desc':
           'الوقت المفضل لتذكير إغلاق ومراجعة اليوم',
+
+      // Weekly Review Module
+      'weekly_review_title': 'المراجعة الأسبوعية',
+      'review_due_badge': 'مستحقة',
+      'review_step_1_title': 'تصفية الذهن',
+      'review_step_1_sub':
+          'اكتب كل ما يدور في ذهنك — فكرة واحدة في كل سطر.',
+      'mind_sweep_hint':
+          'الاتصال بالسباك\nشراء المستلزمات\nجدولة مراجعة الربع الثالث\nتجديد جواز السفر...',
+      'mind_sweep_footer_hint':
+          'ستتم إضافة الأفكار إلى صندوق الوارد (GTD Inbox) تلقائياً عند المتابعة.',
+      'mind_sweep_added_toast': '🧹 تمت إضافة {count} عناصر إلى صندوق الوارد',
+      'review_step_2_title': 'وضوح الوارد',
+      'review_step_2_sub':
+          'تفريغ صندوق الوارد ومعالجة كافة المدخلات المعلقة.',
+      'unprocessed_inbox_items_label': 'عناصر غير معالجة في الوارد',
+      'inbox_zero_congrats':
+          'صندوق الوارد فارغ! كافة الأفكار والمهام واضحة ومفرزة.',
+      'inbox_process_reminder':
+          'قم بفرز هذه العناصر لتحقيق الوضوح قبل بدء الأسبوع القادم.',
+      'go_to_inbox_btn': 'الانتقال إلى الوارد',
+      'review_step_3_title': 'تحديث المشاريع',
+      'review_step_3_sub':
+          'راجع المشاريع النشطة، حدّث المعالم، وأرشف المكتمل منها.',
+      'active_projects_count_label': 'مشاريع PARA النشطة',
+      'projects_review_reminder':
+          'تأكد من وجود خطوة تالية واضحة ومحددة لكل مشروع نشط.',
+      'review_view_projects_btn': 'عرض المشاريع',
+      'review_step_4_title': 'تنقيح المهام',
+      'review_step_4_sub':
+          'راجع قائمة مهامك النشطة واحذف أو أجّل ما لم يعد ملائماً.',
+      'active_tasks_count_label': 'المهام النشطة',
+      'tasks_prune_reminder':
+          'نقّح المهام القديمة وحافظ على تركيزك على ما يهم حقاً.',
+      'review_step_5_title': 'ربما يوماً ما',
+      'review_step_5_sub':
+          'راجع الأفكار المؤجلة. اضغط "تفعيل ⚡" لترقية أي فكرة لمهمة نشطة.',
+      'no_someday_items_title': 'لا توجد أفكار مؤجلة',
+      'no_someday_items_sub':
+          'يمكنك تدوين الأفكار المؤجلة والإبداعية في قائمة "ربما يوماً ما" في أي وقت.',
+      'activate_btn': 'تفعيل',
+      'review_someday_promoted_toast': '⚡ تمت ترقية "{title}" إلى مهمة نشطة',
+      'review_step_6_title': 'أولويات الأسبوع',
+      'review_step_6_sub':
+          'حدد أهم 3 أولويات ذات أثر عالٍ للأسبوع القادم.',
+      'weekly_priority_1_hint': 'الأولوية الأولى',
+      'weekly_priority_2_hint': 'الأولوية الثانية',
+      'weekly_priority_3_hint': 'الأولوية الثالثة',
+      'weekly_priority_inbox_prefix': 'أولوية الأسبوع:',
+      'finish_review_btn': 'إنهاء المراجعة (+40 XP)',
+      'weekly_review_completed_toast':
+          '🗓 اكتملت المراجعة الأسبوعية! شكراً لحرصك على تنظيم نظامك الإنتاجي.',
     },
   };
 

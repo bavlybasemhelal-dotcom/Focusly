@@ -33,6 +33,8 @@ import '../features/rituals/providers/rituals_provider.dart';
 import '../features/rituals/widgets/morning_intention_banner.dart';
 import '../features/rituals/widgets/morning_intention_modal.dart';
 import '../features/rituals/widgets/shutdown_wizard_modal.dart';
+import '../features/weekly_review/providers/weekly_review_provider.dart';
+import '../features/weekly_review/widgets/weekly_review_wizard.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -517,6 +519,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           );
                         },
                       ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.fact_check_outlined,
+                        title: context.tr('weekly_review_title'),
+                        isSelected: false,
+                        badgeText: ref.watch(isWeeklyReviewDueProvider)
+                            ? context.tr('review_due_badge')
+                            : null,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          WeeklyReviewWizard.show(context);
+                        },
+                      ),
 
                       // -------------------------------------------------------
                       // PARA ORGANIZATIONAL SYSTEM SECTION
@@ -976,6 +991,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     required VoidCallback onTap,
     bool isDestructive = false,
     int? badgeCount,
+    String? badgeText,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryTextColor = AppColors.textSecondary(context);
@@ -1015,32 +1031,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             fontSize: 14,
           ),
         ),
-        trailing: (badgeCount != null && badgeCount > 0)
+        trailing: badgeText != null && badgeText.isNotEmpty
             ? Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
+                    colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
                   ),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Text(
-                  badgeCount.toString(),
+                  badgeText,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
-                    fontSize: 11,
+                    fontSize: 10,
                   ),
                 ),
               )
-            : null,
+            : ((badgeCount != null && badgeCount > 0)
+                ? Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      badgeCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 11,
+                      ),
+                    ),
+                  )
+                : null),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
