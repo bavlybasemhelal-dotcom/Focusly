@@ -46,6 +46,7 @@ import '../features/knowledge_base/knowledge_base_page.dart';
 import '../features/course_tracker/course_tracker_page.dart';
 import '../features/spaced_repetition/flashcards_list_page.dart';
 import '../features/relationship_health/relationship_health_page.dart';
+import '../features/social_battery/social_battery_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -857,6 +858,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const RelationshipHealthPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.battery_charging_full_rounded,
+                        title: context.tr('social_battery_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const SocialBatteryPage(),
                             ),
                           );
                         },
