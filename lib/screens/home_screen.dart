@@ -47,6 +47,7 @@ import '../features/course_tracker/course_tracker_page.dart';
 import '../features/spaced_repetition/flashcards_list_page.dart';
 import '../features/relationship_health/relationship_health_page.dart';
 import '../features/social_battery/social_battery_page.dart';
+import '../features/workout_tracker/workout_tracker_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -991,6 +992,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const FlashcardsListPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // =========================================================
+                      // SECTION: HEALTH & FITNESS
+                      // TODO: Nutrition Log, Body Metrics, and Mental Health (coming next) should join this same section.
+                      // =========================================================
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              context.tr('health_section_header'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.fitness_center_rounded,
+                        title: context.tr('workout_tracker_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const WorkoutTrackerPage(),
                             ),
                           );
                         },
