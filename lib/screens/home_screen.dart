@@ -50,6 +50,7 @@ import '../features/social_battery/social_battery_page.dart';
 import '../features/workout_tracker/workout_tracker_page.dart';
 import '../features/nutrition_log/nutrition_log_page.dart';
 import '../features/body_metrics/body_metrics_page.dart';
+import '../features/mental_health/mental_health_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -1067,6 +1068,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const BodyMetricsPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.psychology_outlined,
+                        title: context.tr('mental_health_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const MentalHealthPage(),
                             ),
                           );
                         },
