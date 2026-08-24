@@ -39,6 +39,7 @@ import '../features/focus_mode/focus_mode_page.dart';
 import '../features/time_blocker/time_blocker_page.dart';
 import '../features/decision_journal/decision_journal_page.dart';
 import '../features/project_retrospective/retrospective_page.dart';
+import '../features/reading_tracker/books_shelves_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -835,6 +836,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const ContactsPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // =========================================================
+                      // SECTION: LEARNING & GROWTH
+                      // TODO: Skills Board, Learning Paths, Knowledge Base, Course Tracker, and Spaced Repetition (coming next) should join this same section.
+                      // =========================================================
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              context.tr('learning_section_header'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.auto_stories_rounded,
+                        title: context.tr('reading_tracker_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const BooksShelvesPage(),
                             ),
                           );
                         },
