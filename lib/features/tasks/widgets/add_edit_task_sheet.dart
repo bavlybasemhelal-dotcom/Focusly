@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../para/providers/para_provider.dart';
+import '../../skills/providers/skills_provider.dart';
 import '../models/category_model.dart';
 import '../models/task_model.dart';
 import '../providers/tasks_provider.dart';
@@ -59,6 +60,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
   TimeOfDay? _selectedTime;
   DateTime? _selectedDeadline;
   String? _selectedProjectId;
+  String? _selectedSkillId;
 
   bool _isSaving = false;
 
@@ -76,6 +78,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
     _selectedTime = task?.time;
     _selectedDeadline = task?.deadline;
     _selectedProjectId = task?.projectId ?? widget.initialProjectId;
+    _selectedSkillId = task?.skillId;
 
     // If opened with an initial quadrant pre-selected, apply its defaults
     if (task == null && widget.initialQuadrant != null) {
@@ -133,9 +136,11 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
         time: _selectedTime,
         deadline: _selectedDeadline,
         projectId: _selectedProjectId,
+        skillId: _selectedSkillId,
         clearTime: _selectedTime == null,
         clearDeadline: _selectedDeadline == null,
         clearProjectId: _selectedProjectId == null,
+        clearSkillId: _selectedSkillId == null,
       );
       await controller.updateTask(updated, context);
     } else {
@@ -152,6 +157,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
         subtasks: const [],
         createdAt: DateTime.now(),
         projectId: _selectedProjectId,
+        skillId: _selectedSkillId,
       );
       await controller.addTask(newTask, context);
     }
@@ -769,6 +775,94 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                               onChanged: (val) {
                                 setState(() {
                                   _selectedProjectId = val;
+                                });
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (err, stack) => const SizedBox.shrink(),
+                    );
+                  },
+                ),
+                const SizedBox(height: 18),
+
+                // =========================================================
+                // Optional Link to Skill (Skills Board Feature)
+                // =========================================================
+                _buildFieldLabel(context.tr('link_to_skill_label'), primaryTextColor),
+                const SizedBox(height: 8),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final skillsAsync = ref.watch(skillsStreamProvider);
+                    final secondaryTextColor = AppColors.textSecondary(context);
+                    return skillsAsync.when(
+                      data: (skills) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String?>(
+                              value: skills.any((s) => s.id == _selectedSkillId)
+                                  ? _selectedSkillId
+                                  : null,
+                              isExpanded: true,
+                              dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                              hint: Row(
+                                children: [
+                                  Icon(Icons.psychology_outlined, color: secondaryTextColor, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    context.tr('no_skill_linked'),
+                                    style: TextStyle(color: secondaryTextColor, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              items: [
+                                DropdownMenuItem<String?>(
+                                  value: null,
+                                  child: Text(
+                                    context.tr('no_skill_linked'),
+                                    style: TextStyle(color: secondaryTextColor, fontSize: 13),
+                                  ),
+                                ),
+                                ...skills.map((s) {
+                                  return DropdownMenuItem<String?>(
+                                    value: s.id,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: BoxDecoration(
+                                            color: Color(s.color),
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            '${s.name} (Lvl ${s.level})',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                              color: primaryTextColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ],
+                              onChanged: (val) {
+                                setState(() {
+                                  _selectedSkillId = val;
                                 });
                               },
                             ),

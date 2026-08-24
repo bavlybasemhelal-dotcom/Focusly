@@ -150,6 +150,9 @@ class TaskModel {
   // PARA Specific Optional Fields
   final String? projectId; // Linked PARA Project ID
 
+  // Skills Board Specific Optional Field
+  final String? skillId; // Explicitly linked Skill ID (optional)
+
   const TaskModel({
     required this.id,
     required this.title,
@@ -166,6 +169,7 @@ class TaskModel {
     this.waitingFor,
     this.waitingSince,
     this.projectId,
+    this.skillId,
   });
 
   /// Calculates completed subtasks count
@@ -203,6 +207,7 @@ class TaskModel {
       'waitingFor': waitingFor,
       'waitingSince': waitingSince != null ? Timestamp.fromDate(waitingSince!) : null,
       'projectId': projectId,
+      'skillId': skillId,
     };
   }
 
@@ -272,6 +277,7 @@ class TaskModel {
       waitingFor: map['waitingFor'],
       waitingSince: parsedWaitingSince,
       projectId: map['projectId'],
+      skillId: map['skillId'],
     );
   }
 
@@ -291,12 +297,14 @@ class TaskModel {
     String? waitingFor,
     DateTime? waitingSince,
     String? projectId,
+    String? skillId,
     bool clearTime = false,
     bool clearDeadline = false,
     bool clearListType = false,
     bool clearWaitingFor = false,
     bool clearWaitingSince = false,
     bool clearProjectId = false,
+    bool clearSkillId = false,
   }) {
     return TaskModel(
       id: id ?? this.id,
@@ -314,6 +322,7 @@ class TaskModel {
       waitingFor: clearWaitingFor ? null : (waitingFor ?? this.waitingFor),
       waitingSince: clearWaitingSince ? null : (waitingSince ?? this.waitingSince),
       projectId: clearProjectId ? null : (projectId ?? this.projectId),
+      skillId: clearSkillId ? null : (skillId ?? this.skillId),
     );
   }
 }

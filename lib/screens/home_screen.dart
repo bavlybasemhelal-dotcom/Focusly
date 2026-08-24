@@ -40,6 +40,7 @@ import '../features/time_blocker/time_blocker_page.dart';
 import '../features/decision_journal/decision_journal_page.dart';
 import '../features/project_retrospective/retrospective_page.dart';
 import '../features/reading_tracker/books_shelves_page.dart';
+import '../features/skills/skills_board_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -879,6 +880,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const BooksShelvesPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.track_changes_rounded,
+                        title: context.tr('skills_board_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const SkillsBoardPage(),
                             ),
                           );
                         },

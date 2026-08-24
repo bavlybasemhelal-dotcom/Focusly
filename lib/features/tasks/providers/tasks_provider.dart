@@ -11,6 +11,7 @@ import '../services/task_notification_service.dart';
 import '../../progress/services/progress_service.dart';
 import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
+import '../../skills/services/skills_service.dart';
 
 /// Available view modes in the Tasks screen
 enum TasksViewMode {
@@ -189,6 +190,16 @@ class TasksController {
     // XP award and Achievement check hook: +10 XP for completing task
     if (updated.done) {
       ProgressService().awardXp(10);
+
+      // Skill XP hook: Award skill XP based on task priority (High: 25, Medium: 15, Low: 10)
+      final uid = _currentUserId;
+      if (uid != null) {
+        SkillsService().awardTaskCompletionXp(
+          uid: uid,
+          task: updated,
+          context: context,
+        );
+      }
 
       // Group feed hook & Challenge progress sync
       GroupFeedService().pushToAllUserGroups(
