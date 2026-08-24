@@ -44,6 +44,7 @@ import '../features/skills/skills_board_page.dart';
 import '../features/learning_paths/learning_paths_page.dart';
 import '../features/knowledge_base/knowledge_base_page.dart';
 import '../features/course_tracker/course_tracker_page.dart';
+import '../features/spaced_repetition/flashcards_list_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -943,6 +944,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const CourseTrackerPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.style_rounded,
+                        title: context.tr('flashcards_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const FlashcardsListPage(),
                             ),
                           );
                         },
