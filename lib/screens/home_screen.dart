@@ -48,6 +48,7 @@ import '../features/spaced_repetition/flashcards_list_page.dart';
 import '../features/relationship_health/relationship_health_page.dart';
 import '../features/social_battery/social_battery_page.dart';
 import '../features/workout_tracker/workout_tracker_page.dart';
+import '../features/nutrition_log/nutrition_log_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -1035,6 +1036,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const WorkoutTrackerPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.restaurant_rounded,
+                        title: context.tr('nutrition_log_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const NutritionLogPage(),
                             ),
                           );
                         },
