@@ -1,0 +1,195 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/localization/app_localizations.dart';
+import '../../core/theme/app_colors.dart';
+import 'models/course_model.dart';
+import 'providers/course_tracker_provider.dart';
+import 'widgets/course_card.dart';
+import 'widgets/course_form_modal.dart';
+import 'widgets/course_stats_header.dart';
+
+/// Main Course Tracker screen displaying stats header and list of online courses.
+class CourseTrackerPage extends ConsumerWidget {
+  const CourseTrackerPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryTextColor = AppColors.textPrimary(context);
+    final secondaryTextColor = AppColors.textSecondary(context);
+    final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
+
+    final coursesAsync = ref.watch(coursesStreamProvider);
+
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: primaryTextColor),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.tr('course_tracker_title'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: primaryTextColor,
+              ),
+            ),
+            Text(
+              context.tr('course_tracker_subtitle'),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF0EA5E9)),
+            tooltip: context.tr('add_course_btn'),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              CourseFormModal.show(context);
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: const Color(0xFF0EA5E9),
+        foregroundColor: Colors.white,
+        elevation: 4,
+        icon: const Icon(Icons.add_rounded, size: 22),
+        label: Text(
+          context.tr('add_course_btn'),
+          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+        ),
+        onPressed: () {
+          HapticFeedback.selectionClick();
+          CourseFormModal.show(context);
+        },
+      ),
+      body: coursesAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Color(0xFF0EA5E9)),
+        ),
+        error: (err, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Text(
+              '${context.tr('error')}: $err',
+              style: const TextStyle(color: Color(0xFFEF4444)),
+            ),
+          ),
+        ),
+        data: (courses) {
+          if (courses.isEmpty) {
+            return _buildEmptyState(context, primaryTextColor, secondaryTextColor);
+          }
+
+          return Column(
+            children: [
+              // Top Stats Summary
+              const CourseStatsHeader(),
+
+              // Courses List
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 96),
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: courses.length,
+                  itemBuilder: (context, index) {
+                    return CourseCard(course: courses[index]);
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(
+    BuildContext context,
+    Color primaryTextColor,
+    Color secondaryTextColor,
+  ) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF0EA5E9).withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.school_rounded,
+                  size: 40,
+                  color: Color(0xFF0EA5E9),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              context.tr('empty_courses_title'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: primaryTextColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              context.tr('empty_courses_subtitle'),
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.4,
+                color: secondaryTextColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0EA5E9),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(
+                context.tr('add_course_btn'),
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                CourseFormModal.show(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
