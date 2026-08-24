@@ -38,6 +38,7 @@ import '../features/weekly_review/widgets/weekly_review_wizard.dart';
 import '../features/focus_mode/focus_mode_page.dart';
 import '../features/time_blocker/time_blocker_page.dart';
 import '../features/decision_journal/decision_journal_page.dart';
+import '../features/project_retrospective/retrospective_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -652,6 +653,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const ParaGuidePage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.find_in_page_rounded,
+                        title: context.tr('retrospectives_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const RetrospectivePage(),
                             ),
                           );
                         },
