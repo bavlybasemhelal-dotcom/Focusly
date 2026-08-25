@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/auth/auth_provider.dart';
 import '../core/localization/app_localizations.dart';
@@ -59,6 +60,16 @@ import '../features/life_areas/life_areas_page.dart';
 import '../features/bucket_list/bucket_list_page.dart';
 import '../features/legacy_journal/legacy_journal_page.dart';
 import '../features/annual_review/annual_review_page.dart';
+import '../features/settings/profile_page.dart';
+import '../features/focus_mode/focus_mode_page.dart';
+import '../features/home/widgets/continue_reading_widget.dart';
+import '../features/home/widgets/groups_preview_widget.dart';
+import '../features/home/widgets/home_life_score_widget.dart';
+import '../features/home/widgets/home_weekly_review_due_banner.dart';
+import '../features/home/widgets/level_xp_compact_widget.dart';
+import '../features/home/widgets/quick_actions_row.dart';
+import '../features/home/widgets/todays_focus_card.dart';
+import '../features/home/widgets/todays_habits_row.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -1322,14 +1333,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           IndexedStack(
             index: _currentTabIndex,
             children: [
-              _HomeTabContent(userName: displayName),
+              _HomeTabContent(
+                userName: displayName,
+                onNavigateTab: (index) {
+                  setState(() {
+                    _currentTabIndex = index;
+                  });
+                },
+              ),
               const TasksScreen(),
               const ScheduleScreen(),
               const HabitsScreen(),
               const PomodoroScreen(),
               const GroupsHomePage(),
               const ProgressScreen(),
-              const _ProfileTabPlaceholder(),
+              // Tab 7: Profile (Shares the exact same ProfilePage widget used in Settings -> Profile)
+              const ProfilePage(showAppBar: false, showBackButton: false),
             ],
           ),
         ],
@@ -1660,12 +1679,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 // ==============================================================================
-// TAB 0: VIBRANT HOME GREETING & WORKSPACE HERO
+// TAB 0: FLAGSHIP HOME SCREEN CURATED FEED
+//
+// DESIGN PRINCIPLE:
+// The Home Screen is Focusly's flagship command center. Rather than dumping every
+// feature, it surfaces the single most actionable, high-engagement widget from each
+// key feature in strict, documented priority order:
+//
+// FEED PRIORITY ORDER (1 -> 12):
+// 1. Greeting Header (Hello + Date pill) [Always shown]
+// 2. Level/XP Compact Widget (Level emoji, rank, slim progress bar) [Always shown]
+// 3. Daily Rituals Row (Morning Intention, Energy & Mood check-in, End My Day) [Time-sensitive daily prompts]
+// 4. Weekly Life Score Compact Widget (Gauge/numeric score) [Conditionally shown when data exists]
+// 5. Today's Focus Card (Top 3 tasks for today + quick-check) [Conditionally shown when today tasks exist]
+// 6. Quick Actions Row (Start Pomodoro, Quick Capture, Add Task) [Always shown launchpad]
+// 7. Today's Habits Row (Horizontal streak pills + 1-tap check) [Conditionally shown when habits exist]
+// 8. Continue Reading Widget (Active book + progress bar) [Conditionally shown when reading a book]
+// 9. People to Reach Out To Widget (Overdue contacts) [Conditionally shown when contacts overdue]
+// 10. Your Groups Preview (Joined groups list + unread indicator) [Conditionally shown when joined groups > 0]
+// 11. Review Due Banner (Weekly reflection trigger) [Conditionally shown when 7-day review due]
+// 12. Workspace Ready Footer (Deep Focus Mode launcher) [Closing action card]
 // ==============================================================================
 class _HomeTabContent extends StatelessWidget {
   final String userName;
+  final ValueChanged<int> onNavigateTab;
 
-  const _HomeTabContent({required this.userName});
+  const _HomeTabContent({
+    required this.userName,
+    required this.onNavigateTab,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1675,136 +1717,333 @@ class _HomeTabContent extends StatelessWidget {
     final localizedDate = AppLocalizations.of(context).formatLocalizedDate(DateTime.now());
 
     return SafeArea(
-      child: SingleChildScrollView(
+      child: ListView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(vertical: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User Greeting Header & Date Badge
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${context.tr('hello_greeting')}, $userName 👋',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      color: primaryTextColor,
-                      letterSpacing: -0.8,
-                    ),
+        children: [
+          // -------------------------------------------------------------------
+          // 1. GREETING HEADER & LOCALIZED DATE PILL
+          // -------------------------------------------------------------------
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${context.tr('hello_greeting')}, $userName 👋',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w900,
+                    color: primaryTextColor,
+                    letterSpacing: -0.8,
                   ),
-                  const SizedBox(height: 12),
+                ),
+                const SizedBox(height: 10),
 
-                  // Date Badge Pill with Radiant Border & Soft Gradient
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      gradient: isDark
-                          ? null
-                          : const LinearGradient(
-                              colors: [Color(0xFFFFFFFF), Color(0xFFF0F6FF)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                      color: isDark ? const Color(0xFF0F1B4C).withValues(alpha: 0.6) : null,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.12)
-                            : const Color(0xFFBFDBFE),
-                        width: 1.2,
-                      ),
-                      boxShadow: isDark
-                          ? null
-                          : [
-                              BoxShadow(
-                                color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
-                                blurRadius: 12,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.calendar_today_rounded,
-                          size: 15,
-                          color: brandPrimary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          localizedDate,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? AppColors.darkTextSecondary : const Color(0xFF1E40AF),
+                // Date Badge Pill with Radiant Border & Soft Gradient
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    gradient: isDark
+                        ? null
+                        : const LinearGradient(
+                            colors: [Color(0xFFFFFFFF), Color(0xFFF0F6FF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        ),
-                      ],
+                    color: isDark ? const Color(0xFF0F1B4C).withValues(alpha: 0.6) : null,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.12)
+                          : const Color(0xFFBFDBFE),
+                      width: 1.2,
                     ),
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
+                              blurRadius: 12,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                   ),
-                ],
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: 14,
+                        color: brandPrimary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        localizedDate,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.darkTextSecondary : const Color(0xFF1E40AF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // -------------------------------------------------------------------
+          // 2. LEVEL & XP COMPACT WIDGET (Small horizontal card)
+          // -------------------------------------------------------------------
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: LevelXpCompactWidget(
+              onTap: () => onNavigateTab(6), // Navigate to Progress Tab
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // -------------------------------------------------------------------
+          // 3. DAILY RITUALS (Morning Intention, Energy & Mood, End My Day)
+          // -------------------------------------------------------------------
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: MorningIntentionBanner(),
+          ),
+          const HomeEnergyMoodWidget(),
+          const SizedBox(height: 4),
+
+          // End My Day (Evening Shutdown Ritual Card)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: InkWell(
+              onTap: () => ShutdownWizardModal.show(context),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  gradient: isDark
+                      ? const LinearGradient(
+                          colors: [Color(0xFF3B0764), Color(0xFF1E1B4B)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : const LinearGradient(
+                          colors: [Color(0xFFF3E8FF), Color(0xFFEDE9FE)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFFA855F7).withValues(alpha: 0.3)
+                        : const Color(0xFFC084FC),
+                    width: 1.2,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text('🌙', style: TextStyle(fontSize: 20)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.tr('end_my_day_title'),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : const Color(0xFF581C87),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            context.tr('end_my_day_subtitle'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark ? Colors.white70 : const Color(0xFF6B21A8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 13,
+                      color: isDark ? Colors.white60 : const Color(0xFF7E22CE),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+          ),
+          const SizedBox(height: 12),
 
-            // Morning Intention Banner
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
-              child: MorningIntentionBanner(),
+          // -------------------------------------------------------------------
+          // 4. WEEKLY LIFE SCORE COMPACT WIDGET (Conditionally shown if >0 score)
+          // -------------------------------------------------------------------
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: HomeLifeScoreWidget(),
+          ),
+          const SizedBox(height: 12),
+
+          // -------------------------------------------------------------------
+          // 5. TODAY'S FOCUS CARD (Top 3 tasks + quick complete, hidden if 0 tasks)
+          // -------------------------------------------------------------------
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: TodaysFocusCard(
+              onViewAll: () => onNavigateTab(1), // Navigate to Tasks Tab
             ),
+          ),
+          const SizedBox(height: 12),
 
-            // Daily Check-in & Energy Mood Banner/Summary Widget
-            const HomeEnergyMoodWidget(),
-            const SizedBox(height: 8),
+          // -------------------------------------------------------------------
+          // 6. QUICK ACTIONS ROW (Start Pomodoro, Quick Capture, Add Task)
+          // -------------------------------------------------------------------
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: QuickActionsRow(
+              onStartPomodoro: () => onNavigateTab(4), // Navigate to Pomodoro Tab
+            ),
+          ),
+          const SizedBox(height: 16),
 
-            // People to Reach Out To (Personal CRM Overdue Widget)
-            const HomeContactsWidget(),
-            const SizedBox(height: 12),
+          // -------------------------------------------------------------------
+          // 7. TODAY'S HABITS HORIZONTAL SCROLL ROW (Hidden if 0 habits)
+          // -------------------------------------------------------------------
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: TodaysHabitsRow(),
+          ),
+          const SizedBox(height: 14),
 
-            // End My Day (Evening Shutdown Ritual Card)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          // -------------------------------------------------------------------
+          // 8. CONTINUE READING WIDGET (Hidden if no active reading book)
+          // -------------------------------------------------------------------
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: ContinueReadingWidget(),
+          ),
+          const SizedBox(height: 12),
+
+          // -------------------------------------------------------------------
+          // 9. PEOPLE TO REACH OUT TO (Contacts Personal CRM, hidden if 0 overdue)
+          // -------------------------------------------------------------------
+          const HomeContactsWidget(),
+          const SizedBox(height: 12),
+
+          // -------------------------------------------------------------------
+          // 10. YOUR GROUPS PREVIEW (Hidden if 0 joined groups)
+          // -------------------------------------------------------------------
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: GroupsPreviewWidget(
+              onViewAllGroups: () => onNavigateTab(5), // Navigate to Groups Tab
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // -------------------------------------------------------------------
+          // 11. WEEKLY REVIEW DUE BANNER (Hidden if review not due)
+          // -------------------------------------------------------------------
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: HomeWeeklyReviewDueBanner(),
+          ),
+          const SizedBox(height: 12),
+
+          // -------------------------------------------------------------------
+          // 12. WORKSPACE READY FOOTER CARD (Directly launches Focus Mode)
+          // -------------------------------------------------------------------
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Material(
+              color: Colors.transparent,
               child: InkWell(
-                onTap: () => ShutdownWizardModal.show(context),
-                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const FocusModePage(),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(22),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(18.0),
                   decoration: BoxDecoration(
                     gradient: isDark
                         ? const LinearGradient(
-                            colors: [Color(0xFF3B0764), Color(0xFF1E1B4B)],
+                            colors: [Color(0xFF0F1B4C), Color(0xFF0B1647)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           )
                         : const LinearGradient(
-                            colors: [Color(0xFFF3E8FF), Color(0xFFEDE9FE)],
+                            colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(22),
                     border: Border.all(
                       color: isDark
-                          ? const Color(0xFFA855F7).withValues(alpha: 0.3)
-                          : const Color(0xFFC084FC),
-                      width: 1.2,
+                          ? AppColors.cyanElectric.withValues(alpha: 0.25)
+                          : const Color(0xFF93C5FD),
+                      width: 1.4,
                     ),
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.10),
+                              blurRadius: 18,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                   ),
                   child: Row(
                     children: [
                       Container(
-                        width: 42,
-                        height: 42,
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
+                          shape: BoxShape.circle,
+                          gradient: isDark
+                              ? const LinearGradient(
+                                  colors: [Color(0xFF00E5FF), Color(0xFF1E58F6)],
+                                )
+                              : const LinearGradient(
+                                  colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                                ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? AppColors.cyanElectric.withValues(alpha: 0.4)
+                                  : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                              blurRadius: 12,
+                            ),
+                          ],
                         ),
-                        child: const Center(
-                          child: Text('🌙', style: TextStyle(fontSize: 20)),
+                        child: const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Colors.white,
+                          size: 22,
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -1813,19 +2052,11 @@ class _HomeTabContent extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              context.tr('end_my_day_title'),
+                              context.tr('focus_workspace_ready'),
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white : const Color(0xFF581C87),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              context.tr('end_my_day_subtitle'),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: isDark ? Colors.white70 : const Color(0xFF6B21A8),
+                                color: isDark ? Colors.white : const Color(0xFF1E3A8A),
                               ),
                             ),
                           ],
@@ -1833,123 +2064,17 @@ class _HomeTabContent extends StatelessWidget {
                       ),
                       Icon(
                         Icons.arrow_forward_ios_rounded,
-                        size: 14,
-                        color: isDark ? Colors.white60 : const Color(0xFF7E22CE),
+                        size: 13,
+                        color: isDark ? AppColors.cyanElectric : const Color(0xFF2563EB),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-
-            // Radiant Focus Workspace Banner
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  gradient: isDark
-                      ? const LinearGradient(
-                          colors: [Color(0xFF0F1B4C), Color(0xFF0B1647)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : const LinearGradient(
-                          colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: isDark
-                        ? AppColors.cyanElectric.withValues(alpha: 0.25)
-                        : const Color(0xFF93C5FD),
-                    width: 1.4,
-                  ),
-                  boxShadow: isDark
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: const Color(0xFF2E6FF2).withValues(alpha: 0.10),
-                            blurRadius: 18,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: isDark
-                            ? const LinearGradient(
-                                colors: [Color(0xFF00E5FF), Color(0xFF1E58F6)],
-                              )
-                            : const LinearGradient(
-                                colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
-                              ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDark
-                                ? AppColors.cyanElectric.withValues(alpha: 0.4)
-                                : const Color(0xFF2563EB).withValues(alpha: 0.35),
-                            blurRadius: 12,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.auto_awesome_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.tr('focus_workspace_ready'),
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : const Color(0xFF1E3A8A),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ==============================================================================
-// PLACEHOLDER TAB 3: PROFILE
-// ==============================================================================
-class _ProfileTabPlaceholder extends StatelessWidget {
-  const _ProfileTabPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        context.tr('profile'),
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w900,
-          color: AppColors.textPrimary(context),
-        ),
+          ),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }

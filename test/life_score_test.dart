@@ -405,7 +405,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('ANALYTICS'), findsOneWidget);
-      expect(find.text('Weekly Life Score'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(Drawer),
+          matching: find.text('Weekly Life Score'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('Arabic localization renders Weekly Life Score breakdown and texts', (tester) async {

@@ -16,6 +16,7 @@ import 'change_password_page.dart';
 import 'privacy_policy_page.dart';
 import 'profile_page.dart';
 import 'terms_of_service_page.dart';
+import '../connected_accounts/connected_accounts_page.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -499,12 +500,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       icon: Icons.link_rounded,
                       iconBg: const Color(0xFF8B5CF6),
                       title: context.tr('connected_accounts'),
+                      subtitle: context.tr('connected_accounts_desc'),
                       primaryColor: primaryTextColor,
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
                       onTap: () {
-                        // TODO: Implement Google & Apple linked login accounts
-                        _showComingSoonSnackbar(context, context.tr('connected_accounts'));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ConnectedAccountsPage(),
+                          ),
+                        );
                       },
                     ),
                   ],

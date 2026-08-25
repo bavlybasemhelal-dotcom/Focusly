@@ -5,7 +5,16 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  /// Whether to render the top AppBar (true when pushed as a standalone route, false when embedded as a bottom nav tab).
+  final bool showAppBar;
+  /// Whether to render the back button in the AppBar.
+  final bool showBackButton;
+
+  const ProfilePage({
+    super.key,
+    this.showAppBar = true,
+    this.showBackButton = true,
+  });
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -172,23 +181,28 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          context.tr('profile'),
-          style: TextStyle(
-            color: primaryTextColor,
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: brandPrimary),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              title: Text(
+                context.tr('profile'),
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 22,
+                ),
+              ),
+              automaticallyImplyLeading: widget.showBackButton,
+              leading: widget.showBackButton
+                  ? IconButton(
+                      icon: Icon(Icons.arrow_back_rounded, color: brandPrimary),
+                      onPressed: () => Navigator.of(context).pop(),
+                    )
+                  : null,
+            )
+          : null,
       body: Stack(
         children: [
           // Ambient Daylight/Midnight Glow Blooms
