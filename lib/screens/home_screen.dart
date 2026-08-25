@@ -54,6 +54,7 @@ import '../features/mental_health/mental_health_page.dart';
 import '../features/budget_tracker/budget_tracker_page.dart';
 import '../features/life_analytics/life_analytics_page.dart';
 import '../features/life_score/life_score_detail_page.dart';
+import '../features/pdf_reports/report_range_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -1185,6 +1186,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const LifeScoreDetailPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.picture_as_pdf_outlined,
+                        title: context.tr('pdf_reports_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ReportRangePage(),
                             ),
                           );
                         },
