@@ -248,6 +248,11 @@ void main() {
 
       expect(find.text('Edit Legacy Entry'), findsOneWidget);
       expect(find.text('Letter to My 35-Year-Old Self'), findsOneWidget);
+
+      final deleteButton = find.byType(TextButton);
+      await tester.ensureVisible(deleteButton);
+      await tester.pumpAndSettle();
+
       expect(find.text('Save Entry'), findsOneWidget);
       expect(find.text('Delete Entry'), findsOneWidget);
     });
