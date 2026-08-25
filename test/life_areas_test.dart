@@ -237,9 +237,14 @@ void main() {
       expect(find.text('Personal Growth'), findsOneWidget);
       expect(find.text('Fun & Recreation'), findsOneWidget);
       expect(find.text('Environment'), findsOneWidget);
+      expect(find.byType(Slider), findsNWidgets(8));
+
+      // Scroll to reveal save and delete buttons
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -800));
+      await tester.pumpAndSettle();
+
       expect(find.text('Save Assessment'), findsOneWidget);
       expect(find.text('Delete Assessment'), findsOneWidget);
-      expect(find.byType(Slider), findsNWidgets(8));
     });
   });
 }
