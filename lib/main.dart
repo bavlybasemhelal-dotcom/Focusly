@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/localization/locale_controller.dart';
+import 'core/services/notification_init_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/font_size_controller.dart';
 import 'core/theme/theme_controller.dart';
@@ -16,6 +17,9 @@ void main() async {
 
   // Initialize Firebase with the configured platform options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize timezone database and local notification plugin
+  await NotificationInitService.initializeAppNotifications();
 
   // Set clean system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(

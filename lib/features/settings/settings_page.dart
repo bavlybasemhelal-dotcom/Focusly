@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,6 +18,7 @@ import 'privacy_policy_page.dart';
 import 'profile_page.dart';
 import 'terms_of_service_page.dart';
 import '../connected_accounts/connected_accounts_page.dart';
+import '../../core/services/notification_init_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -586,6 +588,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
                       onTap: _handleRateApp,
+                    ),
+                    _buildDivider(borderColor),
+
+                    // Test Notification (10s Diagnostic Tool)
+                    _buildSettingsRow(
+                      icon: Icons.notification_add_rounded,
+                      iconBg: const Color(0xFF8B5CF6),
+                      title: context.tr('test_notification_btn'),
+                      subtitle: context.tr('test_notification_desc'),
+                      primaryColor: primaryTextColor,
+                      secondaryColor: secondaryTextColor,
+                      brandPrimary: brandPrimary,
+                      onTap: () async {
+                        HapticFeedback.lightImpact();
+                        await NotificationInitService.scheduleTestNotification(seconds: 10);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(context.tr('test_notification_scheduled_toast')),
+                              backgroundColor: const Color(0xFF10B981),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),

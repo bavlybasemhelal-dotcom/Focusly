@@ -1,91 +1,22 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/notifications/platform_senders/platform_notification_sender.dart';
+import '../../../core/services/notification_init_service.dart';
+import '../../notifications/services/notification_logger.dart';
 import '../models/task_model.dart';
 
 /// Service responsible for scheduling and cancelling local task reminder notifications.
 ///
-/// TODO: Note on timezone handling: Timezone database is initialized with local
-/// device settings using `timezone` package to keep scheduled alerts synchronized
-/// across daylight saving and system clock changes.
+/// Uses [PlatformNotificationSender] to reliably deliver notifications to the OS system tray
+/// across Mobile (Android/iOS), Web (Browser Notification API), and Desktop (Windows/macOS/Linux).
 class TaskNotificationService {
   static final TaskNotificationService _instance =
       TaskNotificationService._internal();
   factory TaskNotificationService() => _instance;
   TaskNotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
-  bool _isInitialized = false;
-
-  /// Initializes the local notification plugin and timezone data
-  Future<void> initialize() async {
-    if (_isInitialized) return;
-
-    try {
-      // 1. Initialize time zones
-      tz.initializeTimeZones();
-
-      // 2. Android Initialization Settings
-      const AndroidInitializationSettings androidSettings =
-          AndroidInitializationSettings('@mipmap/ic_launcher');
-
-      // 3. iOS Initialization Settings
-      const DarwinInitializationSettings iosSettings =
-          DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-      );
-
-      const InitializationSettings initSettings = InitializationSettings(
-        android: androidSettings,
-        iOS: iosSettings,
-      );
-
-      await _notificationsPlugin.initialize(
-        initSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) {
-          debugPrint('Notification tapped: ${response.payload}');
-        },
-      );
-
-      _isInitialized = true;
-    } catch (e) {
-      debugPrint('TaskNotificationService initialize error: $e');
-    }
-  }
-
-  /// Requests notification permissions (especially on Android 13+ and iOS)
-  Future<bool> requestPermissions() async {
-    try {
-      final androidImpl =
-          _notificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
-      if (androidImpl != null) {
-        final granted = await androidImpl.requestNotificationsPermission();
-        return granted ?? false;
-      }
-
-      final iosImpl =
-          _notificationsPlugin.resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>();
-      if (iosImpl != null) {
-        final granted = await iosImpl.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-        return granted ?? false;
-      }
-    } catch (e) {
-      debugPrint('Error requesting notification permissions: $e');
-    }
-    return true;
-  }
+  PlatformNotificationSender get _platformSender =>
+      NotificationInitService.platformSender;
 
   /// Generates a stable unique integer notification ID from task ID and slot (0, 1, 2)
   int _generateNotificationId(String taskId, int slot) {
@@ -93,16 +24,16 @@ class TaskNotificationService {
   }
 
   /// Schedules all relevant notifications for a task:
-  /// 1. Specific Time Notification (at exact scheduled date + time)
+  /// 1. Specific Task Time Notification (at exact scheduled date + time)
   /// 2. 24 Hours Before Deadline Notification
   /// 3. 1 Hour Before Deadline Notification
   Future<void> scheduleTaskNotifications(
     TaskModel task,
     AppLocalizations localizations,
   ) async {
-    if (!_isInitialized) {
-      await initialize();
-    }
+    // Ensure core notifications and permissions are ready
+    await NotificationInitService.initializeAppNotifications();
+    await NotificationInitService.requestPermissions();
 
     // Always clear prior scheduled slots first to prevent duplicate or stale alerts
     await cancelTaskNotifications(task.id);
@@ -126,19 +57,27 @@ class TaskNotificationService {
 
       if (scheduledDateTime.isAfter(now)) {
         try {
-          final tzScheduled = tz.TZDateTime.from(scheduledDateTime, tz.local);
           final id = _generateNotificationId(task.id, 0);
+          final title = localizations.tr('notification_task_time_title');
+          final body =
+              '${task.title} • ${task.time!.hour.toString().padLeft(2, '0')}:${task.time!.minute.toString().padLeft(2, '0')}';
 
-          await _notificationsPlugin.zonedSchedule(
-            id,
-            localizations.tr('notification_task_time_title'),
-            '${task.title} • ${task.time!.hour.toString().padLeft(2, '0')}:${task.time!.minute.toString().padLeft(2, '0')}',
-            tzScheduled,
-            _buildNotificationDetails('task_reminders', 'Task Reminders'),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
+          await _platformSender.scheduleNotification(
+            id: id,
+            title: title,
+            body: body,
+            scheduledDate: scheduledDateTime,
+            channelId: 'task_reminders',
+            channelName: 'Task Reminders',
             payload: task.id,
+          );
+
+          // Record in notification history log
+          await NotificationLogger.logNotification(
+            title: title,
+            body: body,
+            type: 'task_reminder',
+            relatedId: task.id,
           );
         } catch (e) {
           debugPrint('Error scheduling task time notification: $e');
@@ -154,19 +93,25 @@ class TaskNotificationService {
       final deadline24h = task.deadline!.subtract(const Duration(hours: 24));
       if (deadline24h.isAfter(now)) {
         try {
-          final tz24h = tz.TZDateTime.from(deadline24h, tz.local);
           final id24 = _generateNotificationId(task.id, 1);
+          final title24 = localizations.tr('notification_deadline_24h_title');
+          final body24 = task.title;
 
-          await _notificationsPlugin.zonedSchedule(
-            id24,
-            localizations.tr('notification_deadline_24h_title'),
-            task.title,
-            tz24h,
-            _buildNotificationDetails('task_deadlines', 'Task Deadlines'),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
+          await _platformSender.scheduleNotification(
+            id: id24,
+            title: title24,
+            body: body24,
+            scheduledDate: deadline24h,
+            channelId: 'task_deadlines',
+            channelName: 'Task Deadlines',
             payload: task.id,
+          );
+
+          await NotificationLogger.logNotification(
+            title: title24,
+            body: body24,
+            type: 'task_reminder',
+            relatedId: task.id,
           );
         } catch (e) {
           debugPrint('Error scheduling 24h deadline notification: $e');
@@ -177,19 +122,25 @@ class TaskNotificationService {
       final deadline1h = task.deadline!.subtract(const Duration(hours: 1));
       if (deadline1h.isAfter(now)) {
         try {
-          final tz1h = tz.TZDateTime.from(deadline1h, tz.local);
           final id1 = _generateNotificationId(task.id, 2);
+          final title1 = localizations.tr('notification_deadline_1h_title');
+          final body1 = task.title;
 
-          await _notificationsPlugin.zonedSchedule(
-            id1,
-            localizations.tr('notification_deadline_1h_title'),
-            task.title,
-            tz1h,
-            _buildNotificationDetails('task_deadlines', 'Task Deadlines'),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
+          await _platformSender.scheduleNotification(
+            id: id1,
+            title: title1,
+            body: body1,
+            scheduledDate: deadline1h,
+            channelId: 'task_deadlines',
+            channelName: 'Task Deadlines',
             payload: task.id,
+          );
+
+          await NotificationLogger.logNotification(
+            title: title1,
+            body: body1,
+            type: 'task_reminder',
+            relatedId: task.id,
           );
         } catch (e) {
           debugPrint('Error scheduling 1h deadline notification: $e');
@@ -201,28 +152,11 @@ class TaskNotificationService {
   /// Cancels all scheduled notification slots for a given task ID
   Future<void> cancelTaskNotifications(String taskId) async {
     try {
-      await _notificationsPlugin.cancel(_generateNotificationId(taskId, 0));
-      await _notificationsPlugin.cancel(_generateNotificationId(taskId, 1));
-      await _notificationsPlugin.cancel(_generateNotificationId(taskId, 2));
+      await _platformSender.cancelNotification(_generateNotificationId(taskId, 0));
+      await _platformSender.cancelNotification(_generateNotificationId(taskId, 1));
+      await _platformSender.cancelNotification(_generateNotificationId(taskId, 2));
     } catch (e) {
       debugPrint('Error cancelling task notifications: $e');
     }
-  }
-
-  NotificationDetails _buildNotificationDetails(String channelId, String channelName) {
-    return NotificationDetails(
-      android: AndroidNotificationDetails(
-        channelId,
-        channelName,
-        importance: Importance.high,
-        priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
-      ),
-      iOS: const DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
-    );
   }
 }

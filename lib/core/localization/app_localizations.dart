@@ -1990,6 +1990,17 @@ class AppLocalizations {
       'group_invite_msg_template': "Join my group '{groupName}' on Focusly! Use code: {inviteCode}",
       'no_groups_invite_prompt': 'Join or create a group first to invite friends',
       'go_to_groups_btn': 'Explore Groups',
+
+      // Notifications History & Test Alerts Module
+      'notifications_title': 'Notifications',
+      'no_notifications_title': 'No notifications yet',
+      'no_notifications_desc': 'When you receive reminders for tasks, events, habits, or focus sessions, they will appear here.',
+      'mark_all_read_btn': 'Mark All Read',
+      'time_just_now': 'Just now',
+      'time_yesterday': 'Yesterday',
+      'test_notification_btn': 'Test Notification (10s)',
+      'test_notification_desc': 'Schedules an instant alert in 10 seconds to verify local notifications',
+      'test_notification_scheduled_toast': '🔔 Test notification scheduled in 10 seconds! Lock your screen or switch apps.',
     },
     'ar': {
       // App General
@@ -3962,6 +3973,17 @@ class AppLocalizations {
       'group_invite_msg_template': "انضم إلى مجموعتي '{groupName}' على تطبيق فوكسلي! استخدم الرمز: {inviteCode}",
       'no_groups_invite_prompt': 'انضم إلى مجموعة أو أنشئ مجموعة جديدة أولاً لدعوة أصدقائك',
       'go_to_groups_btn': 'استعراض المجموعات',
+
+      // Notifications History & Test Alerts Module
+      'notifications_title': 'الإشعارات',
+      'no_notifications_title': 'لا توجد إشعارات حتى الآن',
+      'no_notifications_desc': 'عندما تصلك تنبيهات للمهام أو المواعيد أو العادات أو جلسات التركيز، ستظهر هنا.',
+      'mark_all_read_btn': 'تحديد الكل كمقروء',
+      'time_just_now': 'الآن',
+      'time_yesterday': 'أمس',
+      'test_notification_btn': 'اختبار الإشعارات (١٠ ثوانٍ)',
+      'test_notification_desc': 'جدولة تنبيه فوري بعد ١٠ ثوانٍ للتأكد من عمل الإشعارات المحلية',
+      'test_notification_scheduled_toast': '🔔 تم جدولة إشعار اختباري بعد ١٠ ثوانٍ! يمكنك قفل الشاشة لاختباره.',
     },
   };
 

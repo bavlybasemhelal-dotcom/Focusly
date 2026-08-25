@@ -60,6 +60,8 @@ import '../features/life_areas/life_areas_page.dart';
 import '../features/bucket_list/bucket_list_page.dart';
 import '../features/legacy_journal/legacy_journal_page.dart';
 import '../features/annual_review/annual_review_page.dart';
+import '../features/notifications/notifications_page.dart';
+import '../features/notifications/providers/notifications_provider.dart';
 import '../features/settings/profile_page.dart';
 import '../features/focus_mode/focus_mode_page.dart';
 import '../features/home/widgets/continue_reading_widget.dart';
@@ -227,6 +229,89 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   onPressed: () => QuickCaptureSheet.show(context),
                   tooltip: context.tr('quick_capture_title'),
                 ),
+              ),
+            ),
+          ),
+          // Notifications Bell Action with Unread Count Badge
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8.0),
+            child: Center(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF0F1B4C).withValues(alpha: 0.6)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.12)
+                            : const Color(0xFFDBEAFE),
+                        width: 1.2,
+                      ),
+                      boxShadow: isDark
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        Icons.notifications_outlined,
+                        color: brandPrimary,
+                        size: 21,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationsPage(),
+                          ),
+                        );
+                      },
+                      tooltip: context.tr('notifications_title'),
+                    ),
+                  ),
+                  if (ref.watch(unreadNotificationCountProvider) > 0)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF070E28) : Colors.white,
+                            width: 1.5,
+                          ),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${ref.watch(unreadNotificationCountProvider)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -1276,6 +1361,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const AnnualReviewPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.notifications_outlined,
+                        title: context.tr('notifications_title'),
+                        isSelected: false,
+                        badgeCount: ref.watch(unreadNotificationCountProvider),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const NotificationsPage(),
                             ),
                           );
                         },
