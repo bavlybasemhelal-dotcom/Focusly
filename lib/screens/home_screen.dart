@@ -57,6 +57,7 @@ import '../features/life_score/life_score_detail_page.dart';
 import '../features/pdf_reports/report_range_page.dart';
 import '../features/life_areas/life_areas_page.dart';
 import '../features/bucket_list/bucket_list_page.dart';
+import '../features/legacy_journal/legacy_journal_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -1233,6 +1234,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const BucketListPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.history_edu_rounded,
+                        title: context.tr('legacy_journal_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const LegacyJournalPage(),
                             ),
                           );
                         },

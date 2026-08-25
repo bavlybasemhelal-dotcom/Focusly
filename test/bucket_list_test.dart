@@ -197,6 +197,10 @@ void main() {
       expect(find.text('Visit Mount Fuji in Autumn'), findsOneWidget);
       expect(find.text('Status'), findsOneWidget);
       expect(find.text('Memory & Reflection'), findsOneWidget);
+
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.pumpAndSettle();
+
       expect(find.text('Save Item'), findsOneWidget);
       expect(find.text('Delete Item'), findsOneWidget);
     });
@@ -209,6 +213,9 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
       await tester.pumpAndSettle();
 
       // Tap Save with empty title
