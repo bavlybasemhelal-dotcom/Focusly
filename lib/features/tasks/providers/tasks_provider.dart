@@ -184,7 +184,11 @@ class TasksController {
 
   /// Toggles task done status
   Future<void> toggleTaskDone(TaskModel task, BuildContext context) async {
-    final updated = task.copyWith(done: !task.done);
+    final updated = task.copyWith(
+      done: !task.done,
+      doneAt: !task.done ? DateTime.now() : null,
+      clearDoneAt: task.done,
+    );
     await updateTask(updated, context);
 
     // XP award and Achievement check hook: +10 XP for completing task

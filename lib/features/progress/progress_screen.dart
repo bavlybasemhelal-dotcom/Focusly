@@ -6,6 +6,7 @@ import 'providers/progress_provider.dart';
 import 'widgets/achievements_grid_view.dart';
 import 'widgets/level_header_card.dart';
 import 'widgets/productivity_overview_view.dart';
+import '../life_score/widgets/life_score_widget.dart';
 
 /// Main Progress & Achievements screen in Focusly.
 ///
@@ -73,6 +74,13 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                   // 2. LEVEL HEADER PROGRESSION CARD
                   // -----------------------------------------------------------
                   LevelHeaderCard(levelInfo: levelInfo),
+
+                  const SizedBox(height: 16),
+
+                  // -----------------------------------------------------------
+                  // WEEKLY LIFE SCORE AT-A-GLANCE WIDGET
+                  // -----------------------------------------------------------
+                  const LifeScoreWidget(),
 
                   const SizedBox(height: 20),
 

@@ -52,6 +52,8 @@ import '../features/nutrition_log/nutrition_log_page.dart';
 import '../features/body_metrics/body_metrics_page.dart';
 import '../features/mental_health/mental_health_page.dart';
 import '../features/budget_tracker/budget_tracker_page.dart';
+import '../features/life_analytics/life_analytics_page.dart';
+import '../features/life_score/life_score_detail_page.dart';
 import 'login_screen.dart';
 
 /// The main Home shell containing the AppBar, Drawer, BottomNavigationBar,
@@ -1126,6 +1128,63 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const BudgetTrackerPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // =========================================================
+                      // SECTION: ANALYTICS
+                      // =========================================================
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              context.tr('analytics_section_header').toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.insights_rounded,
+                        title: context.tr('life_analytics_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const LifeAnalyticsPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _buildDrawerItem(
+                        context: context,
+                        icon: Icons.speed_rounded,
+                        title: context.tr('life_score_title'),
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const LifeScoreDetailPage(),
                             ),
                           );
                         },

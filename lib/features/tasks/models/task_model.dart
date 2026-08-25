@@ -139,6 +139,7 @@ class TaskModel {
   final TimeOfDay? time;
   final DateTime? deadline;
   final bool done;
+  final DateTime? doneAt;
   final List<SubtaskModel> subtasks;
   final DateTime createdAt;
 
@@ -163,6 +164,7 @@ class TaskModel {
     this.time,
     this.deadline,
     this.done = false,
+    this.doneAt,
     this.subtasks = const [],
     required this.createdAt,
     this.listType,
@@ -201,6 +203,7 @@ class TaskModel {
       'time': time != null ? '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}' : null,
       'deadline': deadline != null ? Timestamp.fromDate(deadline!) : null,
       'done': done,
+      'doneAt': doneAt != null ? Timestamp.fromDate(doneAt!) : null,
       'subtasks': subtasks.map((s) => s.toMap()).toList(),
       'createdAt': Timestamp.fromDate(createdAt),
       'listType': listType,
@@ -242,6 +245,13 @@ class TaskModel {
       parsedWaitingSince = DateTime.tryParse(map['waitingSince']);
     }
 
+    DateTime? parsedDoneAt;
+    if (map['doneAt'] is Timestamp) {
+      parsedDoneAt = (map['doneAt'] as Timestamp).toDate();
+    } else if (map['doneAt'] is String) {
+      parsedDoneAt = DateTime.tryParse(map['doneAt']);
+    }
+
     TimeOfDay? parsedTime;
     if (map['time'] is String && (map['time'] as String).contains(':')) {
       final parts = (map['time'] as String).split(':');
@@ -271,6 +281,7 @@ class TaskModel {
       time: parsedTime,
       deadline: parsedDeadline,
       done: map['done'] ?? false,
+      doneAt: parsedDoneAt,
       subtasks: subtasksList,
       createdAt: parsedCreatedAt,
       listType: map['listType'],
@@ -291,6 +302,7 @@ class TaskModel {
     TimeOfDay? time,
     DateTime? deadline,
     bool? done,
+    DateTime? doneAt,
     List<SubtaskModel>? subtasks,
     DateTime? createdAt,
     String? listType,
@@ -300,6 +312,7 @@ class TaskModel {
     String? skillId,
     bool clearTime = false,
     bool clearDeadline = false,
+    bool clearDoneAt = false,
     bool clearListType = false,
     bool clearWaitingFor = false,
     bool clearWaitingSince = false,
@@ -316,6 +329,7 @@ class TaskModel {
       time: clearTime ? null : (time ?? this.time),
       deadline: clearDeadline ? null : (deadline ?? this.deadline),
       done: done ?? this.done,
+      doneAt: clearDoneAt ? null : (doneAt ?? this.doneAt),
       subtasks: subtasks ?? this.subtasks,
       createdAt: createdAt ?? this.createdAt,
       listType: clearListType ? null : (listType ?? this.listType),
