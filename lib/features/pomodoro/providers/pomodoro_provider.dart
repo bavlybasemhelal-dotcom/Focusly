@@ -7,6 +7,7 @@ import '../models/pomodoro_config_model.dart';
 import '../models/pomodoro_log_model.dart';
 import '../models/pomodoro_state.dart';
 import '../services/pomodoro_notification_service.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 
 /// Stream of Pomodoro work session logs from Firestore for the current user
@@ -365,11 +366,21 @@ class PomodoroTimerNotifier extends Notifier<PomodoroTimerState> {
           .add(log.toMap());
 
       // XP award & Achievement check hook: +30 XP for full session, ~1.2 XP/min for partial
+      final taskLabel = state.selectedTaskTitle ?? 'Focus Session';
+      final minutes = (durationSeconds / 60).ceil();
       if (!partial) {
-        ProgressService().awardXp(30);
+        ProgressService().awardXp(
+          XpConstants.pomodoroFullSession,
+          source: 'Pomodoro focus session: "$taskLabel" ($minutes min)',
+          sourceType: 'pomodoro',
+        );
       } else {
-        final earnedXp = ((durationSeconds / 60) * 1.2).round().clamp(1, 29);
-        ProgressService().awardXp(earnedXp);
+        final earnedXp = ((durationSeconds / 60) * XpConstants.pomodoroPartialRatePerMin).round().clamp(1, 29);
+        ProgressService().awardXp(
+          earnedXp,
+          source: 'Partial focus session: "$taskLabel" ($minutes min)',
+          sourceType: 'pomodoro',
+        );
       }
     } catch (_) {}
   }

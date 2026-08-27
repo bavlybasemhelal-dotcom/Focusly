@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../energy_mood/models/checkin_model.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../../tasks/models/task_model.dart';
 import '../models/gratitude_model.dart';
@@ -11,38 +12,92 @@ import '../models/ritual_model.dart';
 ///
 /// All collections are strictly isolated under: `users/{uid}/...`
 class RitualsService {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore? _firestore;
 
-  RitualsService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  RitualsService({FirebaseFirestore? firestore}) : _firestore = firestore;
 
-  CollectionReference<Map<String, dynamic>> _ritualsCollection(String uid) {
-    return _firestore.collection('users').doc(uid).collection('rituals');
+  FirebaseFirestore? get _db {
+    if (_firestore != null) return _firestore;
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
   }
 
-  CollectionReference<Map<String, dynamic>> _gratitudeCollection(String uid) {
-    return _firestore.collection('users').doc(uid).collection('gratitude');
+  CollectionReference<Map<String, dynamic>>? _ritualsCollection(String uid) {
+    final db = _db;
+    if (db == null) return null;
+    return db.collection('users').doc(uid).collection('rituals');
   }
 
-  CollectionReference<Map<String, dynamic>> _checkinsCollection(String uid) {
-    return _firestore.collection('users').doc(uid).collection('checkins');
+  CollectionReference<Map<String, dynamic>>? _gratitudeCollection(String uid) {
+    final db = _db;
+    if (db == null) return null;
+    return db.collection('users').doc(uid).collection('gratitude');
   }
 
-  CollectionReference<Map<String, dynamic>> _tasksCollection(String uid) {
-    return _firestore.collection('users').doc(uid).collection('tasks');
+  CollectionReference<Map<String, dynamic>>? _checkinsCollection(String uid) {
+    final db = _db;
+    if (db == null) return null;
+    return db.collection('users').doc(uid).collection('checkins');
+  }
+
+  CollectionReference<Map<String, dynamic>>? _tasksCollection(String uid) {
+    final db = _db;
+    if (db == null) return null;
+    return db.collection('users').doc(uid).collection('tasks');
   }
 
   /// Streams today's ritual doc.
   Stream<RitualModel?> streamTodayRitual(String uid, String dateStr) {
-    return _ritualsCollection(uid).doc(dateStr).snapshots().map((doc) {
+    final col = _ritualsCollection(uid);
+    if (col == null) return const Stream.empty();
+    return col.doc(dateStr).snapshots().map((doc) {
       if (!doc.exists || doc.data() == null) return null;
       return RitualModel.fromMap(doc.data()!, doc.id);
     });
   }
 
+  /// Directly fetches today's ritual doc once for non-stream startup checks.
+  Future<RitualModel?> getTodayRitual(String uid, String dateStr) async {
+    try {
+      final col = _ritualsCollection(uid);
+      if (col == null) return null;
+      final doc = await col.doc(dateStr).get();
+      if (!doc.exists || doc.data() == null) return null;
+      return RitualModel.fromMap(doc.data()!, doc.id);
+    } catch (e) {
+      debugPrint('Error getting today ritual: $e');
+      return null;
+    }
+  }
+
+  /// Records that the morning intention prompt was shown/dismissed for [dateStr] in Firestore.
+  Future<void> recordPromptShown(String uid, String dateStr) async {
+    try {
+      final col = _ritualsCollection(uid);
+      if (col == null) return;
+      final docRef = col.doc(dateStr);
+      await docRef.set(
+        {
+          'date': dateStr,
+          'promptShown': true,
+          'lastPromptDate': dateStr,
+          'updatedAt': Timestamp.fromDate(DateTime.now()),
+        },
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      debugPrint('Error recording prompt shown in Firestore: $e');
+    }
+  }
+
   /// Streams all rituals ordered by date descending.
   Stream<List<RitualModel>> streamRituals(String uid) {
-    return _ritualsCollection(uid)
+    final col = _ritualsCollection(uid);
+    if (col == null) return const Stream.empty();
+    return col
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
@@ -59,7 +114,9 @@ class RitualsService {
     required String intention,
   }) async {
     try {
-      final docRef = _ritualsCollection(uid).doc(dateStr);
+      final col = _ritualsCollection(uid);
+      if (col == null) return false;
+      final docRef = col.doc(dateStr);
       final now = DateTime.now();
 
       await docRef.set(
@@ -83,6 +140,10 @@ class RitualsService {
     required List<TaskModel> tasks,
   }) async {
     try {
+      final db = _db;
+      final taskCol = _tasksCollection(uid);
+      if (db == null || taskCol == null) return 0;
+
       final now = DateTime.now();
       final tomorrow = DateTime(now.year, now.month, now.day + 1);
 
@@ -90,9 +151,9 @@ class RitualsService {
       final tasksToMove = tasks.where((t) => !t.done && t.listType == null).toList();
       if (tasksToMove.isEmpty) return 0;
 
-      final batch = _firestore.batch();
+      final batch = db.batch();
       for (final task in tasksToMove) {
-        final docRef = _tasksCollection(uid).doc(task.id);
+        final docRef = taskCol.doc(task.id);
         batch.update(docRef, {
           'date': Timestamp.fromDate(tomorrow),
         });
@@ -127,6 +188,14 @@ class RitualsService {
     WidgetRef? ref,
   }) async {
     try {
+      final gratCol = _gratitudeCollection(uid);
+      final checkinCol = _checkinsCollection(uid);
+      final taskCol = _tasksCollection(uid);
+      final ritualCol = _ritualsCollection(uid);
+      if (gratCol == null || checkinCol == null || taskCol == null || ritualCol == null) {
+        return false;
+      }
+
       final now = DateTime.now();
       final tomorrow = DateTime(now.year, now.month, now.day + 1);
       final combinedGratitude = '$gratitude1 • $gratitude2 • $gratitude3';
@@ -142,13 +211,13 @@ class RitualsService {
         createdAt: now,
         updatedAt: now,
       );
-      await _gratitudeCollection(uid).doc(dateStr).set(
+      await gratCol.doc(dateStr).set(
             gratitudeDoc.toMap(),
             SetOptions(merge: true),
           );
 
       // 2. Energy & Mood Check-in Merge (Preserving existing water/sleep)
-      final checkinDocRef = _checkinsCollection(uid).doc(dateStr);
+      final checkinDocRef = checkinCol.doc(dateStr);
       final existingCheckinDoc = await checkinDocRef.get();
       CheckinModel? existingCheckin;
       if (existingCheckinDoc.exists && existingCheckinDoc.data() != null) {
@@ -178,7 +247,7 @@ class RitualsService {
           .toList();
 
       for (final title in validTomorrowTasks) {
-        final taskDocRef = _tasksCollection(uid).doc();
+        final taskDocRef = taskCol.doc();
         final newTask = TaskModel(
           id: taskDocRef.id,
           title: title,
@@ -200,7 +269,7 @@ class RitualsService {
         completedAt: now,
       );
 
-      await _ritualsCollection(uid).doc(dateStr).set(
+      await ritualCol.doc(dateStr).set(
         {
           'date': dateStr,
           'shutdown': shutdownData.toMap(),
@@ -211,7 +280,12 @@ class RitualsService {
 
       // 5. XP hook: Award +30 XP for completing evening shutdown ritual
       if (ref != null) {
-        await ProgressService().awardXp(30, ref: ref);
+        await ProgressService().awardXp(
+          XpConstants.eveningShutdown,
+          source: 'Evening shutdown ritual completed',
+          sourceType: 'rituals',
+          ref: ref,
+        );
       }
 
       return true;

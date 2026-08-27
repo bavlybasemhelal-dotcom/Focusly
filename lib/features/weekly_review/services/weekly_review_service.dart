@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../gtd/models/inbox_item_model.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../models/weekly_review_model.dart';
 
@@ -108,7 +109,12 @@ class WeeklyReviewService {
 
       // 4. Award XP for completing Weekly Review
       if (ref != null) {
-        await ProgressService().awardXp(40, ref: ref);
+        await ProgressService().awardXp(
+          XpConstants.weeklyReview,
+          source: 'Weekly review completed',
+          sourceType: 'weekly_review',
+          ref: ref,
+        );
       }
 
       return true;

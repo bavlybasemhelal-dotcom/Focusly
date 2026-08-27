@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../groups/services/group_feed_service.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../tasks/models/task_model.dart';
 import '../helpers/skill_math_helper.dart';
 import '../models/skill_model.dart';
@@ -154,13 +155,13 @@ class SkillsService {
       int xpToAward;
       switch (task.priority) {
         case TaskPriority.high:
-          xpToAward = 25;
+          xpToAward = XpConstants.taskSkillHigh;
           break;
         case TaskPriority.medium:
-          xpToAward = 15;
+          xpToAward = XpConstants.taskSkillMedium;
           break;
         case TaskPriority.low:
-          xpToAward = 10;
+          xpToAward = XpConstants.taskSkillLow;
           break;
       }
 

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../helpers/learning_path_helpers.dart';
 import '../models/learning_path_model.dart';
@@ -369,7 +370,13 @@ class LearningPathsService {
     WidgetRef? ref,
   ) {
     // XP hook: Award +10 XP for completing a curriculum day
-    ProgressService().awardXp(10, context: context, ref: ref);
+    ProgressService().awardXp(
+      XpConstants.learningPathDay,
+      source: 'Learning Path day completed: Day $day',
+      sourceType: 'learning_path',
+      context: context,
+      ref: ref,
+    );
 
     if (context != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

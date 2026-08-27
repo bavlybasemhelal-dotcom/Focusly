@@ -37,9 +37,15 @@ final ritualsHistoryStreamProvider = StreamProvider<List<RitualModel>>((ref) {
 
 /// Persisted state tracking if the morning intention prompt/banner was already shown or dismissed today.
 ///
-/// NOTE: Previously this was an ephemeral in-memory bool that reset on every app navigation or reload,
-/// causing repeated intrusive popups. We now persist the date string (`YYYY-MM-DD`) in SharedPreferences
-/// so the banner/modal only prompts AT MOST once per calendar day when no intention is set.
+/// ROOT CAUSE & PERSISTENCE NOTE:
+/// Previously:
+/// 1. `build()` synchronously returned `false` while `_load()` was an unawaited Future, causing
+///    initial checks on app launch to read `false` before disk I/O finished.
+/// 2. Saving an intention called `.reset()`, deleting the date key and causing re-prompts on restart.
+/// We now:
+/// - Check the persisted calendar date string (`YYYY-MM-DD`) asynchronously via `hasBeenShownToday()`.
+/// - Sync the prompt record to Firestore as well as SharedPreferences.
+/// - Maintain the 'shown today' status across saves, dismissals, and app restarts.
 class MorningIntentionDismissedNotifier extends Notifier<bool> {
   static const _key = 'setting_morning_intention_last_prompt_date';
 
@@ -50,23 +56,26 @@ class MorningIntentionDismissedNotifier extends Notifier<bool> {
   }
 
   Future<void> _load() async {
+    final isShown = await hasBeenShownToday();
+    state = isShown;
+  }
+
+  /// Asynchronously checks if the prompt was already shown or dismissed today by comparing
+  /// the stored calendar date (`YYYY-MM-DD`) against today's calendar date.
+  Future<bool> hasBeenShownToday() async {
     final prefs = await SharedPreferences.getInstance();
     final lastDate = prefs.getString(_key);
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    // If the saved date matches today's calendar date, the prompt has already been shown/dismissed today.
-    if (lastDate == today) {
-      state = true;
-    } else {
-      state = false;
+    final isShown = lastDate == today;
+    if (state != isShown) {
+      state = isShown;
     }
+    return isShown;
   }
 
   /// Marks the prompt as dismissed for today and persists today's date.
   Future<void> dismiss() async {
-    state = true;
-    final prefs = await SharedPreferences.getInstance();
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    await prefs.setString(_key, today);
+    await markShownToday();
   }
 
   /// Marks the prompt as already shown today so it doesn't pop up again today.
@@ -75,6 +84,16 @@ class MorningIntentionDismissedNotifier extends Notifier<bool> {
     final prefs = await SharedPreferences.getInstance();
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     await prefs.setString(_key, today);
+
+    // Sync to Firestore for multi-device consistency
+    try {
+      final uid = ref.read(currentUserIdProvider);
+      if (uid != null) {
+        await ref.read(ritualsServiceProvider).recordPromptShown(uid, today);
+      }
+    } catch (e) {
+      debugPrint('Error syncing prompt date to Firestore: $e');
+    }
   }
 
   /// Resets the prompt state (clearing the stored date).

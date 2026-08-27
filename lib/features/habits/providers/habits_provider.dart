@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../helpers/streak_logic.dart';
 import '../models/habit_model.dart';
 import '../services/habit_notification_service.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
@@ -133,6 +134,8 @@ class HabitsController {
       if (context.mounted) {
         _showToast(context, context.tr('habit_added_success'), isError: false);
       }
+      // Achievement check hook for adding habit (1st, 5th)
+      ProgressService().checkAndUnlockAchievements(context: context);
     } catch (e) {
       if (context.mounted) {
         _showToast(context, context.tr('habit_error_saving'), isError: true);
@@ -225,7 +228,12 @@ class HabitsController {
 
     // XP award and Achievement check hook: +5 XP for completing habit day
     if (toggleResult.wasEarlyWeekReset || updatedHabit.isDayCompleted(dayIndex)) {
-      ProgressService().awardXp(5);
+      ProgressService().awardXp(
+        XpConstants.habitDayCompletion,
+        source: 'Completed habit: "${updatedHabit.title}"',
+        sourceType: 'habit',
+        context: context,
+      );
       ChallengeService().triggerProgressSync();
     }
 

@@ -8,6 +8,7 @@ import '../../../core/localization/app_localizations.dart';
 import '../models/category_model.dart';
 import '../models/task_model.dart';
 import '../services/task_notification_service.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
@@ -147,7 +148,7 @@ class TasksController {
       await _notificationService.scheduleTaskNotifications(newTask, localizations);
 
       // Achievement check hook (Early bird, night owl, 20 tasks, etc.)
-      ProgressService().awardXp(0);
+      ProgressService().checkAndUnlockAchievements(context: context);
     } catch (e) {
       debugPrint('Error adding task: $e');
     }
@@ -193,7 +194,12 @@ class TasksController {
 
     // XP award and Achievement check hook: +10 XP for completing task
     if (updated.done) {
-      ProgressService().awardXp(10);
+      ProgressService().awardXp(
+        XpConstants.taskCompletion,
+        source: 'Completed task: "${updated.title}"',
+        sourceType: 'task',
+        context: context,
+      );
 
       // Skill XP hook: Award skill XP based on task priority (High: 25, Medium: 15, Low: 10)
       final uid = _currentUserId;
@@ -230,7 +236,7 @@ class TasksController {
     try {
       await col.doc(task.id).update({'subtasks': updatedSubtasks.map((s) => s.toMap()).toList()});
       // Achievement check hook for adding subtask
-      ProgressService().awardXp(0);
+      ProgressService().checkAndUnlockAchievements();
     } catch (e) {
       debugPrint('Error adding subtask: $e');
     }
@@ -293,6 +299,8 @@ class TasksController {
         'isDefault': false,
         'createdAt': FieldValue.serverTimestamp(),
       });
+      // Achievement check hook for creating custom category (org_custom_cat)
+      ProgressService().checkAndUnlockAchievements(uid: uid);
     } catch (e) {
       debugPrint('Error adding category: $e');
     }

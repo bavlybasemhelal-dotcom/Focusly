@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:focusly/core/auth/auth_provider.dart';
 import 'package:focusly/core/localization/app_localizations.dart';
@@ -123,6 +124,37 @@ void main() {
 
       await container.read(morningIntentionDismissedProvider.notifier).dismiss();
       expect(container.read(morningIntentionDismissedProvider), isTrue);
+    });
+
+    test('hasBeenShownToday returns true across app restarts for today', () async {
+      final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      SharedPreferences.setMockInitialValues({
+        'setting_morning_intention_last_prompt_date': todayStr,
+      });
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final isShown = await container
+          .read(morningIntentionDismissedProvider.notifier)
+          .hasBeenShownToday();
+      expect(isShown, isTrue);
+      expect(container.read(morningIntentionDismissedProvider), isTrue);
+    });
+
+    test('hasBeenShownToday naturally resets for a new calendar day', () async {
+      SharedPreferences.setMockInitialValues({
+        'setting_morning_intention_last_prompt_date': '2026-01-01',
+      });
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final isShown = await container
+          .read(morningIntentionDismissedProvider.notifier)
+          .hasBeenShownToday();
+      expect(isShown, isFalse);
+      expect(container.read(morningIntentionDismissedProvider), isFalse);
     });
   });
 

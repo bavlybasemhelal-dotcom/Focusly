@@ -186,7 +186,7 @@ class ScheduleController {
       );
 
       // Achievement check hook for adding events (1st, 5th, 20th)
-      ProgressService().awardXp(0);
+      ProgressService().checkAndUnlockAchievements(context: context);
     } catch (e) {
       debugPrint('Error adding schedule event: $e');
     }

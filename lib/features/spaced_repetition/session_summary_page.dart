@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
+import '../progress/constants/xp_constants.dart';
 import '../progress/services/progress_service.dart';
 import 'controllers/review_session_controller.dart';
 
@@ -21,8 +22,14 @@ class _SessionSummaryPageState extends ConsumerState<SessionSummaryPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final session = ref.read(reviewSessionControllerProvider);
       if (session.totalReviewed > 0) {
-        final xpEarned = session.totalReviewed * 2;
-        ProgressService().awardXp(xpEarned, context: context, ref: ref);
+        final xpEarned = session.totalReviewed * XpConstants.flashcardReviewPerCard;
+        ProgressService().awardXp(
+          xpEarned,
+          source: 'Flashcards reviewed: ${session.totalReviewed} card${session.totalReviewed > 1 ? "s" : ""}',
+          sourceType: 'flashcards',
+          context: context,
+          ref: ref,
+        );
       }
     });
   }

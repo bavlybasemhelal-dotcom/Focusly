@@ -93,7 +93,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkMorningIntentionPrompt());
   }
 
-  void _checkMorningIntentionPrompt() {
+  Future<void> _checkMorningIntentionPrompt() async {
     if (_promptChecked || !mounted) return;
     _promptChecked = true;
 
@@ -103,18 +103,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final promptSetting = ref.read(morningIntentionPromptSettingProvider);
     if (!promptSetting) return;
 
-    // Checks persisted status for today's calendar date to ensure the popup shows at most once per day
-    final dismissed = ref.read(morningIntentionDismissedProvider);
-    if (dismissed) return;
+    // Asynchronously verify persisted calendar date (YYYY-MM-DD) from disk/Firestore
+    // to avoid the initial in-memory race condition where false was returned before I/O finished.
+    final alreadyShown = await ref
+        .read(morningIntentionDismissedProvider.notifier)
+        .hasBeenShownToday();
+    if (alreadyShown || !mounted) return;
 
-    Future.delayed(const Duration(milliseconds: 600), () {
+    // Direct check if an intention is already recorded for today in Firestore
+    final todayStr = ref.read(todayDateStringProvider);
+    final ritual = await ref.read(ritualsServiceProvider).getTodayRitual(uid, todayStr);
+    if (ritual != null && ritual.hasIntention) {
+      await ref.read(morningIntentionDismissedProvider.notifier).markShownToday();
+      return;
+    }
+
+    if (!mounted) return;
+
+    Future.delayed(const Duration(milliseconds: 600), () async {
+      if (!mounted) return;
+
+      final recheck = await ref
+          .read(morningIntentionDismissedProvider.notifier)
+          .hasBeenShownToday();
+      if (recheck || !mounted) return;
+
+      // Persist that the prompt has been shown today IMMEDIATELY before displaying the modal
+      await ref.read(morningIntentionDismissedProvider.notifier).markShownToday();
       if (mounted) {
-        final currentRitual = ref.read(todayRitualStreamProvider).value;
-        if (currentRitual == null || !currentRitual.hasIntention) {
-          // Persist that the prompt has been shown today so future screen visits don't re-prompt
-          ref.read(morningIntentionDismissedProvider.notifier).markShownToday();
-          MorningIntentionModal.show(context);
-        }
+        MorningIntentionModal.show(context);
       }
     });
   }

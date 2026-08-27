@@ -655,6 +655,30 @@ void main() {
       expect(find.text('New Habit'), findsOneWidget);
       expect(find.text('First Focus'), findsOneWidget);
     });
+
+    testWidgets('Tapping View XP History opens XpHistoryPage with level guide and breakdown',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          home: const ProgressScreen(),
+        ),
+      );
+      await tester.pump();
+
+      // Tap View XP History button
+      expect(find.text('View XP History'), findsOneWidget);
+      await tester.tap(find.text('View XP History'));
+      await tester.pumpAndSettle();
+
+      // Verify XpHistoryPage rendered
+      expect(find.text('XP History & Breakdown'), findsOneWidget);
+      expect(find.text('How to Earn XP'), findsOneWidget);
+      expect(find.text('Standard XP rewards across Focusly features:'), findsOneWidget);
+      expect(find.text('Complete a Task'), findsOneWidget);
+      expect(find.text('Check off a Daily Habit'), findsOneWidget);
+      expect(find.text('Full Pomodoro Session (25 min)'), findsOneWidget);
+      expect(find.text('Recent XP Activity'), findsOneWidget);
+    });
   });
 
   group('Focusly Groups & Challenges Module Tests', () {

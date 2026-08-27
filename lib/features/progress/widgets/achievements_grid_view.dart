@@ -5,14 +5,33 @@ import '../../../core/theme/app_colors.dart';
 import '../models/achievement_model.dart';
 import '../models/achievements_data.dart';
 import '../providers/progress_provider.dart';
+import '../services/progress_service.dart';
 import 'achievement_card.dart';
 
 /// Grid view of all achievements grouped by category with unlock progress tallies.
-class AchievementsGridView extends ConsumerWidget {
+class AchievementsGridView extends ConsumerStatefulWidget {
   const AchievementsGridView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AchievementsGridView> createState() => _AchievementsGridViewState();
+}
+
+class _AchievementsGridViewState extends ConsumerState<AchievementsGridView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ProgressService().checkAndUnlockAchievements(
+          context: context,
+          widgetRef: ref,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final unlockedAsync = ref.watch(unlockedAchievementsStreamProvider);
     final unlockedMap = unlockedAsync.value ?? {};
 

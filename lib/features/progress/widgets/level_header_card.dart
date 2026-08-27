@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../models/level_logic.dart';
+import '../views/xp_history_page.dart';
 
 /// Glowing Level progression card highlighting current level, title, emoji,
 /// XP progress bar, and distance to the next level.
@@ -132,6 +133,44 @@ class LevelHeaderCard extends StatelessWidget {
                     ],
                   ),
                 ],
+              ),
+
+              // View XP History Button
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const XpHistoryPage(),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: brandPrimary.withValues(alpha: isDark ? 0.2 : 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: brandPrimary.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.history_rounded, size: 14, color: brandPrimary),
+                      const SizedBox(width: 4),
+                      Text(
+                        context.tr('xp_breakdown_button'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: brandPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

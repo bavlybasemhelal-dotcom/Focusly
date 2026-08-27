@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../models/checkin_model.dart';
 
@@ -100,7 +101,13 @@ class EnergyMoodService {
         await docRef.set(newModel.toMap());
 
         // XP hook: Award +15 XP for completing a daily check-in
-        await ProgressService().awardXp(15, ref: ref);
+        await ProgressService().awardXp(
+          XpConstants.dailyCheckin,
+          source: 'Daily check-in completed',
+          sourceType: 'checkin',
+          context: context,
+          ref: ref,
+        );
       } else {
         final data = existingDoc.data()!;
         final existingModel = CheckinModel.fromMap(data, date);
@@ -174,7 +181,10 @@ class EnergyMoodService {
       // XP hook: Award +5 XP per newly logged water glass up to the cap
       if (newlyEligibleGlasses > 0) {
         await ProgressService().awardXp(
-          newlyEligibleGlasses * 5,
+          newlyEligibleGlasses * XpConstants.waterPerGlass,
+          source: 'Logged $newlyEligibleGlasses glass${newlyEligibleGlasses > 1 ? "es" : ""} of water',
+          sourceType: 'water',
+          context: context,
           ref: ref,
         );
       }
@@ -235,7 +245,13 @@ class EnergyMoodService {
 
       // XP hook: Award +15 XP once per day for logging sleep
       if (shouldAwardXp) {
-        await ProgressService().awardXp(15, ref: ref);
+        await ProgressService().awardXp(
+          XpConstants.sleepLogged,
+          source: 'Logged sleep ($durationHours hrs)',
+          sourceType: 'sleep',
+          context: context,
+          ref: ref,
+        );
       }
 
       return true;

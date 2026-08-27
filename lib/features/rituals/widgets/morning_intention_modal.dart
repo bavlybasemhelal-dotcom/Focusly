@@ -72,7 +72,9 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
 
       if (success) {
         HapticFeedback.mediumImpact();
-        ref.read(morningIntentionDismissedProvider.notifier).reset();
+        // Persist shown today so subsequent app openings do not re-prompt
+        await ref.read(morningIntentionDismissedProvider.notifier).markShownToday();
+        if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -172,7 +174,10 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
                     ),
                     IconButton(
                       icon: Icon(Icons.close_rounded, color: secondaryTextColor),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        ref.read(morningIntentionDismissedProvider.notifier).dismiss();
+                        Navigator.of(context).pop();
+                      },
                     ),
                   ],
                 ),

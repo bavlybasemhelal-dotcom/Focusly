@@ -6,6 +6,7 @@ import '../../habits/providers/habits_provider.dart';
 import '../../pomodoro/providers/pomodoro_provider.dart';
 import '../../tasks/providers/tasks_provider.dart';
 import '../models/level_logic.dart';
+import '../models/xp_log_model.dart';
 
 /// Stream of user total XP from Firestore
 ///
@@ -45,7 +46,8 @@ final unlockedAchievementsStreamProvider =
       .map((snapshot) {
     if (!snapshot.exists || snapshot.data() == null) return <String, DateTime>{};
 
-    final raw = snapshot.data()?['unlockedAchievements'] as Map<String, dynamic>? ?? {};
+    final data = snapshot.data()!;
+    final raw = data['unlockedAchievements'] as Map<String, dynamic>? ?? {};
     final Map<String, DateTime> result = {};
 
     raw.forEach((key, val) {
@@ -58,8 +60,44 @@ final unlockedAchievementsStreamProvider =
       }
     });
 
+    // Fallback: parse any legacy top-level dot-separated keys (e.g. 'unlockedAchievements.task_first')
+    data.forEach((key, val) {
+      if (key.startsWith('unlockedAchievements.')) {
+        final achId = key.substring('unlockedAchievements.'.length);
+        if (!result.containsKey(achId)) {
+          if (val is Timestamp) {
+            result[achId] = val.toDate();
+          } else if (val is String) {
+            result[achId] = DateTime.tryParse(val) ?? DateTime.now();
+          } else {
+            result[achId] = DateTime.now();
+          }
+        }
+      }
+    });
+
     return result;
   }).handleError((_) => <String, DateTime>{});
+});
+
+/// Stream of recent XP gain audit events (last 50 events in reverse chronological order)
+///
+/// DATA ISOLATION: Watches [currentUserIdProvider] so XP audit histories never leak across accounts.
+final xpLogStreamProvider = StreamProvider.autoDispose<List<XpLogModel>>((ref) {
+  final uid = ref.watch(currentUserIdProvider);
+
+  if (uid == null || uid.isEmpty) return Stream.value(<XpLogModel>[]);
+
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(uid)
+      .collection('xpLog')
+      .orderBy('createdAt', descending: true)
+      .limit(50)
+      .snapshots()
+      .map((snapshot) =>
+          snapshot.docs.map((doc) => XpLogModel.fromFirestore(doc)).toList())
+      .handleError((_) => <XpLogModel>[]);
 });
 
 /// Derived provider exposing the computed UserLevelInfo

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../models/book_model.dart';
 import '../models/reading_log_model.dart';
@@ -99,9 +100,21 @@ class ReadingService {
 
         // XP hook
         if (book.isFinished) {
-          await ProgressService().awardXp(50, context: context, ref: ref);
+          await ProgressService().awardXp(
+            XpConstants.readingBookFinished,
+            source: 'Finished book: "${book.title}"',
+            sourceType: 'reading',
+            context: context,
+            ref: ref,
+          );
         } else {
-          await ProgressService().awardXp(15, context: context, ref: ref);
+          await ProgressService().awardXp(
+            XpConstants.readingProgress,
+            source: 'Reading progress: "${book.title}" ($currentPage pages)',
+            sourceType: 'reading',
+            context: context,
+            ref: ref,
+          );
         }
       }
 
@@ -147,9 +160,21 @@ class ReadingService {
 
         // Tiered XP: +50 if brought to done for the first time, +15 for standard progress
         if (!oldBook.isFinished && updated.isFinished) {
-          await ProgressService().awardXp(50, context: context, ref: ref);
+          await ProgressService().awardXp(
+            XpConstants.readingBookFinished,
+            source: 'Finished book: "${updated.title}"',
+            sourceType: 'reading',
+            context: context,
+            ref: ref,
+          );
         } else {
-          await ProgressService().awardXp(15, context: context, ref: ref);
+          await ProgressService().awardXp(
+            XpConstants.readingProgress,
+            source: 'Reading progress: "${updated.title}" (+$pagesRead pages)',
+            sourceType: 'reading',
+            context: context,
+            ref: ref,
+          );
         }
       }
 
