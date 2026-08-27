@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 
-/// The 5 core Time Block types supported in Focusly.
+/// The 6 core Time Block types supported in Focusly.
 ///
 /// Each type represents a distinct focus classification with an associated
 /// theme color, emoji, icon, and translation localization key.
 ///
 /// ARCHITECTURE NOTE: Time Blocker events ARE standard Schedule events in
 /// `users/{uid}/events/{eventId}` where `blockType` is set to one of these IDs.
+/// All events have a default `general` block type so that anything scheduled in
+/// the app is visible on the Time Blocker timeline without separate collections.
 enum TimeBlockType {
+  general(
+    id: 'general',
+    labelKey: 'block_type_general',
+    emoji: '📅',
+    colorValue: 0xFF64748B, // Neutral Slate Grey
+    icon: Icons.calendar_today_rounded,
+  ),
   deep(
     id: 'deep',
     labelKey: 'block_type_deep',
@@ -40,7 +49,7 @@ enum TimeBlockType {
     id: 'admin',
     labelKey: 'block_type_admin',
     emoji: '⚙️',
-    colorValue: 0xFF64748B, // Slate Grey
+    colorValue: 0xFF0EA5E9, // Sky Blue (distinct neutral-active)
     icon: Icons.settings_rounded,
   );
 
@@ -61,13 +70,15 @@ enum TimeBlockType {
   /// The Flutter [Color] associated with this time block type
   Color get color => Color(colorValue);
 
-  /// Helper factory to parse a string ID safely
-  static TimeBlockType? fromString(String? val) {
-    if (val == null || val.trim().isEmpty) return null;
+  /// Helper factory to parse a string ID safely.
+  /// Defaults to [TimeBlockType.general] for null/unknown values to gracefully
+  /// handle legacy events created without a blockType.
+  static TimeBlockType fromString(String? val) {
+    if (val == null || val.trim().isEmpty) return TimeBlockType.general;
     final normalized = val.trim().toLowerCase();
     for (final type in TimeBlockType.values) {
       if (type.id == normalized) return type;
     }
-    return null;
+    return TimeBlockType.general;
   }
 }

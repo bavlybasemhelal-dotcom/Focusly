@@ -32,7 +32,11 @@ enum EventRecurrence {
 
 /// Calendar event data model stored in Firestore under users/{uid}/events/{eventId}.
 ///
-/// If [blockType] is non-null, this event also acts as a Time Block in the Time Blocker view.
+/// SHARED ARCHITECTURE NOTE:
+/// Schedule and Time Blocker are two synchronized visual views over the exact same
+/// `users/{uid}/events` Firestore collection. Every event has a [blockType] (defaulting to
+/// 'general' / Unblocked), ensuring that all events created from Schedule appear on Time Blocker
+/// and vice versa.
 class EventModel {
   final String id;
   final String title;
@@ -45,7 +49,7 @@ class EventModel {
   final DateTime createdAt;
 
   // Time Blocker Specific Fields
-  final String? blockType; // 'deep' | 'shallow' | 'health' | 'leisure' | 'admin' | null
+  final String? blockType; // 'general' | 'deep' | 'shallow' | 'health' | 'leisure' | 'admin'
   final int? durationMinutes; // Duration in minutes (e.g. 30, 60, 90, 120...)
 
   const EventModel({
@@ -58,18 +62,18 @@ class EventModel {
     this.recurrence = EventRecurrence.none,
     this.recurrenceEnd,
     required this.createdAt,
-    this.blockType,
+    this.blockType = 'general',
     this.durationMinutes,
   });
 
   /// Returns true if this event repeats
   bool get isRecurring => recurrence != EventRecurrence.none;
 
-  /// Returns true if this event is configured as a Time Block
-  bool get isTimeBlock => blockType != null && blockType!.trim().isNotEmpty;
+  /// Returns true if this event is configured as a Time Block (now true for all events)
+  bool get isTimeBlock => true;
 
-  /// Parsed [TimeBlockType] enum if valid
-  TimeBlockType? get timeBlockType => TimeBlockType.fromString(blockType);
+  /// Parsed [TimeBlockType] enum (defaults to [TimeBlockType.general] if null or unrecognized)
+  TimeBlockType get timeBlockType => TimeBlockType.fromString(blockType);
 
   /// Effective duration in minutes (defaults to 60 if unspecified)
   int get effectiveDurationMinutes => durationMinutes ?? 60;
@@ -112,7 +116,7 @@ class EventModel {
             ))
           : null,
       'createdAt': Timestamp.fromDate(createdAt),
-      'blockType': blockType,
+      'blockType': blockType ?? 'general',
       'durationMinutes': durationMinutes,
     };
   }
@@ -176,7 +180,7 @@ class EventModel {
             )
           : null,
       createdAt: parsedCreatedAt,
-      blockType: map['blockType'] as String?,
+      blockType: (map['blockType'] as String?) ?? 'general',
       durationMinutes: parsedDuration,
     );
   }

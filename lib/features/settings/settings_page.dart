@@ -591,7 +591,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                     _buildDivider(borderColor),
 
-                    // Test Notification (10s Diagnostic Tool)
+                    // Send Instant Test Notification (Now)
+                    _buildSettingsRow(
+                      icon: Icons.notifications_active_rounded,
+                      iconBg: const Color(0xFF10B981),
+                      title: context.tr('test_instant_notification_btn'),
+                      subtitle: 'Verify heads-up banner and notification channel immediately',
+                      primaryColor: primaryTextColor,
+                      secondaryColor: secondaryTextColor,
+                      brandPrimary: brandPrimary,
+                      onTap: () async {
+                        HapticFeedback.lightImpact();
+                        await NotificationInitService.sendInstantTestNotification();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(context.tr('test_instant_notification_toast')),
+                              backgroundColor: const Color(0xFF10B981),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    _buildDivider(borderColor),
+
+                    // Test Scheduled Notification (10s Diagnostic Tool)
                     _buildSettingsRow(
                       icon: Icons.notification_add_rounded,
                       iconBg: const Color(0xFF8B5CF6),
@@ -607,13 +633,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(context.tr('test_notification_scheduled_toast')),
-                              backgroundColor: const Color(0xFF10B981),
+                              backgroundColor: const Color(0xFF8B5CF6),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                           );
                         }
                       },
+                    ),
+                    _buildDivider(borderColor),
+
+                    // Battery Optimization & Background Guide
+                    _buildSettingsRow(
+                      icon: Icons.battery_saver_rounded,
+                      iconBg: const Color(0xFFEC4899),
+                      title: context.tr('battery_optimization_guide_title'),
+                      subtitle: context.tr('battery_optimization_guide_desc'),
+                      primaryColor: primaryTextColor,
+                      secondaryColor: secondaryTextColor,
+                      brandPrimary: brandPrimary,
+                      onTap: () => _showBatteryOptimizationDialog(context),
                     ),
                   ],
                 ),
@@ -1394,6 +1433,64 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ],
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showBatteryOptimizationDialog(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEC4899).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.battery_charging_full_rounded,
+                  color: Color(0xFFEC4899),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  context.tr('battery_optimization_modal_title'),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary(context),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            context.tr('battery_optimization_modal_body'),
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.5,
+              color: AppColors.textSecondary(context),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6366F1),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(context.tr('got_it_btn')),
+            ),
+          ],
         );
       },
     );

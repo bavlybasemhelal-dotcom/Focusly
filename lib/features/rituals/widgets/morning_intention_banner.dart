@@ -21,15 +21,15 @@ class MorningIntentionBanner extends ConsumerWidget {
     final ritualAsync = ref.watch(todayRitualStreamProvider);
     final ritual = ritualAsync.value;
 
-    if (isDismissed) {
-      return const SizedBox.shrink();
-    }
-
     final hasIntention = ritual?.hasIntention == true;
     final intentionText = ritual?.intention ?? '';
 
     // If intention is set: show rich amber banner with edit tap & dismiss action
     if (hasIntention) {
+      if (isDismissed) {
+        return const SizedBox.shrink();
+      }
+
       return Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -116,7 +116,57 @@ class MorningIntentionBanner extends ConsumerWidget {
       );
     }
 
-    // If no intention is set yet: show an inviting prompt card
+    // If no intention is set AND the prompt has already been shown/dismissed today:
+    // Render a subtle, non-intrusive calm entry point so setting intention is 1 tap away without nagging.
+    if (isDismissed) {
+      return Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard.withValues(alpha: 0.6) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+          ),
+        ),
+        child: InkWell(
+          onTap: () => MorningIntentionModal.show(context),
+          borderRadius: BorderRadius.circular(14),
+          child: Row(
+            children: [
+              const Text('🎯', style: TextStyle(fontSize: 16)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  context.tr('set_morning_intention_prompt_title'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: primaryTextColor.withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+              Text(
+                context.tr('set_btn'),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 11,
+                color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // If no intention is set yet and not dismissed: show initial inviting prompt card with dismiss option
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -177,6 +227,21 @@ class MorningIntentionBanner extends ConsumerWidget {
               context.tr('set_btn'),
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
             ),
+          ),
+          const SizedBox(width: 6),
+          IconButton(
+            icon: Icon(
+              Icons.close_rounded,
+              size: 18,
+              color: secondaryTextColor.withValues(alpha: 0.7),
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            tooltip: context.tr('cancel'),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              ref.read(morningIntentionDismissedProvider.notifier).dismiss();
+            },
           ),
         ],
       ),

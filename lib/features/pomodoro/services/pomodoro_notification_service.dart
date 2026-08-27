@@ -43,6 +43,8 @@ class PomodoroNotificationService {
         title: title,
         body: body,
         type: 'pomodoro',
+        isScheduled: true,
+        scheduledFor: targetEndTime,
       );
     } catch (_) {}
   }

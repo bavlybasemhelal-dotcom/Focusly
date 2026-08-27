@@ -42,14 +42,14 @@ final timeBlockerSelectedDateProvider =
 ///
 /// DATA REUSE: Reuses the existing [eventsStreamProvider] and [RecurrenceHelper]
 /// from the Schedule module, ensuring complete synchronization without a separate database collection.
+/// Every event on this date (including default General events created in Schedule) appears here.
 final timeBlocksForSelectedDateProvider = Provider<List<EventModel>>((ref) {
   final eventsAsync = ref.watch(eventsStreamProvider);
   final selectedDate = ref.watch(timeBlockerSelectedDateProvider);
   final allEvents = eventsAsync.value ?? [];
 
-  // Filter to events that occur on the selected date AND have a blockType assigned
+  // Filter to all events that occur on the selected date
   final blocks = allEvents.where((event) {
-    if (!event.isTimeBlock) return false;
     return RecurrenceHelper.doesEventOccurOn(event, selectedDate);
   }).toList();
 

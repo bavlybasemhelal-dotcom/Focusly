@@ -72,12 +72,14 @@ class TaskNotificationService {
             payload: task.id,
           );
 
-          // Record in notification history log
+          // Record in notification history log with scheduled metadata
           await NotificationLogger.logNotification(
             title: title,
             body: body,
             type: 'task_reminder',
             relatedId: task.id,
+            isScheduled: true,
+            scheduledFor: scheduledDateTime,
           );
         } catch (e) {
           debugPrint('Error scheduling task time notification: $e');
@@ -112,6 +114,8 @@ class TaskNotificationService {
             body: body24,
             type: 'task_reminder',
             relatedId: task.id,
+            isScheduled: true,
+            scheduledFor: deadline24h,
           );
         } catch (e) {
           debugPrint('Error scheduling 24h deadline notification: $e');
@@ -141,6 +145,8 @@ class TaskNotificationService {
             body: body1,
             type: 'task_reminder',
             relatedId: task.id,
+            isScheduled: true,
+            scheduledFor: deadline1h,
           );
         } catch (e) {
           debugPrint('Error scheduling 1h deadline notification: $e');

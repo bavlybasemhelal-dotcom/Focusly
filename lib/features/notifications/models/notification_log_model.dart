@@ -10,6 +10,8 @@ class NotificationLogModel {
   final String type; // 'task_reminder' | 'event_reminder' | 'habit_reminder' | 'pomodoro' | 'group_activity' | 'system'
   final String? relatedId; // Target Task ID, Event ID, Habit ID, or Group ID
   final bool read;
+  final bool isScheduled; // True if this was scheduled for a future time
+  final DateTime? scheduledFor; // Target scheduled time if applicable
   final DateTime createdAt;
 
   const NotificationLogModel({
@@ -19,6 +21,8 @@ class NotificationLogModel {
     required this.type,
     this.relatedId,
     this.read = false,
+    this.isScheduled = false,
+    this.scheduledFor,
     required this.createdAt,
   });
 
@@ -34,6 +38,8 @@ class NotificationLogModel {
       type: data['type'] as String? ?? 'system',
       relatedId: data['relatedId'] as String?,
       read: data['read'] as bool? ?? false,
+      isScheduled: data['isScheduled'] as bool? ?? false,
+      scheduledFor: (data['scheduledFor'] as Timestamp?)?.toDate(),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -47,6 +53,12 @@ class NotificationLogModel {
       type: data['type'] as String? ?? 'system',
       relatedId: data['relatedId'] as String?,
       read: data['read'] as bool? ?? false,
+      isScheduled: data['isScheduled'] as bool? ?? false,
+      scheduledFor: data['scheduledFor'] is Timestamp
+          ? (data['scheduledFor'] as Timestamp).toDate()
+          : data['scheduledFor'] is String
+              ? DateTime.tryParse(data['scheduledFor'])
+              : null,
       createdAt: data['createdAt'] is Timestamp
           ? (data['createdAt'] as Timestamp).toDate()
           : data['createdAt'] is String
@@ -63,11 +75,14 @@ class NotificationLogModel {
       'type': type,
       'relatedId': relatedId,
       'read': read,
+      'isScheduled': isScheduled,
+      'scheduledFor':
+          scheduledFor != null ? Timestamp.fromDate(scheduledFor!) : null,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 
-  /// Copy with modifications
+  /// Copy with helper
   NotificationLogModel copyWith({
     String? id,
     String? title,
@@ -75,6 +90,8 @@ class NotificationLogModel {
     String? type,
     String? relatedId,
     bool? read,
+    bool? isScheduled,
+    DateTime? scheduledFor,
     DateTime? createdAt,
   }) {
     return NotificationLogModel(
@@ -84,6 +101,8 @@ class NotificationLogModel {
       type: type ?? this.type,
       relatedId: relatedId ?? this.relatedId,
       read: read ?? this.read,
+      isScheduled: isScheduled ?? this.isScheduled,
+      scheduledFor: scheduledFor ?? this.scheduledFor,
       createdAt: createdAt ?? this.createdAt,
     );
   }

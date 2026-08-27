@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:focusly/core/auth/auth_provider.dart';
 import 'package:focusly/core/localization/app_localizations.dart';
 import 'package:focusly/core/theme/app_theme.dart';
@@ -39,6 +40,10 @@ Widget createRitualsTestWidget({
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('Daily Rituals Models & Serialization Tests', () {
     test('ShutdownData serializes and deserializes correctly', () {
       const shutdown = ShutdownData(
@@ -104,15 +109,20 @@ void main() {
   });
 
   group('Daily Rituals Provider Tests', () {
-    test('MorningIntentionDismissedNotifier tracks session state', () {
+    test('MorningIntentionDismissedNotifier tracks and persists state', () async {
+      SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       expect(container.read(morningIntentionDismissedProvider), isFalse);
-      container.read(morningIntentionDismissedProvider.notifier).dismiss();
+      await container.read(morningIntentionDismissedProvider.notifier).markShownToday();
       expect(container.read(morningIntentionDismissedProvider), isTrue);
-      container.read(morningIntentionDismissedProvider.notifier).reset();
+
+      await container.read(morningIntentionDismissedProvider.notifier).reset();
       expect(container.read(morningIntentionDismissedProvider), isFalse);
+
+      await container.read(morningIntentionDismissedProvider.notifier).dismiss();
+      expect(container.read(morningIntentionDismissedProvider), isTrue);
     });
   });
 
@@ -133,6 +143,37 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Please enter your focus for today'), findsOneWidget);
+    });
+
+    testWidgets('MorningIntentionBanner renders prompt card with dismiss and calm entry point', (tester) async {
+      await tester.pumpWidget(
+        createRitualsTestWidget(
+          child: const MorningIntentionBanner(),
+          overrides: [
+            todayRitualStreamProvider.overrideWithValue(const AsyncData(null)),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Initial state: shows prompt card with Set button and close X
+      expect(find.text('Set Morning Intention'), findsOneWidget);
+      expect(find.text('Set'), findsOneWidget);
+      expect(find.byIcon(Icons.close_rounded), findsOneWidget);
+
+      // Dismiss the prompt
+      await tester.tap(find.byIcon(Icons.close_rounded));
+      await tester.pumpAndSettle();
+
+      // After dismissal: shows calm, non-intrusive persistent entry point
+      expect(find.text('Set Morning Intention'), findsOneWidget);
+      expect(find.text('Set'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_forward_ios_rounded), findsOneWidget);
+
+      // Tapping the calm persistent entry point opens the modal
+      await tester.tap(find.text('Set Morning Intention'));
+      await tester.pumpAndSettle();
+      expect(find.text('Set Intention'), findsOneWidget);
     });
 
     testWidgets('MorningIntentionBanner renders intention when set and allows dismissal', (tester) async {

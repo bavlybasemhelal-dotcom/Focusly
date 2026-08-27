@@ -243,6 +243,31 @@ class NotificationsPage extends ConsumerWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (log.isScheduled && log.scheduledFor != null) ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: brandPrimary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.schedule_rounded, size: 12, color: brandPrimary),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${context.tr('notification_scheduled_tag')} • ${_formatScheduledTime(log.scheduledFor!)}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: brandPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -336,6 +361,12 @@ class NotificationsPage extends ConsumerWidget {
     } else {
       return '${difference.inDays}d';
     }
+  }
+
+  String _formatScheduledTime(DateTime dt) {
+    final hour = dt.hour.toString().padLeft(2, '0');
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   _TypeVisualConfig _getTypeConfig(String type) {

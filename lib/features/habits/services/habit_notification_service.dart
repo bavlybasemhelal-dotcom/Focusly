@@ -69,6 +69,8 @@ class HabitNotificationService {
         body: habit.title,
         type: 'habit_reminder',
         relatedId: habit.id,
+        isScheduled: true,
+        scheduledFor: scheduledDate,
       );
     } catch (_) {
       // Graceful fallback if device permissions are not yet granted

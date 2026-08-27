@@ -58,6 +58,31 @@ class NotificationInitService {
     return await _platformSender.requestPermissions();
   }
 
+  /// Sends an instant verification notification immediately across any platform.
+  static Future<void> sendInstantTestNotification() async {
+    await requestPermissions();
+
+    const testId = 777778;
+    const title = '🔔 Focusly Instant Notification';
+    const body = 'Your notification channel and heads-up banner are active and working!';
+
+    await _platformSender.showInstantNotification(
+      id: testId,
+      title: title,
+      body: body,
+      channelId: 'focusly_diagnostic_channel',
+      channelName: 'Diagnostic Test Alerts',
+      payload: 'diagnostic_instant_test',
+    );
+
+    await NotificationLogger.logNotification(
+      title: title,
+      body: body,
+      type: 'system',
+      relatedId: 'diagnostic_instant_test',
+    );
+  }
+
   /// Schedules a test notification 10 seconds into the future across any platform.
   static Future<void> scheduleTestNotification({int seconds = 10}) async {
     await requestPermissions();
@@ -66,7 +91,7 @@ class NotificationInitService {
     final scheduledDate = now.add(Duration(seconds: seconds));
 
     const testId = 777777;
-    const title = '🔔 Focusly Test Notification';
+    const title = '🔔 Focusly Scheduled Notification';
     const body = 'Your scheduled notification pipeline is working perfectly!';
 
     await _platformSender.scheduleNotification(
@@ -85,6 +110,8 @@ class NotificationInitService {
       body: body,
       type: 'system',
       relatedId: 'diagnostic_test',
+      isScheduled: true,
+      scheduledFor: scheduledDate,
     );
   }
 }

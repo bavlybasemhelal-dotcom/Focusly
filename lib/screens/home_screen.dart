@@ -103,6 +103,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final promptSetting = ref.read(morningIntentionPromptSettingProvider);
     if (!promptSetting) return;
 
+    // Checks persisted status for today's calendar date to ensure the popup shows at most once per day
     final dismissed = ref.read(morningIntentionDismissedProvider);
     if (dismissed) return;
 
@@ -110,6 +111,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (mounted) {
         final currentRitual = ref.read(todayRitualStreamProvider).value;
         if (currentRitual == null || !currentRitual.hasIntention) {
+          // Persist that the prompt has been shown today so future screen visits don't re-prompt
+          ref.read(morningIntentionDismissedProvider.notifier).markShownToday();
           MorningIntentionModal.show(context);
         }
       }

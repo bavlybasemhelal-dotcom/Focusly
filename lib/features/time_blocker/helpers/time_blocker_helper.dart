@@ -8,6 +8,11 @@ class TimeBlockerHelper {
   /// Mathematical Interval Overlap Rule:
   /// Slot interval: `[hour * 60, (hour + 1) * 60)`
   /// Event interval: `[startMinutes, startMinutes + effectiveDurationMinutes)`
+  ///
+  /// This correctly accounts for arbitrary minute start times (e.g. 16:16 to 17:16):
+  /// - At hour 16 (960..1020m): 976 < 1020 and 1036 > 960 -> true (Start hour)
+  /// - At hour 17 (1020..1080m): 976 < 1080 and 1036 > 1020 -> true (Continuation hour)
+  /// - At hour 18 (1080..1140m): 1036 > 1080 is false -> false
   static bool doesBlockSpanHour(EventModel event, int hour) {
     if (hour < 0 || hour > 23) return false;
 
@@ -20,8 +25,16 @@ class TimeBlockerHelper {
     return startMinutes < slotEndMinutes && endMinutes > slotStartMinutes;
   }
 
+  /// Returns all [EventModel] items in [blocks] that span the specified [hour] (0..23).
+  ///
+  /// Using a list allows the timeline grid to render all blocks overlapping this hour slot,
+  /// including partial hour blocks and multiple blocks occurring in the same whole-hour window.
+  static List<EventModel> getBlocksForHour(List<EventModel> blocks, int hour) {
+    return blocks.where((block) => doesBlockSpanHour(block, hour)).toList();
+  }
+
   /// Returns the first [EventModel] in [blocks] that spans the specified [hour] (0..23),
-  /// or null if the hour slot is empty.
+  /// or null if the hour slot is empty. (Maintained for single-block lookup convenience).
   static EventModel? getBlockForHour(List<EventModel> blocks, int hour) {
     for (final block in blocks) {
       if (doesBlockSpanHour(block, hour)) {

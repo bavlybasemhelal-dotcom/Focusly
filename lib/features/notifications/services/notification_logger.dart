@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-/// Central helper for writing delivered notification logs to the user's Firestore collection.
+/// Central helper for writing notification logs to the user's Firestore collection.
 ///
+/// Distinguishes between immediate delivered alerts and scheduled future reminders.
 /// Firestore Path: `users/{uid}/notificationLog/{id}`
 class NotificationLogger {
   static String? get _currentUserId {
@@ -33,6 +34,8 @@ class NotificationLogger {
     required String body,
     required String type,
     String? relatedId,
+    bool isScheduled = false,
+    DateTime? scheduledFor,
   }) async {
     try {
       final col = _collection;
@@ -44,8 +47,12 @@ class NotificationLogger {
         'type': type,
         'relatedId': relatedId,
         'read': false,
+        'isScheduled': isScheduled,
+        'scheduledFor':
+            scheduledFor != null ? Timestamp.fromDate(scheduledFor) : null,
         'createdAt': FieldValue.serverTimestamp(),
       });
+      debugPrint('==> [NotificationLogger] Logged notification (isScheduled: $isScheduled, scheduledFor: $scheduledFor)');
     } catch (e) {
       debugPrint('NotificationLogger.logNotification error: $e');
     }

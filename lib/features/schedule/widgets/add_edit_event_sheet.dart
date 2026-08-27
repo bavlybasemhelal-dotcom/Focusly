@@ -61,7 +61,7 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
     _selectedTypeId = event?.typeId ?? 'work_meeting';
     _selectedRecurrence = event?.recurrence ?? EventRecurrence.none;
     _selectedRecurrenceEnd = event?.recurrenceEnd;
-    _selectedBlockType = event?.blockType ?? widget.initialBlockType;
+    _selectedBlockType = event?.blockType ?? (widget.initialBlockType ?? 'general');
     _selectedDurationMinutes =
         event?.effectiveDurationMinutes ?? (widget.initialDurationMinutes ?? 60);
   }
@@ -105,8 +105,7 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
             ? _selectedRecurrenceEnd
             : null,
         clearRecurrenceEnd: _selectedRecurrence == EventRecurrence.none,
-        blockType: _selectedBlockType,
-        clearBlockType: _selectedBlockType == null,
+        blockType: _selectedBlockType ?? 'general',
         durationMinutes: _selectedDurationMinutes,
       );
       if (!mounted) return;
@@ -124,7 +123,7 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
             ? _selectedRecurrenceEnd
             : null,
         createdAt: DateTime.now(),
-        blockType: _selectedBlockType,
+        blockType: _selectedBlockType ?? 'general',
         durationMinutes: _selectedDurationMinutes,
       );
       if (!mounted) return;
@@ -437,7 +436,7 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                     ),
                     const SizedBox(width: 10),
 
-                    // Time Picker
+                    // Time Picker (Full arbitrary hour & minute picker: e.g. 4:16 PM / 16:16)
                     Expanded(
                       child: _buildPickerButton(
                         label: context.tr('time'),
@@ -540,37 +539,7 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      // Standard Event (None)
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(end: 8.0),
-                        child: ChoiceChip(
-                          avatar: const Icon(Icons.event_outlined, size: 14),
-                          label: Text(context.tr('block_type_none')),
-                          labelStyle: TextStyle(
-                            fontSize: 12,
-                            fontWeight: _selectedBlockType == null ? FontWeight.w800 : FontWeight.w600,
-                            color: _selectedBlockType == null
-                                ? Colors.white
-                                : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
-                          ),
-                          selected: _selectedBlockType == null,
-                          selectedColor: brandPrimary,
-                          backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: _selectedBlockType == null ? brandPrimary : borderColor,
-                              width: 1.2,
-                            ),
-                          ),
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() => _selectedBlockType = null);
-                            }
-                          },
-                        ),
-                      ),
-                      // 5 Time Block Types
+                      // 6 Time Block Types (General / Deep / Shallow / Health / Leisure / Admin)
                       ...TimeBlockType.values.map((block) {
                         final isSelected = _selectedBlockType == block.id;
                         return Padding(

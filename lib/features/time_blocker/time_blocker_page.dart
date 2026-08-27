@@ -295,14 +295,16 @@ class TimeBlockerPage extends ConsumerWidget {
           // -------------------------------------------------------------------
           // 2. 24-HOUR TIMELINE LISTVIEW (00:00 -> 23:00)
           // -------------------------------------------------------------------
+          // Each row represents a 1-hour calendar slot (e.g. 16:00 to 17:00).
+          // If a block starts at an arbitrary minute (e.g. 4:16 PM / 16:16 for 1 hour, ending at 5:16 PM / 17:16),
+          // getBlocksForHour will find it in both the 16:00 row (as the starting card) and the 17:00 row (as a continuation card).
           Expanded(
             child: ListView.builder(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               itemCount: 24,
               itemBuilder: (context, hour) {
-                final block = TimeBlockerHelper.getBlockForHour(blocks, hour);
-                final isStartHour = block != null && TimeBlockerHelper.isBlockStartHour(block, hour);
+                final blocksInHour = TimeBlockerHelper.getBlocksForHour(blocks, hour);
                 final hourLabel = '${hour.toString().padLeft(2, '0')}:00';
 
                 return Padding(
@@ -310,7 +312,7 @@ class TimeBlockerPage extends ConsumerWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 1. Fixed Hour Label Column
+                      // 1. Fixed Hour Label Column (e.g. "16:00")
                       SizedBox(
                         width: 52,
                         child: Padding(
@@ -328,18 +330,28 @@ class TimeBlockerPage extends ConsumerWidget {
 
                       const SizedBox(width: 8),
 
-                      // 2. Hour Slot Content (Occupied Block Card OR Empty Slot Button)
+                      // 2. Hour Slot Content: Occupied Block Card(s) OR Empty Slot Button
                       Expanded(
-                        child: block != null
-                            ? _buildOccupiedSlotCard(
-                                context,
-                                ref,
-                                block,
-                                hour,
-                                isStartHour,
-                                isDark,
-                                primaryTextColor,
-                                secondaryTextColor,
+                        child: blocksInHour.isNotEmpty
+                            ? Column(
+                                children: blocksInHour.map((block) {
+                                  final isStartHour = TimeBlockerHelper.isBlockStartHour(block, hour);
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: block != blocksInHour.last ? 6.0 : 0.0,
+                                    ),
+                                    child: _buildOccupiedSlotCard(
+                                      context,
+                                      ref,
+                                      block,
+                                      hour,
+                                      isStartHour,
+                                      isDark,
+                                      primaryTextColor,
+                                      secondaryTextColor,
+                                    ),
+                                  );
+                                }).toList(),
                               )
                             : _buildEmptySlotPlaceholder(
                                 context,
@@ -390,7 +402,7 @@ class TimeBlockerPage extends ConsumerWidget {
     Color primaryTextColor,
     Color secondaryTextColor,
   ) {
-    final blockType = block.timeBlockType ?? TimeBlockType.deep;
+    final blockType = block.timeBlockType;
     final blockColor = blockType.color;
     final rangeStr = TimeBlockerHelper.formatTimeRange(block.time, block.endTime);
     final durationStr = TimeBlockerHelper.formatDuration(block.effectiveDurationMinutes);

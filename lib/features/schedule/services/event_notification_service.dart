@@ -71,6 +71,8 @@ class EventNotificationService {
             body: body,
             type: 'event_reminder',
             relatedId: event.id,
+            isScheduled: true,
+            scheduledFor: startDt,
           );
         } catch (e) {
           debugPrint('Error scheduling event notification: $e');
