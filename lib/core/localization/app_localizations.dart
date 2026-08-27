@@ -243,6 +243,7 @@ class AppLocalizations {
       'habit_deleted_success': 'Habit deleted successfully!',
       'habit_error_saving': 'Error saving habit. Please try again.',
       'habit_error_deleting': 'Error deleting habit. Please try again.',
+      'habit_early_week_complete_toast': '🎉 Full week completed! Starting a new week 🔥',
       'notification_habit_title': '🔥 Habit Reminder!',
 
       // Pomodoro Feature
@@ -2236,6 +2237,7 @@ class AppLocalizations {
       'habit_deleted_success': 'تم حذف العادة بنجاح!',
       'habit_error_saving': 'حدث خطأ أثناء حفظ العادة. يرجى المحاولة مرة أخرى.',
       'habit_error_deleting': 'حدث خطأ أثناء حذف العادة. يرجى المحاولة مرة أخرى.',
+      'habit_early_week_complete_toast': '🎉 تم إكمال الأسبوع بالكامل! بدء أسبوع جديد 🔥',
       'notification_habit_title': '🔥 تذكير بموعد عادتك اليومية!',
 
       // Pomodoro Feature

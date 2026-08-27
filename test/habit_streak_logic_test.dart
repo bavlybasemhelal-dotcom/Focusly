@@ -94,6 +94,105 @@ void main() {
       expect(rolled.days.every((d) => !d), isTrue);
     });
 
+    test('toggleHabitDay triggers early-completion week reset when 7th day is checked', () {
+      final baseDate = DateTime(2026, 8, 2); // Sunday
+      var habit = HabitModel(
+        id: 'h_early',
+        title: 'Daily Coding',
+        days: [true, true, true, true, true, true, false], // 6 days checked
+        streak: 6,
+        baseStreak: 0,
+        autoReset: true,
+        lastResetDate: baseDate,
+        createdAt: baseDate,
+      );
+
+      // User checks off the 7th day (index 6)
+      final result = StreakLogic.toggleHabitDayWithResult(
+        habit,
+        6,
+        now: DateTime(2026, 8, 4), // Tuesday
+      );
+
+      // Verify early-completion week reset
+      expect(result.wasEarlyWeekReset, isTrue);
+      expect(result.habit.baseStreak, 7);
+      expect(result.habit.streak, 7);
+      expect(result.habit.days, equals(List<bool>.filled(7, false))); // Fresh empty row
+      expect(result.habit.lastResetDate, equals(DateTime(2026, 8, 4)));
+
+      // User continues in the fresh week by checking day index 0
+      final nextDayResult = StreakLogic.toggleHabitDayWithResult(
+        result.habit,
+        0,
+        now: DateTime(2026, 8, 5),
+      );
+
+      expect(nextDayResult.wasEarlyWeekReset, isFalse);
+      expect(nextDayResult.habit.baseStreak, 7);
+      expect(nextDayResult.habit.streak, 8); // 7 base + 1 completed in current row
+      expect(nextDayResult.habit.days[0], isTrue);
+      expect(nextDayResult.habit.days[1], isFalse);
+    });
+
+    test('toggleHabitDay does NOT reset days array when autoReset is disabled', () {
+      final baseDate = DateTime(2026, 8, 2);
+      final habit = HabitModel(
+        id: 'h_manual',
+        title: 'Meditation',
+        days: [true, true, true, true, true, true, false], // 6 days checked
+        streak: 6,
+        baseStreak: 0,
+        autoReset: false, // Auto-reset turned OFF
+        lastResetDate: baseDate,
+        createdAt: baseDate,
+      );
+
+      // User checks 7th day
+      final result = StreakLogic.toggleHabitDayWithResult(
+        habit,
+        6,
+        now: DateTime(2026, 8, 4),
+      );
+
+      // Auto-reset disabled: streak updates but days array remains untouched
+      expect(result.wasEarlyWeekReset, isFalse);
+      expect(result.habit.streak, 7);
+      expect(result.habit.baseStreak, 0);
+      expect(result.habit.days.every((d) => d), isTrue); // All 7 true
+    });
+
+    test('natural weekly reset does not double-reset a week that already reset early', () {
+      final weekStart = DateTime(2026, 8, 1); // Sat (start of Week 1)
+      final earlyResetDate = DateTime(2026, 8, 4); // Tuesday of Week 1
+
+      // Habit that was already reset early on Tuesday
+      final habit = HabitModel(
+        id: 'h_no_double_reset',
+        title: 'Drink Water',
+        days: [true, true, false, false, false, false, false], // 2 days checked in fresh row
+        streak: 9, // 7 base + 2
+        baseStreak: 7,
+        autoReset: true,
+        lastResetDate: earlyResetDate,
+        createdAt: weekStart,
+        resetDay: DateTime.saturday,
+      );
+
+      // Check on Thursday of the same week (Aug 6)
+      final sameWeekCheck = StreakLogic.evaluateWeeklyReset(
+        habit,
+        DateTime(2026, 8, 6),
+        weekStartDay: DateTime.saturday,
+      );
+
+      // Same week -> no reset
+      expect(sameWeekCheck.baseStreak, 7);
+      expect(sameWeekCheck.streak, 9);
+      expect(sameWeekCheck.days[0], isTrue);
+      expect(sameWeekCheck.days[1], isTrue);
+    });
+
     test('checkMilestoneCelebration detects milestone thresholds', () {
       expect(StreakLogic.checkMilestoneCelebration(2, 3), 3);
       expect(StreakLogic.checkMilestoneCelebration(6, 7), 7);

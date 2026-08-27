@@ -1,7 +1,19 @@
 import '../models/habit_model.dart';
 
+/// Result container returned after toggling a habit day, indicating
+/// whether the day toggle triggered an early full-week reset.
+class HabitToggleResult {
+  final HabitModel habit;
+  final bool wasEarlyWeekReset;
+
+  const HabitToggleResult({
+    required this.habit,
+    required this.wasEarlyWeekReset,
+  });
+}
+
 /// Pure functions for Habit Streak calculation, Weekly Rollover/Reset,
-/// and Milestone Celebrations in Focusly.
+/// Early-Completion Week Reset, and Milestone Celebrations in Focusly.
 ///
 /// Contains NO side effects or Firestore writes to ensure 100% deterministic testability.
 class StreakLogic {
@@ -48,8 +60,13 @@ class StreakLogic {
     }
   }
 
-  /// Evaluates whether the habit has crossed into a new week and rolls over
-  /// streak and days accordingly.
+  /// Evaluates whether the habit has crossed into a new week at the natural
+  /// calendar boundary and rolls over streak and days accordingly.
+  ///
+  /// ARCHITECTURE NOTE:
+  /// This natural weekly reset and the early-completion reset in [toggleHabitDayWithResult]
+  /// share the exact same underlying streak math: completing all 7 days rolls 7 days
+  /// into baseStreak and clears the 7-day row to start a fresh week.
   ///
   /// Pure function: returns updated [HabitModel].
   static HabitModel evaluateWeeklyReset(
@@ -57,6 +74,9 @@ class StreakLogic {
     DateTime now, {
     int? weekStartDay,
   }) {
+    // If autoReset is disabled, skip date-based resets
+    if (!habit.autoReset) return habit;
+
     final startDay = weekStartDay ?? habit.resetDay;
     final currentWeekStart = getStartOfWeek(now, weekStartDay: startDay);
     final lastResetWeekStart = habit.lastResetDate != null
@@ -102,16 +122,27 @@ class StreakLogic {
     );
   }
 
-  /// Toggles a day's completion state (0..6) and recalculates the current streak.
+  /// Toggles a day's completion state (0..6), recalculates streak, and applies
+  /// an instant Early-Completion Week Reset if all 7 days become completed.
   ///
-  /// Pure function: returns updated [HabitModel].
-  static HabitModel toggleHabitDay(
+  /// EARLY-COMPLETION RESET LOGIC:
+  /// When all 7 days are checked off before the scheduled week boundary:
+  /// 1. Reuses the exact same streak rollover math as [evaluateWeeklyReset] (+7 into baseStreak).
+  /// 2. Clears the 7-day row to all false immediately for a fresh week.
+  /// 3. Advances `lastResetDate` to `now` so the natural date check later won't double-reset.
+  /// 4. Respects `habit.autoReset`: if autoReset is false, streak is calculated but the
+  ///    row is NOT cleared.
+  ///
+  /// Pure function: returns [HabitToggleResult].
+  static HabitToggleResult toggleHabitDayWithResult(
     HabitModel habit,
     int dayIndex, {
     DateTime? now,
     int? weekStartDay,
   }) {
-    if (dayIndex < 0 || dayIndex >= 7) return habit;
+    if (dayIndex < 0 || dayIndex >= 7) {
+      return HabitToggleResult(habit: habit, wasEarlyWeekReset: false);
+    }
 
     final updatedDays = List<bool>.from(habit.days);
     updatedDays[dayIndex] = !updatedDays[dayIndex];
@@ -119,13 +150,58 @@ class StreakLogic {
     // Compute active consecutive days in this week
     final completedCount = updatedDays.where((d) => d).length;
 
-    // Total streak = baseStreak carried over + completed count in current week
-    final int newStreak = habit.baseStreak + completedCount;
+    // Check if the user just completed all 7 days of the week early
+    final bool isAllWeekCompleted = completedCount == 7;
 
-    return habit.copyWith(
+    if (isAllWeekCompleted && habit.autoReset) {
+      // EARLY-COMPLETION TRIGGER:
+      // Immediately roll completed week into baseStreak, start a fresh empty 7-day row,
+      // and advance lastResetDate to prevent duplicate reset at the calendar week boundary.
+      final newBaseStreak = habit.baseStreak + 7;
+      final newStreak = newBaseStreak;
+      final effectiveNow = now ?? DateTime.now();
+
+      final rolledHabit = habit.copyWith(
+        days: List<bool>.filled(7, false),
+        baseStreak: newBaseStreak,
+        streak: newStreak,
+        lastResetDate: effectiveNow,
+      );
+
+      return HabitToggleResult(
+        habit: rolledHabit,
+        wasEarlyWeekReset: true,
+      );
+    }
+
+    // Normal day toggle (or full week completed with autoReset disabled)
+    final int newStreak = habit.baseStreak + completedCount;
+    final updatedHabit = habit.copyWith(
       days: updatedDays,
       streak: newStreak,
     );
+
+    return HabitToggleResult(
+      habit: updatedHabit,
+      wasEarlyWeekReset: false,
+    );
+  }
+
+  /// Toggles a day's completion state (0..6) and returns the updated [HabitModel].
+  ///
+  /// Convenience wrapper around [toggleHabitDayWithResult].
+  static HabitModel toggleHabitDay(
+    HabitModel habit,
+    int dayIndex, {
+    DateTime? now,
+    int? weekStartDay,
+  }) {
+    return toggleHabitDayWithResult(
+      habit,
+      dayIndex,
+      now: now,
+      weekStartDay: weekStartDay,
+    ).habit;
   }
 
   /// Checks if a streak transition crossed a milestone threshold (3, 7, 14, 30, 60, 100 days).

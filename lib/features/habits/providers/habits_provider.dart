@@ -187,23 +187,30 @@ class HabitsController {
     }
   }
 
-  /// Toggles a day's completion state directly and checks for milestone celebrations
+  /// Toggles a day's completion state directly, handles early week resets,
+  /// and triggers milestone or early-completion celebrations.
   Future<void> toggleDay(
     HabitModel habit,
     int dayIndex,
     BuildContext context,
   ) async {
     final oldStreak = habit.streak;
-    final updatedHabit = StreakLogic.toggleHabitDay(habit, dayIndex);
+    final toggleResult = StreakLogic.toggleHabitDayWithResult(habit, dayIndex);
+    final updatedHabit = toggleResult.habit;
 
-    // Check for milestone celebration
+    // Check for milestone celebration (3, 7, 14, 30, 60, 100 days)
     final milestone = StreakLogic.checkMilestoneCelebration(
       oldStreak,
       updatedHabit.streak,
     );
 
     if (milestone != null && context.mounted) {
-      _showMilestoneCelebration(context, updatedHabit.title, milestone);
+      _showMilestoneCelebration(
+        context,
+        updatedHabit.title,
+        milestone,
+        isEarlyWeekReset: toggleResult.wasEarlyWeekReset,
+      );
 
       // Group feed hook: habit streak milestone
       GroupFeedService().pushToAllUserGroups(
@@ -211,10 +218,13 @@ class HabitsController {
         message: 'Reached a $milestone-day streak on "${updatedHabit.title}"! 🔥',
         icon: '🔥',
       );
+    } else if (toggleResult.wasEarlyWeekReset && context.mounted) {
+      // Early week completion celebration toast without milestone
+      _showEarlyWeekCelebration(context, updatedHabit.title);
     }
 
     // XP award and Achievement check hook: +5 XP for completing habit day
-    if (updatedHabit.isDayCompleted(dayIndex)) {
+    if (toggleResult.wasEarlyWeekReset || updatedHabit.isDayCompleted(dayIndex)) {
       ProgressService().awardXp(5);
       ChallengeService().triggerProgressSync();
     }
@@ -229,8 +239,12 @@ class HabitsController {
   void _showMilestoneCelebration(
     BuildContext context,
     String habitTitle,
-    int milestoneDays,
-  ) {
+    int milestoneDays, {
+    bool isEarlyWeekReset = false,
+  }) {
+    final earlyWeekMsg = isEarlyWeekReset
+        ? ' • ${context.tr('habit_early_week_complete_toast')}'
+        : '';
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -246,7 +260,41 @@ class HabitsController {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '$milestoneDays-day streak on "$habitTitle"!',
+                '$milestoneDays-day streak on "$habitTitle"!$earlyWeekMsg',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
+  void _showEarlyWeekCelebration(
+    BuildContext context,
+    String habitTitle,
+  ) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF0F1B4C),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFF10B981), width: 1.5),
+        ),
+        content: Row(
+          children: [
+            const Text('🎉', style: TextStyle(fontSize: 22)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                context.tr('habit_early_week_complete_toast'),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
