@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import 'models/notification_log_model.dart';
+import 'notification_detail_page.dart';
 import 'providers/notifications_provider.dart';
 
 /// Notifications History & Activity Feed Screen.
@@ -146,9 +147,19 @@ class NotificationsPage extends ConsumerWidget {
         child: InkWell(
           onTap: () {
             HapticFeedback.lightImpact();
+            // Mark notification as read upon tapping
             if (!log.read) {
               ref.read(notificationsControllerProvider).markAsRead(log.id);
             }
+            // Navigate to the dedicated Notification Detail Screen
+            // (Direct jump to related item is accessible from the detail screen action button)
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => NotificationDetailPage(
+                  notification: log.copyWith(read: true),
+                ),
+              ),
+            );
           },
           borderRadius: BorderRadius.circular(18),
           child: Container(

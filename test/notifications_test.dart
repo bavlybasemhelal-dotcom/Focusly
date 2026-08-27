@@ -149,6 +149,185 @@ void main() {
       expect(find.text('Mark All Read'), findsOneWidget);
     });
 
+    testWidgets('Tapping notification row opens NotificationDetailPage with full content and related action with back navigation',
+        (WidgetTester tester) async {
+      final sampleLogs = [
+        NotificationLogModel(
+          id: 'log_task',
+          title: 'Complete Quarterly Report',
+          body: 'Finalize metrics and review team contributions before the 5 PM deadline today.',
+          type: 'task_reminder',
+          relatedId: 'task_999',
+          read: false,
+          createdAt: DateTime(2026, 8, 27, 10, 30),
+        ),
+      ];
+
+      await tester.pumpWidget(
+        _buildNotificationsTestApp(
+          overrides: [
+            notificationLogsStreamProvider
+                .overrideWith((ref) => Stream.value(sampleLogs)),
+          ],
+          home: const NotificationsPage(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap the notification row
+      await tester.tap(find.text('Complete Quarterly Report'));
+      await tester.pumpAndSettle();
+
+      // Verify NotificationDetailPage opened
+      expect(find.text('Notification Details'), findsOneWidget);
+      expect(find.text('Task Reminder'), findsOneWidget);
+      expect(find.text('Read'), findsOneWidget);
+      expect(find.text('Complete Quarterly Report'), findsOneWidget);
+      expect(
+        find.text('Finalize metrics and review team contributions before the 5 PM deadline today.'),
+        findsOneWidget,
+      );
+      expect(find.text('View Task'), findsOneWidget);
+
+      // Tap "View Task" action button
+      await tester.tap(find.text('View Task'));
+      await tester.pumpAndSettle();
+
+      // Destination (TasksScreen) wrapped with back button AppBar
+      expect(find.text('Tasks'), findsWidgets);
+      expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+
+      // Tap back button from Tasks screen
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      // Verify returned back to NotificationDetailPage (not skipped to Notifications list)
+      expect(find.text('Notification Details'), findsOneWidget);
+      expect(find.text('View Task'), findsOneWidget);
+
+      // Tap back button to return to Notifications list
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      // Back on Notifications list
+      expect(find.text('Notifications'), findsOneWidget);
+    });
+
+    testWidgets('View Event and View Habit navigation paths render back buttons and return to detail screen',
+        (WidgetTester tester) async {
+      final sampleLogs = [
+        NotificationLogModel(
+          id: 'log_event',
+          title: 'Design Sync Meeting',
+          body: 'Quarterly planning discussion with product team.',
+          type: 'event_reminder',
+          relatedId: 'event_123',
+          read: false,
+          createdAt: DateTime(2026, 8, 27, 11, 0),
+        ),
+        NotificationLogModel(
+          id: 'log_habit',
+          title: 'Daily Meditation',
+          body: '10 minutes of mindfulness breathing.',
+          type: 'habit_reminder',
+          relatedId: 'habit_456',
+          read: false,
+          createdAt: DateTime(2026, 8, 27, 7, 30),
+        ),
+      ];
+
+      await tester.pumpWidget(
+        _buildNotificationsTestApp(
+          overrides: [
+            notificationLogsStreamProvider
+                .overrideWith((ref) => Stream.value(sampleLogs)),
+          ],
+          home: const NotificationsPage(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // 1. Test Event Navigation
+      await tester.tap(find.text('Design Sync Meeting'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Notification Details'), findsOneWidget);
+      expect(find.text('View Event'), findsOneWidget);
+
+      await tester.tap(find.text('View Event'));
+      await tester.pumpAndSettle();
+
+      // Has back button
+      expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Notification Details'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      // 2. Test Habit Navigation
+      await tester.tap(find.text('Daily Meditation'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Notification Details'), findsOneWidget);
+      expect(find.text('View Habit'), findsOneWidget);
+
+      await tester.tap(find.text('View Habit'));
+      await tester.pumpAndSettle();
+
+      // Has back button
+      expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Notification Details'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Notifications'), findsOneWidget);
+    });
+
+    testWidgets('NotificationDetailPage hides action button when relatedId is null',
+        (WidgetTester tester) async {
+      final sampleLogs = [
+        NotificationLogModel(
+          id: 'log_system',
+          title: 'System Update Completed',
+          body: 'Your offline storage and synced caches have been updated to the latest schema version.',
+          type: 'system',
+          relatedId: null, // No related item
+          read: true,
+          createdAt: DateTime(2026, 8, 27, 9, 0),
+        ),
+      ];
+
+      await tester.pumpWidget(
+        _buildNotificationsTestApp(
+          overrides: [
+            notificationLogsStreamProvider
+                .overrideWith((ref) => Stream.value(sampleLogs)),
+          ],
+          home: const NotificationsPage(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap the notification row
+      await tester.tap(find.text('System Update Completed'));
+      await tester.pumpAndSettle();
+
+      // Verify NotificationDetailPage opened
+      expect(find.text('Notification Details'), findsOneWidget);
+      expect(find.text('System Alert'), findsOneWidget);
+      expect(find.text('Read'), findsOneWidget);
+      expect(find.text('System Update Completed'), findsOneWidget);
+
+      // No action button because relatedId is null
+      expect(find.text('View Related Item'), findsNothing);
+      expect(find.text('View Task'), findsNothing);
+    });
+
     testWidgets('Arabic localization renders Notifications screen texts',
         (WidgetTester tester) async {
       await tester.pumpWidget(
