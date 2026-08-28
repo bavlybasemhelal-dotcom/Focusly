@@ -523,6 +523,45 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                     },
                                   ),
                                 ],
+
+                                // Group Assigned Badge
+                                if (task.isGroupAssigned) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 7,
+                                      vertical: 2.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.22 : 0.12),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                        color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.group_rounded,
+                                          size: 10.5,
+                                          color: Color(0xFF0284C7),
+                                        ),
+                                        const SizedBox(width: 3.5),
+                                        Text(
+                                          task.assignedByName != null && task.assignedByName!.isNotEmpty
+                                              ? '${context.tr('assigned_by_badge')}: ${task.assignedByName}'
+                                              : context.tr('group_assigned_badge'),
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFF0284C7),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ],

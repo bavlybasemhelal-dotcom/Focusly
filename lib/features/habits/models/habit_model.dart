@@ -18,6 +18,16 @@ class HabitModel {
   final DateTime? lastResetDate; // Last time the weekly cycle was reset
   final DateTime createdAt;
 
+  // Group Assignment Specific Fields
+  final String? groupAssignmentId; // Linked Group Assignment ID (null for personal habits)
+  final String? assignedByGroupId; // Group ID that assigned this habit
+  final String? assignedByName; // Admin name who created and assigned the habit
+  final bool locked; // True for group-assigned habits (locks title from member editing)
+  final String? completionMode; // 'simple' | 'count'
+  final int? targetCount; // Target log count when completionMode is 'count' (e.g. 10 times total)
+  final int currentCount; // Current logged count towards targetCount
+  final bool isCompleted; // True if target count is reached or marked fully completed
+
   const HabitModel({
     required this.id,
     required this.title,
@@ -30,7 +40,21 @@ class HabitModel {
     this.autoReset = true,
     this.lastResetDate,
     required this.createdAt,
+    this.groupAssignmentId,
+    this.assignedByGroupId,
+    this.assignedByName,
+    this.locked = false,
+    this.completionMode = 'simple',
+    this.targetCount,
+    this.currentCount = 0,
+    this.isCompleted = false,
   });
+
+  /// True if this habit originated from a group assignment
+  bool get isGroupAssigned => groupAssignmentId != null && groupAssignmentId!.isNotEmpty;
+
+  /// True if this is a group-assigned habit tracking towards a target count
+  bool get isCountMode => completionMode == 'count' && targetCount != null && targetCount! > 0;
 
   /// Factory constructor to initialize a new habit with 7 uncompleted days
   factory HabitModel.create({
@@ -40,6 +64,14 @@ class HabitModel {
     String? stackTrigger,
     int resetDay = DateTime.saturday,
     bool autoReset = true,
+    String? groupAssignmentId,
+    String? assignedByGroupId,
+    String? assignedByName,
+    bool locked = false,
+    String? completionMode = 'simple',
+    int? targetCount,
+    int currentCount = 0,
+    bool isCompleted = false,
   }) {
     return HabitModel(
       id: id,
@@ -53,6 +85,14 @@ class HabitModel {
       autoReset: autoReset,
       lastResetDate: DateTime.now(),
       createdAt: DateTime.now(),
+      groupAssignmentId: groupAssignmentId,
+      assignedByGroupId: assignedByGroupId,
+      assignedByName: assignedByName,
+      locked: locked,
+      completionMode: completionMode,
+      targetCount: targetCount,
+      currentCount: currentCount,
+      isCompleted: isCompleted,
     );
   }
 
@@ -114,6 +154,14 @@ class HabitModel {
       autoReset: data['autoReset'] as bool? ?? true,
       lastResetDate: parsedLastReset,
       createdAt: parsedCreated,
+      groupAssignmentId: data['groupAssignmentId'] as String?,
+      assignedByGroupId: data['assignedByGroupId'] as String?,
+      assignedByName: data['assignedByName'] as String?,
+      locked: data['locked'] as bool? ?? false,
+      completionMode: data['completionMode'] as String? ?? 'simple',
+      targetCount: (data['targetCount'] as num?)?.toInt(),
+      currentCount: (data['currentCount'] as num?)?.toInt() ?? 0,
+      isCompleted: data['isCompleted'] as bool? ?? false,
     );
   }
 
@@ -131,6 +179,14 @@ class HabitModel {
       'autoReset': autoReset,
       'lastResetDate': lastResetDate != null ? Timestamp.fromDate(lastResetDate!) : null,
       'createdAt': Timestamp.fromDate(createdAt),
+      'groupAssignmentId': groupAssignmentId,
+      'assignedByGroupId': assignedByGroupId,
+      'assignedByName': assignedByName,
+      'locked': locked,
+      'completionMode': completionMode,
+      'targetCount': targetCount,
+      'currentCount': currentCount,
+      'isCompleted': isCompleted,
     };
   }
 
@@ -149,6 +205,15 @@ class HabitModel {
     bool? autoReset,
     DateTime? lastResetDate,
     DateTime? createdAt,
+    String? groupAssignmentId,
+    String? assignedByGroupId,
+    String? assignedByName,
+    bool? locked,
+    String? completionMode,
+    int? targetCount,
+    int? currentCount,
+    bool? isCompleted,
+    bool clearGroupAssignmentId = false,
   }) {
     return HabitModel(
       id: id ?? this.id,
@@ -162,6 +227,14 @@ class HabitModel {
       autoReset: autoReset ?? this.autoReset,
       lastResetDate: lastResetDate ?? this.lastResetDate,
       createdAt: createdAt ?? this.createdAt,
+      groupAssignmentId: clearGroupAssignmentId ? null : (groupAssignmentId ?? this.groupAssignmentId),
+      assignedByGroupId: assignedByGroupId ?? this.assignedByGroupId,
+      assignedByName: assignedByName ?? this.assignedByName,
+      locked: locked ?? this.locked,
+      completionMode: completionMode ?? this.completionMode,
+      targetCount: targetCount ?? this.targetCount,
+      currentCount: currentCount ?? this.currentCount,
+      isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 }

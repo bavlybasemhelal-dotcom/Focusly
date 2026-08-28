@@ -358,6 +358,70 @@ void main() {
       expect(find.text('Title and author are required'), findsOneWidget);
     });
 
+    testWidgets('BookFormModal automatically updates Current Page to Total Pages when Status is set to Finished', (tester) async {
+      await tester.pumpWidget(
+        createReadingTrackerTestWidget(
+          child: const Scaffold(body: BookFormModal()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Find Total Pages and Current Page text fields
+      final textFields = find.byType(TextField);
+      // TextField 0: Title, 1: Author, 2: Total Pages (default '200'), 3: Current Page (default '0')
+      expect(tester.widget<TextField>(textFields.at(2)).controller?.text, '200');
+      expect(tester.widget<TextField>(textFields.at(3)).controller?.text, '0');
+
+      // Change Status to Finished ('done') via Dropdown
+      final dropdown = find.byType(DropdownButton<String>);
+      await tester.tap(dropdown);
+      await tester.pumpAndSettle();
+
+      // Tap "Finished" in the dropdown menu
+      await tester.tap(find.text('✅ Finished').last);
+      await tester.pumpAndSettle();
+
+      // Verify Current Page immediately snapped to match Total Pages (200)
+      expect(tester.widget<TextField>(textFields.at(3)).controller?.text, '200');
+
+      // Change Status back to "Reading"
+      await tester.tap(dropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('📖 Reading').last);
+      await tester.pumpAndSettle();
+
+      // Verify Current Page remains at 200 (not reset or forced down)
+      expect(tester.widget<TextField>(textFields.at(3)).controller?.text, '200');
+
+      // Set Total Pages to 320 and Status to Finished again
+      await tester.enterText(textFields.at(2), '320');
+      await tester.pumpAndSettle();
+
+      await tester.tap(dropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('✅ Finished').last);
+      await tester.pumpAndSettle();
+
+      // Verify Current Page snapped to 320
+      expect(tester.widget<TextField>(textFields.at(3)).controller?.text, '320');
+
+      // Test reverse sync: Reset status to Reading and current page to 100, then type 320 into current page
+      await tester.tap(dropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('📖 Reading').last);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(textFields.at(3), '100');
+      await tester.pumpAndSettle();
+      expect(find.text('📖 Reading'), findsWidgets);
+
+      await tester.enterText(textFields.at(3), '320');
+      await tester.pumpAndSettle();
+
+      // Verify Status automatically flipped to 'done' (Finished)
+      expect(find.text('✅ Finished'), findsWidgets);
+    });
+
     testWidgets('ReadingStatsHeader renders 4 stat cards', (tester) async {
       await tester.pumpWidget(
         createReadingTrackerTestWidget(

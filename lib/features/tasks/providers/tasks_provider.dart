@@ -12,6 +12,7 @@ import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
+import '../../groups/assignments/services/group_assignment_service.dart';
 import '../../skills/services/skills_service.dart';
 
 /// Available view modes in the Tasks screen
@@ -192,23 +193,41 @@ class TasksController {
     );
     await updateTask(updated, context);
 
-    // XP award and Achievement check hook: +10 XP for completing task
-    if (updated.done) {
-      ProgressService().awardXp(
-        XpConstants.taskCompletion,
-        source: 'Completed task: "${updated.title}"',
-        sourceType: 'task',
-        context: context,
-      );
+    // Group Assignment Sync Hook: Update completion status in the group
+    if (updated.isGroupAssigned) {
+      GroupAssignmentService().syncTaskCompletion(updated);
+    }
 
-      // Skill XP hook: Award skill XP based on task priority (High: 25, Medium: 15, Low: 10)
-      final uid = _currentUserId;
-      if (uid != null) {
-        SkillsService().awardTaskCompletionXp(
-          uid: uid,
-          task: updated,
-          context: context,
+    // =========================================================================
+    // XP & ACHIEVEMENT HOOKS
+    // NOTE: Group-assigned tasks explicitly BYPASS all personal XP awards.
+    // =========================================================================
+    if (updated.done) {
+      if (updated.isGroupAssigned) {
+        // Explicitly SKIP personal XP and skill XP for group-assigned tasks
+        debugPrint(
+          'Group-assigned task completed ("${updated.title}") — skipping personal XP award.',
         );
+      } else {
+        // Normal personal task: Award standard task completion XP (+10 XP)
+        if (context.mounted) {
+          ProgressService().awardXp(
+            XpConstants.taskCompletion,
+            source: 'Completed task: "${updated.title}"',
+            sourceType: 'task',
+            context: context,
+          );
+
+          // Skill XP hook: Award skill XP based on task priority (High: 25, Medium: 15, Low: 10)
+          final uid = _currentUserId;
+          if (uid != null) {
+            SkillsService().awardTaskCompletionXp(
+              uid: uid,
+              task: updated,
+              context: context,
+            );
+          }
+        }
       }
 
       // Group feed hook & Challenge progress sync

@@ -111,8 +111,9 @@ class _GroupChallengesTabState extends ConsumerState<GroupChallengesTab> {
     final brandPrimary = AppColors.brandPrimary(context);
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final borderColor = isDark ? Colors.white10 : const Color(0xFFE2E8F5);
-    final challengesAsync =
-        ref.watch(groupChallengesStreamProvider(widget.groupId));
+    final challengesAsync = ref.watch(
+      groupChallengesStreamProvider(widget.groupId),
+    );
     final currentUid = ref.watch(currentUserIdProvider) ?? '';
 
     return challengesAsync.when(
@@ -126,8 +127,12 @@ class _GroupChallengesTabState extends ConsumerState<GroupChallengesTab> {
       data: (challenges) {
         _checkAutoFinish(challenges);
 
-        final active = challenges.where((c) => c.isActive).toList();
-        final finished = challenges.where((c) => c.isFinished).toList();
+        // Filter challenges:
+        // NOTE: Legacy 'xp' type challenges are treated as finished/read-only since XP-based challenge scoring
+        // has been intentionally removed from the app.
+        // TODO: A future data migration/cleanup script could archive or remove legacy 'xp' challenge documents.
+        final active = challenges.where((c) => c.isActive && c.type != 'xp').toList();
+        final finished = challenges.where((c) => c.isFinished || c.type == 'xp').toList();
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -147,9 +152,8 @@ class _GroupChallengesTabState extends ConsumerState<GroupChallengesTab> {
                       context: context,
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
-                      builder: (context) => CreateChallengeSheet(
-                        groupId: widget.groupId,
-                      ),
+                      builder: (context) =>
+                          CreateChallengeSheet(groupId: widget.groupId),
                     );
                   },
                   icon: const Icon(Icons.add_rounded, size: 20),
@@ -296,10 +300,7 @@ class _GroupChallengesTabState extends ConsumerState<GroupChallengesTab> {
             Text(
               context.tr('no_active_challenges_subtitle'),
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                color: secondaryTextColor,
-              ),
+              style: TextStyle(fontSize: 12, color: secondaryTextColor),
             ),
           ],
         ),
@@ -341,8 +342,9 @@ class _ChallengeCard extends ConsumerWidget {
     );
 
     final participants = participantsAsync.value ?? [];
-    final userParticipant =
-        participants.where((p) => p.uid == currentUid).firstOrNull;
+    final userParticipant = participants
+        .where((p) => p.uid == currentUid)
+        .firstOrNull;
     final hasJoined = userParticipant != null;
     final userScore = userParticipant?.score ?? 0;
     final progressRatio = (userScore / challenge.goal).clamp(0.0, 1.0);

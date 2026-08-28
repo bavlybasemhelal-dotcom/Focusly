@@ -598,9 +598,26 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                       HapticFeedback.selectionClick();
                       setState(() {
                         _status = val;
-                        if (_status == 'done' && _finishDate == null) {
-                          _finishDate = DateTime.now();
+
+                        // =========================================================================
+                        // Status -> Current Page sync:
+                        // When marking a book as 'done' (Finished) via the Status dropdown,
+                        // automatically snap Current Page equal to Total Pages in the form so
+                        // the two fields stay consistent without requiring the user to type
+                        // the total page count manually.
+                        // =========================================================================
+                        if (_status == 'done') {
+                          final totalPages =
+                              int.tryParse(_totalPagesController.text.trim()) ?? 200;
+                          final validTotal = totalPages > 0 ? totalPages : 200;
+                          _currentPageController.text = validTotal.toString();
+                          if (_finishDate == null) {
+                            _finishDate = DateTime.now();
+                          }
                         }
+                        // Note: If the user changes Status AWAY from 'done' back to 'reading' or 'paused',
+                        // we intentionally do NOT force Current Page down to an arbitrary value, leaving
+                        // whatever progress was entered intact.
                       });
                     }
                   },
@@ -634,6 +651,18 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                           fontWeight: FontWeight.w700,
                           color: primaryTextColor,
                         ),
+                        onChanged: (val) {
+                          // If the book is currently marked 'done' (Finished) and the total page count
+                          // is modified, keep Current Page synchronized to match the new Total Pages.
+                          if (_status == 'done') {
+                            final total = int.tryParse(val.trim()) ?? 200;
+                            if (total > 0) {
+                              setState(() {
+                                _currentPageController.text = total.toString();
+                              });
+                            }
+                          }
+                        },
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: inputBg,
@@ -678,6 +707,23 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                           fontWeight: FontWeight.w700,
                           color: primaryTextColor,
                         ),
+                        onChanged: (val) {
+                          final cur = int.tryParse(val.trim()) ?? 0;
+                          final total =
+                              int.tryParse(_totalPagesController.text.trim()) ?? 200;
+                          // =========================================================================
+                          // Current Page -> Status sync:
+                          // If current page reaches or exceeds total pages, auto-flip Status to 'done' (Finished).
+                          // =========================================================================
+                          if (total > 0 && cur >= total && _status != 'done') {
+                            setState(() {
+                              _status = 'done';
+                              if (_finishDate == null) {
+                                _finishDate = DateTime.now();
+                              }
+                            });
+                          }
+                        },
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: inputBg,

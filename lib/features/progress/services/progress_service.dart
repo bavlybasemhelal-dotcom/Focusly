@@ -16,7 +16,6 @@ import '../models/achievement_model.dart';
 import '../models/achievements_data.dart';
 import '../models/level_logic.dart';
 import '../providers/progress_provider.dart';
-import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
 import '../../focus_mode/providers/focus_mode_provider.dart';
 import '../../focus_mode/services/notification_queue.dart';
@@ -77,13 +76,10 @@ class ProgressService {
         final newLevel = LevelLogic.calculate(prevXp + amount).level;
 
         // 1. Increment User XP in stats/progress
-        await progressDocRef.set(
-          {
-            'xp': FieldValue.increment(amount),
-            'lastUpdated': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+        await progressDocRef.set({
+          'xp': FieldValue.increment(amount),
+          'lastUpdated': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
 
         // 2. Write transparent XP audit log entry
         final logDocRef = FirebaseFirestore.instance
@@ -119,7 +115,8 @@ class ProgressService {
           await batch.commit();
         }
 
-        ChallengeService().triggerProgressSync();
+        // NOTE: ChallengeService().triggerProgressSync() is no longer called here
+        // because XP-based group challenges have been removed.
 
         // 4. Level-up celebration with source attribution
         if (newLevel > prevLevel && context != null && context.mounted) {
@@ -159,7 +156,9 @@ class ProgressService {
               ),
               backgroundColor: const Color(0xFF2563EB),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
               duration: const Duration(seconds: 4),
             ),
           );
@@ -232,7 +231,8 @@ class ProgressService {
         events = widgetRef.read(eventsStreamProvider).value ?? [];
         categories = widgetRef.read(categoriesProvider).value ?? [];
         totalXp = widgetRef.read(userXpStreamProvider).value ?? 0;
-        unlockedMap = widgetRef.read(unlockedAchievementsStreamProvider).value ?? {};
+        unlockedMap =
+            widgetRef.read(unlockedAchievementsStreamProvider).value ?? {};
       }
 
       // 2. If provider data is empty or no ref provided, fetch from Firestore directly
@@ -255,7 +255,8 @@ class ProgressService {
             userDoc.collection('categories').get(),
           ]);
 
-          final statsSnap = results[0] as DocumentSnapshot<Map<String, dynamic>>;
+          final statsSnap =
+              results[0] as DocumentSnapshot<Map<String, dynamic>>;
           final tasksSnap = results[1] as QuerySnapshot<Map<String, dynamic>>;
           final habitsSnap = results[2] as QuerySnapshot<Map<String, dynamic>>;
           final pomosSnap = results[3] as QuerySnapshot<Map<String, dynamic>>;
@@ -264,7 +265,10 @@ class ProgressService {
 
           if (statsSnap.exists && statsSnap.data() != null) {
             totalXp = statsSnap.data()?['xp'] as int? ?? totalXp;
-            final raw = statsSnap.data()?['unlockedAchievements'] as Map<String, dynamic>? ?? {};
+            final raw =
+                statsSnap.data()?['unlockedAchievements']
+                    as Map<String, dynamic>? ??
+                {};
             final Map<String, DateTime> directUnlocked = {};
             raw.forEach((k, v) {
               if (v is Timestamp) {
@@ -292,19 +296,29 @@ class ProgressService {
           }
 
           if (tasksSnap.docs.isNotEmpty) {
-            tasks = tasksSnap.docs.map((d) => TaskModel.fromMap(d.data(), d.id)).toList();
+            tasks = tasksSnap.docs
+                .map((d) => TaskModel.fromMap(d.data(), d.id))
+                .toList();
           }
           if (habitsSnap.docs.isNotEmpty) {
-            habits = habitsSnap.docs.map((d) => HabitModel.fromFirestore(d)).toList();
+            habits = habitsSnap.docs
+                .map((d) => HabitModel.fromFirestore(d))
+                .toList();
           }
           if (pomosSnap.docs.isNotEmpty) {
-            pomodoroLogs = pomosSnap.docs.map((d) => PomodoroLogModel.fromFirestore(d)).toList();
+            pomodoroLogs = pomosSnap.docs
+                .map((d) => PomodoroLogModel.fromFirestore(d))
+                .toList();
           }
           if (eventsSnap.docs.isNotEmpty) {
-            events = eventsSnap.docs.map((d) => EventModel.fromMap(d.data(), d.id)).toList();
+            events = eventsSnap.docs
+                .map((d) => EventModel.fromMap(d.data(), d.id))
+                .toList();
           }
           if (catsSnap.docs.isNotEmpty) {
-            categories = catsSnap.docs.map((d) => TaskCategory.fromMap(d.data(), d.id)).toList();
+            categories = catsSnap.docs
+                .map((d) => TaskCategory.fromMap(d.data(), d.id))
+                .toList();
           }
         } catch (_) {}
       }
@@ -345,13 +359,10 @@ class ProgressService {
         achievementUpdates[item.id] = Timestamp.fromDate(now);
       }
 
-      await doc.set(
-        {
-          'unlockedAchievements': achievementUpdates,
-          'lastUpdated': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      await doc.set({
+        'unlockedAchievements': achievementUpdates,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
       // Show celebratory notifications for each newly unlocked achievement
       if (context != null && context.mounted) {
@@ -406,10 +417,7 @@ class ProgressService {
         backgroundColor: const Color(0xFF0F1B4C),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(
-            color: Color(0xFFF59E0B),
-            width: 1.2,
-          ),
+          side: const BorderSide(color: Color(0xFFF59E0B), width: 1.2),
         ),
         content: Row(
           children: [
@@ -449,10 +457,7 @@ class ProgressService {
                   ),
                   Text(
                     desc,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.white70,
-                    ),
+                    style: const TextStyle(fontSize: 11, color: Colors.white70),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

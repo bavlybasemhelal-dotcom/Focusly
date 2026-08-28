@@ -303,6 +303,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
 
     final categoriesAsync = ref.watch(categoriesProvider);
     final categoriesList = categoriesAsync.value ?? TaskCategory.defaultCategories;
+    final isLocked = widget.taskToEdit?.locked == true;
 
     return Container(
       decoration: BoxDecoration(
@@ -355,16 +356,61 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 14),
+
+                // Group Assigned Info Banner
+                if (isLocked) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.2 : 0.1),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.group_rounded, size: 18, color: Color(0xFF0284C7)),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${context.tr('assigned_by_badge')}: ${widget.taskToEdit?.assignedByName ?? context.tr('role_admin')}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF0284C7),
+                                ),
+                              ),
+                              Text(
+                                context.tr('locked_field_tooltip'),
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  color: isDark ? Colors.white70 : const Color(0xFF334155),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.lock_rounded, size: 16, color: Color(0xFF0284C7)),
+                      ],
+                    ),
+                  ),
+                ],
 
                 // 1. Task Title Input
                 TextFormField(
                   controller: _titleController,
+                  readOnly: isLocked,
                   autofocus: widget.taskToEdit == null,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: primaryTextColor,
+                    color: isLocked ? secondaryTextColor : primaryTextColor,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -379,7 +425,15 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                       fontSize: 15,
                     ),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                    fillColor: isLocked
+                        ? (isDark ? Colors.white10 : const Color(0xFFE2E8F0))
+                        : (isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC)),
+                    suffixIcon: isLocked
+                        ? Tooltip(
+                            message: context.tr('locked_field_tooltip'),
+                            child: const Icon(Icons.lock_rounded, size: 18, color: Colors.grey),
+                          )
+                        : null,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -387,7 +441,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: brandPrimary, width: 1.8),
+                      borderSide: BorderSide(color: isLocked ? borderColor : brandPrimary, width: 1.8),
                     ),
                   ),
                 ),
@@ -583,25 +637,31 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     // Scheduled Date Picker
                     Expanded(
                       child: _buildPickerButton(
-                        label: context.tr('date'),
+                        label: isLocked
+                            ? '${context.tr('date')} (${context.tr('locked_field_label')})'
+                            : context.tr('date'),
                         value: DateFormat.MMMd().format(_selectedDate),
-                        icon: Icons.calendar_today_rounded,
-                        color: brandPrimary,
+                        icon: isLocked
+                            ? Icons.lock_outline_rounded
+                            : Icons.calendar_today_rounded,
+                        color: isLocked ? secondaryTextColor : brandPrimary,
                         isDark: isDark,
                         borderColor: borderColor,
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: _selectedDate,
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime(2035),
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              _selectedDate = picked;
-                            });
-                          }
-                        },
+                        onTap: isLocked
+                            ? null
+                            : () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _selectedDate,
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime(2035),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _selectedDate = picked;
+                                  });
+                                }
+                              },
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -613,27 +673,33 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                         value: _selectedTime != null
                             ? _selectedTime!.format(context)
                             : context.tr('all_day'),
-                        icon: Icons.access_time_rounded,
-                        color: const Color(0xFF0EA5E9),
+                        icon: isLocked
+                            ? Icons.lock_outline_rounded
+                            : Icons.access_time_rounded,
+                        color: isLocked ? secondaryTextColor : const Color(0xFF0EA5E9),
                         isDark: isDark,
                         borderColor: borderColor,
-                        hasClear: _selectedTime != null,
-                        onClear: () {
-                          setState(() {
-                            _selectedTime = null;
-                          });
-                        },
-                        onTap: () async {
-                          final picked = await showTimePicker(
-                            context: context,
-                            initialTime: _selectedTime ?? TimeOfDay.now(),
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              _selectedTime = picked;
-                            });
-                          }
-                        },
+                        hasClear: isLocked ? false : _selectedTime != null,
+                        onClear: isLocked
+                            ? null
+                            : () {
+                                setState(() {
+                                  _selectedTime = null;
+                                });
+                              },
+                        onTap: isLocked
+                            ? null
+                            : () async {
+                                final picked = await showTimePicker(
+                                  context: context,
+                                  initialTime: _selectedTime ?? TimeOfDay.now(),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _selectedTime = picked;
+                                  });
+                                }
+                              },
                       ),
                     ),
                   ],
@@ -642,45 +708,51 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
 
                 // Optional Deadline Picker
                 _buildPickerButton(
-                  label: context.tr('deadline'),
+                  label: isLocked
+                      ? '${context.tr('deadline')} (${context.tr('locked_field_label')})'
+                      : context.tr('deadline'),
                   value: _selectedDeadline != null
                       ? DateFormat.yMMMd().add_jm().format(_selectedDeadline!)
                       : context.tr('no_deadline'),
-                  icon: Icons.flag_rounded,
-                  color: AppColors.errorRed,
+                  icon: isLocked ? Icons.lock_rounded : Icons.flag_rounded,
+                  color: isLocked ? secondaryTextColor : AppColors.errorRed,
                   isDark: isDark,
                   borderColor: borderColor,
-                  hasClear: _selectedDeadline != null,
-                  onClear: () {
-                    setState(() {
-                      _selectedDeadline = null;
-                    });
-                  },
-                  onTap: () async {
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: _selectedDeadline ?? DateTime.now().add(const Duration(days: 1)),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2035),
-                    );
-                    if (pickedDate != null && context.mounted) {
-                      final pickedTime = await showTimePicker(
-                        context: context,
-                        initialTime: const TimeOfDay(hour: 18, minute: 0),
-                      );
-                      final hour = pickedTime?.hour ?? 23;
-                      final minute = pickedTime?.minute ?? 59;
-                      setState(() {
-                        _selectedDeadline = DateTime(
-                          pickedDate.year,
-                          pickedDate.month,
-                          pickedDate.day,
-                          hour,
-                          minute,
-                        );
-                      });
-                    }
-                  },
+                  hasClear: isLocked ? false : _selectedDeadline != null,
+                  onClear: isLocked
+                      ? null
+                      : () {
+                          setState(() {
+                            _selectedDeadline = null;
+                          });
+                        },
+                  onTap: isLocked
+                      ? null
+                      : () async {
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: _selectedDeadline ?? DateTime.now().add(const Duration(days: 1)),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2035),
+                          );
+                          if (pickedDate != null && context.mounted) {
+                            final pickedTime = await showTimePicker(
+                              context: context,
+                              initialTime: const TimeOfDay(hour: 18, minute: 0),
+                            );
+                            final hour = pickedTime?.hour ?? 23;
+                            final minute = pickedTime?.minute ?? 59;
+                            setState(() {
+                              _selectedDeadline = DateTime(
+                                pickedDate.year,
+                                pickedDate.month,
+                                pickedDate.day,
+                                hour,
+                                minute,
+                              );
+                            });
+                          }
+                        },
                 ),
                 // Optional PARA Project Link
                 _buildFieldLabel(context.tr('link_to_project_label'), primaryTextColor),
@@ -950,7 +1022,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
     required Color color,
     required bool isDark,
     required Color borderColor,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
     bool hasClear = false,
     VoidCallback? onClear,
   }) {

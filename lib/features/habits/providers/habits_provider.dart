@@ -12,6 +12,7 @@ import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
+import '../../groups/assignments/services/group_assignment_service.dart';
 
 /// Stream provider that listens to real-time habits subcollection in Firestore
 /// and applies automatic weekly reset checks on the fly.
@@ -226,15 +227,31 @@ class HabitsController {
       _showEarlyWeekCelebration(context, updatedHabit.title);
     }
 
-    // XP award and Achievement check hook: +5 XP for completing habit day
+    // =========================================================================
+    // XP & ACHIEVEMENT HOOKS
+    // NOTE: Group-assigned habits explicitly BYPASS all personal XP awards.
+    // =========================================================================
     if (toggleResult.wasEarlyWeekReset || updatedHabit.isDayCompleted(dayIndex)) {
-      ProgressService().awardXp(
-        XpConstants.habitDayCompletion,
-        source: 'Completed habit: "${updatedHabit.title}"',
-        sourceType: 'habit',
-        context: context,
-      );
+      if (updatedHabit.isGroupAssigned) {
+        // Explicitly SKIP personal XP award for group-assigned habits
+        debugPrint(
+          'Group-assigned habit checked ("${updatedHabit.title}") — skipping personal XP award.',
+        );
+      } else {
+        // Normal personal habit: Award standard habit completion XP (+5 XP)
+        ProgressService().awardXp(
+          XpConstants.habitDayCompletion,
+          source: 'Completed habit: "${updatedHabit.title}"',
+          sourceType: 'habit',
+          context: context,
+        );
+      }
       ChallengeService().triggerProgressSync();
+    }
+
+    // Group Assignment Sync Hook
+    if (updatedHabit.isGroupAssigned) {
+      GroupAssignmentService().syncHabitCompletion(updatedHabit);
     }
 
     try {
@@ -242,6 +259,71 @@ class HabitsController {
       if (col == null) return;
       await col.doc(habit.id).update(updatedHabit.toMap());
     } catch (_) {}
+  }
+
+  /// Increments progress count for a group-assigned habit in count-mode
+  /// (e.g. "log this 10 times total").
+  ///
+  /// NOTE: Count-mode group-assigned habits bypass the 7-day streak system
+  /// and explicitly DO NOT award personal XP.
+  Future<void> incrementHabitCount(
+    HabitModel habit,
+    BuildContext context,
+  ) async {
+    final target = habit.targetCount ?? 1;
+    final newCount = habit.currentCount + 1;
+    final isDone = newCount >= target;
+
+    final updated = habit.copyWith(
+      currentCount: newCount,
+      isCompleted: isDone,
+    );
+
+    try {
+      final col = _habitsCollection;
+      if (col == null) return;
+      await col.doc(habit.id).update(updated.toMap());
+
+      // Sync back to group assignment completions
+      if (updated.isGroupAssigned) {
+        GroupAssignmentService().syncHabitCompletion(updated);
+      }
+
+      if (isDone && context.mounted) {
+        _showToast(context, '🎯 Completed "${habit.title}" target! ($newCount/$target)', isError: false);
+      }
+    } catch (e) {
+      debugPrint('Error incrementing habit count: $e');
+    }
+  }
+
+  /// Decrements progress count for a group-assigned habit in count-mode
+  Future<void> decrementHabitCount(
+    HabitModel habit,
+    BuildContext context,
+  ) async {
+    if (habit.currentCount <= 0) return;
+    final newCount = habit.currentCount - 1;
+    final target = habit.targetCount ?? 1;
+    final isDone = newCount >= target;
+
+    final updated = habit.copyWith(
+      currentCount: newCount,
+      isCompleted: isDone,
+    );
+
+    try {
+      final col = _habitsCollection;
+      if (col == null) return;
+      await col.doc(habit.id).update(updated.toMap());
+
+      // Sync back to group assignment completions
+      if (updated.isGroupAssigned) {
+        GroupAssignmentService().syncHabitCompletion(updated);
+      }
+    } catch (e) {
+      debugPrint('Error decrementing habit count: $e');
+    }
   }
 
   void _showMilestoneCelebration(

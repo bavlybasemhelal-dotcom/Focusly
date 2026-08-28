@@ -191,7 +191,7 @@ class _CreateChallengeSheetState extends State<CreateChallengeSheet> {
 
               const SizedBox(height: 18),
 
-              // Type Selector Chips
+              // Type Selector Chips (Tasks vs Habits only — XP challenge type has been intentionally removed)
               Text(
                 context.tr('challenge_type_label'),
                 style: TextStyle(
@@ -203,11 +203,21 @@ class _CreateChallengeSheetState extends State<CreateChallengeSheet> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  _buildTypeChip('tasks', '🎯', context.tr('challenge_type_tasks'), brandPrimary, isDark),
-                  const SizedBox(width: 8),
-                  _buildTypeChip('habits', '🔥', context.tr('challenge_type_habits'), brandPrimary, isDark),
-                  const SizedBox(width: 8),
-                  _buildTypeChip('xp', '⚡', context.tr('challenge_type_xp'), brandPrimary, isDark),
+                  _buildTypeChip(
+                    'tasks',
+                    '🎯',
+                    context.tr('challenge_type_tasks'),
+                    brandPrimary,
+                    isDark,
+                  ),
+                  const SizedBox(width: 10),
+                  _buildTypeChip(
+                    'habits',
+                    '🔥',
+                    context.tr('challenge_type_habits'),
+                    brandPrimary,
+                    isDark,
+                  ),
                 ],
               ),
 
@@ -291,13 +301,11 @@ class _CreateChallengeSheetState extends State<CreateChallengeSheet> {
                             color: isSelected
                                 ? brandPrimary
                                 : (isDark
-                                    ? const Color(0xFF0F1B4C)
-                                    : const Color(0xFFF1F5F9)),
+                                      ? const Color(0xFF0F1B4C)
+                                      : const Color(0xFFF1F5F9)),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: isSelected
-                                  ? brandPrimary
-                                  : borderColor,
+                              color: isSelected ? brandPrimary : borderColor,
                               width: 1.2,
                             ),
                           ),
@@ -344,7 +352,9 @@ class _CreateChallengeSheetState extends State<CreateChallengeSheet> {
                           height: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Text(
@@ -376,11 +386,6 @@ class _CreateChallengeSheetState extends State<CreateChallengeSheet> {
         onTap: () {
           setState(() {
             _selectedType = type;
-            if (type == 'xp' && _goalController.text == '10') {
-              _goalController.text = '200';
-            } else if (type != 'xp' && _goalController.text == '200') {
-              _goalController.text = '10';
-            }
           });
         },
         borderRadius: BorderRadius.circular(14),
@@ -393,7 +398,9 @@ class _CreateChallengeSheetState extends State<CreateChallengeSheet> {
                 : (isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF1F5F9)),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected ? brandPrimary : (isDark ? Colors.white12 : const Color(0xFFE2E8F5)),
+              color: isSelected
+                  ? brandPrimary
+                  : (isDark ? Colors.white12 : const Color(0xFFE2E8F5)),
               width: isSelected ? 1.8 : 1.0,
             ),
           ),

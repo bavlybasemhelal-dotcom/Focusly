@@ -133,6 +133,7 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
         : const Color(0xFFE2E8F5);
 
     final isEdit = widget.habitToEdit != null;
+    final isLocked = widget.habitToEdit?.locked == true;
 
     return Container(
       padding: EdgeInsets.only(
@@ -194,13 +195,58 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
+
+              // Group Assigned Info Banner
+              if (isLocked) ...[
+                Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.2 : 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.group_rounded, size: 18, color: Color(0xFF0284C7)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${context.tr('assigned_by_badge')}: ${widget.habitToEdit?.assignedByName ?? context.tr('role_admin')}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF0284C7),
+                              ),
+                            ),
+                            Text(
+                              context.tr('locked_field_tooltip'),
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                color: isDark ? Colors.white70 : const Color(0xFF334155),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.lock_rounded, size: 16, color: Color(0xFF0284C7)),
+                    ],
+                  ),
+                ),
+              ],
 
               // 1. Habit Title Input
               TextFormField(
                 controller: _titleController,
+                readOnly: isLocked,
                 style: TextStyle(
-                  color: primaryTextColor,
+                  color: isLocked ? secondaryTextColor : primaryTextColor,
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
                 ),
@@ -208,10 +254,18 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                   hintText: context.tr('habit_title_hint'),
                   hintStyle: TextStyle(color: secondaryTextColor, fontSize: 15),
                   filled: true,
-                  fillColor: cardBg,
+                  fillColor: isLocked
+                      ? (isDark ? Colors.white10 : const Color(0xFFE2E8F0))
+                      : cardBg,
+                  suffixIcon: isLocked
+                      ? Tooltip(
+                          message: context.tr('locked_field_tooltip'),
+                          child: const Icon(Icons.lock_rounded, size: 18, color: Colors.grey),
+                        )
+                      : null,
                   prefixIcon: Icon(
                     Icons.local_fire_department_rounded,
-                    color: const Color(0xFFF59E0B),
+                    color: isLocked ? secondaryTextColor : const Color(0xFFF59E0B),
                     size: 22,
                   ),
                   border: OutlineInputBorder(
@@ -224,7 +278,7 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: brandPrimary, width: 2),
+                    borderSide: BorderSide(color: isLocked ? borderColor : brandPrimary, width: 2),
                   ),
                 ),
                 validator: (val) {

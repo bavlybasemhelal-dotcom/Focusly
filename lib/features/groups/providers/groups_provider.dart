@@ -24,8 +24,9 @@ FirebaseFirestore? get _firestoreInstance {
 /// 2. Uses [asyncExpand] with `where(FieldPath.documentId, whereIn: groupIds).snapshots()`
 ///    to ensure live real-time updates whenever group details (memberCount, name, icon, status)
 ///    change in Firestore without requiring a logout/login cycle or manual refresh.
-final myGroupsStreamProvider =
-    StreamProvider.autoDispose<List<GroupModel>>((ref) {
+final myGroupsStreamProvider = StreamProvider.autoDispose<List<GroupModel>>((
+  ref,
+) {
   final uid = ref.watch(currentUserIdProvider);
 
   if (uid == null || uid.isEmpty) {
@@ -35,11 +36,9 @@ final myGroupsStreamProvider =
   final firestore = _firestoreInstance;
   if (firestore == null) return Stream.value(<GroupModel>[]);
 
-  return firestore
-      .collection('users')
-      .doc(uid)
-      .snapshots()
-      .asyncExpand((userSnap) {
+  return firestore.collection('users').doc(uid).snapshots().asyncExpand((
+    userSnap,
+  ) {
     if (!userSnap.exists) return Stream.value(<GroupModel>[]);
     final groupIds = List<String>.from(userSnap.data()?['groupIds'] ?? []);
     if (groupIds.isEmpty) return Stream.value(<GroupModel>[]);
@@ -50,125 +49,139 @@ final myGroupsStreamProvider =
         .where(FieldPath.documentId, whereIn: groupIds)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => GroupModel.fromMap(doc.data(), doc.id))
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) => GroupModel.fromMap(doc.data(), doc.id))
+              .toList();
+        });
   });
 });
 
 /// Stream of a specific Group document
-final groupDetailStreamProvider =
-    StreamProvider.autoDispose.family<GroupModel?, String>((ref, groupId) {
-  final firestore = _firestoreInstance;
-  if (firestore == null) return Stream.value(null);
+final groupDetailStreamProvider = StreamProvider.autoDispose
+    .family<GroupModel?, String>((ref, groupId) {
+      final firestore = _firestoreInstance;
+      if (firestore == null) return Stream.value(null);
 
-  return firestore
-      .collection('groups')
-      .doc(groupId)
-      .snapshots()
-      .map((snap) => snap.exists && snap.data() != null
-          ? GroupModel.fromMap(snap.data()!, snap.id)
-          : null);
-});
+      return firestore
+          .collection('groups')
+          .doc(groupId)
+          .snapshots()
+          .map(
+            (snap) => snap.exists && snap.data() != null
+                ? GroupModel.fromMap(snap.data()!, snap.id)
+                : null,
+          );
+    });
 
 /// Stream of all members (approved & pending) in a Group
-final groupMembersStreamProvider =
-    StreamProvider.autoDispose.family<List<GroupMemberModel>, String>((ref, groupId) {
-  final firestore = _firestoreInstance;
-  if (firestore == null) return Stream.value([]);
+final groupMembersStreamProvider = StreamProvider.autoDispose
+    .family<List<GroupMemberModel>, String>((ref, groupId) {
+      final firestore = _firestoreInstance;
+      if (firestore == null) return Stream.value([]);
 
-  return firestore
-      .collection('groups')
-      .doc(groupId)
-      .collection('members')
-      .snapshots()
-      .map((snap) => snap.docs
-          .map((d) => GroupMemberModel.fromMap(d.data(), d.id))
-          .toList());
-});
+      return firestore
+          .collection('groups')
+          .doc(groupId)
+          .collection('members')
+          .snapshots()
+          .map(
+            (snap) => snap.docs
+                .map((d) => GroupMemberModel.fromMap(d.data(), d.id))
+                .toList(),
+          );
+    });
 
 /// Stream of feed items from the last 14 days, newest first
-final groupFeedStreamProvider =
-    StreamProvider.autoDispose.family<List<GroupFeedModel>, String>((ref, groupId) {
-  final firestore = _firestoreInstance;
-  if (firestore == null) return Stream.value([]);
+final groupFeedStreamProvider = StreamProvider.autoDispose
+    .family<List<GroupFeedModel>, String>((ref, groupId) {
+      final firestore = _firestoreInstance;
+      if (firestore == null) return Stream.value([]);
 
-  final fourteenDaysAgo = DateTime.now().subtract(const Duration(days: 14));
+      final fourteenDaysAgo = DateTime.now().subtract(const Duration(days: 14));
 
-  return firestore
-      .collection('groups')
-      .doc(groupId)
-      .collection('feed')
-      .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(fourteenDaysAgo))
-      .orderBy('createdAt', descending: true)
-      .snapshots()
-      .map((snap) => snap.docs
-          .map((d) => GroupFeedModel.fromMap(d.data(), d.id))
-          .toList());
-});
+      return firestore
+          .collection('groups')
+          .doc(groupId)
+          .collection('feed')
+          .where(
+            'createdAt',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(fourteenDaysAgo),
+          )
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map(
+            (snap) => snap.docs
+                .map((d) => GroupFeedModel.fromMap(d.data(), d.id))
+                .toList(),
+          );
+    });
 
 /// Stream of all Challenges in a Group (active and recently finished)
-final groupChallengesStreamProvider =
-    StreamProvider.autoDispose.family<List<ChallengeModel>, String>((ref, groupId) {
-  final firestore = _firestoreInstance;
-  if (firestore == null) return Stream.value([]);
+final groupChallengesStreamProvider = StreamProvider.autoDispose
+    .family<List<ChallengeModel>, String>((ref, groupId) {
+      final firestore = _firestoreInstance;
+      if (firestore == null) return Stream.value([]);
 
-  return firestore
-      .collection('groups')
-      .doc(groupId)
-      .collection('challenges')
-      .orderBy('endDate', descending: true)
-      .snapshots()
-      .map((snap) => snap.docs
-          .map((d) => ChallengeModel.fromMap(d.data(), d.id))
-          .toList());
-});
+      return firestore
+          .collection('groups')
+          .doc(groupId)
+          .collection('challenges')
+          .orderBy('endDate', descending: true)
+          .snapshots()
+          .map(
+            (snap) => snap.docs
+                .map((d) => ChallengeModel.fromMap(d.data(), d.id))
+                .toList(),
+          );
+    });
 
 /// Stream of participants inside a specific Challenge
 final challengeParticipantsStreamProvider = StreamProvider.autoDispose
-    .family<List<ChallengeParticipantModel>, ({String groupId, String challengeId})>(
-        (ref, arg) {
-  final firestore = _firestoreInstance;
-  if (firestore == null) return Stream.value([]);
+    .family<
+      List<ChallengeParticipantModel>,
+      ({String groupId, String challengeId})
+    >((ref, arg) {
+      final firestore = _firestoreInstance;
+      if (firestore == null) return Stream.value([]);
 
-  return firestore
-      .collection('groups')
-      .doc(arg.groupId)
-      .collection('challenges')
-      .doc(arg.challengeId)
-      .collection('participants')
-      .orderBy('score', descending: true)
-      .snapshots()
-      .map((snap) => snap.docs
-          .map((d) => ChallengeParticipantModel.fromMap(d.data(), d.id))
-          .toList());
-});
+      return firestore
+          .collection('groups')
+          .doc(arg.groupId)
+          .collection('challenges')
+          .doc(arg.challengeId)
+          .collection('participants')
+          .orderBy('score', descending: true)
+          .snapshots()
+          .map(
+            (snap) => snap.docs
+                .map((d) => ChallengeParticipantModel.fromMap(d.data(), d.id))
+                .toList(),
+          );
+    });
 
 /// Leaderboard provider: computes approved members sorted by weeklyXP descending,
 /// and executes weekly reset if the group's weekStart is stale.
-final groupLeaderboardProvider =
-    Provider.autoDispose.family<List<GroupMemberModel>, String>((ref, groupId) {
-  final membersAsync = ref.watch(groupMembersStreamProvider(groupId));
-  final groupAsync = ref.watch(groupDetailStreamProvider(groupId));
+final groupLeaderboardProvider = Provider.autoDispose
+    .family<List<GroupMemberModel>, String>((ref, groupId) {
+      final membersAsync = ref.watch(groupMembersStreamProvider(groupId));
+      final groupAsync = ref.watch(groupDetailStreamProvider(groupId));
 
-  final members = membersAsync.value ?? [];
-  final group = groupAsync.value;
+      final members = membersAsync.value ?? [];
+      final group = groupAsync.value;
 
-  // Filter approved members only
-  final approvedMembers =
-      members.where((m) => m.isApproved).toList();
+      // Filter approved members only
+      final approvedMembers = members.where((m) => m.isApproved).toList();
 
-  // Sort by weeklyXP descending
-  approvedMembers.sort((a, b) => b.weeklyXP.compareTo(a.weeklyXP));
+      // Sort by weeklyXP descending
+      approvedMembers.sort((a, b) => b.weeklyXP.compareTo(a.weeklyXP));
 
-  // Client-side weekly XP reset check
-  if (group != null) {
-    _checkAndResetWeeklyXp(group, members);
-  }
+      // Client-side weekly XP reset check
+      if (group != null) {
+        _checkAndResetWeeklyXp(group, members);
+      }
 
-  return approvedMembers;
-});
+      return approvedMembers;
+    });
 
 /// Helper to trigger client-side weekly reset if weekStart is from a previous calendar week
 Future<void> _checkAndResetWeeklyXp(
@@ -176,7 +189,11 @@ Future<void> _checkAndResetWeeklyXp(
   List<GroupMemberModel> members,
 ) async {
   final now = DateTime.now();
-  final currentWeekStart = DateTime(now.year, now.month, now.day - (now.weekday % 7));
+  final currentWeekStart = DateTime(
+    now.year,
+    now.month,
+    now.day - (now.weekday % 7),
+  );
 
   if (group.weekStart == null || group.weekStart!.isBefore(currentWeekStart)) {
     try {
@@ -217,18 +234,19 @@ class GroupStatsSummary {
 }
 
 /// Provider computing group weekly summary stats
-final groupStatsSummaryProvider =
-    Provider.autoDispose.family<GroupStatsSummary, String>((ref, groupId) {
-  final members = ref.watch(groupMembersStreamProvider(groupId)).value ?? [];
-  final feedItems = ref.watch(groupFeedStreamProvider(groupId)).value ?? [];
+final groupStatsSummaryProvider = Provider.autoDispose
+    .family<GroupStatsSummary, String>((ref, groupId) {
+      final members =
+          ref.watch(groupMembersStreamProvider(groupId)).value ?? [];
+      final feedItems = ref.watch(groupFeedStreamProvider(groupId)).value ?? [];
 
-  final approved = members.where((m) => m.isApproved).toList();
-  final totalXp = approved.fold<int>(0, (total, m) => total + m.weeklyXP);
-  final activeMembers = approved.where((m) => m.weeklyXP > 0).length;
+      final approved = members.where((m) => m.isApproved).toList();
+      final totalXp = approved.fold<int>(0, (total, m) => total + m.weeklyXP);
+      final activeMembers = approved.where((m) => m.weeklyXP > 0).length;
 
-  return GroupStatsSummary(
-    totalWeeklyXP: totalXp,
-    activeMembersCount: activeMembers,
-    recentActivityCount: feedItems.length,
-  );
-});
+      return GroupStatsSummary(
+        totalWeeklyXP: totalXp,
+        activeMembersCount: activeMembers,
+        recentActivityCount: feedItems.length,
+      );
+    });

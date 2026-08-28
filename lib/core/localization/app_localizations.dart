@@ -38,13 +38,17 @@ class AppLocalizations {
 
       // Onboarding Screen
       'onboarding_title_1': 'Organize Everything',
-      'onboarding_sub_1': 'Capture tasks, set smart priorities, and master your daily agenda in one place.',
+      'onboarding_sub_1':
+          'Capture tasks, set smart priorities, and master your daily agenda in one place.',
       'onboarding_title_2': 'Build Better Habits',
-      'onboarding_sub_2': 'Form lasting routines with visual streak trackers and mindful milestone celebrations.',
+      'onboarding_sub_2':
+          'Form lasting routines with visual streak trackers and mindful milestone celebrations.',
       'onboarding_title_3': 'Stay Focused',
-      'onboarding_sub_3': 'Eliminate distractions with smart focus timers, deep work zones, and soundscapes.',
+      'onboarding_sub_3':
+          'Eliminate distractions with smart focus timers, deep work zones, and soundscapes.',
       'onboarding_title_4': 'Grow With Your Team',
-      'onboarding_sub_4': 'Collaborate on shared goals, track team productivity, and achieve more together.',
+      'onboarding_sub_4':
+          'Collaborate on shared goals, track team productivity, and achieve more together.',
       'next': 'Next',
       'get_started': 'Get Started',
       'skip': 'Skip',
@@ -81,7 +85,8 @@ class AppLocalizations {
       'confirm_password_required': 'Please confirm your password',
       'passwords_dont_match': 'Passwords do not match',
       'terms_agreement': 'I agree to the Terms of Service & Privacy Policy',
-      'terms_required': 'You must agree to the Terms & Privacy Policy to proceed',
+      'terms_required':
+          'You must agree to the Terms & Privacy Policy to proceed',
       'already_have_account': 'Already have an account?',
       'signup_failed': 'Failed to create account. Please try again.',
       'email_already_in_use': 'An account already exists with this email.',
@@ -108,7 +113,8 @@ class AppLocalizations {
       'edit_task': 'Edit Task',
       'delete_task': 'Delete Task',
       'delete_task_confirm_title': 'Delete Task',
-      'delete_task_confirm_message': 'Are you sure you want to delete this task?',
+      'delete_task_confirm_message':
+          'Are you sure you want to delete this task?',
       'task_title_hint': 'What needs to be done?',
       'task_title_required': 'Please enter a task title',
       'task_notes_hint': 'Add additional notes or details (optional)...',
@@ -129,7 +135,8 @@ class AppLocalizations {
       'subtasks': 'Subtasks',
       'add_subtask_hint': 'Add a subtask...',
       'no_tasks_title': 'No tasks here yet',
-      'no_tasks_subtitle': 'Tap the (+) button to create your first task and conquer your day!',
+      'no_tasks_subtitle':
+          'Tap the (+) button to create your first task and conquer your day!',
       'delete': 'Delete',
       'add': 'Add',
 
@@ -189,12 +196,16 @@ class AppLocalizations {
       'create_event': 'Create Event',
       'update_event': 'Update Event',
       'no_events_today': 'No events scheduled for this day',
-      'no_events_agenda_subtitle': 'Enjoy your free time or tap (+) to schedule a new event!',
+      'no_events_agenda_subtitle':
+          'Enjoy your free time or tap (+) to schedule a new event!',
       'delete_event_confirm_title': 'Delete Event',
-      'delete_event_confirm_message': 'Are you sure you want to delete this event?',
-      'delete_recurring_event_confirm_message': 'This will delete all recurring occurrences of this event. Are you sure?',
+      'delete_event_confirm_message':
+          'Are you sure you want to delete this event?',
+      'delete_recurring_event_confirm_message':
+          'This will delete all recurring occurrences of this event. Are you sure?',
       'edit_recurring_title': 'Edit Recurring Event',
-      'edit_recurring_prompt': 'Do you want to edit all occurrences in this series or this occurrence only?',
+      'edit_recurring_prompt':
+          'Do you want to edit all occurrences in this series or this occurrence only?',
       'edit_all_occurrences': 'Edit all occurrences',
       'edit_this_occurrence_only': 'This occurrence only',
       'add_event_type_title': 'Add Event Type',
@@ -243,7 +254,8 @@ class AppLocalizations {
       'habit_deleted_success': 'Habit deleted successfully!',
       'habit_error_saving': 'Error saving habit. Please try again.',
       'habit_error_deleting': 'Error deleting habit. Please try again.',
-      'habit_early_week_complete_toast': '🎉 Full week completed! Starting a new week 🔥',
+      'habit_early_week_complete_toast':
+          '🎉 Full week completed! Starting a new week 🔥',
       'notification_habit_title': '🔥 Habit Reminder!',
 
       // Pomodoro Feature
@@ -279,8 +291,7 @@ class AppLocalizations {
       'minutes_short': 'min',
       'notification_work_done_title':
           'Focus session complete! Time for a break ☕',
-      'notification_break_done_title':
-          "Break's over! Ready to focus again? 🍅",
+      'notification_break_done_title': "Break's over! Ready to focus again? 🍅",
 
       // Progress & Achievements Feature
       'progress': 'Progress',
@@ -319,8 +330,10 @@ class AppLocalizations {
       'xp_rule_rituals': 'Complete Evening Shutdown',
       'xp_rule_weekly_review': 'Complete Weekly Review',
       'xp_recent_activity': 'Recent XP Activity',
-      'xp_empty_history': 'No XP earned yet. Complete tasks and habits to start leveling up!',
-      'xp_level_progress_desc': 'You need {needed} XP to reach Level {nextLevel} — you\'ve earned {earned} so far.',
+      'xp_empty_history':
+          'No XP earned yet. Complete tasks and habits to start leveling up!',
+      'xp_level_progress_desc':
+          'You need {needed} XP to reach Level {nextLevel} — you\'ve earned {earned} so far.',
 
       // Level Titles
       'level_1_title': 'Beginner',
@@ -422,11 +435,9 @@ class AppLocalizations {
       'achieve_level_20_desc': 'Reached Level 20 (Beyond the Cosmos)',
 
       'achieve_org_3_cat_title': 'Diverse Goals',
-      'achieve_org_3_cat_desc':
-          'Organized tasks across 3 different categories',
+      'achieve_org_3_cat_desc': 'Organized tasks across 3 different categories',
       'achieve_org_5_cat_title': 'Life Balance',
-      'achieve_org_5_cat_desc':
-          'Organized tasks across 5 different categories',
+      'achieve_org_5_cat_desc': 'Organized tasks across 5 different categories',
       'achieve_org_custom_cat_title': 'Custom Touch',
       'achieve_org_custom_cat_desc': 'Created a custom task category',
 
@@ -435,8 +446,7 @@ class AppLocalizations {
       'achieve_early_bird_title': 'Early Bird',
       'achieve_early_bird_desc': 'Added a task before 7 AM',
       'achieve_perfect_week_title': 'Perfect Week',
-      'achieve_perfect_week_desc':
-          'Completed tasks on 7 consecutive days',
+      'achieve_perfect_week_desc': 'Completed tasks on 7 consecutive days',
 
       // Groups & Challenges Feature
       'groups': 'Groups',
@@ -455,16 +465,14 @@ class AppLocalizations {
 
       // Create Group Modal
       'create_group_title': 'Create New Group',
-      'create_group_subtitle':
-          'Form a squad to boost productivity together',
+      'create_group_subtitle': 'Form a squad to boost productivity together',
       'group_icon_label': 'Group Icon',
       'group_name_label': 'Group Name',
       'group_name_hint': 'e.g. Morning Routine Squad',
       'group_name_required': 'Please enter a group name',
       'group_desc_label': 'Description (Optional)',
       'group_desc_hint': 'What is this group about?',
-      'group_cap_reached':
-          'You have reached the maximum limit of 5 groups.',
+      'group_cap_reached': 'You have reached the maximum limit of 5 groups.',
 
       // Join Group Modal
       'join_group_title': 'Join a Group',
@@ -473,10 +481,8 @@ class AppLocalizations {
       'invite_code_required': 'Please enter the invite code',
       'group_not_found': 'No group found with this invite code',
       'group_is_full': 'This group is full (max 20 members)',
-      'already_member':
-          'You are already an approved member of this group',
-      'already_pending':
-          'Your join request is already pending admin review',
+      'already_member': 'You are already an approved member of this group',
+      'already_pending': 'Your join request is already pending admin review',
       'send_join_request_btn': 'Send Join Request',
       'join_request_sent_success':
           'Join request sent! An admin will review it.',
@@ -487,7 +493,49 @@ class AppLocalizations {
       'tab_group_feed': 'Feed',
       'tab_group_leaderboard': 'Leaderboard',
       'tab_group_challenges': 'Challenges',
+      'tab_group_assignments': 'Assignments',
       'tab_group_members': 'Members',
+
+      // Group Assignments
+      'assign_task_habit_title': 'Assign Task / Habit',
+      'assign_task_habit_subtitle': 'Assign locked tasks or habits to members',
+      'assign_btn': 'Assign',
+      'group_assignments_title': 'Group Assignments',
+      'no_assignments_title': 'No Group Assignments Yet',
+      'no_assignments_subtitle': 'Group admins can assign locked tasks and habits directly to members.',
+      'assignment_type_label': 'Assignment Type',
+      'assignment_type_task': 'Task',
+      'assignment_type_habit': 'Habit',
+      'completion_mode_label': 'Completion Mode',
+      'completion_mode_simple': 'Simple',
+      'completion_mode_simple_sub': 'Just mark it done / check in',
+      'completion_mode_count': 'Target Count',
+      'completion_mode_count_sub': 'Reach a specific number of times',
+      'target_count_label': 'Target Repetitions',
+      'invalid_target_count': 'Please enter a valid count greater than 0',
+      'assign_to_label': 'Assign To',
+      'select_all': 'Select All',
+      'deselect_all': 'Deselect All',
+      'select_at_least_one_member': 'Please select at least one member',
+      'assign_now_btn': 'Assign to Members',
+      'assignment_created_success': 'Assignment created and distributed to members!',
+      'assignment_progress_title': 'Assignment Progress',
+      'member_progress_title': 'Member Progress',
+      'assigned_by': 'Assigned by',
+      'assigned_by_badge': 'Assigned by',
+      'group_assigned_badge': '👥 Group Assigned',
+      'locked_field_tooltip': 'Assigned by admin — title and deadline are locked',
+      'locked_field_label': 'Locked',
+      'pending_status': 'Pending',
+      'completion_progress': 'Overall Completion',
+      'target_reached': 'Target Reached!',
+      'target_progress': 'Target Progress',
+      'log_habit_btn': 'Log +1',
+      'decrement_count': 'Decrease count',
+      'start_date_label': 'Start Date',
+      'start_label': 'Start',
+      'due_label': 'Due',
+      'deadline_label': 'Deadline',
 
       // Feed Tab
       'group_stat_weekly_xp': 'Weekly XP',
@@ -535,8 +583,7 @@ class AppLocalizations {
       'left_short': 'left',
       'participants_label': 'participants',
       'join_btn': 'Join',
-      'joined_challenge_success':
-          'You joined the challenge! Good luck!',
+      'joined_challenge_success': 'You joined the challenge! Good luck!',
       'winner_prefix': 'Winner',
       'challenge_ended_no_winner': 'Challenge ended without winners',
       'challenge_victory_title': 'CHAMPION! 🏆',
@@ -555,8 +602,7 @@ class AppLocalizations {
       'remove_member_confirm': 'Are you sure you want to remove',
       'leave_group_btn': 'Leave Group',
       'leave_group_title': 'Leave Group',
-      'leave_group_confirm':
-          'Are you sure you want to leave this group?',
+      'leave_group_confirm': 'Are you sure you want to leave this group?',
       'delete_group_btn': 'Delete Group',
       'delete_group_title': 'Delete Group',
       'delete_group_confirm':
@@ -818,8 +864,7 @@ class AppLocalizations {
       'project_deadline_label': 'Target Deadline (Optional)',
       'optional_no_deadline': 'No deadline set',
       'create_project_btn': 'Create Project',
-      'no_areas_prompt':
-          'You need at least one Area before creating projects.',
+      'no_areas_prompt': 'You need at least one Area before creating projects.',
       'projects_empty_title': 'No Active Projects',
       'projects_empty_prompt':
           'Projects are specific, short-term outcomes you want to accomplish with defined goals and deadlines.',
@@ -904,8 +949,7 @@ class AppLocalizations {
       'energy_level_4': 'High',
       'energy_level_5': 'Excellent',
       'daily_checkin_title': 'Daily Check-in',
-      'daily_checkin_subtitle':
-          'Track your energy, mood, water, and sleep',
+      'daily_checkin_subtitle': 'Track your energy, mood, water, and sleep',
       'energy_level_label': 'Energy Level',
       'checkin_note_label': 'Notes / Thoughts (Optional)',
       'checkin_note_hint': 'Anything on your mind today?...',
@@ -1036,8 +1080,7 @@ class AppLocalizations {
       'goal_completed_title': 'Goal Completed 🎉',
       'goal_completed_desc': 'Great job! This goal is marked as done.',
       'goal_in_progress_title': 'In Progress 🚀',
-      'goal_in_progress_desc':
-          'Keep going toward achieving your milestones.',
+      'goal_in_progress_desc': 'Keep going toward achieving your milestones.',
       'milestones_checklist_header': 'Milestones Checklist',
       'no_milestones_title': 'No Milestones Set',
       'no_milestones_subtitle':
@@ -1091,8 +1134,7 @@ class AppLocalizations {
       'morning_intention_title': 'Morning Intention',
       'morning_intention_subtitle':
           'Set your primary focus and clarity for today',
-      'morning_intention_hint':
-          'What is your main focus for today?...',
+      'morning_intention_hint': 'What is your main focus for today?...',
       'morning_intention_required': 'Please enter your focus for today',
       'save_intention_btn': 'Set Intention',
       'edit_intention_btn': 'Edit Intention',
@@ -1138,8 +1180,7 @@ class AppLocalizations {
       'tomorrow_task_2_hint': 'Tomorrow top task #2',
       'tomorrow_task_3_hint': 'Tomorrow top task #3',
       'shutdown_step_3_title': 'Quick Check-In',
-      'shutdown_step_3_sub':
-          'How was your energy and mood throughout today?',
+      'shutdown_step_3_sub': 'How was your energy and mood throughout today?',
       'shutdown_step_4_title': 'Lesson Learned',
       'shutdown_step_4_sub':
           'What\'s one valuable lesson or insight you learned today?',
@@ -1178,8 +1219,7 @@ class AppLocalizations {
           'Items will be added to your GTD Inbox automatically upon continuing.',
       'mind_sweep_added_toast': '🧹 Added {count} items to your Inbox',
       'review_step_2_title': 'Get Clear',
-      'review_step_2_sub':
-          'Empty your inboxes and process unprocessed inputs.',
+      'review_step_2_sub': 'Empty your inboxes and process unprocessed inputs.',
       'unprocessed_inbox_items_label': 'Unprocessed Inbox Items',
       'inbox_zero_congrats':
           'Inbox Zero! All thoughts and tasks are neatly clarified.',
@@ -1250,13 +1290,15 @@ class AppLocalizations {
       'duration_label': 'Duration',
       'planned_blocks_summary': '{count} blocks • {duration} planned',
       'delete_block_confirm_title': 'Delete Time Block',
-      'delete_block_confirm_msg': 'Are you sure you want to delete the time block "{title}"?',
+      'delete_block_confirm_msg':
+          'Are you sure you want to delete the time block "{title}"?',
       'block_continuing': 'Continuing',
       'event_deleted_toast': 'Event deleted',
 
       // Decision Journal Feature
       'decision_journal_title': 'Decision Journal',
-      'decision_journal_subtitle': 'Track key decisions and evaluate their actual outcomes',
+      'decision_journal_subtitle':
+          'Track key decisions and evaluate their actual outcomes',
       'pending_review_stat': 'Pending Review',
       'reviewed_decisions_stat': 'Reviewed Decisions',
       'total_decisions_stat': 'Total Decisions',
@@ -1266,32 +1308,38 @@ class AppLocalizations {
       'status_reviewed': '✅ Reviewed',
       'status_pending_review': '⏳ Pending Review',
       'rationale_label': 'Rationale',
-      'rationale_hint': 'Why are you making this decision? Context, reasoning, and trade-offs...',
+      'rationale_hint':
+          'Why are you making this decision? Context, reasoning, and trade-offs...',
       'expected_outcome_label': 'Expected Outcome',
       'expected_outcome_hint': 'What do you expect to happen?',
       'actual_outcome_label': 'Actual Outcome',
       'actual_outcome_hint': 'What actually happened when evaluated later?',
       'evaluate_and_review_btn': 'Evaluate and Review Decision',
       'mark_as_reviewed': 'Mark as Reviewed',
-      'mark_as_reviewed_desc': 'Mark this decision as evaluated with an actual outcome',
+      'mark_as_reviewed_desc':
+          'Mark this decision as evaluated with an actual outcome',
       'empty_decisions_title': '🤔 Log your first key decision',
-      'empty_decisions_sub': 'Record why you make key decisions, predict outcomes, and review them later to build self-awareness and sharpen your judgment over time.',
+      'empty_decisions_sub':
+          'Record why you make key decisions, predict outcomes, and review them later to build self-awareness and sharpen your judgment over time.',
       'log_decision_btn': 'Log Decision',
       'add_decision_title': 'Log New Decision',
       'edit_decision_title': 'Edit Decision Log',
       'decision_title_label': 'Decision Title',
       'decision_title_hint': 'e.g., Switch to remote work setup',
       'decision_date_label': 'Date',
-      'decision_required_validation': 'Title, rationale, and expected outcome are required',
+      'decision_required_validation':
+          'Title, rationale, and expected outcome are required',
       'delete_decision_confirm_title': 'Delete Decision Log',
-      'delete_decision_confirm_msg': 'Are you sure you want to delete the decision log "{title}"? This action cannot be undone.',
+      'delete_decision_confirm_msg':
+          'Are you sure you want to delete the decision log "{title}"? This action cannot be undone.',
       'decision_saved_toast': 'Decision logged successfully',
       'decision_updated_toast': 'Decision updated successfully',
       'decision_deleted_toast': 'Decision log deleted',
 
       // Project Retrospective Feature
       'retrospectives_title': 'Project Retrospective',
-      'retrospectives_subtitle': 'Post-mortem reflections and lessons learned from PARA projects',
+      'retrospectives_subtitle':
+          'Post-mortem reflections and lessons learned from PARA projects',
       'new_retrospective_btn': 'New Retrospective',
       'add_retrospective_title': 'New Retrospective',
       'edit_retrospective_title': 'Edit Retrospective',
@@ -1299,26 +1347,33 @@ class AppLocalizations {
       'select_project_label': 'PARA Project',
       'unknown_project_fallback': 'General / Unknown Project',
       'went_well_label': '🟢 What went well?',
-      'went_well_hint': 'Key wins, successful workflows, team strengths, milestones hit on time...',
+      'went_well_hint':
+          'Key wins, successful workflows, team strengths, milestones hit on time...',
       'to_improve_label': '🔴 What needs improvement?',
-      'to_improve_hint': 'Bottlenecks, unexpected hurdles, scope creep, missed estimates...',
+      'to_improve_hint':
+          'Bottlenecks, unexpected hurdles, scope creep, missed estimates...',
       'learnings_label': '🧠 Lessons learned & next steps',
-      'learnings_hint': 'Actionable insights to apply to future projects and routines...',
+      'learnings_hint':
+          'Actionable insights to apply to future projects and routines...',
       'project_required_validation': 'Please select a project',
       'all_retro_fields_required': 'All review fields are required',
       'empty_retrospectives_title': '🔍 Log your first project retrospective',
-      'empty_retrospectives_sub': 'Reflect on completed PARA projects: celebrate what went well, identify areas to improve, and capture key takeaways.',
+      'empty_retrospectives_sub':
+          'Reflect on completed PARA projects: celebrate what went well, identify areas to improve, and capture key takeaways.',
       'delete_retrospective_confirm_title': 'Delete this retrospective record?',
-      'delete_retrospective_confirm_msg': 'Are you sure you want to delete this retrospective record? This action cannot be undone.',
+      'delete_retrospective_confirm_msg':
+          'Are you sure you want to delete this retrospective record? This action cannot be undone.',
       'retrospective_saved_toast': 'Retrospective logged successfully',
       'retrospective_updated_toast': 'Retrospective updated successfully',
       'retrospective_deleted_toast': 'Retrospective record deleted',
-      'no_projects_available_warning': 'No PARA projects found. Create a project in PARA Projects first.',
+      'no_projects_available_warning':
+          'No PARA projects found. Create a project in PARA Projects first.',
 
       // Reading Tracker Feature
       'learning_section_header': 'LEARNING & GROWTH',
       'reading_tracker_title': 'Reading Tracker',
-      'reading_tracker_subtitle': 'Track your books, pages, shelves & daily reading streak',
+      'reading_tracker_subtitle':
+          'Track your books, pages, shelves & daily reading streak',
       'shelf_reading': 'Reading',
       'shelf_wishlist': 'Wishlist',
       'shelf_finished': 'Finished',
@@ -1326,7 +1381,8 @@ class AppLocalizations {
       'status_paused': '⏸ Paused',
       'status_wishlist': '💡 Wishlist',
       'status_done': '✅ Finished',
-      'empty_shelf_reading': 'No books in progress. Tap \'+ Add Book\' to start!',
+      'empty_shelf_reading':
+          'No books in progress. Tap \'+ Add Book\' to start!',
       'empty_shelf_wishlist': 'Your wishlist is empty',
       'empty_shelf_finished': 'You haven\'t finished a book yet. Keep reading!',
       'add_book_btn': 'Add Book',
@@ -1347,11 +1403,13 @@ class AppLocalizations {
       'notes_hint': 'Key insights, favorite quotes, or thoughts...',
       'book_required_validation': 'Title and author are required',
       'quick_update_title': 'Quick Page Update',
-      'quick_update_prompt': 'Update progress for "{title}" — enter current page (between {current} and {total}):',
+      'quick_update_prompt':
+          'Update progress for "{title}" — enter current page (between {current} and {total}):',
       'invalid_page_range': 'Page must be between {min} and {max}',
       'book_finished_congrats': '🎉 Congratulations! You finished "{title}"!',
       'delete_book_confirm_title': 'Delete Book',
-      'delete_book_confirm_msg': 'Are you sure you want to delete "{title}" from your library?',
+      'delete_book_confirm_msg':
+          'Are you sure you want to delete "{title}" from your library?',
       'book_saved_toast': 'Book added to library',
       'book_updated_toast': 'Book details updated',
       'book_deleted_toast': 'Book removed from library',
@@ -1364,7 +1422,8 @@ class AppLocalizations {
 
       // Skills Board Feature
       'skills_board_title': 'Skills Board',
-      'skills_board_subtitle': 'Track leveling, XP progression & skill proficiency',
+      'skills_board_subtitle':
+          'Track leveling, XP progression & skill proficiency',
       'add_skill_btn': 'Add Skill',
       'add_skill_title': 'Add New Skill',
       'edit_skill_title': 'Edit Skill',
@@ -1378,14 +1437,18 @@ class AppLocalizations {
       'skill_created_toast': 'Skill created successfully',
       'skill_updated_toast': 'Skill updated successfully',
       'skill_deleted_toast': 'Skill removed',
-      'skill_level_up_toast': '🎉 Skill level up! You reached Level {level} in {skillName}!',
+      'skill_level_up_toast':
+          '🎉 Skill level up! You reached Level {level} in {skillName}!',
       'delete_skill_confirm_title': 'Delete Skill',
-      'delete_skill_confirm_msg': 'Are you sure you want to delete "{skillName}"?',
+      'delete_skill_confirm_msg':
+          'Are you sure you want to delete "{skillName}"?',
       'quick_update_skill_title': 'Quick Skill Update',
-      'quick_update_skill_subtitle': 'Directly adjust level and XP for "{skillName}"',
+      'quick_update_skill_subtitle':
+          'Directly adjust level and XP for "{skillName}"',
       'all_skills_header': 'All Skills',
       'empty_skills_title': 'No skills added yet 🎯',
-      'empty_skills_subtitle': 'Add your key skills to track your leveling and XP from completed tasks!',
+      'empty_skills_subtitle':
+          'Add your key skills to track your leveling and XP from completed tasks!',
       'next_level_label': 'Next Level Progress',
       'sparkline_7d_label': '7-Day Trend',
       'level_prefix': 'Level',
@@ -1394,7 +1457,8 @@ class AppLocalizations {
 
       // Learning Paths Feature
       'learning_paths_title': 'Learning Paths',
-      'learning_paths_subtitle': 'Track multi-day curriculums, daily milestones & sub-steps',
+      'learning_paths_subtitle':
+          'Track multi-day curriculums, daily milestones & sub-steps',
       'add_path_btn': 'Add Learning Path',
       'add_path_title': 'New Learning Path',
       'edit_path_title': 'Edit Learning Path',
@@ -1406,8 +1470,10 @@ class AppLocalizations {
       'path_updated_toast': 'Learning path updated',
       'path_deleted_toast': 'Learning path deleted',
       'delete_path_confirm_title': 'Delete Learning Path',
-      'delete_path_confirm_msg': 'Are you sure you want to delete "{title}"? All planned days and progress will be removed.',
-      'days_completed_progress': '{completed} / {total} days completed ({percent}%)',
+      'delete_path_confirm_msg':
+          'Are you sure you want to delete "{title}"? All planned days and progress will be removed.',
+      'days_completed_progress':
+          '{completed} / {total} days completed ({percent}%)',
       'expand_curriculum': 'Expand Curriculum',
       'collapse_curriculum': 'Collapse Curriculum',
       'day_label': 'Day',
@@ -1418,13 +1484,16 @@ class AppLocalizations {
       'manual_day_complete_tooltip': 'Mark day complete / incomplete',
       'day_completed_celebration': '🎉 Day {day} completed!',
       'empty_learning_paths_title': '🛤️ Start your first learning path',
-      'empty_learning_paths_subtitle': 'Break down long-term learning goals into structured daily curriculums with actionable sub-steps!',
+      'empty_learning_paths_subtitle':
+          'Break down long-term learning goals into structured daily curriculums with actionable sub-steps!',
       'daily_topics_curriculum_header': 'Daily Curriculum Topics',
-      'daily_topics_curriculum_sub': 'Plan topics for each day — existing days are preserved when changing duration',
+      'daily_topics_curriculum_sub':
+          'Plan topics for each day — existing days are preserved when changing duration',
 
       // Knowledge Base Feature
       'knowledge_base_title': 'Knowledge Base',
-      'knowledge_base_subtitle': 'Personal notes, ideas, quotes, links & summaries',
+      'knowledge_base_subtitle':
+          'Personal notes, ideas, quotes, links & summaries',
       'add_knowledge_btn': 'Add Entry',
       'add_knowledge_title': 'New Knowledge Entry',
       'edit_knowledge_title': 'Edit Entry',
@@ -1443,7 +1512,8 @@ class AppLocalizations {
       'knowledge_type_summary_opt': '📖 Summary',
       'filter_all_types': 'All Types',
       'knowledge_content_label': 'Content',
-      'knowledge_content_hint': 'Capture details, thoughts, or key takeaways...',
+      'knowledge_content_hint':
+          'Capture details, thoughts, or key takeaways...',
       'knowledge_link_hint': 'https://example.com/useful-article...',
       'knowledge_tags_label': 'Tags (comma separated)',
       'knowledge_tags_hint': 'flutter, architecture, mindset',
@@ -1455,16 +1525,20 @@ class AppLocalizations {
       'knowledge_updated_toast': 'Entry updated successfully',
       'knowledge_deleted_toast': 'Entry deleted',
       'delete_knowledge_confirm_title': 'Delete Knowledge Entry',
-      'delete_knowledge_confirm_msg': 'Are you sure you want to delete "{title}"?',
+      'delete_knowledge_confirm_msg':
+          'Are you sure you want to delete "{title}"?',
       'search_knowledge_hint': 'Search notes, ideas, quotes & tags...',
       'empty_knowledge_title': '🧠 Capture your first note or idea',
-      'empty_knowledge_subtitle': 'Build a second brain! Save books takeaways, insights, quotes, and useful links with tags for fast lookup.',
+      'empty_knowledge_subtitle':
+          'Build a second brain! Save books takeaways, insights, quotes, and useful links with tags for fast lookup.',
       'no_knowledge_search_results': 'No matching entries found',
-      'no_knowledge_search_results_sub': 'Try adjusting your search query or selecting a different type filter.',
+      'no_knowledge_search_results_sub':
+          'Try adjusting your search query or selecting a different type filter.',
 
       // Course Tracker Feature
       'course_tracker_title': 'Course Tracker',
-      'course_tracker_subtitle': 'Track online courses, lesson progress & certificates',
+      'course_tracker_subtitle':
+          'Track online courses, lesson progress & certificates',
       'add_course_btn': 'Add Course',
       'add_course_title': 'New Course',
       'edit_course_title': 'Edit Course',
@@ -1482,19 +1556,22 @@ class AppLocalizations {
       'certificate_earned_badge': 'Certificate earned',
       'course_note_label': 'Note (Optional)',
       'course_note_hint': 'Key takeaways or project link...',
-      'course_validation_error': 'Title is required & Total Lessons must be greater than 0',
+      'course_validation_error':
+          'Title is required & Total Lessons must be greater than 0',
       'course_created_toast': 'Course added to tracker',
       'course_updated_toast': 'Course updated successfully',
       'course_deleted_toast': 'Course deleted',
       'delete_course_confirm_title': 'Delete Course',
       'delete_course_confirm_msg': 'Are you sure you want to delete "{title}"?',
       'course_lessons_progress': '{completed} / {total} lessons ({percent}%)',
-      'course_completed_celebration': '🎓 Congratulations! You completed \'{title}\'!',
+      'course_completed_celebration':
+          '🎓 Congratulations! You completed \'{title}\'!',
       'stat_active_courses': 'Active',
       'stat_completed_courses': 'Completed',
       'stat_lessons_watched': 'Lessons Done',
       'empty_courses_title': '🎓 Add your first course',
-      'empty_courses_subtitle': 'Track your progress lesson-by-lesson through tutorials, online classes, and professional certifications!',
+      'empty_courses_subtitle':
+          'Track your progress lesson-by-lesson through tutorials, online classes, and professional certifications!',
 
       // Spaced Repetition (Flashcards SM-2) Feature
       'flashcards_title': 'Flashcards (SM-2)',
@@ -1514,12 +1591,14 @@ class AppLocalizations {
       'flashcard_updated_toast': 'Flashcard updated',
       'flashcard_deleted_toast': 'Flashcard deleted',
       'delete_flashcard_confirm_title': 'Delete Flashcard',
-      'delete_flashcard_confirm_msg': 'Are you sure you want to delete this flashcard?',
+      'delete_flashcard_confirm_msg':
+          'Are you sure you want to delete this flashcard?',
       'due_today_badge': 'Due today',
       'due_overdue_badge': 'Overdue ({days}d)',
       'due_in_days_badge': 'Due in {days}d',
       'empty_flashcards_title': '🔁 Create your first flashcard',
-      'empty_flashcards_subtitle': 'Master long-term retention using the scientific SM-2 spaced repetition algorithm! Cards get scheduled further apart as you remember them.',
+      'empty_flashcards_subtitle':
+          'Master long-term retention using the scientific SM-2 spaced repetition algorithm! Cards get scheduled further apart as you remember them.',
       'review_progress_header': 'Card {current} of {total}',
       'review_front_header': 'FRONT (Question / Concept)',
       'review_back_header': 'BACK (Answer / Explanation)',
@@ -1534,9 +1613,11 @@ class AppLocalizations {
       'rating_easy_points': '10 pts',
       'end_session_btn': 'End Session',
       'end_session_confirm_title': 'End Review Session?',
-      'end_session_confirm_msg': 'Cards you have already reviewed will keep their progress. Return to flashcard list?',
+      'end_session_confirm_msg':
+          'Cards you have already reviewed will keep their progress. Return to flashcard list?',
       'session_summary_title': 'Session Complete! 🎉',
-      'session_summary_subtitle': 'Great job exercising your memory with spaced repetition!',
+      'session_summary_subtitle':
+          'Great job exercising your memory with spaced repetition!',
       'cards_reviewed_label': 'Cards Reviewed',
       'points_earned_label': 'Points Earned',
       'rating_breakdown_label': 'Recall Performance',
@@ -1544,7 +1625,8 @@ class AppLocalizations {
 
       // Relationship Health Feature
       'relationship_health_title': 'Relationship Health',
-      'relationship_health_subtitle': 'Log qualitative interactions & stay connected',
+      'relationship_health_subtitle':
+          'Log qualitative interactions & stay connected',
       'recent_interactions_header': 'Recent Interactions',
       'keep_in_touch_header': 'Keep In Touch',
       'add_interaction_btn': 'Log Interaction',
@@ -1561,14 +1643,16 @@ class AppLocalizations {
       'interaction_updated_toast': 'Interaction updated successfully',
       'interaction_deleted_toast': 'Interaction deleted',
       'delete_interaction_confirm_title': 'Delete Interaction',
-      'delete_interaction_confirm_msg': 'Are you sure you want to delete this interaction record?',
+      'delete_interaction_confirm_msg':
+          'Are you sure you want to delete this interaction record?',
       'unknown_contact_fallback': 'Unknown Contact',
       'never_contacted_badge': '⚠️ Never contacted',
       'contacted_today_badge': 'Today',
       'contacted_yesterday_badge': 'Yesterday',
       'contacted_days_ago_badge': '{days} days ago',
       'empty_interactions_title': '❤️ Log your first relationship interaction',
-      'empty_interactions_subtitle': 'Keep track of meaningful conversations, quality time, and updates with friends and mentors.',
+      'empty_interactions_subtitle':
+          'Keep track of meaningful conversations, quality time, and updates with friends and mentors.',
       'no_contacts_registered_msg': 'No contacts registered yet',
       'go_to_contacts_btn': 'Go to Contacts',
 
@@ -1598,9 +1682,11 @@ class AppLocalizations {
       'social_entry_updated_toast': 'Social energy log updated',
       'social_entry_deleted_toast': 'Social energy log deleted',
       'delete_social_entry_confirm_title': 'Delete Social Energy Log',
-      'delete_social_entry_confirm_msg': 'Are you sure you want to delete this social energy record?',
+      'delete_social_entry_confirm_msg':
+          'Are you sure you want to delete this social energy record?',
       'empty_social_battery_title': '🔋 Log your first social interaction',
-      'empty_social_battery_subtitle': 'Identify who or what energizes you vs. drains your social energy to manage your daily stamina.',
+      'empty_social_battery_subtitle':
+          'Identify who or what energizes you vs. drains your social energy to manage your daily stamina.',
       'energizer_badge': 'energizer (+{impact})',
       'drainer_badge': 'drainer (-{impact})',
 
@@ -1612,7 +1698,8 @@ class AppLocalizations {
       'this_week_calories_label': 'This Week Calories',
       'recent_workouts_header': 'Recent Workouts',
       'streak_heatmap_header': 'Last 30 Days Streak',
-      'streak_heatmap_subtitle': 'Colored days indicate completed workout sessions',
+      'streak_heatmap_subtitle':
+          'Colored days indicate completed workout sessions',
       'workout_type_gym': 'Gym / Weights',
       'workout_type_running': 'Running / Walking',
       'workout_type_swim': 'Swimming',
@@ -1632,9 +1719,11 @@ class AppLocalizations {
       'workout_updated_toast': 'Workout updated successfully',
       'workout_deleted_toast': 'Workout deleted',
       'delete_workout_confirm_title': 'Delete Workout',
-      'delete_workout_confirm_msg': 'Are you sure you want to delete this workout session?',
+      'delete_workout_confirm_msg':
+          'Are you sure you want to delete this workout session?',
       'empty_workouts_title': '💪 Start by logging your first workout',
-      'empty_workouts_subtitle': 'Build healthy habits! Track your gym sessions, runs, swims, and watch your 30-day streak grow.',
+      'empty_workouts_subtitle':
+          'Build healthy habits! Track your gym sessions, runs, swims, and watch your 30-day streak grow.',
       'workout_min_format': '{min} min',
       'workout_kcal_format': '{kcal} kcal',
 
@@ -1651,7 +1740,8 @@ class AppLocalizations {
       'nutrition_this_week_avg': 'This Week Avg',
       'nutrition_last_week_avg': 'Last Week Avg',
       'nutrition_empty_title': '🥗 Rate today\'s nutrition',
-      'nutrition_empty_subtitle': 'Rate your eating quality daily from 1 to 5 stars to track your healthy habits',
+      'nutrition_empty_subtitle':
+          'Rate your eating quality daily from 1 to 5 stars to track your healthy habits',
       'nutrition_modal_add_title': 'Rate Food Quality',
       'nutrition_modal_edit_title': 'Edit Nutrition Log',
       'nutrition_date_label': 'Date',
@@ -1666,7 +1756,8 @@ class AppLocalizations {
       'nutrition_saved_toast': 'Nutrition log saved',
       'nutrition_deleted_toast': 'Nutrition log deleted',
       'nutrition_delete_confirm_title': 'Delete Entry',
-      'nutrition_delete_confirm_msg': 'Are you sure you want to delete this nutrition entry?',
+      'nutrition_delete_confirm_msg':
+          'Are you sure you want to delete this nutrition entry?',
       'nutrition_avg_format': '{avg}/5',
 
       // Body Metrics Feature
@@ -1698,9 +1789,11 @@ class AppLocalizations {
       'metric_saved_toast': 'Measurement logged successfully',
       'metric_deleted_toast': 'Measurement deleted',
       'metric_delete_confirm_title': 'Delete Measurement',
-      'metric_delete_confirm_msg': 'Are you sure you want to delete this measurement entry?',
+      'metric_delete_confirm_msg':
+          'Are you sure you want to delete this measurement entry?',
       'body_metrics_empty_title': '⚖️ Start by logging your measurements',
-      'body_metrics_empty_subtitle': 'Track your weight, blood pressure, and pulse over time with automatic charts',
+      'body_metrics_empty_subtitle':
+          'Track your weight, blood pressure, and pulse over time with automatic charts',
       'kg_unit': 'kg',
       'bpm_unit': 'bpm',
       'weight_val_format': '{val} kg',
@@ -1726,9 +1819,12 @@ class AppLocalizations {
       'rate_today_btn': 'Rate Today',
       'personalized_tip_title': 'Personalized Tip',
       'tip_calm': 'Try box breathing or a 10-minute walk to release tension.',
-      'tip_happiness': 'Plan a fun activity or listen to your favorite podcast today.',
-      'tip_social_energy': 'Connect with one close friend or allow yourself quiet alone time.',
-      'tip_self_satisfaction': 'Write down 3 small wins you achieved this week.',
+      'tip_happiness':
+          'Plan a fun activity or listen to your favorite podcast today.',
+      'tip_social_energy':
+          'Connect with one close friend or allow yourself quiet alone time.',
+      'tip_self_satisfaction':
+          'Write down 3 small wins you achieved this week.',
       'tip_balance': 'Adjust your work hours or prioritize sleep this week.',
       'comparison_title': 'Today vs Yesterday',
       'cmp_improved': '↗️ Improved',
@@ -1736,7 +1832,8 @@ class AppLocalizations {
       'cmp_same': '→ Same',
       'cmp_no_yesterday': 'No entry yesterday',
       'mental_empty_title': '🧘 How is your mental health today?',
-      'mental_empty_subtitle': 'Perform a daily check-in across 5 core mental health dimensions',
+      'mental_empty_subtitle':
+          'Perform a daily check-in across 5 core mental health dimensions',
       'mental_modal_title': 'Daily Mental Wellbeing',
       'slider_anxiety_label': 'Calm ↔ Anxiety (1 = Calm, 10 = Anxious)',
       'mental_saved_toast': 'Mental check-in saved',
@@ -1765,11 +1862,14 @@ class AppLocalizations {
       'tx_note_label': 'Note (Optional)',
       'tx_note_hint': 'e.g. Grocery shopping...',
       'delete_tx_confirm_title': 'Delete Transaction',
-      'delete_tx_confirm_msg': 'Are you sure you want to delete this transaction?',
+      'delete_tx_confirm_msg':
+          'Are you sure you want to delete this transaction?',
       'budget_config_title': 'Monthly Budget Limits',
-      'budget_config_subtitle': 'Set spending limits per category. Leave blank or 0 for no limit.',
+      'budget_config_subtitle':
+          'Set spending limits per category. Leave blank or 0 for no limit.',
       'budget_empty_title': '💰 Start by logging your first transaction',
-      'budget_empty_subtitle': 'Log your daily expenses and income to manage your budget',
+      'budget_empty_subtitle':
+          'Log your daily expenses and income to manage your budget',
       'tx_saved_toast': 'Transaction saved',
       'tx_deleted_toast': 'Transaction deleted',
       'budget_config_saved_toast': 'Budget limits updated',
@@ -1791,12 +1891,16 @@ class AppLocalizations {
       'energy_impact_title': 'Energy Impact on Productivity',
       'avg_tasks_high_energy': 'Avg Tasks (High Energy ≥ 4)',
       'avg_tasks_low_energy': 'Avg Tasks (Low Energy ≤ 2)',
-      'energy_impact_caption': 'Keeping your energy high directly correlates to higher output',
+      'energy_impact_caption':
+          'Keeping your energy high directly correlates to higher output',
       'most_productive_day_title': 'Most Productive Day',
-      'most_productive_count': 'With {count} tasks completed on this day of the week',
+      'most_productive_count':
+          'With {count} tasks completed on this day of the week',
       'no_completed_tasks': 'No tasks completed yet',
-      'analytics_empty_title': '🧬 Start logging your energy daily to see analytics',
-      'analytics_empty_subtitle': 'We need at least 1 energy check-in to analyze correlations',
+      'analytics_empty_title':
+          '🧬 Start logging your energy daily to see analytics',
+      'analytics_empty_subtitle':
+          'We need at least 1 energy check-in to analyze correlations',
       'go_to_energy_btn': 'Go to Energy Page',
       'day_sunday': 'Sunday',
       'day_monday': 'Monday',
@@ -1862,7 +1966,8 @@ class AppLocalizations {
       'wheel_of_life_title': 'Wheel of Life',
       'wheel_of_life_subtitle': '8-dimension life balance assessment',
       'life_areas_empty_title': 'Evaluate your life balance',
-      'life_areas_empty_subtitle': 'Log scores for the 8 key dimensions of the Wheel of Life and visualize them in a radar chart',
+      'life_areas_empty_subtitle':
+          'Log scores for the 8 key dimensions of the Wheel of Life and visualize them in a radar chart',
       'start_assessment_btn': 'Start Assessment',
       'primary_assessment_label': 'Primary Assessment',
       'compare_with_label': 'Compare With',
@@ -1893,7 +1998,8 @@ class AppLocalizations {
       'bucket_list_title': 'Bucket List',
       'bucket_list_subtitle': 'Life goals, dreams & achieved memories',
       'bucket_list_empty_title': 'Add your first bucket list item',
-      'bucket_list_empty_subtitle': 'List life goals, dreams, and log beautiful memories when you achieve them',
+      'bucket_list_empty_subtitle':
+          'List life goals, dreams, and log beautiful memories when you achieve them',
       'add_dream_btn': 'Add Dream',
       'dreams_to_achieve_section': 'Dreams to Achieve ({count})',
       'achieved_memories_section': 'Achieved Memories ({count})',
@@ -1912,7 +2018,8 @@ class AppLocalizations {
       'status_pending': 'Pending',
       'status_completed': 'Completed',
       'item_memory_label': 'Memory & Reflection',
-      'item_memory_hint': 'Describe the experience, date achieved, or how it felt...',
+      'item_memory_hint':
+          'Describe the experience, date achieved, or how it felt...',
       'save_item_btn': 'Save Item',
       'delete_item_btn': 'Delete Item',
       'delete_item_dialog_title': 'Delete Bucket List Item',
@@ -1922,7 +2029,8 @@ class AppLocalizations {
       'legacy_journal_title': 'Legacy Journal',
       'legacy_journal_subtitle': 'Letters, core values & wisdom guidelines',
       'empty_legacy_title': 'Record your legacy elements',
-      'empty_legacy_subtitle': 'Write letters to your future self, outline core personal values, and list wisdom guidelines',
+      'empty_legacy_subtitle':
+          'Write letters to your future self, outline core personal values, and list wisdom guidelines',
       'new_legacy_entry_btn': 'New Entry',
       'legacy_section_letters': '✉️ Letters to Future Self',
       'legacy_section_values': '💎 Core Values & Beliefs',
@@ -1930,14 +2038,16 @@ class AppLocalizations {
       'add_legacy_entry_title': 'New Legacy Entry',
       'edit_legacy_entry_title': 'Edit Legacy Entry',
       'legacy_entry_title_label': 'Title',
-      'legacy_entry_title_hint': 'e.g. Letter for my 30th birthday, Truthfulness as a core compass...',
+      'legacy_entry_title_hint':
+          'e.g. Letter for my 30th birthday, Truthfulness as a core compass...',
       'legacy_entry_date_label': 'Date',
       'legacy_entry_type_label': 'Entry Type',
       'legacy_type_letter': 'Letter to Future Self',
       'legacy_type_value': 'Core Value or Belief',
       'legacy_type_will': 'Will & Philosophy Guideline',
       'legacy_entry_content_label': 'Content & Reflection',
-      'legacy_entry_content_hint': 'Write your thoughts, feelings, lessons, or lifelong principles here...',
+      'legacy_entry_content_hint':
+          'Write your thoughts, feelings, lessons, or lifelong principles here...',
       'legacy_validation_required': 'Title and content are required',
       'save_legacy_entry_btn': 'Save Entry',
       'delete_legacy_entry_btn': 'Delete Entry',
@@ -1948,19 +2058,24 @@ class AppLocalizations {
       'annual_review_title': 'Annual Review',
       'annual_review_subtitle': 'Yearly reflections, guided prompts & stats',
       'annual_review_empty_title': 'Perform your first annual review',
-      'annual_review_empty_subtitle': 'Reflect on your achievements, key lessons, challenges, and plan for the next year',
+      'annual_review_empty_subtitle':
+          'Reflect on your achievements, key lessons, challenges, and plan for the next year',
       'start_annual_review_btn': 'Start Review',
       'add_annual_review_title': 'New Annual Review',
       'edit_annual_review_title': 'Edit Annual Review',
       'review_year_label': 'Review Year',
       'review_q1_title': 'Biggest Achievement',
-      'review_q1_prompt': 'What was your biggest win or accomplishment this year?',
+      'review_q1_prompt':
+          'What was your biggest win or accomplishment this year?',
       'review_q2_title': 'Biggest Obstacle & How Handled',
-      'review_q2_prompt': 'What was the hardest challenge you faced and how did you overcome or handle it?',
+      'review_q2_prompt':
+          'What was the hardest challenge you faced and how did you overcome or handle it?',
       'review_q3_title': 'Top Lessons Learned',
-      'review_q3_prompt': 'What key insights, wisdom, or life lessons did this year teach you?',
+      'review_q3_prompt':
+          'What key insights, wisdom, or life lessons did this year teach you?',
       'review_q4_title': 'Plan & Vision for Next Year',
-      'review_q4_prompt': 'What are your main goals, intentions, and focus areas for the upcoming year?',
+      'review_q4_prompt':
+          'What are your main goals, intentions, and focus areas for the upcoming year?',
       'review_stat_workouts': 'Workouts',
       'review_stat_tasks': 'Tasks Done',
       'review_stat_books': 'Books Read',
@@ -1986,50 +2101,65 @@ class AppLocalizations {
       'view_all_groups': 'View All Groups',
       'pages_read_progress': '{current} / {total} pages',
       'weekly_review_due_home_title': 'Weekly Review Due',
-      'weekly_review_due_home_msg': 'Reflect on your week, clear inboxes, and align your priorities',
+      'weekly_review_due_home_msg':
+          'Reflect on your week, clear inboxes, and align your priorities',
       'start_weekly_review_btn': 'Start Review',
       'focus_workspace_ready': 'Deep Focus & Workspace Ready',
 
       // Connected Accounts Module
       'connected_accounts_title': 'Connected Accounts',
-      'connected_accounts_subtitle': 'Manage your linked login providers and social connections',
+      'connected_accounts_subtitle':
+          'Manage your linked login providers and social connections',
       'connected_accounts_desc': 'Google, Apple, and social integrations',
       'google_account_title': 'Google Account',
-      'google_account_desc': 'Link your Google account for faster logins and quick group invites',
+      'google_account_desc':
+          'Link your Google account for faster logins and quick group invites',
       'account_status_linked': 'Connected',
       'account_status_not_linked': 'Not Connected',
       'connect_google_btn': 'Connect Google',
       'disconnect_google_btn': 'Disconnect',
       'disconnect_google_dialog_title': 'Disconnect Google Account?',
-      'disconnect_google_dialog_msg': 'You will no longer be able to use Google to log into this Focusly account.',
+      'disconnect_google_dialog_msg':
+          'You will no longer be able to use Google to log into this Focusly account.',
       'google_linked_success': '✅ Google account connected successfully!',
       'google_unlinked_success': 'Google account disconnected',
-      'google_already_in_use_error': 'This Google account is already linked to another Focusly account',
-      'google_link_generic_error': 'Failed to connect Google account. Please try again.',
+      'google_already_in_use_error':
+          'This Google account is already linked to another Focusly account',
+      'google_link_generic_error':
+          'Failed to connect Google account. Please try again.',
       'invite_friends_section': 'Invite Friends to a Group',
-      'invite_friends_desc': 'Share group invite codes directly through Gmail, WhatsApp, and other apps',
+      'invite_friends_desc':
+          'Share group invite codes directly through Gmail, WhatsApp, and other apps',
       'select_group_to_invite': 'SELECT GROUP',
       'share_invite_btn': 'Share Invite',
-      'group_invite_msg_template': "Join my group '{groupName}' on Focusly! Use code: {inviteCode}",
-      'no_groups_invite_prompt': 'Join or create a group first to invite friends',
+      'group_invite_msg_template':
+          "Join my group '{groupName}' on Focusly! Use code: {inviteCode}",
+      'no_groups_invite_prompt':
+          'Join or create a group first to invite friends',
       'go_to_groups_btn': 'Explore Groups',
 
       // Notifications History & Test Alerts Module
       'notifications_title': 'Notifications',
       'no_notifications_title': 'No notifications yet',
-      'no_notifications_desc': 'When you receive reminders for tasks, events, habits, or focus sessions, they will appear here.',
+      'no_notifications_desc':
+          'When you receive reminders for tasks, events, habits, or focus sessions, they will appear here.',
       'mark_all_read_btn': 'Mark All Read',
       'time_just_now': 'Just now',
       'time_yesterday': 'Yesterday',
       'test_notification_btn': 'Test Notification (10s)',
-      'test_notification_desc': 'Schedules an instant alert in 10 seconds to verify local notifications',
-      'test_notification_scheduled_toast': '🔔 Test notification scheduled in 10 seconds! Lock your screen or switch apps.',
+      'test_notification_desc':
+          'Schedules an instant alert in 10 seconds to verify local notifications',
+      'test_notification_scheduled_toast':
+          '🔔 Test notification scheduled in 10 seconds! Lock your screen or switch apps.',
       'test_instant_notification_btn': 'Send Test Notification (Now)',
-      'test_instant_notification_toast': '🔔 Instant test notification sent! Check your notification bar.',
+      'test_instant_notification_toast':
+          '🔔 Instant test notification sent! Check your notification bar.',
       'battery_optimization_guide_title': 'Background & Battery Settings',
-      'battery_optimization_guide_desc': 'Ensure notifications arrive on time on Xiaomi, Samsung, Oppo, and Realme devices',
+      'battery_optimization_guide_desc':
+          'Ensure notifications arrive on time on Xiaomi, Samsung, Oppo, and Realme devices',
       'battery_optimization_modal_title': 'Reliable Notifications Setup',
-      'battery_optimization_modal_body': 'To ensure alarms and reminders ring on time when Focusly is closed:\n\n1. Open your phone Settings > Apps > Focusly.\n2. Tap "Battery" and select "Unrestricted" (or "No restrictions").\n3. Enable "Autostart" or "Allow Background Activity" if available on your device.',
+      'battery_optimization_modal_body':
+          'To ensure alarms and reminders ring on time when Focusly is closed:\n\n1. Open your phone Settings > Apps > Focusly.\n2. Tap "Battery" and select "Unrestricted" (or "No restrictions").\n3. Enable "Autostart" or "Allow Background Activity" if available on your device.',
       'got_it_btn': 'Got it',
       'notification_scheduled_tag': 'Upcoming Reminder',
       'notification_detail_title': 'Notification Details',
@@ -2054,7 +2184,8 @@ class AppLocalizations {
       'notification_view_related': 'View Related Item',
       'delete_notification_btn': 'Delete Notification',
       'delete_notification_confirm_title': 'Delete Notification',
-      'delete_notification_confirm_msg': 'Are you sure you want to delete this notification record?',
+      'delete_notification_confirm_msg':
+          'Are you sure you want to delete this notification record?',
     },
     'ar': {
       // App General
@@ -2077,13 +2208,17 @@ class AppLocalizations {
 
       // Onboarding Screen
       'onboarding_title_1': 'نظّم كل شيء',
-      'onboarding_sub_1': 'سجّل مهامك، وحدد أولوياتك بذكاء، وتحكم في جدولك اليومي في مكان واحد.',
+      'onboarding_sub_1':
+          'سجّل مهامك، وحدد أولوياتك بذكاء، وتحكم في جدولك اليومي في مكان واحد.',
       'onboarding_title_2': 'ابنِ عادات أفضل',
-      'onboarding_sub_2': 'طوّر روتينك اليومي مع متتبعات الستريك البصرية واحتفل بإنجازاتك المستمرة.',
+      'onboarding_sub_2':
+          'طوّر روتينك اليومي مع متتبعات الستريك البصرية واحتفل بإنجازاتك المستمرة.',
       'onboarding_title_3': 'حافظ على تركيزك',
-      'onboarding_sub_3': 'تخلص من المشتتات مع مؤقتات التركيز الذكية ومساحات العمل العميق.',
+      'onboarding_sub_3':
+          'تخلص من المشتتات مع مؤقتات التركيز الذكية ومساحات العمل العميق.',
       'onboarding_title_4': 'تطور مع فريقك',
-      'onboarding_sub_4': 'تعاون في الأهداف المشتركة وتابع إنتاجية الفريق لتحقيق المزيد معاً.',
+      'onboarding_sub_4':
+          'تعاون في الأهداف المشتركة وتابع إنتاجية الفريق لتحقيق المزيد معاً.',
       'next': 'التالي',
       'get_started': 'ابدأ الآن',
       'skip': 'تخطي',
@@ -2168,7 +2303,8 @@ class AppLocalizations {
       'subtasks': 'المهام الفرعية',
       'add_subtask_hint': 'إضافة مهمة فرعية...',
       'no_tasks_title': 'لا توجد مهام هنا بعد',
-      'no_tasks_subtitle': 'اضغط على زر (+) لإنشاء أول مهمة وابدأ يومك بإنتاجية وتركيز!',
+      'no_tasks_subtitle':
+          'اضغط على زر (+) لإنشاء أول مهمة وابدأ يومك بإنتاجية وتركيز!',
       'delete': 'حذف',
       'add': 'إضافة',
 
@@ -2201,7 +2337,8 @@ class AppLocalizations {
       // Notifications
       'notification_task_time_title': '⚡ حان موعد مهمتك!',
       'notification_deadline_24h_title': '⚠️ الموعد النهائي غداً!',
-      'notification_deadline_1h_title': '🚨 متبقي ساعة واحدة على الموعد النهائي!',
+      'notification_deadline_1h_title':
+          '🚨 متبقي ساعة واحدة على الموعد النهائي!',
 
       // Schedule & Calendar Feature
       'schedule': 'الجدول',
@@ -2228,12 +2365,15 @@ class AppLocalizations {
       'create_event': 'إنشاء الحدث',
       'update_event': 'تحديث الحدث',
       'no_events_today': 'لا توجد أحداث مجدولة لهذا اليوم',
-      'no_events_agenda_subtitle': 'استمتع بوقتك الحر أو اضغط (+) لجدولة حدث جديد!',
+      'no_events_agenda_subtitle':
+          'استمتع بوقتك الحر أو اضغط (+) لجدولة حدث جديد!',
       'delete_event_confirm_title': 'حذف الحدث',
       'delete_event_confirm_message': 'هل أنت متأكد من رغبتك في حذف هذا الحدث؟',
-      'delete_recurring_event_confirm_message': 'سيتم حذف جميع التكرارات القادمة لهذا الحدث. هل أنت متأكد؟',
+      'delete_recurring_event_confirm_message':
+          'سيتم حذف جميع التكرارات القادمة لهذا الحدث. هل أنت متأكد؟',
       'edit_recurring_title': 'تعديل حدث متكرر',
-      'edit_recurring_prompt': 'هل تريد تعديل جميع تكرارات هذا الحدث أم هذا الموعد فقط؟',
+      'edit_recurring_prompt':
+          'هل تريد تعديل جميع تكرارات هذا الحدث أم هذا الموعد فقط؟',
       'edit_all_occurrences': 'تعديل كل التكرارات',
       'edit_this_occurrence_only': 'هذا الموعد فقط',
       'add_event_type_title': 'إضافة نوع حدث جديد',
@@ -2280,8 +2420,10 @@ class AppLocalizations {
       'habit_updated_success': 'تم تحديث العادة بنجاح!',
       'habit_deleted_success': 'تم حذف العادة بنجاح!',
       'habit_error_saving': 'حدث خطأ أثناء حفظ العادة. يرجى المحاولة مرة أخرى.',
-      'habit_error_deleting': 'حدث خطأ أثناء حذف العادة. يرجى المحاولة مرة أخرى.',
-      'habit_early_week_complete_toast': '🎉 تم إكمال الأسبوع بالكامل! بدء أسبوع جديد 🔥',
+      'habit_error_deleting':
+          'حدث خطأ أثناء حذف العادة. يرجى المحاولة مرة أخرى.',
+      'habit_early_week_complete_toast':
+          '🎉 تم إكمال الأسبوع بالكامل! بدء أسبوع جديد 🔥',
       'notification_habit_title': '🔥 تذكير بموعد عادتك اليومية!',
 
       // Pomodoro Feature
@@ -2315,8 +2457,7 @@ class AppLocalizations {
       'save_settings': 'حفظ الإعدادات',
       'sessions': 'جلسات',
       'minutes_short': 'دقيقة',
-      'notification_work_done_title':
-          'انتهت جلسة التركيز! حان وقت الاستراحة ☕',
+      'notification_work_done_title': 'انتهت جلسة التركيز! حان وقت الاستراحة ☕',
       'notification_break_done_title':
           'انتهت الاستراحة! جاهز للعودة إلى التركيز؟ 🍅',
 
@@ -2357,8 +2498,10 @@ class AppLocalizations {
       'xp_rule_rituals': 'إتمام طقس الإغلاق المسائي',
       'xp_rule_weekly_review': 'إتمام المراجعة الأسبوعية',
       'xp_recent_activity': 'النشاط الأخير لنقاط الخبرة',
-      'xp_empty_history': 'لم تكسب نقاط خبرة بعد. أنجز المهام والعادات للبدء في رفع مستواك!',
-      'xp_level_progress_desc': 'تحتاج {needed} نقطة خبرة للوصول إلى المستوى {nextLevel} — جمعت {earned} حتى الآن.',
+      'xp_empty_history':
+          'لم تكسب نقاط خبرة بعد. أنجز المهام والعادات للبدء في رفع مستواك!',
+      'xp_level_progress_desc':
+          'تحتاج {needed} نقطة خبرة للوصول إلى المستوى {nextLevel} — جمعت {earned} حتى الآن.',
 
       // Level Titles
       'level_1_title': 'مبتدئ',
@@ -2490,29 +2633,24 @@ class AppLocalizations {
 
       // Create Group Modal
       'create_group_title': 'إنشاء مجموعة جديدة',
-      'create_group_subtitle':
-          'كوّن فريقك لتحفيز الإنجاز والإنتاجية معاً',
+      'create_group_subtitle': 'كوّن فريقك لتحفيز الإنجاز والإنتاجية معاً',
       'group_icon_label': 'أيقونة المجموعة',
       'group_name_label': 'اسم المجموعة',
       'group_name_hint': 'مثال: فريق الإنتاج الصباحي',
       'group_name_required': 'يرجى إدخال اسم المجموعة',
       'group_desc_label': 'الوصف (اختياري)',
       'group_desc_hint': 'ما هو هدف هذه المجموعة؟',
-      'group_cap_reached':
-          'لقد وصلت للحد الأقصى المسموح به (5 مجموعات).',
+      'group_cap_reached': 'لقد وصلت للحد الأقصى المسموح به (5 مجموعات).',
 
       // Join Group Modal
       'join_group_title': 'الانضمام إلى مجموعة',
-      'join_group_subtitle':
-          'أدخل رمز الدعوة الخاص بالمجموعة للانضمام',
+      'join_group_subtitle': 'أدخل رمز الدعوة الخاص بالمجموعة للانضمام',
       'invite_code_label': 'رمز الدعوة',
       'invite_code_required': 'يرجى إدخال رمز الدعوة',
       'group_not_found': 'لم يتم العثور على مجموعة بهذا الرمز',
       'group_is_full': 'هذه المجموعة ممتلئة (الحد الأقصى 20 عضواً)',
-      'already_member':
-          'أنت عضو معتمد بالفعل في هذه المجموعة',
-      'already_pending':
-          'طلب انضمامك قيد مراجعة المشرف بالفعل',
+      'already_member': 'أنت عضو معتمد بالفعل في هذه المجموعة',
+      'already_pending': 'طلب انضمامك قيد مراجعة المشرف بالفعل',
       'send_join_request_btn': 'إرسال طلب الانضمام',
       'join_request_sent_success':
           'تم إرسال طلب الانضمام! ستتم مراجعته من المشرف.',
@@ -2523,7 +2661,49 @@ class AppLocalizations {
       'tab_group_feed': 'النشاط',
       'tab_group_leaderboard': 'المتصدرين',
       'tab_group_challenges': 'التحديات',
+      'tab_group_assignments': 'التكليفات',
       'tab_group_members': 'الأعضاء',
+
+      // Group Assignments
+      'assign_task_habit_title': 'إسناد مهمة أو نشاط',
+      'assign_task_habit_subtitle': 'إسناد مهام أو عادات مقفلة للأعضاء',
+      'assign_btn': 'إسناد',
+      'group_assignments_title': 'تكليفات المجموعة',
+      'no_assignments_title': 'لا توجد تكليفات للمجموعة بعد',
+      'no_assignments_subtitle': 'يمكن لمشرفي المجموعة إسناد مهام وعادات مقفلة مباشرة إلى الأعضاء.',
+      'assignment_type_label': 'نوع التكليف',
+      'assignment_type_task': 'مهمة',
+      'assignment_type_habit': 'نشاط / عادة',
+      'completion_mode_label': 'نمط الإنجاز',
+      'completion_mode_simple': 'بسيط',
+      'completion_mode_simple_sub': 'تحديد كمنجز مباشرة',
+      'completion_mode_count': 'العدد المستهدف',
+      'completion_mode_count_sub': 'الوصول إلى عدد تكرار محدد',
+      'target_count_label': 'العدد المطلوب إنجازه',
+      'invalid_target_count': 'يرجى إدخال عدد صحيح أكبر من الصفر',
+      'assign_to_label': 'إسناد إلى',
+      'select_all': 'تحديد الكل',
+      'deselect_all': 'إلغاء تحديد الكل',
+      'select_at_least_one_member': 'يرجى اختيار عضو واحد على الأقل',
+      'assign_now_btn': 'إسناد للأعضاء',
+      'assignment_created_success': 'تم إنشاء التكليف وإسناده للأعضاء بنجاح!',
+      'assignment_progress_title': 'متابعة إنجاز التكليف',
+      'member_progress_title': 'تقدم الأعضاء',
+      'assigned_by': 'مسند من',
+      'assigned_by_badge': 'مسند من',
+      'group_assigned_badge': '👥 تكليف جماعي',
+      'locked_field_tooltip': 'مسند من قِبل المشرف — العنوان والمدة مقفلان',
+      'locked_field_label': 'مقفل',
+      'pending_status': 'قيد الانتظار',
+      'completion_progress': 'نسبة الإنجاز الكلية',
+      'target_reached': 'تم تحقيق الهدف!',
+      'target_progress': 'التقدم نحو الهدف',
+      'log_habit_btn': 'تسجيل +1',
+      'decrement_count': 'إنقاص العدد',
+      'start_date_label': 'تاريخ البدء',
+      'start_label': 'البدء',
+      'due_label': 'الاستحقاق',
+      'deadline_label': 'الموعد النهائي',
 
       // Feed Tab
       'group_stat_weekly_xp': 'XP الأسبوعي',
@@ -2546,8 +2726,7 @@ class AppLocalizations {
       // Challenges Tab
       'create_challenge_btn': 'إنشاء تحدي جديد',
       'create_challenge_title': 'إنشاء تحدي جماعي',
-      'create_challenge_subtitle':
-          'أطلق منافسة ممتعة لتحفيز أعضاء المجموعة',
+      'create_challenge_subtitle': 'أطلق منافسة ممتعة لتحفيز أعضاء المجموعة',
       'challenge_title_label': 'عنوان التحدي',
       'challenge_title_hint': 'مثال: سباق 50 مهمة',
       'challenge_title_required': 'يرجى إدخال عنوان التحدي',
@@ -2560,19 +2739,16 @@ class AppLocalizations {
       'challenge_duration_label': 'المدة',
       'days_short': 'أيام',
       'launch_challenge_btn': 'إطلاق التحدي 🚀',
-      'challenge_created_success':
-          'تم إنشاء التحدي وإعلانه لجميع الأعضاء!',
+      'challenge_created_success': 'تم إنشاء التحدي وإعلانه لجميع الأعضاء!',
       'active_challenges_title': 'التحديات النشطة',
       'finished_challenges_title': 'التحديات المكتملة',
       'no_active_challenges_title': 'لا توجد تحديات نشطة',
-      'no_active_challenges_subtitle':
-          'أطلق منافسة جديدة لتحدي أعضاء فريقك!',
+      'no_active_challenges_subtitle': 'أطلق منافسة جديدة لتحدي أعضاء فريقك!',
       'goal_prefix': 'الهدف',
       'left_short': 'متبقي',
       'participants_label': 'مشاركين',
       'join_btn': 'انضمام',
-      'joined_challenge_success':
-          'انضممت إلى التحدي بنجاح! حظاً موفقاً!',
+      'joined_challenge_success': 'انضممت إلى التحدي بنجاح! حظاً موفقاً!',
       'winner_prefix': 'الفائز',
       'challenge_ended_no_winner': 'انتهى التحدي دون فائزين',
       'challenge_victory_title': 'البطل! 🏆',
@@ -2591,8 +2767,7 @@ class AppLocalizations {
       'remove_member_confirm': 'هل أنت متأكد من رغبتك في إزالة',
       'leave_group_btn': 'مغادرة المجموعة',
       'leave_group_title': 'مغادرة المجموعة',
-      'leave_group_confirm':
-          'هل أنت متأكد من رغبتك في مغادرة هذه المجموعة؟',
+      'leave_group_confirm': 'هل أنت متأكد من رغبتك في مغادرة هذه المجموعة؟',
       'delete_group_btn': 'حذف المجموعة',
       'delete_group_title': 'حذف المجموعة نهائياً',
       'delete_group_confirm':
@@ -2600,8 +2775,7 @@ class AppLocalizations {
 
       // Settings Integration
       'group_activity_setting': 'شارات نشاط المجموعات',
-      'group_activity_setting_desc':
-          'إظهار شارة الأنشطة الجديدة في المجموعات',
+      'group_activity_setting_desc': 'إظهار شارة الأنشطة الجديدة في المجموعات',
 
       // Settings Main
       'settings_title': 'الإعدادات',
@@ -2737,8 +2911,7 @@ class AppLocalizations {
       'clarify_step1b_prompt':
           'بما أنه لا يوجد إجراء، اختر المكان المناسب لحفظه.',
       'clarify_choice_reference': 'حفظ كمرجع أو معلومة',
-      'clarify_choice_reference_sub':
-          'حفظ ملاحظات أو روابط أو معلومات مفيدة',
+      'clarify_choice_reference_sub': 'حفظ ملاحظات أو روابط أو معلومات مفيدة',
       'clarify_choice_archive': 'أرشفة وتجاهل',
       'clarify_choice_archive_sub': 'وضع علامة معالجة دون إنشاء مهمة',
       'clarify_choice_delete': 'حذف نهائياً',
@@ -2755,8 +2928,7 @@ class AppLocalizations {
       'clarify_dest_task': 'مهمة تالية (قريباً)',
       'clarify_dest_task_sub': 'إنشاء مهمة نشطة مع التصنيف والأولوية',
       'clarify_dest_someday': 'يوماً ما / ربما',
-      'clarify_dest_someday_sub':
-          'حفظ للمراجعة في وقت لاحق بالمستقبل',
+      'clarify_dest_someday_sub': 'حفظ للمراجعة في وقت لاحق بالمستقبل',
       'clarify_dest_waiting': 'في انتظار شخص أو جهة',
       'clarify_dest_waiting_sub': 'مفوّض لشخص أو جهة لمتابعته',
       'clarify_dest_event': 'حدث مجدول في التقويم',
@@ -2764,7 +2936,8 @@ class AppLocalizations {
       'clarify_waiting_prompt_title': 'من الشخص أو الجهة التي تنتظرها؟',
       'clarify_waiting_prompt_sub':
           'حدد اسم الشخص أو الجهة المسؤولة عن التسليم.',
-      'clarify_waiting_input_hint': 'مثال: أحمد، فريق الموارد البشرية، الشركة...',
+      'clarify_waiting_input_hint':
+          'مثال: أحمد، فريق الموارد البشرية، الشركة...',
       'clarify_save_waiting_btn': 'حفظ في قائمة الانتظار',
       'clarify_moved_to_reference': 'تم الحفظ في قائمة المراجع 📁',
       'clarify_archived_toast': 'تمت الأرشفة 📦',
@@ -2777,8 +2950,7 @@ class AppLocalizations {
       'add_waiting_title': 'إضافة عنصر انتظار',
       'edit_waiting_title': 'تعديل عنصر الانتظار',
       'waiting_task_title_label': 'ما الأمر المعلق؟',
-      'waiting_task_title_hint':
-          'مثال: مراجعة مسودة التقرير، وصول الشحنة...',
+      'waiting_task_title_hint': 'مثال: مراجعة مسودة التقرير، وصول الشحنة...',
       'waiting_for_person_label': 'في انتظار (الشخص أو الجهة)',
       'waiting_for_person_hint': 'مثال: سارة، قسم الشؤون القانونية...',
       'add_waiting_btn': 'إضافة لقائمة الانتظار',
@@ -2798,14 +2970,12 @@ class AppLocalizations {
       'someday_tag': 'يوماً ما',
       'promote_to_task': 'ترقية إلى مهمة نشطة',
       'someday_promoted_toast': 'تمت ترقية الفكرة إلى مهمة نشطة! 🚀',
-      'someday_review_nudge':
-          'لديك {count} فكرة مستقبلية — هل تود مراجعتها؟',
+      'someday_review_nudge': 'لديك {count} فكرة مستقبلية — هل تود مراجعتها؟',
       'someday_empty_title': 'لا توجد أفكار مستقبلية بعد',
       'someday_empty_prompt':
           'سجل الكتب التي ترغب بقراءتها أو المشاريع المستقبلية دون إرباك جدولك اليومي.',
       'reference_screen_title': 'المراجع والمعلومات',
-      'reference_screen_subtitle':
-          'معلومات وملاحظات ومراجع غير قابلة للتنفيذ',
+      'reference_screen_subtitle': 'معلومات وملاحظات ومراجع غير قابلة للتنفيذ',
       'add_reference_title': 'إضافة مرجع أو معلومة',
       'reference_title_label': 'عنوان المرجع / الملاحظة',
       'reference_title_hint': 'مثال: إرشادات، ملاحظات وثيقة التأمين...',
@@ -2859,8 +3029,7 @@ class AppLocalizations {
       'project_deadline_label': 'الموعد النهائي المستهدف (اختياري)',
       'optional_no_deadline': 'بدون موعد نهائي',
       'create_project_btn': 'إنشاء المشروع',
-      'no_areas_prompt':
-          'تحتاج لإنشاء مجال واحد على الأقل قبل إضافة المشاريع.',
+      'no_areas_prompt': 'تحتاج لإنشاء مجال واحد على الأقل قبل إضافة المشاريع.',
       'projects_empty_title': 'لا توجد مشاريع نشطة',
       'projects_empty_prompt':
           'المشاريع هي أهداف محددة وقصيرة المدى تسعى لتحقيقها بنتيجة واضحة وموعد نهائي.',
@@ -2912,8 +3081,7 @@ class AppLocalizations {
       'project_restored_toast': 'تمت استعادة المشروع بنجاح! 🚀',
       'resource_restored_toast': 'تمت استعادة المرجع بنجاح! 🚀',
       'no_archived_projects_title': 'لا توجد مشاريع مؤرشفة',
-      'no_archived_projects_prompt':
-          'المشاريع المكتملة أو المؤرشفة ستظهر هنا.',
+      'no_archived_projects_prompt': 'المشاريع المكتملة أو المؤرشفة ستظهر هنا.',
       'no_archived_resources_title': 'لا توجد مراجع مؤرشفة',
       'no_archived_resources_prompt':
           'الملاحظات والمعلومات غير النشطة التي تؤرشفها ستظهر هنا.',
@@ -2945,8 +3113,7 @@ class AppLocalizations {
       'energy_level_4': 'مرتفع',
       'energy_level_5': 'ممتاز',
       'daily_checkin_title': 'تسجيل النشاط اليومي',
-      'daily_checkin_subtitle':
-          'سجل طاقتك ومزاجك وشرب الماء والنوم',
+      'daily_checkin_subtitle': 'سجل طاقتك ومزاجك وشرب الماء والنوم',
       'energy_level_label': 'مستوى الطاقة',
       'checkin_note_label': 'الملاحظات والأفكار (اختياري)',
       'checkin_note_hint': 'هل يدور في بالك أي شيء اليوم؟...',
@@ -3139,17 +3306,14 @@ class AppLocalizations {
           'تم تحديد نية الصباح! 🎯 نتمنى لك يوماً رائعاً',
       'todays_focus_label': 'تركيز اليوم',
       'set_morning_intention_prompt_title': 'حدد نية الصباح',
-      'set_morning_intention_prompt_sub':
-          'ما هو أهم هدف أو تركيز لديك اليوم؟',
+      'set_morning_intention_prompt_sub': 'ما هو أهم هدف أو تركيز لديك اليوم؟',
       'set_btn': 'تحديد',
       'end_my_day_title': 'إغلاق اليوم',
-      'end_my_day_subtitle':
-          'راجع يومك، خطط للغد، ودون امتنانك (+30 XP)',
+      'end_my_day_subtitle': 'راجع يومك، خطط للغد، ودون امتنانك (+30 XP)',
       'shutdown_ritual_title': 'طقس إغلاق اليوم',
       'shutdown_ritual_card_desc':
           'راجع إنجازات اليوم، خطط للغد، واختم بيومك بمشاعر الامتنان.',
-      'shutdown_completed_today_sub':
-          'لقد أغلقت يومك بنجاح! طابت ليلتك 🌙',
+      'shutdown_completed_today_sub': 'لقد أغلقت يومك بنجاح! طابت ليلتك 🌙',
       'start_shutdown_btn': 'بدء إغلاق اليوم',
       'view_shutdown_btn': 'عرض الملخص',
       'already_closed_today_title': 'لقد قمت بإغلاق يومك بالفعل اليوم! 🌙',
@@ -3170,8 +3334,7 @@ class AppLocalizations {
       'tasks_postponed_toast': 'تم ترحيل {count} مهام إلى الغد',
       'no_unfinished_tasks_toast': 'لا توجد مهام متبقية لترحيلها! 🎉',
       'shutdown_step_2_title': 'التخطيط للغد',
-      'shutdown_step_2_sub':
-          'حدد أهم 3 مهام ذات أولوية ليوم غد (اختياري).',
+      'shutdown_step_2_sub': 'حدد أهم 3 مهام ذات أولوية ليوم غد (اختياري).',
       'tomorrow_task_1_hint': 'المهمة الأولى للغد',
       'tomorrow_task_2_hint': 'المهمة الثانية للغد',
       'tomorrow_task_3_hint': 'المهمة الثالثة للغد',
@@ -3182,8 +3345,7 @@ class AppLocalizations {
           'ما هو الدرس أو الفائدة القيمة التي تعلمتها اليوم؟',
       'lesson_learned_hint': 'فائدة أو درس تعلمته اليوم... (اختياري)',
       'shutdown_step_5_title': 'الامتنان اليومي',
-      'shutdown_step_5_sub':
-          'اذكر 3 أشياء تشعر بالامتنان الصادق لها اليوم.',
+      'shutdown_step_5_sub': 'اذكر 3 أشياء تشعر بالامتنان الصادق لها اليوم.',
       'gratitude_1_hint': '1. شيء رسم البسمة على وجهك...',
       'gratitude_2_hint': '2. شخص أو علاقة تقدرها...',
       'gratitude_3_hint': '3. نعمة أو فرصة ممتن لها...',
@@ -3207,16 +3369,14 @@ class AppLocalizations {
       'weekly_review_title': 'المراجعة الأسبوعية',
       'review_due_badge': 'مستحقة',
       'review_step_1_title': 'تصفية الذهن',
-      'review_step_1_sub':
-          'اكتب كل ما يدور في ذهنك — فكرة واحدة في كل سطر.',
+      'review_step_1_sub': 'اكتب كل ما يدور في ذهنك — فكرة واحدة في كل سطر.',
       'mind_sweep_hint':
           'الاتصال بالسباك\nشراء المستلزمات\nجدولة مراجعة الربع الثالث\nتجديد جواز السفر...',
       'mind_sweep_footer_hint':
           'ستتم إضافة الأفكار إلى صندوق الوارد (GTD Inbox) تلقائياً عند المتابعة.',
       'mind_sweep_added_toast': '🧹 تمت إضافة {count} عناصر إلى صندوق الوارد',
       'review_step_2_title': 'وضوح الوارد',
-      'review_step_2_sub':
-          'تفريغ صندوق الوارد ومعالجة كافة المدخلات المعلقة.',
+      'review_step_2_sub': 'تفريغ صندوق الوارد ومعالجة كافة المدخلات المعلقة.',
       'unprocessed_inbox_items_label': 'عناصر غير معالجة في الوارد',
       'inbox_zero_congrats':
           'صندوق الوارد فارغ! كافة الأفكار والمهام واضحة ومفرزة.',
@@ -3245,8 +3405,7 @@ class AppLocalizations {
       'activate_btn': 'تفعيل',
       'review_someday_promoted_toast': '⚡ تمت ترقية "{title}" إلى مهمة نشطة',
       'review_step_6_title': 'أولويات الأسبوع',
-      'review_step_6_sub':
-          'حدد أهم 3 أولويات ذات أثر عالٍ للأسبوع القادم.',
+      'review_step_6_sub': 'حدد أهم 3 أولويات ذات أثر عالٍ للأسبوع القادم.',
       'weekly_priority_1_hint': 'الأولوية الأولى',
       'weekly_priority_2_hint': 'الأولوية الثانية',
       'weekly_priority_3_hint': 'الأولوية الثالثة',
@@ -3287,13 +3446,15 @@ class AppLocalizations {
       'duration_label': 'المدة',
       'planned_blocks_summary': '{count} حجوزات • {duration} مخطط',
       'delete_block_confirm_title': 'حذف الحجز الزمني',
-      'delete_block_confirm_msg': 'هل أنت متأكد من رغبتك في حذف الحجز الزمني "{title}"؟',
+      'delete_block_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف الحجز الزمني "{title}"؟',
       'block_continuing': 'مستمر',
       'event_deleted_toast': 'تم حذف الحدث بنجاح',
 
       // Decision Journal Feature
       'decision_journal_title': 'سجل القرارات',
-      'decision_journal_subtitle': 'توثيق القرارات المهمة وتقييم نتائجها الفعلية',
+      'decision_journal_subtitle':
+          'توثيق القرارات المهمة وتقييم نتائجها الفعلية',
       'pending_review_stat': 'بانتظار التقييم',
       'reviewed_decisions_stat': 'قرارات تم تقييمها',
       'total_decisions_stat': 'إجمالي القرارات',
@@ -3303,32 +3464,38 @@ class AppLocalizations {
       'status_reviewed': '✅ تم التقييم',
       'status_pending_review': '⏳ بانتظار التقييم',
       'rationale_label': 'الأسباب والمبررات',
-      'rationale_hint': 'لماذا تتخذ هذا القرار؟ السياق والدوافع والبدائل المتاحة...',
+      'rationale_hint':
+          'لماذا تتخذ هذا القرار؟ السياق والدوافع والبدائل المتاحة...',
       'expected_outcome_label': 'النتيجة المتوقعة',
       'expected_outcome_hint': 'ما هي النتيجة أو التوقع المرجو حدوثه؟',
       'actual_outcome_label': 'النتيجة الفعلية',
       'actual_outcome_hint': 'ما الذي حدث بالفعل عند المراجعة لاحقاً؟',
       'evaluate_and_review_btn': 'تقييم ومراجعة القرار',
       'mark_as_reviewed': 'تحديد كمكتمل المراجعة',
-      'mark_as_reviewed_desc': 'تحديد هذا القرار كقرار تمت مراجعته وتوثيق نتيجته الفعلية',
+      'mark_as_reviewed_desc':
+          'تحديد هذا القرار كقرار تمت مراجعته وتوثيق نتيجته الفعلية',
       'empty_decisions_title': '🤔 سجّل أول قرار مهم لك',
-      'empty_decisions_sub': 'سجّل مبررات قراراتك وتوقعاتك وراجع نتائجها لاحقاً لبناء وعي ذاتي وتطوير جودة اتخاذ القرار مع مرور الوقت.',
+      'empty_decisions_sub':
+          'سجّل مبررات قراراتك وتوقعاتك وراجع نتائجها لاحقاً لبناء وعي ذاتي وتطوير جودة اتخاذ القرار مع مرور الوقت.',
       'log_decision_btn': 'تسجيل قرار',
       'add_decision_title': 'تسجيل قرار جديد',
       'edit_decision_title': 'تعديل سجل القرار',
       'decision_title_label': 'عنوان القرار',
       'decision_title_hint': 'مثال: الانتقال للعمل عن بعد بالكامل',
       'decision_date_label': 'التاريخ',
-      'decision_required_validation': 'العنوان والمبررات والنتيجة المتوقعة كلها حقول مطلوبة',
+      'decision_required_validation':
+          'العنوان والمبررات والنتيجة المتوقعة كلها حقول مطلوبة',
       'delete_decision_confirm_title': 'حذف سجل القرار',
-      'delete_decision_confirm_msg': 'هل أنت متأكد من رغبتك في حذف سجل القرار "{title}"؟ لا يمكن التراجع عن هذا الإجراء.',
+      'delete_decision_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف سجل القرار "{title}"؟ لا يمكن التراجع عن هذا الإجراء.',
       'decision_saved_toast': 'تم تسجيل القرار بنجاح',
       'decision_updated_toast': 'تم تحديث سجل القرار بنجاح',
       'decision_deleted_toast': 'تم حذف سجل القرار',
 
       // Project Retrospective Feature
       'retrospectives_title': 'مراجعات وتقييم المشاريع',
-      'retrospectives_subtitle': 'تقييمات ختامية واستخلاص الدروس المستفادة من مشاريع PARA',
+      'retrospectives_subtitle':
+          'تقييمات ختامية واستخلاص الدروس المستفادة من مشاريع PARA',
       'new_retrospective_btn': 'مراجعة جديدة',
       'add_retrospective_title': 'تسجيل مراجعة جديدة للمشروع',
       'edit_retrospective_title': 'تعديل مراجعة المشروع',
@@ -3336,26 +3503,33 @@ class AppLocalizations {
       'select_project_label': 'مشروع PARA',
       'unknown_project_fallback': 'مشروع عام / غير معروف',
       'went_well_label': '🟢 ما الذي سار بشكل جيد؟',
-      'went_well_hint': 'النجاحات الرئيسية، سير العمل المتقن، الإنجازات التي تمت في موعدها...',
+      'went_well_hint':
+          'النجاحات الرئيسية، سير العمل المتقن، الإنجازات التي تمت في موعدها...',
       'to_improve_label': '🔴 ما الذي يحتاج إلى تحسين؟',
-      'to_improve_hint': 'العقبات غير المتوقعة، ضيق الوقت، انحراف نطاق العمل، تقديرات الوقت غير الدقيقة...',
+      'to_improve_hint':
+          'العقبات غير المتوقعة، ضيق الوقت، انحراف نطاق العمل، تقديرات الوقت غير الدقيقة...',
       'learnings_label': '🧠 الدروس المستفادة والخطوات القادمة',
-      'learnings_hint': 'الدروس المستخلصة والرؤى العملية لتطبيقها في المشاريع القادمة...',
+      'learnings_hint':
+          'الدروس المستخلصة والرؤى العملية لتطبيقها في المشاريع القادمة...',
       'project_required_validation': 'يرجى اختيار المشروع',
       'all_retro_fields_required': 'جميع حقول المراجعة مطلوبة',
       'empty_retrospectives_title': '🔍 سجّل أول مراجعة ختامية لمشروعك',
-      'empty_retrospectives_sub': 'قم بتقييم مشاريع PARA بعد اكتمالها: احتفل بما سار بشكل رائع، حدد جوانب التحسين، واستخلص أهم الدروس للمستقبل.',
+      'empty_retrospectives_sub':
+          'قم بتقييم مشاريع PARA بعد اكتمالها: احتفل بما سار بشكل رائع، حدد جوانب التحسين، واستخلص أهم الدروس للمستقبل.',
       'delete_retrospective_confirm_title': 'حذف سجل مراجعة المشروع؟',
-      'delete_retrospective_confirm_msg': 'هل أنت متأكد من رغبتك في حذف سجل المراجعة هذا؟ لا يمكن التراجع عن هذا الإجراء.',
+      'delete_retrospective_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف سجل المراجعة هذا؟ لا يمكن التراجع عن هذا الإجراء.',
       'retrospective_saved_toast': 'تم تسجيل مراجعة المشروع بنجاح',
       'retrospective_updated_toast': 'تم تحديث مراجعة المشروع بنجاح',
       'retrospective_deleted_toast': 'تم حذف سجل المراجعة',
-      'no_projects_available_warning': 'لا توجد مشاريع PARA حالياً. قم بإنشاء مشروع في قسم مشاريع PARA أولاً.',
+      'no_projects_available_warning':
+          'لا توجد مشاريع PARA حالياً. قم بإنشاء مشروع في قسم مشاريع PARA أولاً.',
 
       // Reading Tracker Feature
       'learning_section_header': 'التعلم والتطوير',
       'reading_tracker_title': 'متتبع القراءة',
-      'reading_tracker_subtitle': 'متابعة الكتب والصفحات والرفوف وسلسلة القراءة اليومية',
+      'reading_tracker_subtitle':
+          'متابعة الكتب والصفحات والرفوف وسلسلة القراءة اليومية',
       'shelf_reading': 'أقرأ حالياً',
       'shelf_wishlist': 'قائمة الرغبات',
       'shelf_finished': 'كتب مكتملة',
@@ -3363,7 +3537,8 @@ class AppLocalizations {
       'status_paused': '⏸ متوقف مؤقتاً',
       'status_wishlist': '💡 في قائمة الرغبات',
       'status_done': '✅ مكتمل',
-      'empty_shelf_reading': 'لا توجد كتب قيد القراءة حالياً. اضغط على \'+ إضافة كتاب\' للبدء!',
+      'empty_shelf_reading':
+          'لا توجد كتب قيد القراءة حالياً. اضغط على \'+ إضافة كتاب\' للبدء!',
       'empty_shelf_wishlist': 'قائمة رغباتك فارغة حالياً',
       'empty_shelf_finished': 'لم تكمل أي كتاب بعد. واصل القراءة للوصول لهدفك!',
       'add_book_btn': 'إضافة كتاب',
@@ -3384,11 +3559,13 @@ class AppLocalizations {
       'notes_hint': 'أهم الأفكار أو الاقتباسات المفضلة أو الملاحظات...',
       'book_required_validation': 'عنوان الكتاب والمؤلف كلاهما حقل مطلوب',
       'quick_update_title': 'تحديث سريع للصفحة',
-      'quick_update_prompt': 'تحديث تقدم القراءة لكتاب "{title}" — أدخل رقم الصفحة الحالية (بين {current} و {total}):',
+      'quick_update_prompt':
+          'تحديث تقدم القراءة لكتاب "{title}" — أدخل رقم الصفحة الحالية (بين {current} و {total}):',
       'invalid_page_range': 'يجب أن تكون الصفحة بين {min} و {max}',
       'book_finished_congrats': '🎉 تهانينا! لقد أنهيت قراءة "{title}" بنجاح!',
       'delete_book_confirm_title': 'حذف الكتاب',
-      'delete_book_confirm_msg': 'هل أنت متأكد من رغبتك في حذف "{title}" من مكتبتك؟',
+      'delete_book_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف "{title}" من مكتبتك؟',
       'book_saved_toast': 'تمت إضافة الكتاب إلى المكتبة بنجاح',
       'book_updated_toast': 'تم تحديث بيانات الكتاب بنجاح',
       'book_deleted_toast': 'تم حذف الكتاب من المكتبة',
@@ -3415,14 +3592,17 @@ class AppLocalizations {
       'skill_created_toast': 'تمت إضافة المهارة بنجاح',
       'skill_updated_toast': 'تم تحديث المهارة بنجاح',
       'skill_deleted_toast': 'تم حذف المهارة',
-      'skill_level_up_toast': '🎉 ترقية مهارة! لقد وصلت إلى المستوى {level} في {skillName}!',
+      'skill_level_up_toast':
+          '🎉 ترقية مهارة! لقد وصلت إلى المستوى {level} في {skillName}!',
       'delete_skill_confirm_title': 'حذف المهارة',
       'delete_skill_confirm_msg': 'هل أنت متأكد من رغبتك في حذف "{skillName}"؟',
       'quick_update_skill_title': 'تحديث سريع للمهارة',
-      'quick_update_skill_subtitle': 'تعديل المستوى ونقاط الخبرة لمهارة "{skillName}"',
+      'quick_update_skill_subtitle':
+          'تعديل المستوى ونقاط الخبرة لمهارة "{skillName}"',
       'all_skills_header': 'جميع المهارات',
       'empty_skills_title': 'لا توجد مهارات مضافة بعد 🎯',
-      'empty_skills_subtitle': 'أضف مهاراتك الرئيسية لتتبع ارتقاء مستوياتك وخبراتك عند إنجاز المهام!',
+      'empty_skills_subtitle':
+          'أضف مهاراتك الرئيسية لتتبع ارتقاء مستوياتك وخبراتك عند إنجاز المهام!',
       'next_level_label': 'التقدم نحو المستوى التالي',
       'sparkline_7d_label': 'تطور 7 أيام',
       'level_prefix': 'مستوى',
@@ -3431,7 +3611,8 @@ class AppLocalizations {
 
       // Learning Paths Feature
       'learning_paths_title': 'مسارات التعلم',
-      'learning_paths_subtitle': 'متابعة المناهج والمسارات التعليمية وخطواتها اليومية',
+      'learning_paths_subtitle':
+          'متابعة المناهج والمسارات التعليمية وخطواتها اليومية',
       'add_path_btn': 'إضافة مسار تعلم',
       'add_path_title': 'مسار تعلم جديد',
       'edit_path_title': 'تعديل مسار التعلم',
@@ -3443,8 +3624,10 @@ class AppLocalizations {
       'path_updated_toast': 'تم تحديث مسار التعلم بنجاح',
       'path_deleted_toast': 'تم حذف مسار التعلم',
       'delete_path_confirm_title': 'حذف مسار التعلم',
-      'delete_path_confirm_msg': 'هل أنت متأكد من رغبتك في حذف "{title}"؟ سيتم حذف جميع الأيام والخطوات المحفوظة.',
-      'days_completed_progress': 'اكتمل {completed} من {total} يوم ({percent}%)',
+      'delete_path_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف "{title}"؟ سيتم حذف جميع الأيام والخطوات المحفوظة.',
+      'days_completed_progress':
+          'اكتمل {completed} من {total} يوم ({percent}%)',
       'expand_curriculum': 'عرض المنهج',
       'collapse_curriculum': 'طي المنهج',
       'day_label': 'اليوم',
@@ -3455,9 +3638,11 @@ class AppLocalizations {
       'manual_day_complete_tooltip': 'تحديد اليوم كمكتمل / غير مكتمل',
       'day_completed_celebration': '🎉 اكتمل اليوم {day} بنجاح!',
       'empty_learning_paths_title': '🛤️ ابدأ مسار التعلم الأول الخاص بك',
-      'empty_learning_paths_subtitle': 'قسّم أهدافك التعليمية إلى مناهج يومية محددة مع خطوات تنفيذية واضحة!',
+      'empty_learning_paths_subtitle':
+          'قسّم أهدافك التعليمية إلى مناهج يومية محددة مع خطوات تنفيذية واضحة!',
       'daily_topics_curriculum_header': 'مواضيع المنهج اليومية',
-      'daily_topics_curriculum_sub': 'خطط لموضوع كل يوم — يتم الحفاظ على بيانات الأيام السابقة عند تعديل المدة',
+      'daily_topics_curriculum_sub':
+          'خطط لموضوع كل يوم — يتم الحفاظ على بيانات الأيام السابقة عند تعديل المدة',
 
       // Knowledge Base Feature
       'knowledge_base_title': 'قاعدة المعرفة',
@@ -3493,15 +3678,19 @@ class AppLocalizations {
       'knowledge_deleted_toast': 'تم حذف المدخلة',
       'delete_knowledge_confirm_title': 'حذف المدخلة المعرفية',
       'delete_knowledge_confirm_msg': 'هل أنت متأكد من رغبتك في حذف "{title}"؟',
-      'search_knowledge_hint': 'البحث في الملاحظات، الأفكار، الاقتباسات والوسوم...',
+      'search_knowledge_hint':
+          'البحث في الملاحظات، الأفكار، الاقتباسات والوسوم...',
       'empty_knowledge_title': '🧠 احفظ أول فكرة أو ملاحظة لك',
-      'empty_knowledge_subtitle': 'ابنِ عقلك الثاني! احفظ ملخصات الكتب، الأفكار الملهمة، الاقتباسات، والروابط المفيدة مع وسوم لسهولة الوصول.',
+      'empty_knowledge_subtitle':
+          'ابنِ عقلك الثاني! احفظ ملخصات الكتب، الأفكار الملهمة، الاقتباسات، والروابط المفيدة مع وسوم لسهولة الوصول.',
       'no_knowledge_search_results': 'لم يتم العثور على نتائج مطابقة',
-      'no_knowledge_search_results_sub': 'جرّب تغيير كلمات البحث أو اختيار فلتر نوع آخر.',
+      'no_knowledge_search_results_sub':
+          'جرّب تغيير كلمات البحث أو اختيار فلتر نوع آخر.',
 
       // Course Tracker Feature
       'course_tracker_title': 'متتبع الدورات',
-      'course_tracker_subtitle': 'متابعة الدورات التدريبية وإنجاز الدروس والشهادات',
+      'course_tracker_subtitle':
+          'متابعة الدورات التدريبية وإنجاز الدروس والشهادات',
       'add_course_btn': 'إضافة دورة',
       'add_course_title': 'دورة جديدة',
       'edit_course_title': 'تعديل الدورة',
@@ -3519,19 +3708,22 @@ class AppLocalizations {
       'certificate_earned_badge': 'تم نيل الشهادة',
       'course_note_label': 'ملاحظة (اختياري)',
       'course_note_hint': 'أهم النقاط أو رابط المشروع...',
-      'course_validation_error': 'عنوان الدورة مطلوب ويجب أن يكون إجمالي الدروس أكبر من صفر',
+      'course_validation_error':
+          'عنوان الدورة مطلوب ويجب أن يكون إجمالي الدروس أكبر من صفر',
       'course_created_toast': 'تمت إضافة الدورة بنجاح',
       'course_updated_toast': 'تم تحديث بيانات الدورة بنجاح',
       'course_deleted_toast': 'تم حذف الدورة',
       'delete_course_confirm_title': 'حذف الدورة',
       'delete_course_confirm_msg': 'هل أنت متأكد من رغبتك في حذف "{title}"؟',
       'course_lessons_progress': '{completed} من {total} درس ({percent}%)',
-      'course_completed_celebration': '🎓 مبارك! لقد أتممت دورة \'{title}\' بنجاح!',
+      'course_completed_celebration':
+          '🎓 مبارك! لقد أتممت دورة \'{title}\' بنجاح!',
       'stat_active_courses': 'دورات نشطة',
       'stat_completed_courses': 'دورات مكتملة',
       'stat_lessons_watched': 'دروس منجزة',
       'empty_courses_title': '🎓 أضف دورتك التدريبية الأولى',
-      'empty_courses_subtitle': 'تابع تقدمك درساً بدروس في الدورات التعليمية والشهادات المهنية عبر الإنترنت!',
+      'empty_courses_subtitle':
+          'تابع تقدمك درساً بدروس في الدورات التعليمية والشهادات المهنية عبر الإنترنت!',
 
       // Spaced Repetition (Flashcards SM-2) Feature
       'flashcards_title': 'البطاقات التعليمية (SM-2)',
@@ -3551,12 +3743,14 @@ class AppLocalizations {
       'flashcard_updated_toast': 'تم تحديث البطاقة بنجاح',
       'flashcard_deleted_toast': 'تم حذف البطاقة',
       'delete_flashcard_confirm_title': 'حذف البطاقة التعليمية',
-      'delete_flashcard_confirm_msg': 'هل أنت متأكد من رغبتك في حذف هذه البطاقة؟',
+      'delete_flashcard_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف هذه البطاقة؟',
       'due_today_badge': 'مستحقة اليوم',
       'due_overdue_badge': 'متأخرة ({days} يوم)',
       'due_in_days_badge': 'مستحقة بعد {days} يوم',
       'empty_flashcards_title': '🔁 أنشئ أول بطاقة تعليمية لك',
-      'empty_flashcards_subtitle': 'أتقن الحفظ طويل المدى باستخدام خوارزمية التكرار المتباعد العلمية SM-2! تتباعد مواعيد المراجعة كلما أثبتت تذكرك.',
+      'empty_flashcards_subtitle':
+          'أتقن الحفظ طويل المدى باستخدام خوارزمية التكرار المتباعد العلمية SM-2! تتباعد مواعيد المراجعة كلما أثبتت تذكرك.',
       'review_progress_header': 'بطاقة {current} من {total}',
       'review_front_header': 'الوجه الأمامي (السؤال / المفهوم)',
       'review_back_header': 'الوجه الخلفي (الإجابة / الشرح)',
@@ -3571,9 +3765,11 @@ class AppLocalizations {
       'rating_easy_points': '١٠ نقاط',
       'end_session_btn': 'إنهاء الجلسة',
       'end_session_confirm_title': 'إنهاء جلسة المراجعة؟',
-      'end_session_confirm_msg': 'البطاقات التي تمت مراجعتها تم حفظ تقدمها بالفعل. هل تريد العودة للقائمة؟',
+      'end_session_confirm_msg':
+          'البطاقات التي تمت مراجعتها تم حفظ تقدمها بالفعل. هل تريد العودة للقائمة؟',
       'session_summary_title': 'اكتملت جلسة المراجعة! 🎉',
-      'session_summary_subtitle': 'عمل رائع في تدريب ذاكرتك باستخدام التكرار المتباعد!',
+      'session_summary_subtitle':
+          'عمل رائع في تدريب ذاكرتك باستخدام التكرار المتباعد!',
       'cards_reviewed_label': 'بطاقات تمت مراجعتها',
       'points_earned_label': 'النقاط المكتسبة',
       'rating_breakdown_label': 'مستوى التذكر',
@@ -3581,7 +3777,8 @@ class AppLocalizations {
 
       // Relationship Health Feature
       'relationship_health_title': 'صحة العلاقات',
-      'relationship_health_subtitle': 'تسجيل التفاعلات الإيجابية والبقاء على اتصال',
+      'relationship_health_subtitle':
+          'تسجيل التفاعلات الإيجابية والبقاء على اتصال',
       'recent_interactions_header': 'التفاعلات الأخيرة',
       'keep_in_touch_header': 'ابقَ على تواصل',
       'add_interaction_btn': 'تسجيل تفاعل',
@@ -3598,20 +3795,23 @@ class AppLocalizations {
       'interaction_updated_toast': 'تم تحديث التفاعل بنجاح',
       'interaction_deleted_toast': 'تم حذف التفاعل',
       'delete_interaction_confirm_title': 'حذف التفاعل',
-      'delete_interaction_confirm_msg': 'هل أنت متأكد من رغبتك في حذف سجل هذا التفاعل؟',
+      'delete_interaction_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف سجل هذا التفاعل؟',
       'unknown_contact_fallback': 'جهة اتصال غير معروفة',
       'never_contacted_badge': '⚠️ لم يتم التواصل',
       'contacted_today_badge': 'اليوم',
       'contacted_yesterday_badge': 'أمس',
       'contacted_days_ago_badge': 'منذ {days} يوم',
       'empty_interactions_title': '❤️ سجّل أول تفاعل لك في علاقاتك',
-      'empty_interactions_subtitle': 'تابع محادثاتك الهادفة، الأوقات الطيبة، وآخر الأخبار مع أصدقائك ومعارفك.',
+      'empty_interactions_subtitle':
+          'تابع محادثاتك الهادفة، الأوقات الطيبة، وآخر الأخبار مع أصدقائك ومعارفك.',
       'no_contacts_registered_msg': 'لا توجد جهات اتصال مسجلة بعد',
       'go_to_contacts_btn': 'الانتقال إلى جهات الاتصال',
 
       // Social Battery Feature
       'social_battery_title': 'طاقة التواصل الاجتماعي',
-      'social_battery_subtitle': 'تتبع التفاعلات المشحونة بالطاقة والمستنزفة لها',
+      'social_battery_subtitle':
+          'تتبع التفاعلات المشحونة بالطاقة والمستنزفة لها',
       'social_battery_log_header': 'سجل طاقة التواصل',
       'social_battery_summary_header': 'ملخص الطاقة',
       'net_energy_balance_label': 'صافي توازن الطاقة',
@@ -3635,16 +3835,19 @@ class AppLocalizations {
       'social_entry_updated_toast': 'تم تحديث السجل بنجاح',
       'social_entry_deleted_toast': 'تم حذف السجل',
       'delete_social_entry_confirm_title': 'حذف سجل طاقة التفاعل',
-      'delete_social_entry_confirm_msg': 'هل أنت متأكد من رغبتك في حذف سجل هذا التفاعل؟',
+      'delete_social_entry_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف سجل هذا التفاعل؟',
       'empty_social_battery_title': '🔋 سجّل أول تفاعل اجتماعي لك',
-      'empty_social_battery_subtitle': 'تعرّف على من يمنحك الطاقة ومن يستنزفها لإدارة طاقتك الاجتماعية وتوازنك اليومي.',
+      'empty_social_battery_subtitle':
+          'تعرّف على من يمنحك الطاقة ومن يستنزفها لإدارة طاقتك الاجتماعية وتوازنك اليومي.',
       'energizer_badge': 'مشحونة (+{impact})',
       'drainer_badge': 'مستنزفة (-{impact})',
 
       // Health Section & Workout Tracker Feature
       'health_section_header': 'الصحة واللياقة البدنية',
       'workout_tracker_title': 'متتبع التمارين الرياضية',
-      'workout_tracker_subtitle': 'تسجيل التمارين، السعرات الحرارية وسلسلة ٣٠ يوماً',
+      'workout_tracker_subtitle':
+          'تسجيل التمارين، السعرات الحرارية وسلسلة ٣٠ يوماً',
       'this_week_minutes_label': 'دقائق هذا الأسبوع',
       'this_week_calories_label': 'سعرات هذا الأسبوع',
       'recent_workouts_header': 'التمارين الأخيرة',
@@ -3669,9 +3872,11 @@ class AppLocalizations {
       'workout_updated_toast': 'تم تحديث بيانات التمرين بنجاح',
       'workout_deleted_toast': 'تم حذف التمرين',
       'delete_workout_confirm_title': 'حذف التمرين',
-      'delete_workout_confirm_msg': 'هل أنت متأكد من رغبتك في حذف جلسة هذا التمرين؟',
+      'delete_workout_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف جلسة هذا التمرين؟',
       'empty_workouts_title': '💪 ابدأ بتسجيل أول تمرين رياضي لك',
-      'empty_workouts_subtitle': 'ابنِ عادات صحية قوية! تتبع تمارين النادي، الجري، السباحة، وشاهد سلسلة التزامك تنمو.',
+      'empty_workouts_subtitle':
+          'ابنِ عادات صحية قوية! تتبع تمارين النادي، الجري، السباحة، وشاهد سلسلة التزامك تنمو.',
       'workout_min_format': '{min} دقيقة',
       'workout_kcal_format': '{kcal} سعرة',
 
@@ -3688,7 +3893,8 @@ class AppLocalizations {
       'nutrition_this_week_avg': 'معدل هذا الأسبوع',
       'nutrition_last_week_avg': 'معدل الأسبوع الماضي',
       'nutrition_empty_title': '🥗 قيّم جودة تغذيتك اليوم',
-      'nutrition_empty_subtitle': 'قيّم جودة طعامك يومياً من ١ إلى ٥ نجوم لتتبع عاداتك الغذائية الصحية',
+      'nutrition_empty_subtitle':
+          'قيّم جودة طعامك يومياً من ١ إلى ٥ نجوم لتتبع عاداتك الغذائية الصحية',
       'nutrition_modal_add_title': 'تقييم جودة الوجبات',
       'nutrition_modal_edit_title': 'تعديل تقييم التغذية',
       'nutrition_date_label': 'التاريخ',
@@ -3703,7 +3909,8 @@ class AppLocalizations {
       'nutrition_saved_toast': 'تم حفظ تقييم التغذية بنجاح',
       'nutrition_deleted_toast': 'تم حذف تقييم التغذية',
       'nutrition_delete_confirm_title': 'حذف التقييم',
-      'nutrition_delete_confirm_msg': 'هل أنت متأكد من رغبتك في حذف هذا التقييم؟',
+      'nutrition_delete_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف هذا التقييم؟',
       'nutrition_avg_format': '{avg}/٥',
 
       // Body Metrics Feature
@@ -3737,7 +3944,8 @@ class AppLocalizations {
       'metric_delete_confirm_title': 'حذف القياس',
       'metric_delete_confirm_msg': 'هل أنت متأكد من رغبتك في حذف هذا القياس؟',
       'body_metrics_empty_title': '⚖️ ابدأ بتسجيل قياساتك الحيوية',
-      'body_metrics_empty_subtitle': 'تتبع وزنك وضغط دمك ونبضك بمرور الوقت مع رسوم بيانية توضيحية',
+      'body_metrics_empty_subtitle':
+          'تتبع وزنك وضغط دمك ونبضك بمرور الوقت مع رسوم بيانية توضيحية',
       'kg_unit': 'كجم',
       'bpm_unit': 'ن/د',
       'weight_val_format': '{val} كجم',
@@ -3762,9 +3970,11 @@ class AppLocalizations {
       'rate_this_day_btn': 'تقييم هذا اليوم',
       'rate_today_btn': 'تقييم اليوم',
       'personalized_tip_title': 'نصيحة مخصصة لك',
-      'tip_calm': 'جرب تمرين التنفس المربع أو المشي لمدة ١٠ دقائق لتخفيف التوتر.',
+      'tip_calm':
+          'جرب تمرين التنفس المربع أو المشي لمدة ١٠ دقائق لتخفيف التوتر.',
       'tip_happiness': 'خطط لنشاط ممتع أو استمع إلى بودكاستك المفضل اليوم.',
-      'tip_social_energy': 'تواصل مع صديق مقرب أو امنح نفسك وقتاً هادئاً بمفردك.',
+      'tip_social_energy':
+          'تواصل مع صديق مقرب أو امنح نفسك وقتاً هادئاً بمفردك.',
       'tip_self_satisfaction': 'اكتب ٣ إنجازات صغيرة حققتها خلال هذا الأسبوع.',
       'tip_balance': 'اضبط ساعات عملك واجعل النوم الجيد أولوية هذا الأسبوع.',
       'comparison_title': 'مقارنة اليوم بالأمس',
@@ -3773,7 +3983,8 @@ class AppLocalizations {
       'cmp_same': '→ مستقر',
       'cmp_no_yesterday': 'لا يوجد تسجيل بالأمس',
       'mental_empty_title': '🧘 كيف تشعر نفسياً اليوم؟',
-      'mental_empty_subtitle': 'سجّل تقييمك اليومي عبر ٥ أبعاد أساسية للعافية النفسية',
+      'mental_empty_subtitle':
+          'سجّل تقييمك اليومي عبر ٥ أبعاد أساسية للعافية النفسية',
       'mental_modal_title': 'تقييم العافية النفسية',
       'slider_anxiety_label': 'الهدوء ↔ التوتر (١ = هادئ، ١٠ = قلق)',
       'mental_saved_toast': 'تم حفظ التقييم النفسي بنجاح',
@@ -3804,9 +4015,11 @@ class AppLocalizations {
       'delete_tx_confirm_title': 'حذف المعاملة',
       'delete_tx_confirm_msg': 'هل أنت متأكد من رغبتك في حذف هذه المعاملة؟',
       'budget_config_title': 'حدود الميزانية الشهرية',
-      'budget_config_subtitle': 'حدد سقف الإنفاق لكل فئة. اترك الحقل فارغاً أو ٠ لإلغاء الحد.',
+      'budget_config_subtitle':
+          'حدد سقف الإنفاق لكل فئة. اترك الحقل فارغاً أو ٠ لإلغاء الحد.',
       'budget_empty_title': '💰 ابدأ بتسجيل أول معاملة مالية',
-      'budget_empty_subtitle': 'سجل مصاريفك اليومية ودخلك لإدارة ميزانيتك بذكاء',
+      'budget_empty_subtitle':
+          'سجل مصاريفك اليومية ودخلك لإدارة ميزانيتك بذكاء',
       'tx_saved_toast': 'تم حفظ المعاملة بنجاح',
       'tx_deleted_toast': 'تم حذف المعاملة',
       'budget_config_saved_toast': 'تم تحديث حدود الميزانية',
@@ -3828,12 +4041,15 @@ class AppLocalizations {
       'energy_impact_title': 'أثر الطاقة على الإنتاجية',
       'avg_tasks_high_energy': 'معدل المهام (طاقة مرتفعة ≥ ٤)',
       'avg_tasks_low_energy': 'معدل المهام (طاقة منخفضة ≤ ٢)',
-      'energy_impact_caption': 'الحفاظ على مستوى طاقة مرتفع يرتبط مباشرة بزيادة إنتاجيتك',
+      'energy_impact_caption':
+          'الحفاظ على مستوى طاقة مرتفع يرتبط مباشرة بزيادة إنتاجيتك',
       'most_productive_day_title': 'أكثر الأيام إنتاجية',
       'most_productive_count': 'مع إنجاز {count} مهام في هذا اليوم من الأسبوع',
       'no_completed_tasks': 'لم تكتمل أي مهام بعد',
-      'analytics_empty_title': '🧬 ابدأ بتسجيل مستوى طاقتك اليومي لعرض التحليلات',
-      'analytics_empty_subtitle': 'نحتاج إلى تسجيل طاقة واحد على الأقل لتحليل الارتباطات والإنتاجية',
+      'analytics_empty_title':
+          '🧬 ابدأ بتسجيل مستوى طاقتك اليومي لعرض التحليلات',
+      'analytics_empty_subtitle':
+          'نحتاج إلى تسجيل طاقة واحد على الأقل لتحليل الارتباطات والإنتاجية',
       'go_to_energy_btn': 'الانتقال إلى صفحة الطاقة',
       'day_sunday': 'الأحد',
       'day_monday': 'الإثنين',
@@ -3899,7 +4115,8 @@ class AppLocalizations {
       'wheel_of_life_title': 'عجلة الحياة',
       'wheel_of_life_subtitle': 'تقييم توازن الحياة عبر ٨ أبعاد',
       'life_areas_empty_title': 'قيّم توازن مجالات حياتك',
-      'life_areas_empty_subtitle': 'سجّل تقييماتك للأبعاد الثمانية الرئيسية في عجلة الحياة واعرضها على المخطط الراداري',
+      'life_areas_empty_subtitle':
+          'سجّل تقييماتك للأبعاد الثمانية الرئيسية في عجلة الحياة واعرضها على المخطط الراداري',
       'start_assessment_btn': 'بدء التقييم',
       'primary_assessment_label': 'التقييم الأساسي',
       'compare_with_label': 'مقارنة مع',
@@ -3930,7 +4147,8 @@ class AppLocalizations {
       'bucket_list_title': 'قائمة الأمنيات والأهداف',
       'bucket_list_subtitle': 'أهداف الحياة، الأحلام والذكريات المحققة',
       'bucket_list_empty_title': 'أضف أول أمنية في قائمة أهدافك',
-      'bucket_list_empty_subtitle': 'دوّن أهداف حياتك وأحلامك وسجّل ذكرياتك الجميلة عند تحقيقها',
+      'bucket_list_empty_subtitle':
+          'دوّن أهداف حياتك وأحلامك وسجّل ذكرياتك الجميلة عند تحقيقها',
       'add_dream_btn': 'إضافة هدف أو أمنية',
       'dreams_to_achieve_section': 'أحلام قيد التحقيق ({count})',
       'achieved_memories_section': 'ذكريات محققة ({count})',
@@ -3959,7 +4177,8 @@ class AppLocalizations {
       'legacy_journal_title': 'دفتر الميراث والقيم',
       'legacy_journal_subtitle': 'رسائل للمستقبل، القيم الجوهرية والوصايا',
       'empty_legacy_title': 'سجّل قيمك ورسائلك للمستقبل',
-      'empty_legacy_subtitle': 'اكتب رسائل إلى نسختك المستقبلية، حدد قيمك الجوهرية، ودوّن وصاياك وخلاصات حكمتك',
+      'empty_legacy_subtitle':
+          'اكتب رسائل إلى نسختك المستقبلية، حدد قيمك الجوهرية، ودوّن وصاياك وخلاصات حكمتك',
       'new_legacy_entry_btn': 'تدوينة جديدة',
       'legacy_section_letters': '✉️ رسائل للنسخة المستقبلية',
       'legacy_section_values': '💎 القيم والمبادئ الجوهرية',
@@ -3967,14 +4186,16 @@ class AppLocalizations {
       'add_legacy_entry_title': 'تدوينة ميراث جديدة',
       'edit_legacy_entry_title': 'تعديل التدوينة',
       'legacy_entry_title_label': 'العنوان',
-      'legacy_entry_title_hint': 'مثال: رسالة لعيد ميلادي الثلاثين، الصدق كبوصلة أساسية...',
+      'legacy_entry_title_hint':
+          'مثال: رسالة لعيد ميلادي الثلاثين، الصدق كبوصلة أساسية...',
       'legacy_entry_date_label': 'التاريخ',
       'legacy_entry_type_label': 'نوع التدوينة',
       'legacy_type_letter': 'رسالة للنسخة المستقبلية',
       'legacy_type_value': 'قيمة أو مبدأ جوهري',
       'legacy_type_will': 'وصية أو مبدأ فلسفي',
       'legacy_entry_content_label': 'المحتوى والتفاصيل',
-      'legacy_entry_content_hint': 'اكتب أفكارك، مشاعرك، دروسك أو مبادئك العميقة هنا...',
+      'legacy_entry_content_hint':
+          'اكتب أفكارك، مشاعرك، دروسك أو مبادئك العميقة هنا...',
       'legacy_validation_required': 'العنوان والمحتوى حقلان مطلوبان',
       'save_legacy_entry_btn': 'حفظ التدوينة',
       'delete_legacy_entry_btn': 'حذف التدوينة',
@@ -3985,7 +4206,8 @@ class AppLocalizations {
       'annual_review_title': 'المراجعة السنوية',
       'annual_review_subtitle': 'تأملات سنوية، أسئلة موجهة وإحصائيات',
       'annual_review_empty_title': 'ابدأ مراجعتك السنوية الأولى',
-      'annual_review_empty_subtitle': 'تأمل في إنجازاتك، وأهم الدروس، والتحديات، وخطط لعامك القادم',
+      'annual_review_empty_subtitle':
+          'تأمل في إنجازاتك، وأهم الدروس، والتحديات، وخطط لعامك القادم',
       'start_annual_review_btn': 'بدء المراجعة',
       'add_annual_review_title': 'مراجعة سنوية جديدة',
       'edit_annual_review_title': 'تعديل المراجعة السنوية',
@@ -3993,11 +4215,14 @@ class AppLocalizations {
       'review_q1_title': 'أكبر إنجاز',
       'review_q1_prompt': 'ما هو أكبر نجاح أو إنجاز حققته هذا العام؟',
       'review_q2_title': 'أكبر عقبة وكيف تعاملت معها',
-      'review_q2_prompt': 'ما هو أصعب تحدٍ واجهته وكيف تغلبت عليه أو تعاملت معه؟',
+      'review_q2_prompt':
+          'ما هو أصعب تحدٍ واجهته وكيف تغلبت عليه أو تعاملت معه؟',
       'review_q3_title': 'أهم الدروس المستفادة',
-      'review_q3_prompt': 'ما هي أهم الأفكار، الحِكم أو الدروس الحياتية التي تعلمتها هذا العام؟',
+      'review_q3_prompt':
+          'ما هي أهم الأفكار، الحِكم أو الدروس الحياتية التي تعلمتها هذا العام؟',
       'review_q4_title': 'خطة ورؤية العام القادم',
-      'review_q4_prompt': 'ما هي أهدافك الأساسية ونواياك ومجالات تركيزك للعام المقبل؟',
+      'review_q4_prompt':
+          'ما هي أهدافك الأساسية ونواياك ومجالات تركيزك للعام المقبل؟',
       'review_stat_workouts': 'التمارين',
       'review_stat_tasks': 'المهام المنجزة',
       'review_stat_books': 'الكتب المقروءة',
@@ -4023,50 +4248,65 @@ class AppLocalizations {
       'view_all_groups': 'عرض كل المجموعات',
       'pages_read_progress': '{current} / {total} صفحة',
       'weekly_review_due_home_title': 'حان موعد المراجعة الأسبوعية',
-      'weekly_review_due_home_msg': 'تأمل في أسبوعك، ونظم مهامك ومشاريعك القادمة',
+      'weekly_review_due_home_msg':
+          'تأمل في أسبوعك، ونظم مهامك ومشاريعك القادمة',
       'start_weekly_review_btn': 'بدء المراجعة',
       'focus_workspace_ready': 'مساحة العمل والتركيز العميق جاهزة',
 
       // Connected Accounts Module
       'connected_accounts_title': 'الحسابات المتصلة',
-      'connected_accounts_subtitle': 'إدارة حسابات تسجيل الدخول والاتصالات المرتبطة',
+      'connected_accounts_subtitle':
+          'إدارة حسابات تسجيل الدخول والاتصالات المرتبطة',
       'connected_accounts_desc': 'تكاملات Google و Apple والتطبيقات الاجتماعية',
       'google_account_title': 'حساب Google',
-      'google_account_desc': 'اربط حساب Google لتسجيل الدخول السريع ومشاركة دعوات المجموعات',
+      'google_account_desc':
+          'اربط حساب Google لتسجيل الدخول السريع ومشاركة دعوات المجموعات',
       'account_status_linked': 'متصل',
       'account_status_not_linked': 'غير متصل',
       'connect_google_btn': 'ربط حساب Google',
       'disconnect_google_btn': 'إلغاء الربط',
       'disconnect_google_dialog_title': 'هل تريد إلغاء ربط حساب Google؟',
-      'disconnect_google_dialog_msg': 'لن تتمكن من استخدام حساب Google لتسجيل الدخول إلى هذا الحساب في فوكسلي.',
+      'disconnect_google_dialog_msg':
+          'لن تتمكن من استخدام حساب Google لتسجيل الدخول إلى هذا الحساب في فوكسلي.',
       'google_linked_success': '✅ تم ربط حساب Google بنجاح!',
       'google_unlinked_success': 'تم إلغاء ربط حساب Google',
-      'google_already_in_use_error': 'حساب Google هذا مرتبط بالفعل بحساب آخر في فوكسلي',
-      'google_link_generic_error': 'فشل ربط حساب Google. يُرجى المحاولة مرة أخرى.',
+      'google_already_in_use_error':
+          'حساب Google هذا مرتبط بالفعل بحساب آخر في فوكسلي',
+      'google_link_generic_error':
+          'فشل ربط حساب Google. يُرجى المحاولة مرة أخرى.',
       'invite_friends_section': 'دعوة الأصدقاء إلى مجموعة',
-      'invite_friends_desc': 'شارك رموز دعوة المجموعات مباشرة عبر Gmail وWhatsApp والتطبيقات الأخرى',
+      'invite_friends_desc':
+          'شارك رموز دعوة المجموعات مباشرة عبر Gmail وWhatsApp والتطبيقات الأخرى',
       'select_group_to_invite': 'اختر المجموعة',
       'share_invite_btn': 'مشاركة الدعوة',
-      'group_invite_msg_template': "انضم إلى مجموعتي '{groupName}' على تطبيق فوكسلي! استخدم الرمز: {inviteCode}",
-      'no_groups_invite_prompt': 'انضم إلى مجموعة أو أنشئ مجموعة جديدة أولاً لدعوة أصدقائك',
+      'group_invite_msg_template':
+          "انضم إلى مجموعتي '{groupName}' على تطبيق فوكسلي! استخدم الرمز: {inviteCode}",
+      'no_groups_invite_prompt':
+          'انضم إلى مجموعة أو أنشئ مجموعة جديدة أولاً لدعوة أصدقائك',
       'go_to_groups_btn': 'استعراض المجموعات',
 
       // Notifications History & Test Alerts Module
       'notifications_title': 'الإشعارات',
       'no_notifications_title': 'لا توجد إشعارات حتى الآن',
-      'no_notifications_desc': 'عندما تصلك تنبيهات للمهام أو المواعيد أو العادات أو جلسات التركيز، ستظهر هنا.',
+      'no_notifications_desc':
+          'عندما تصلك تنبيهات للمهام أو المواعيد أو العادات أو جلسات التركيز، ستظهر هنا.',
       'mark_all_read_btn': 'تحديد الكل كمقروء',
       'time_just_now': 'الآن',
       'time_yesterday': 'أمس',
       'test_notification_btn': 'اختبار الإشعارات (١٠ ثوانٍ)',
-      'test_notification_desc': 'جدولة تنبيه فوري بعد ١٠ ثوانٍ للتأكد من عمل الإشعارات المحلية',
-      'test_notification_scheduled_toast': '🔔 تم جدولة إشعار اختباري بعد ١٠ ثوانٍ! يمكنك قفل الشاشة لاختباره.',
+      'test_notification_desc':
+          'جدولة تنبيه فوري بعد ١٠ ثوانٍ للتأكد من عمل الإشعارات المحلية',
+      'test_notification_scheduled_toast':
+          '🔔 تم جدولة إشعار اختباري بعد ١٠ ثوانٍ! يمكنك قفل الشاشة لاختباره.',
       'test_instant_notification_btn': 'إرسال إشعار اختباري فوري (الآن)',
-      'test_instant_notification_toast': '🔔 تم إرسال الإشعار الاختباري الفوري! تفقد شريط الإشعارات العلوي.',
+      'test_instant_notification_toast':
+          '🔔 تم إرسال الإشعار الاختباري الفوري! تفقد شريط الإشعارات العلوي.',
       'battery_optimization_guide_title': 'إعدادات البطارية والخلفية',
-      'battery_optimization_guide_desc': 'لضمان وصول التنبيهات في موعدها على أجهزة شاومي، سامسونج، أوبو، وريلمي',
+      'battery_optimization_guide_desc':
+          'لضمان وصول التنبيهات في موعدها على أجهزة شاومي، سامسونج، أوبو، وريلمي',
       'battery_optimization_modal_title': 'ضبط استقبال الإشعارات في موعدها',
-      'battery_optimization_modal_body': 'لضمان رنين المواعيد والتنبيهات في وقتها حتى عند إغلاق التطبيق:\n\n١. افتح إعدادات الهاتف ⬅️ التطبيقات ⬅️ Focusly.\n٢. اختر "البطارية" وحدد "غير مقيّد" (Unrestricted / No Restrictions).\n٣. فعّل "التشغيل التلقائي" (Autostart) إذا كان متوفراً بهاتفك.',
+      'battery_optimization_modal_body':
+          'لضمان رنين المواعيد والتنبيهات في وقتها حتى عند إغلاق التطبيق:\n\n١. افتح إعدادات الهاتف ⬅️ التطبيقات ⬅️ Focusly.\n٢. اختر "البطارية" وحدد "غير مقيّد" (Unrestricted / No Restrictions).\n٣. فعّل "التشغيل التلقائي" (Autostart) إذا كان متوفراً بهاتفك.',
       'got_it_btn': 'فهمت ذلك',
       'notification_scheduled_tag': 'تنبيه قادم',
       'notification_detail_title': 'تفاصيل الإشعار',
@@ -4091,14 +4331,16 @@ class AppLocalizations {
       'notification_view_related': 'عرض العنصر المرتبط',
       'delete_notification_btn': 'حذف الإشعار',
       'delete_notification_confirm_title': 'حذف الإشعار',
-      'delete_notification_confirm_msg': 'هل أنت متأكد من رغبتك في حذف سجل هذا الإشعار؟',
+      'delete_notification_confirm_msg':
+          'هل أنت متأكد من رغبتك في حذف سجل هذا الإشعار؟',
     },
   };
 
   /// Translates the given key or returns fallback, replacing placeholder arguments if provided
   String tr(String key, {Map<String, String>? args}) {
     final languageCode = locale.languageCode;
-    String text = _localizedValues[languageCode]?[key] ??
+    String text =
+        _localizedValues[languageCode]?[key] ??
         _localizedValues['en']?[key] ??
         key;
     if (args != null) {
@@ -4119,7 +4361,7 @@ class AppLocalizations {
         'الخميس',
         'الجمعة',
         'السبت',
-        'الأحد'
+        'الأحد',
       ];
       final months = [
         'يناير',
@@ -4133,17 +4375,21 @@ class AppLocalizations {
         'سبتمبر',
         'أكتوبر',
         'نوفمبر',
-        'ديسمبر'
+        'ديسمبر',
       ];
       final dayName = days[date.weekday - 1];
       final monthName = months[date.month - 1];
 
       // Convert number to eastern arabic numerals
       final arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-      final dayStr = date.day.toString().split('').map((char) {
-        final digit = int.tryParse(char);
-        return digit != null ? arabicDigits[digit] : char;
-      }).join('');
+      final dayStr = date.day
+          .toString()
+          .split('')
+          .map((char) {
+            final digit = int.tryParse(char);
+            return digit != null ? arabicDigits[digit] : char;
+          })
+          .join('');
 
       return '$dayName، $dayStr $monthName';
     } else {
@@ -4154,7 +4400,7 @@ class AppLocalizations {
         'Thursday',
         'Friday',
         'Saturday',
-        'Sunday'
+        'Sunday',
       ];
       final months = [
         'January',
@@ -4168,7 +4414,7 @@ class AppLocalizations {
         'September',
         'October',
         'November',
-        'December'
+        'December',
       ];
       final dayName = days[date.weekday - 1];
       final monthName = months[date.month - 1];

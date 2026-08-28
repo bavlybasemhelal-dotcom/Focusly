@@ -321,116 +321,275 @@ class HabitCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-            ],
-          ),
 
-          const SizedBox(height: 14),
-
-          // Row 3: 7 Interactive Day Check-in Cells
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(7, (dayIdx) {
-              final isDone = habit.isDayCompleted(dayIdx);
-              final isToday = dayIdx == todayIndex;
-              final label = dayLabels[dayIdx];
-
-              return InkWell(
-                onTap: () {
-                  ref.read(habitsControllerProvider).toggleDay(
-                        habit,
-                        dayIdx,
-                        context,
-                      );
-                },
-                borderRadius: BorderRadius.circular(14),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeInOut,
-                  width: 40,
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+              // Group Assigned Badge
+              if (habit.isGroupAssigned)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
-                    gradient: isDone
-                        ? AppColors.primaryGradient(context)
-                        : null,
-                    color: !isDone
-                        ? (isDark
-                            ? (isToday ? const Color(0xFF1E2958) : const Color(0xFF0A1238))
-                            : (isToday ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC)))
-                        : null,
-                    borderRadius: BorderRadius.circular(14),
+                    color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.22 : 0.12),
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isDone
-                          ? Colors.transparent
-                          : (isToday
-                              ? brandPrimary
-                              : borderColor),
-                      width: isToday ? 1.8 : 1,
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.35),
                     ),
-                    boxShadow: isDone
-                        ? [
-                            BoxShadow(
-                              color: isDark
-                                  ? AppColors.cyanElectric.withValues(alpha: 0.35)
-                                  : const Color(0xFF2E6FF2).withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
                   ),
-                  child: Column(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Day Label (e.g. Sat / سبت)
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: isDone
-                              ? (isDark ? const Color(0xFF060B24) : Colors.white)
-                              : (isToday ? brandPrimary : secondaryTextColor),
-                        ),
+                      const Icon(
+                        Icons.group_rounded,
+                        size: 13,
+                        color: Color(0xFF0284C7),
                       ),
-                      const SizedBox(height: 4),
-
-                      // Check Icon or Empty Dot
-                      Container(
-                        width: 18,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isDone
-                              ? (isDark ? const Color(0xFF060B24) : Colors.white)
-                              : Colors.transparent,
-                        ),
-                        child: Center(
-                          child: isDone
-                              ? Icon(
-                                  Icons.check_rounded,
-                                  size: 13,
-                                  color: isDark
-                                      ? AppColors.cyanElectric
-                                      : brandPrimary,
-                                )
-                              : (isToday
-                                  ? Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: brandPrimary,
-                                      ),
-                                    )
-                                  : const SizedBox.shrink()),
+                      const SizedBox(width: 4),
+                      Text(
+                        habit.assignedByName != null && habit.assignedByName!.isNotEmpty
+                            ? '${context.tr('assigned_by_badge')}: ${habit.assignedByName}'
+                            : context.tr('group_assigned_badge'),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0284C7),
                         ),
                       ),
                     ],
                   ),
                 ),
-              );
-            }),
+            ],
           ),
+
+          const SizedBox(height: 14),
+
+          // -------------------------------------------------------------------
+          // Row 3: Count-Mode Progress Tracker vs 7-Day Week Grid
+          // NOTE: Group-assigned habits with completionMode='count' bypass the
+          // 7-day streak grid and display a running counter toward targetCount.
+          // -------------------------------------------------------------------
+          if (habit.isCountMode) ...[
+            Builder(
+              builder: (context) {
+                final target = habit.targetCount ?? 1;
+                final current = habit.currentCount;
+                final isDone = current >= target || habit.isCompleted;
+                final progress = (current / target).clamp(0.0, 1.0);
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isDone
+                          ? const Color(0xFF10B981).withValues(alpha: 0.5)
+                          : borderColor,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                isDone
+                                    ? Icons.check_circle_rounded
+                                    : Icons.track_changes_rounded,
+                                size: 18,
+                                color: isDone ? const Color(0xFF10B981) : brandPrimary,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                isDone
+                                    ? context.tr('target_reached')
+                                    : context.tr('target_progress'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDone ? const Color(0xFF10B981) : primaryTextColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '$current / $target',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: isDone ? const Color(0xFF10B981) : brandPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 8,
+                          backgroundColor: isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFE2E8F0),
+                          valueColor: AlwaysStoppedAnimation(
+                            isDone ? const Color(0xFF10B981) : brandPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (current > 0)
+                            IconButton(
+                              onPressed: () {
+                                ref.read(habitsControllerProvider).decrementHabitCount(habit, context);
+                              },
+                              icon: const Icon(Icons.remove_circle_outline_rounded),
+                              color: secondaryTextColor,
+                              iconSize: 22,
+                              tooltip: context.tr('decrement_count'),
+                            ),
+                          const SizedBox(width: 4),
+                          ElevatedButton.icon(
+                            onPressed: isDone
+                                ? null
+                                : () {
+                                    ref.read(habitsControllerProvider).incrementHabitCount(habit, context);
+                                  },
+                            icon: Icon(
+                              isDone ? Icons.done_all_rounded : Icons.add_rounded,
+                              size: 16,
+                            ),
+                            label: Text(
+                              isDone
+                                  ? context.tr('done')
+                                  : context.tr('log_habit_btn'),
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isDone ? const Color(0xFF10B981) : brandPrimary,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ] else ...[
+            // Row 3: 7 Interactive Day Check-in Cells
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(7, (dayIdx) {
+                final isDone = habit.isDayCompleted(dayIdx);
+                final isToday = dayIdx == todayIndex;
+                final label = dayLabels[dayIdx];
+
+                return InkWell(
+                  onTap: () {
+                    ref.read(habitsControllerProvider).toggleDay(
+                          habit,
+                          dayIdx,
+                          context,
+                        );
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeInOut,
+                    width: 40,
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: isDone
+                          ? AppColors.primaryGradient(context)
+                          : null,
+                      color: !isDone
+                          ? (isDark
+                              ? (isToday ? const Color(0xFF1E2958) : const Color(0xFF0A1238))
+                              : (isToday ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC)))
+                          : null,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: isDone
+                            ? Colors.transparent
+                            : (isToday
+                                ? brandPrimary
+                                : borderColor),
+                        width: isToday ? 1.8 : 1,
+                      ),
+                      boxShadow: isDone
+                          ? [
+                              BoxShadow(
+                                color: isDark
+                                    ? AppColors.cyanElectric.withValues(alpha: 0.35)
+                                    : const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Day Label (e.g. Sat / سبت)
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: isDone
+                                ? (isDark ? const Color(0xFF060B24) : Colors.white)
+                                : (isToday ? brandPrimary : secondaryTextColor),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+
+                        // Check Icon or Empty Dot
+                        Container(
+                          width: 18,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isDone
+                                ? (isDark ? const Color(0xFF060B24) : Colors.white)
+                                : Colors.transparent,
+                          ),
+                          child: Center(
+                            child: isDone
+                                ? Icon(
+                                    Icons.check_rounded,
+                                    size: 13,
+                                    color: isDark
+                                        ? AppColors.cyanElectric
+                                        : brandPrimary,
+                                  )
+                                : (isToday
+                                    ? Container(
+                                        width: 6,
+                                        height: 6,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: brandPrimary,
+                                        ),
+                                      )
+                                    : const SizedBox.shrink()),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
         ],
       ),
     );

@@ -134,8 +134,8 @@ class GroupLeaderboardTab extends ConsumerWidget {
     String rankBadge = '#$rank';
     Color rowBg = isCurrentUser
         ? (isDark
-            ? brandPrimary.withValues(alpha: 0.18)
-            : brandPrimary.withValues(alpha: 0.08))
+              ? brandPrimary.withValues(alpha: 0.18)
+              : brandPrimary.withValues(alpha: 0.08))
         : cardBg;
 
     Color rowBorder = isCurrentUser
@@ -198,8 +198,8 @@ class GroupLeaderboardTab extends ConsumerWidget {
               color: isCurrentUser
                   ? brandPrimary
                   : (isDark
-                      ? const Color(0xFF1E293B)
-                      : const Color(0xFFE2E8F0)),
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFE2E8F0)),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -277,9 +277,7 @@ class GroupLeaderboardTab extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: isDark
-                  ? const Color(0xFF0B1238)
-                  : const Color(0xFFF1F5F9),
+              color: isDark ? const Color(0xFF0B1238) : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isDark ? Colors.white10 : const Color(0xFFCBD5E1),

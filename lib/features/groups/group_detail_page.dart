@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
+import 'assignments/widgets/group_assignments_tab.dart';
 import 'providers/groups_provider.dart';
 import 'services/group_feed_service.dart';
 import 'widgets/group_challenges_tab.dart';
@@ -12,7 +13,7 @@ import 'widgets/group_leaderboard_tab.dart';
 import 'widgets/group_members_tab.dart';
 
 /// Comprehensive Group Detail screen hosting the Feed, Leaderboard,
-/// Challenges, and Members tabs.
+/// Challenges, Assignments, and Members tabs.
 class GroupDetailPage extends ConsumerStatefulWidget {
   final String groupId;
 
@@ -23,7 +24,7 @@ class GroupDetailPage extends ConsumerStatefulWidget {
 }
 
 class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
-  int _selectedTab = 0; // 0: Feed, 1: Leaderboard, 2: Challenges, 3: Members
+  int _selectedTab = 0; // 0: Feed, 1: Leaderboard, 2: Challenges, 3: Assignments, 4: Members
 
   @override
   void initState() {
@@ -219,7 +220,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                           const SizedBox(height: 14),
 
                           // ---------------------------------------------------
-                          // 2. FOUR SUB-TAB SWITCHER (Feed, Leaderboard, Challenges, Members)
+                          // 2. FIVE SUB-TAB SWITCHER (Feed, Leaderboard, Challenges, Assignments, Members)
                           // ---------------------------------------------------
                           Container(
                             height: 44,
@@ -255,6 +256,13 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                                 ),
                                 _buildSubTabItem(
                                   index: 3,
+                                  title: context.tr('tab_group_assignments'),
+                                  icon: Icons.assignment_turned_in_rounded,
+                                  brandPrimary: brandPrimary,
+                                  isDark: isDark,
+                                ),
+                                _buildSubTabItem(
+                                  index: 4,
                                   title: context.tr('tab_group_members'),
                                   icon: Icons.people_alt_rounded,
                                   brandPrimary: brandPrimary,
@@ -279,6 +287,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                           GroupFeedTab(groupId: widget.groupId),
                           GroupLeaderboardTab(groupId: widget.groupId),
                           GroupChallengesTab(groupId: widget.groupId),
+                          GroupAssignmentsTab(
+                            groupId: widget.groupId,
+                            group: group,
+                          ),
                           GroupMembersTab(
                             groupId: widget.groupId,
                             group: group,
@@ -322,8 +334,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color:
-                          Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.2 : 0.05,
+                      ),
                       blurRadius: 6,
                     ),
                   ]
@@ -370,8 +383,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             height: 280,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF38BDF8)
-                  .withValues(alpha: isDark ? 0.12 : 0.14),
+              color: const Color(
+                0xFF38BDF8,
+              ).withValues(alpha: isDark ? 0.12 : 0.14),
             ),
           ),
         ),

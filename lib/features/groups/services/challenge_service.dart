@@ -20,6 +20,7 @@ class ChallengeService {
       return null;
     }
   }
+
   final GroupFeedService _feedService = GroupFeedService();
 
   Timer? _debounceSyncTimer;
@@ -56,15 +57,9 @@ class ChallengeService {
           completedDays += days.where((d) => d == true).length;
         }
         return completedDays;
-      } else if (type == 'xp') {
-        final progressDoc = await firestore
-            .collection('users')
-            .doc(uid)
-            .collection('stats')
-            .doc('progress')
-            .get();
-        return (progressDoc.data()?['xp'] as num?)?.toInt() ?? 0;
       }
+      // NOTE: 'xp' challenge type has been removed from Group Challenges.
+      // Personal XP tracking is unaffected and remains active elsewhere.
     } catch (e) {
       debugPrint('Error getting stat for $type: $e');
     }
@@ -242,7 +237,6 @@ class ChallengeService {
 
       final tasksStat = await getCurrentUserStat('tasks');
       final habitsStat = await getCurrentUserStat('habits');
-      final xpStat = await getCurrentUserStat('xp');
 
       for (final groupId in groupIds) {
         final challengesSnap = await firestore
@@ -254,8 +248,13 @@ class ChallengeService {
 
         for (final doc in challengesSnap.docs) {
           final type = doc.data()['type'] as String? ?? 'tasks';
-          final participantRef =
-              doc.reference.collection('participants').doc(uid);
+
+          // Skip legacy 'xp' challenges since XP challenge scoring has been removed
+          if (type == 'xp') continue;
+
+          final participantRef = doc.reference
+              .collection('participants')
+              .doc(uid);
           final participantDoc = await participantRef.get();
 
           if (participantDoc.exists) {
@@ -264,7 +263,6 @@ class ChallengeService {
             int currentStat = 0;
             if (type == 'tasks') currentStat = tasksStat;
             if (type == 'habits') currentStat = habitsStat;
-            if (type == 'xp') currentStat = xpStat;
 
             final score = (currentStat - baseline).clamp(0, 999999);
             await participantRef.update({'score': score});
@@ -331,7 +329,8 @@ class ChallengeService {
             await _feedService.postToGroup(
               groupId: groupId,
               type: 'challenge_won',
-              message: '🏆 $winnerName won the "${challenge.title}" challenge with $winnerScore points!',
+              message:
+                  '🏆 $winnerName won the "${challenge.title}" challenge with $winnerScore points!',
               icon: '👑',
             );
           }

@@ -1,10 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Data model representing a Group Challenge.
+///
+/// Valid challenge types are 'tasks' and 'habits'.
+/// NOTE: The 'xp' challenge type was intentionally removed to keep group challenges
+/// focused strictly on direct task and habit completions (personal XP awards remain active).
+/// Legacy 'xp' docs in Firestore are retained for read-only backwards compatibility.
 class ChallengeModel {
   final String id;
   final String title;
-  final String type; // 'tasks' | 'habits' | 'xp'
+  final String type; // 'tasks' | 'habits' (legacy docs may contain 'xp')
   final int goal;
   final int durationDays; // 3, 7, 14, 30
   final DateTime startDate;

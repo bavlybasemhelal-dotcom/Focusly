@@ -154,6 +154,15 @@ class TaskModel {
   // Skills Board Specific Optional Field
   final String? skillId; // Explicitly linked Skill ID (optional)
 
+  // Group Assignment Specific Fields
+  final String? groupAssignmentId; // Linked Group Assignment ID (null for personal tasks)
+  final String? assignedByGroupId; // Group ID that assigned this task
+  final String? assignedByName; // Admin name who created and assigned the task
+  final bool locked; // True for group-assigned tasks (locks title and deadline from member editing)
+  final String? completionMode; // 'simple' | 'count'
+  final int? targetCount; // Target repetition count when completionMode is 'count'
+  final int currentCount; // Current progress count towards targetCount
+
   const TaskModel({
     required this.id,
     required this.title,
@@ -172,7 +181,17 @@ class TaskModel {
     this.waitingSince,
     this.projectId,
     this.skillId,
+    this.groupAssignmentId,
+    this.assignedByGroupId,
+    this.assignedByName,
+    this.locked = false,
+    this.completionMode = 'simple',
+    this.targetCount,
+    this.currentCount = 0,
   });
+
+  /// True if this task originated from a group assignment
+  bool get isGroupAssigned => groupAssignmentId != null && groupAssignmentId!.isNotEmpty;
 
   /// Calculates completed subtasks count
   int get completedSubtasksCount => subtasks.where((s) => s.done).length;
@@ -211,6 +230,13 @@ class TaskModel {
       'waitingSince': waitingSince != null ? Timestamp.fromDate(waitingSince!) : null,
       'projectId': projectId,
       'skillId': skillId,
+      'groupAssignmentId': groupAssignmentId,
+      'assignedByGroupId': assignedByGroupId,
+      'assignedByName': assignedByName,
+      'locked': locked,
+      'completionMode': completionMode,
+      'targetCount': targetCount,
+      'currentCount': currentCount,
     };
   }
 
@@ -289,6 +315,13 @@ class TaskModel {
       waitingSince: parsedWaitingSince,
       projectId: map['projectId'],
       skillId: map['skillId'],
+      groupAssignmentId: map['groupAssignmentId'],
+      assignedByGroupId: map['assignedByGroupId'],
+      assignedByName: map['assignedByName'],
+      locked: map['locked'] ?? false,
+      completionMode: map['completionMode'] ?? 'simple',
+      targetCount: (map['targetCount'] as num?)?.toInt(),
+      currentCount: (map['currentCount'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -310,6 +343,13 @@ class TaskModel {
     DateTime? waitingSince,
     String? projectId,
     String? skillId,
+    String? groupAssignmentId,
+    String? assignedByGroupId,
+    String? assignedByName,
+    bool? locked,
+    String? completionMode,
+    int? targetCount,
+    int? currentCount,
     bool clearTime = false,
     bool clearDeadline = false,
     bool clearDoneAt = false,
@@ -318,6 +358,7 @@ class TaskModel {
     bool clearWaitingSince = false,
     bool clearProjectId = false,
     bool clearSkillId = false,
+    bool clearGroupAssignmentId = false,
   }) {
     return TaskModel(
       id: id ?? this.id,
@@ -337,6 +378,13 @@ class TaskModel {
       waitingSince: clearWaitingSince ? null : (waitingSince ?? this.waitingSince),
       projectId: clearProjectId ? null : (projectId ?? this.projectId),
       skillId: clearSkillId ? null : (skillId ?? this.skillId),
+      groupAssignmentId: clearGroupAssignmentId ? null : (groupAssignmentId ?? this.groupAssignmentId),
+      assignedByGroupId: assignedByGroupId ?? this.assignedByGroupId,
+      assignedByName: assignedByName ?? this.assignedByName,
+      locked: locked ?? this.locked,
+      completionMode: completionMode ?? this.completionMode,
+      targetCount: targetCount ?? this.targetCount,
+      currentCount: currentCount ?? this.currentCount,
     );
   }
 }

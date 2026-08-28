@@ -145,7 +145,12 @@ class GroupFeedTab extends ConsumerWidget {
             ),
             data: (feedItems) {
               if (feedItems.isEmpty) {
-                return _buildEmptyFeed(context, isDark, primaryTextColor, secondaryTextColor);
+                return _buildEmptyFeed(
+                  context,
+                  isDark,
+                  primaryTextColor,
+                  secondaryTextColor,
+                );
               }
 
               return ListView.separated(
@@ -395,8 +400,8 @@ class GroupFeedTab extends ConsumerWidget {
           color: isSelected
               ? brandPrimary.withValues(alpha: isDark ? 0.25 : 0.15)
               : (isDark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : const Color(0xFFF8FAFC)),
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : const Color(0xFFF8FAFC)),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? brandPrimary : borderColor,
@@ -455,10 +460,7 @@ class GroupFeedTab extends ConsumerWidget {
             Text(
               context.tr('empty_feed_subtitle'),
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                color: secondaryTextColor,
-              ),
+              style: TextStyle(fontSize: 12, color: secondaryTextColor),
             ),
           ],
         ),
