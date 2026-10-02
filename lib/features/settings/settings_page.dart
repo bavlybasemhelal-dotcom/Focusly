@@ -19,6 +19,8 @@ import 'profile_page.dart';
 import 'terms_of_service_page.dart';
 import '../connected_accounts/connected_accounts_page.dart';
 import '../../core/services/notification_init_service.dart';
+import '../../core/account_deletion/account_deletion_service.dart';
+import '../../core/account_deletion/widgets/reauth_dialog.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -1143,14 +1145,40 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             borderRadius: BorderRadius.circular(22),
             side: BorderSide(color: AppColors.border(context), width: 1.2),
           ),
-          title: Text(
-            context.tr('delete_account_confirm_title'),
-            style: const TextStyle(
-              color: AppColors.errorRed,
-              fontWeight: FontWeight.w900,
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.errorRed.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppColors.errorRed,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  context.tr('delete_account_confirm_title'),
+                  style: const TextStyle(
+                    color: AppColors.errorRed,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            context.tr('delete_account_confirm_message'),
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.4,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
             ),
           ),
-          content: Text(context.tr('delete_account_confirm_message')),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -1167,9 +1195,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               ),
               child: Text(
-                context.tr('delete_account'),
+                context.tr('delete_permanently'),
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
@@ -1178,24 +1208,174 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       },
     );
 
-    if (shouldDelete == true) {
-      // TODO: Delete user documents from Firestore and call FirebaseAuth user.delete()
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr('coming_soon')),
+    if (shouldDelete != true || !mounted) return;
+
+    final deletionService = AccountDeletionService();
+
+    void showProgressModal() {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => PopScope(
+          canPop: false,
+          child: AlertDialog(
+            backgroundColor: dialogBg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(color: AppColors.border(context)),
+            ),
+            content: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                children: [
+                  const SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.8,
+                      color: AppColors.errorRed,
+                    ),
+                  ),
+                  const SizedBox(width: 18),
+                  Expanded(
+                    child: Text(
+                      context.tr('deleting_account_progress'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       );
     }
-  }
 
-  void _showComingSoonSnackbar(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature - ${context.tr('coming_soon')}'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    // Display progress dialog
+    showProgressModal();
+
+    try {
+      await deletionService.deleteCurrentAccount();
+
+      // Dismiss progress dialog
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      await logoutAndClearSession(ref);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  context.tr('account_deleted_success'),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF10B981),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } on ReauthenticationRequiredException catch (e) {
+      // Dismiss progress dialog
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      if (!mounted) return;
+
+      // Present the re-authentication dialog
+      final bool? reauthSuccess = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogCtx) => ReauthDialog(exception: e),
+      );
+
+      if (reauthSuccess == true && mounted) {
+        // Show progress dialog again to finalize Auth deletion
+        showProgressModal();
+
+        try {
+          await deletionService.finalizeAuthDeletionAfterReauth();
+
+          if (mounted) {
+            Navigator.of(context, rootNavigator: true).pop();
+          }
+
+          await logoutAndClearSession(ref);
+
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle_rounded, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      context.tr('account_deleted_success'),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: const Color(0xFF10B981),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+        } catch (finalizeErr) {
+          if (mounted) {
+            Navigator.of(context, rootNavigator: true).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(context.tr('delete_account_error')),
+                backgroundColor: AppColors.errorRed,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr('delete_account_error')),
+            backgroundColor: AppColors.errorRed,
+          ),
+        );
+      }
+    }
   }
 
   // ===========================================================================

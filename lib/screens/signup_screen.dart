@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../core/auth/google_auth_service.dart';
+import '../core/auth/user_profile_service.dart';
 import '../core/localization/app_localizations.dart';
 import '../core/theme/app_colors.dart';
 import 'home_screen.dart';
@@ -24,6 +25,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isConfirmPasswordObscured = true;
   bool _agreedToTerms = false;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   String? _errorMessage;
 
   @override
@@ -84,12 +86,11 @@ class _SignupScreenState extends State<SignupScreen> {
 
         // 3. Write user profile document in Firestore (users/{uid})
         try {
-          await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-            'uid': user.uid,
-            'name': name,
-            'email': email,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
+          await UserProfileService().createUserDocument(
+            uid: user.uid,
+            name: name,
+            email: email,
+          );
         } catch (_) {}
       }
 
@@ -126,6 +127,88 @@ class _SignupScreenState extends State<SignupScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Initiates interactive Google Sign-In / Sign-Up, signs in via Firebase Auth,
+  /// provisions profile if new user, and navigates to HomeScreen on success.
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _errorMessage = null;
+      _isGoogleLoading = true;
+    });
+
+    try {
+      final googleAuthService = GoogleAuthService();
+      final result = await googleAuthService.signInWithGoogle();
+
+      if (!mounted) return;
+
+      if (result.isCancelled) {
+        // User dismissed the Google account picker - quietly return with no error
+        setState(() {
+          _isGoogleLoading = false;
+        });
+        return;
+      }
+
+      if (result.isPopupBlocked) {
+        setState(() {
+          _isGoogleLoading = false;
+          _errorMessage = context.tr('google_popup_blocked');
+        });
+        return;
+      }
+
+      if (result.isAccountExistsWithDifferentCredential) {
+        setState(() {
+          _isGoogleLoading = false;
+          _errorMessage = context.tr('account_exists_different_credential');
+        });
+        return;
+      }
+
+      if (result.isError) {
+        setState(() {
+          _isGoogleLoading = false;
+          _errorMessage = context.tr('google_signin_failed');
+        });
+        return;
+      }
+
+      if (result.isSuccess) {
+        // Navigate to Home on successful sign-in
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HomeScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeInOut,
+                ),
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 500),
+          ),
+        );
+      }
+    } catch (e, stack) {
+      debugPrint('[SignupScreen] Google sign-in unexpected error: $e\n$stack');
+      if (!mounted) return;
+      setState(() {
+        _isGoogleLoading = false;
+        _errorMessage = context.tr('google_signin_failed');
+      });
+    } finally {
+      if (mounted && _isGoogleLoading) {
+        setState(() {
+          _isGoogleLoading = false;
         });
       }
     }
@@ -457,7 +540,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               ? (isDark ? Colors.white12 : const Color(0xFFE2E8F0))
                               : null,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: (_isLoading || !_agreedToTerms)
+                          boxShadow: (_isLoading || _isGoogleLoading || !_agreedToTerms)
                               ? null
                               : [
                                   BoxShadow(
@@ -470,7 +553,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ],
                         ),
                         child: ElevatedButton(
-                          onPressed: (_isLoading || !_agreedToTerms)
+                          onPressed: (_isLoading || _isGoogleLoading || !_agreedToTerms)
                               ? null
                               : _handleSignup,
                           style: ElevatedButton.styleFrom(
@@ -496,7 +579,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900,
-                                    color: (_isLoading || !_agreedToTerms)
+                                    color: (_isLoading || _isGoogleLoading || !_agreedToTerms)
                                         ? (isDark ? Colors.white38 : const Color(0xFF94A3B8))
                                         : (isDark ? const Color(0xFF060B24) : Colors.white),
                                     letterSpacing: 0.3,
@@ -505,6 +588,104 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
+
+                      // Divider "or"
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Divider(color: borderColor, height: 1),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                            child: Text(
+                              context.tr('or'),
+                              style: TextStyle(
+                                color: secondaryTextColor,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(color: borderColor, height: 1),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Social "Continue with Google" Button
+                      Container(
+                        width: double.infinity,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: cardBg,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor, width: 1.2),
+                          boxShadow: (isDark || _isLoading || _isGoogleLoading)
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: const Color(0xFF2E6FF2).withValues(alpha: 0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                        ),
+                        child: OutlinedButton(
+                          onPressed: (_isLoading || _isGoogleLoading)
+                              ? null
+                              : _handleGoogleSignIn,
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            side: BorderSide.none,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: _isGoogleLoading
+                              ? SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: brandPrimary,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 22,
+                                      height: 22,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white,
+                                      ),
+                                      child: const Center(
+                                        child: Text(
+                                          'G',
+                                          style: TextStyle(
+                                            color: Color(0xFF4285F4),
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      context.tr('continue_with_google'),
+                                      style: TextStyle(
+                                        color: primaryTextColor,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
 
                       // Footer Login Navigation
                       Row(

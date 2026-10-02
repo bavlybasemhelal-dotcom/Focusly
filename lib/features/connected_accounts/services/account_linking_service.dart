@@ -49,6 +49,8 @@ class AccountLinkingService {
       _googleSignIn ??
       GoogleSignIn(
         scopes: const ['email', 'profile'],
+        serverClientId:
+            '1069563055495-7vtqi7v2k094gqlvu2ugifvpo14kii9l.apps.googleusercontent.com',
       );
 
   /// Checks whether a Google account is currently linked in [user.providerData].

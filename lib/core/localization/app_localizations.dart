@@ -73,6 +73,11 @@ class AppLocalizations {
       'login_failed': 'Invalid email or password.',
       'user_disabled': 'This user account has been disabled.',
       'too_many_requests': 'Too many failed attempts. Please try again later.',
+      'google_signin_failed': "Couldn't sign in with Google. Please try again.",
+      'google_popup_blocked':
+          'Sign-in popup was blocked by your browser. Please allow popups for this site and try again.',
+      'account_exists_different_credential':
+          'An account already exists with this email. Please log in with your email and password instead, then link Google from Settings.',
 
       // Signup Screen
       'create_account': 'Create Your Account',
@@ -134,6 +139,8 @@ class AppLocalizations {
       'update_task': 'Update Task',
       'subtasks': 'Subtasks',
       'add_subtask_hint': 'Add a subtask...',
+      'edit_subtask': 'Edit Subtask',
+      'subtask_title_hint': 'Subtask title',
       'no_tasks_title': 'No tasks here yet',
       'no_tasks_subtitle':
           'Tap the (+) button to create your first task and conquer your day!',
@@ -645,9 +652,22 @@ class AppLocalizations {
       'log_out_confirm_title': 'Log Out',
       'log_out_confirm_message': 'Are you sure you want to log out of Focusly?',
       'delete_account': 'Delete Account',
-      'delete_account_confirm_title': 'Delete Account',
+      'delete_account_confirm_title': 'Delete Account?',
       'delete_account_confirm_message':
-          'This action is irreversible. All your tasks, habits, and streaks will be permanently deleted.',
+          'This action is permanent and irreversible. ALL your data (tasks, habits, progress, groups, and activity history) across the entire app will be permanently erased.',
+      'delete_permanently': 'Delete Permanently',
+      'deleting_account_progress': 'Deleting account and data...',
+      'account_deleted_success': 'Your account has been permanently deleted.',
+      'delete_account_error':
+          'Failed to delete account. Please check your connection and try again.',
+      'reauth_required_title': 'Security Verification',
+      'reauth_required_message':
+          'For security reasons, deleting your account requires a recent sign-in. Please confirm your credentials to proceed.',
+      'reauth_password_hint': 'Enter your password',
+      'reauth_verify_btn': 'Verify & Delete',
+      'reauth_google_btn': 'Continue with Google',
+      'reauth_failed':
+          'Authentication failed. Please verify your credentials and try again.',
 
       // Legal Texts (Terms & Privacy)
       'legal_last_updated': 'Last updated: August 2026',
@@ -2243,6 +2263,12 @@ class AppLocalizations {
       'login_failed': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
       'user_disabled': 'تم تعطيل هذا الحساب.',
       'too_many_requests': 'محاولات خاطئة كثيرة. يرجى المحاولة لاحقاً.',
+      'google_signin_failed':
+          'تعذر تسجيل الدخول باستخدام Google. يرجى المحاولة مرة أخرى.',
+      'google_popup_blocked':
+          'تم حظر نافذة تسجيل الدخول المنبثقة من قِبل المتصفح. يرجى السماح بالنوافذ المنبثقة لهذا الموقع والمحاولة مرة أخرى.',
+      'account_exists_different_credential':
+          'يوجد حساب مسجل مسبقاً بهذا البريد الإلكتروني. يرجى تسجيل الدخول بالبريد وكلمة المرور، ثم ربط Google من الإعدادات.',
 
       // Signup Screen
       'create_account': 'إنشاء حساب جديد',
@@ -2302,6 +2328,8 @@ class AppLocalizations {
       'update_task': 'تحديث المهمة',
       'subtasks': 'المهام الفرعية',
       'add_subtask_hint': 'إضافة مهمة فرعية...',
+      'edit_subtask': 'تعديل المهمة الفرعية',
+      'subtask_title_hint': 'عنوان المهمة الفرعية',
       'no_tasks_title': 'لا توجد مهام هنا بعد',
       'no_tasks_subtitle':
           'اضغط على زر (+) لإنشاء أول مهمة وابدأ يومك بإنتاجية وتركيز!',
@@ -2810,9 +2838,22 @@ class AppLocalizations {
       'log_out_confirm_message':
           'هل أنت متأكد من رغبتك في تسجيل الخروج من Focusly؟',
       'delete_account': 'حذف الحساب',
-      'delete_account_confirm_title': 'حذف الحساب نهائياً',
+      'delete_account_confirm_title': 'حذف الحساب نهائياً؟',
       'delete_account_confirm_message':
-          'هذا الإجراء لا يمكن التراجع عنه. سيتم حذف جميع مهامك وعاداتك وبياناتك نهائياً.',
+          'هذا الإجراء نهائي ولا يمكن التراجع عنه أبداً. سيتم مسح جميع بياناتك بالكامل (المهام، العادات، التقدم، المجموعات، وسجل الأنشطة) عبر كامل التطبيق.',
+      'delete_permanently': 'حذف نهائياً',
+      'deleting_account_progress': 'جاري حذف الحساب وجميع البيانات نهائياً...',
+      'account_deleted_success': 'تم حذف حسابك وجميع بياناتك نهائياً.',
+      'delete_account_error':
+          'حدث خطأ أثناء حذف الحساب. يرجى التحقق من الاتصال بالإنترنت والمحاولة مرة أخرى.',
+      'reauth_required_title': 'تأكيد الأمان',
+      'reauth_required_message':
+          'لأسباب أمنية، يتطلب حذف الحساب تسجيل دخول حديث. يرجى تأكيد هويتك للمتابعة.',
+      'reauth_password_hint': 'أدخل كلمة المرور الحالية',
+      'reauth_verify_btn': 'تأكيد والحذف',
+      'reauth_google_btn': 'المتابعة باستخدام Google',
+      'reauth_failed':
+          'فشل تأكيد الهوية. يرجى التأكد من البيانات والمحاولة مجدداً.',
 
       // Legal Texts (Terms & Privacy)
       'legal_last_updated': 'آخر تحديث: أغسطس ٢٠٢٦',

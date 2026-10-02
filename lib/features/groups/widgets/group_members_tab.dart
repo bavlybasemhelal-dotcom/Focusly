@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../models/group_member_model.dart';
 import '../models/group_model.dart';
 import '../providers/groups_provider.dart';
+import '../services/group_service.dart';
 
 /// Members tab managing approved members, admin pending request approvals,
 /// member removals, leaving, and group deletion.
@@ -430,12 +431,7 @@ class GroupMembersTab extends ConsumerWidget {
     GroupMemberModel member,
   ) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('groups')
-          .doc(groupId)
-          .collection('members')
-          .doc(member.uid)
-          .delete();
+      await GroupService().cancelPendingRequest(groupId, member.uid);
     } catch (e) {
       debugPrint('Error rejecting member: $e');
     }
@@ -456,31 +452,10 @@ class GroupMembersTab extends ConsumerWidget {
             onPressed: () async {
               Navigator.of(ctx).pop();
               try {
-                final firestore = FirebaseFirestore.instance;
-                final groupRef = firestore.collection('groups').doc(groupId);
-                final memberRef =
-                    groupRef.collection('members').doc(member.uid);
-                final userRef = firestore.collection('users').doc(member.uid);
-
-                await firestore.runTransaction((transaction) async {
-                  final groupSnap = await transaction.get(groupRef);
-                  final currentCount =
-                      (groupSnap.data()?['memberCount'] as num?)?.toInt() ?? 1;
-
-                  transaction.delete(memberRef);
-                  transaction.update(
-                    groupRef,
-                    {'memberCount': (currentCount - 1).clamp(1, 999)},
-                  );
-                  transaction.set(
-                    userRef,
-                    {
-                      'groupIds': FieldValue.arrayRemove([groupId]),
-                    },
-                    SetOptions(merge: true),
-                  );
-                });
-              } catch (_) {}
+                await GroupService().leaveGroup(groupId, member.uid);
+              } catch (e) {
+                debugPrint('Error removing member: $e');
+              }
             },
             child: Text(
               context.tr('remove_member_btn'),
@@ -507,35 +482,14 @@ class GroupMembersTab extends ConsumerWidget {
             onPressed: () async {
               Navigator.of(ctx).pop();
               try {
-                final firestore = FirebaseFirestore.instance;
-                final groupRef = firestore.collection('groups').doc(groupId);
-                final memberRef =
-                    groupRef.collection('members').doc(currentUid);
-                final userRef = firestore.collection('users').doc(currentUid);
-
-                await firestore.runTransaction((transaction) async {
-                  final groupSnap = await transaction.get(groupRef);
-                  final currentCount =
-                      (groupSnap.data()?['memberCount'] as num?)?.toInt() ?? 1;
-
-                  transaction.delete(memberRef);
-                  transaction.update(
-                    groupRef,
-                    {'memberCount': (currentCount - 1).clamp(1, 999)},
-                  );
-                  transaction.set(
-                    userRef,
-                    {
-                      'groupIds': FieldValue.arrayRemove([groupId]),
-                    },
-                    SetOptions(merge: true),
-                  );
-                });
+                await GroupService().leaveGroup(groupId, currentUid);
 
                 if (context.mounted) {
                   Navigator.of(context).pop();
                 }
-              } catch (_) {}
+              } catch (e) {
+                debugPrint('Error leaving group: $e');
+              }
             },
             child: Text(
               context.tr('leave_group_btn'),
@@ -565,27 +519,14 @@ class GroupMembersTab extends ConsumerWidget {
             onPressed: () async {
               Navigator.of(ctx).pop();
               try {
-                final firestore = FirebaseFirestore.instance;
-                final batch = firestore.batch();
-
-                for (final m in members) {
-                  final userRef = firestore.collection('users').doc(m.uid);
-                  batch.set(
-                    userRef,
-                    {
-                      'groupIds': FieldValue.arrayRemove([groupId]),
-                    },
-                    SetOptions(merge: true),
-                  );
-                }
-
-                batch.delete(firestore.collection('groups').doc(groupId));
-                await batch.commit();
+                await GroupService().deleteGroup(groupId, members: members);
 
                 if (context.mounted) {
                   Navigator.of(context).pop();
                 }
-              } catch (_) {}
+              } catch (e) {
+                debugPrint('Error deleting group: $e');
+              }
             },
             child: Text(
               context.tr('delete_group_btn'),

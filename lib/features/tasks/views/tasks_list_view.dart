@@ -674,17 +674,30 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: Text(
-                                subtask.title,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: subtask.done ? secondaryTextColor : primaryTextColor,
-                                  decoration: subtask.done
-                                      ? TextDecoration.lineThrough
-                                      : null,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => _showEditSubtaskDialog(context, task, subtask),
+                                child: Text(
+                                  subtask.title,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: subtask.done ? secondaryTextColor : primaryTextColor,
+                                    decoration: subtask.done
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
                                 ),
                               ),
                             ),
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, size: 15),
+                              color: secondaryTextColor,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              tooltip: context.tr('edit_subtask'),
+                              onPressed: () => _showEditSubtaskDialog(context, task, subtask),
+                            ),
+                            const SizedBox(width: 8),
                             IconButton(
                               icon: const Icon(Icons.close_rounded, size: 16),
                               color: secondaryTextColor,
@@ -713,6 +726,110 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
         ),
       ),
     );
+  }
+
+  Future<void> _showEditSubtaskDialog(
+    BuildContext context,
+    TaskModel task,
+    SubtaskModel subtask,
+  ) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
+    final primaryTextColor = AppColors.textPrimary(context);
+    final secondaryTextColor = AppColors.textSecondary(context);
+    final brandPrimary = AppColors.brandPrimary(context);
+    final controller = TextEditingController(text: subtask.title);
+
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: dialogBg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.edit_note_rounded, color: brandPrimary, size: 22),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  context.tr('edit_subtask'),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 17,
+                    color: primaryTextColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            style: TextStyle(color: primaryTextColor, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: context.tr('subtask_title_hint'),
+              hintStyle: TextStyle(
+                color: secondaryTextColor.withValues(alpha: 0.6),
+              ),
+              filled: true,
+              fillColor: isDark
+                  ? const Color(0xFF08123A)
+                  : const Color(0xFFF1F5F9),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: brandPrimary, width: 1.5),
+              ),
+            ),
+            onSubmitted: (val) {
+              if (val.trim().isNotEmpty) {
+                Navigator.of(dialogContext).pop(val.trim());
+              }
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(context.tr('cancel')),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final val = controller.text.trim();
+                if (val.isNotEmpty) {
+                  Navigator.of(dialogContext).pop(val);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: brandPrimary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+              ),
+              child: Text(context.tr('save')),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newTitle != null &&
+        newTitle.trim().isNotEmpty &&
+        newTitle.trim() != subtask.title) {
+      await ref
+          .read(tasksControllerProvider)
+          .editSubtask(task, subtask.id, newTitle.trim());
+    }
   }
 
   Future<void> _confirmDeleteTask(BuildContext context, String taskId) async {

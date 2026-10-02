@@ -292,6 +292,27 @@ class TasksController {
     }
   }
 
+  /// Updates the title of an existing subtask item
+  Future<void> editSubtask(TaskModel task, String subtaskId, String newTitle) async {
+    final trimmed = newTitle.trim();
+    if (trimmed.isEmpty) return;
+
+    final updatedSubtasks = task.subtasks.map((s) {
+      if (s.id == subtaskId) {
+        return s.copyWith(title: trimmed);
+      }
+      return s;
+    }).toList();
+
+    final col = _tasksCollection;
+    if (col == null) return;
+    try {
+      await col.doc(task.id).update({'subtasks': updatedSubtasks.map((s) => s.toMap()).toList()});
+    } catch (e) {
+      debugPrint('Error editing subtask: $e');
+    }
+  }
+
   /// Moves a task into a specific Eisenhower Quadrant via drag & drop or quick select
   Future<void> moveTaskToQuadrant(
     TaskModel task,

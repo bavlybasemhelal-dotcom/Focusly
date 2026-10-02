@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../core/auth/google_auth_service.dart';
 import '../core/localization/app_localizations.dart';
 import '../core/theme/app_colors.dart';
 import 'home_screen.dart';
@@ -20,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordObscured = true;
   bool _rememberMe = false;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   String? _errorMessage;
 
   @override
@@ -89,6 +91,88 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Initiates interactive Google Sign-In, signs in via Firebase Auth,
+  /// provisions profile if new user, and navigates to HomeScreen on success.
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _errorMessage = null;
+      _isGoogleLoading = true;
+    });
+
+    try {
+      final googleAuthService = GoogleAuthService();
+      final result = await googleAuthService.signInWithGoogle();
+
+      if (!mounted) return;
+
+      if (result.isCancelled) {
+        // User dismissed the Google account picker - quietly return with no error
+        setState(() {
+          _isGoogleLoading = false;
+        });
+        return;
+      }
+
+      if (result.isPopupBlocked) {
+        setState(() {
+          _isGoogleLoading = false;
+          _errorMessage = context.tr('google_popup_blocked');
+        });
+        return;
+      }
+
+      if (result.isAccountExistsWithDifferentCredential) {
+        setState(() {
+          _isGoogleLoading = false;
+          _errorMessage = context.tr('account_exists_different_credential');
+        });
+        return;
+      }
+
+      if (result.isError) {
+        setState(() {
+          _isGoogleLoading = false;
+          _errorMessage = context.tr('google_signin_failed');
+        });
+        return;
+      }
+
+      if (result.isSuccess) {
+        // Navigate to Home on successful sign-in
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HomeScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeInOut,
+                ),
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 500),
+          ),
+        );
+      }
+    } catch (e, stack) {
+      debugPrint('[LoginScreen] Google sign-in unexpected error: $e\n$stack');
+      if (!mounted) return;
+      setState(() {
+        _isGoogleLoading = false;
+        _errorMessage = context.tr('google_signin_failed');
+      });
+    } finally {
+      if (mounted && _isGoogleLoading) {
+        setState(() {
+          _isGoogleLoading = false;
         });
       }
     }
@@ -383,22 +467,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: BoxDecoration(
                           gradient: AppColors.primaryGradient(context),
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? AppColors.cyanElectric.withValues(alpha: 0.35)
-                                  : const Color(0xFF2563EB).withValues(alpha: 0.35),
-                              blurRadius: 18,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
+                          boxShadow: (_isLoading || _isGoogleLoading)
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: isDark
+                                        ? AppColors.cyanElectric.withValues(alpha: 0.35)
+                                        : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                                    blurRadius: 18,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
                         ),
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleLogin,
+                          onPressed: (_isLoading || _isGoogleLoading)
+                              ? null
+                              : _handleLogin,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                             foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
+                            disabledForegroundColor: isDark ? Colors.white38 : const Color(0xFF94A3B8),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -417,7 +506,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900,
-                                    color: isDark ? const Color(0xFF060B24) : Colors.white,
+                                    color: (_isLoading || _isGoogleLoading)
+                                        ? (isDark ? Colors.white38 : const Color(0xFF94A3B8))
+                                        : (isDark ? const Color(0xFF060B24) : Colors.white),
                                     letterSpacing: 0.3,
                                   ),
                                 ),
@@ -457,7 +548,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: cardBg,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: borderColor, width: 1.2),
-                          boxShadow: isDark
+                          boxShadow: (isDark || _isLoading || _isGoogleLoading)
                               ? null
                               : [
                                   BoxShadow(
@@ -468,13 +559,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                         ),
                         child: OutlinedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(context.tr('coming_soon')),
-                              ),
-                            );
-                          },
+                          onPressed: (_isLoading || _isGoogleLoading)
+                              ? null
+                              : _handleGoogleSignIn,
                           style: OutlinedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             side: BorderSide.none,
@@ -482,38 +569,47 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 22,
-                                height: 22,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    'G',
-                                    style: TextStyle(
-                                      color: Color(0xFF4285F4),
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 14,
-                                    ),
+                          child: _isGoogleLoading
+                              ? SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: brandPrimary,
+                                    strokeWidth: 2.5,
                                   ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 22,
+                                      height: 22,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white,
+                                      ),
+                                      child: const Center(
+                                        child: Text(
+                                          'G',
+                                          style: TextStyle(
+                                            color: Color(0xFF4285F4),
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      context.tr('continue_with_google'),
+                                      style: TextStyle(
+                                        color: primaryTextColor,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                context.tr('continue_with_google'),
-                                style: TextStyle(
-                                  color: primaryTextColor,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                       const SizedBox(height: 32),
