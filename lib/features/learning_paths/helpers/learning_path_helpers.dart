@@ -28,12 +28,14 @@ class LearningPathHelpers {
       if (stepMap.containsKey(d)) {
         result.add(stepMap[d]!);
       } else {
-        result.add(PathStepModel(
-          day: d,
-          title: '',
-          completed: false,
-          subSteps: const [],
-        ));
+        result.add(
+          PathStepModel(
+            day: d,
+            title: '',
+            completed: false,
+            subSteps: const [],
+          ),
+        );
       }
     }
 
@@ -65,9 +67,6 @@ class LearningPathHelpers {
 
     final completedCount = updatedSteps.where((s) => s.completed).length;
 
-    return path.copyWith(
-      steps: updatedSteps,
-      progressDay: completedCount,
-    );
+    return path.copyWith(steps: updatedSteps, progressDay: completedCount);
   }
 }

@@ -20,7 +20,9 @@ class BudgetTrackerPage extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final transactionsAsync = ref.watch(budgetTransactionsStreamProvider);
     final configAsync = ref.watch(budgetConfigStreamProvider);
@@ -62,7 +64,10 @@ class BudgetTrackerPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF6366F1)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF6366F1),
+            ),
             tooltip: context.tr('add_transaction_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -105,7 +110,10 @@ class BudgetTrackerPage extends ConsumerWidget {
             return Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -114,7 +122,9 @@ class BudgetTrackerPage extends ConsumerWidget {
                       height: 90,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.15 : 0.1),
+                        color: const Color(
+                          0xFF6366F1,
+                        ).withValues(alpha: isDark ? 0.15 : 0.1),
                         border: Border.all(
                           color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                           width: 2,
@@ -152,7 +162,10 @@ class BudgetTrackerPage extends ConsumerWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6366F1),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -161,7 +174,10 @@ class BudgetTrackerPage extends ConsumerWidget {
                       icon: const Icon(Icons.add_rounded, size: 20),
                       label: Text(
                         context.tr('add_transaction_btn'),
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
                       ),
                       onPressed: () {
                         HapticFeedback.selectionClick();
@@ -219,9 +235,14 @@ class BudgetTrackerPage extends ConsumerWidget {
                     child: _buildStatCard(
                       context: context,
                       label: context.tr('budget_balance'),
-                      value: summary.formatCurrency(summary.balance, showSign: summary.balance < 0),
+                      value: summary.formatCurrency(
+                        summary.balance,
+                        showSign: summary.balance < 0,
+                      ),
                       icon: Icons.account_balance_wallet_rounded,
-                      color: isDark ? const Color(0xFF00E5FF) : const Color(0xFF6366F1),
+                      color: isDark
+                          ? const Color(0xFF00E5FF)
+                          : const Color(0xFF6366F1),
                       isDark: isDark,
                       cardBg: cardBg,
                       borderColor: borderColor,
@@ -263,7 +284,9 @@ class BudgetTrackerPage extends ConsumerWidget {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.12),
+                                color: const Color(
+                                  0xFF6366F1,
+                                ).withValues(alpha: isDark ? 0.2 : 0.12),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: const Center(
@@ -287,18 +310,30 @@ class BudgetTrackerPage extends ConsumerWidget {
                         ),
                         TextButton.icon(
                           style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                           icon: const Icon(Icons.settings_outlined, size: 16),
                           label: Text(
                             context.tr('configure_limits_btn'),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           onPressed: () {
                             HapticFeedback.selectionClick();
-                            final config = configAsync.value ?? const BudgetConfigModel();
-                            BudgetConfigModal.show(context, initialConfig: config);
+                            final config =
+                                configAsync.value ?? const BudgetConfigModel();
+                            BudgetConfigModal.show(
+                              context,
+                              initialConfig: config,
+                            );
                           },
                         ),
                       ],
@@ -325,21 +360,28 @@ class BudgetTrackerPage extends ConsumerWidget {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: categoryLimits.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 14),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 14),
                         itemBuilder: (context, index) {
                           final item = categoryLimits[index];
                           final spentStr = '\$${item.spent.toStringAsFixed(2)}';
-                          final limitStr = item.hasLimit ? '\$${item.limit!.toStringAsFixed(2)}' : null;
+                          final limitStr = item.hasLimit
+                              ? '\$${item.limit!.toStringAsFixed(2)}'
+                              : null;
 
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
-                                      Text(item.category.emoji, style: const TextStyle(fontSize: 16)),
+                                      Text(
+                                        item.category.emoji,
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
                                       const SizedBox(width: 8),
                                       Text(
                                         context.tr(item.category.labelKey),
@@ -352,11 +394,15 @@ class BudgetTrackerPage extends ConsumerWidget {
                                     ],
                                   ),
                                   Text(
-                                    item.hasLimit ? '$spentStr / $limitStr' : spentStr,
+                                    item.hasLimit
+                                        ? '$spentStr / $limitStr'
+                                        : spentStr,
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w800,
-                                      color: item.hasLimit ? item.statusColor : primaryTextColor,
+                                      color: item.hasLimit
+                                          ? item.statusColor
+                                          : primaryTextColor,
                                     ),
                                   ),
                                 ],
@@ -371,7 +417,9 @@ class BudgetTrackerPage extends ConsumerWidget {
                                     backgroundColor: isDark
                                         ? Colors.white.withValues(alpha: 0.08)
                                         : const Color(0xFFE2E8F0),
-                                    valueColor: AlwaysStoppedAnimation<Color>(item.statusColor),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      item.statusColor,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -412,7 +460,9 @@ class BudgetTrackerPage extends ConsumerWidget {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.12),
+                            color: const Color(
+                              0xFF6366F1,
+                            ).withValues(alpha: isDark ? 0.2 : 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Center(
@@ -441,7 +491,9 @@ class BudgetTrackerPage extends ConsumerWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: recentTx.length,
                       separatorBuilder: (context, index) => Divider(
-                        color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : const Color(0xFFF1F5F9),
                         height: 16,
                       ),
                       itemBuilder: (context, index) {
@@ -449,7 +501,8 @@ class BudgetTrackerPage extends ConsumerWidget {
                         final cat = BudgetCategory.find(tx.category, tx.type);
                         final dateStr =
                             '${tx.date.year}-${tx.date.month.toString().padLeft(2, '0')}-${tx.date.day.toString().padLeft(2, '0')}';
-                        final displayTitle = tx.note != null && tx.note!.isNotEmpty
+                        final displayTitle =
+                            tx.note != null && tx.note!.isNotEmpty
                             ? tx.note!
                             : context.tr(cat.labelKey);
 
@@ -467,14 +520,18 @@ class BudgetTrackerPage extends ConsumerWidget {
                               width: 38,
                               height: 38,
                               decoration: BoxDecoration(
-                                color: (tx.isIncome
-                                        ? const Color(0xFF10B981)
-                                        : const Color(0xFFEF4444))
-                                    .withValues(alpha: isDark ? 0.2 : 0.1),
+                                color:
+                                    (tx.isIncome
+                                            ? const Color(0xFF10B981)
+                                            : const Color(0xFFEF4444))
+                                        .withValues(alpha: isDark ? 0.2 : 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
-                                child: Text(cat.emoji, style: const TextStyle(fontSize: 18)),
+                                child: Text(
+                                  cat.emoji,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -520,7 +577,11 @@ class BudgetTrackerPage extends ConsumerWidget {
 
                             // Edit Icon Action
                             IconButton(
-                              icon: Icon(Icons.edit_outlined, size: 16, color: secondaryTextColor),
+                              icon: Icon(
+                                Icons.edit_outlined,
+                                size: 16,
+                                color: secondaryTextColor,
+                              ),
                               tooltip: context.tr('edit'),
                               onPressed: () {
                                 HapticFeedback.selectionClick();
@@ -573,9 +634,7 @@ class BudgetTrackerPage extends ConsumerWidget {
                   color: color.withValues(alpha: isDark ? 0.2 : 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Center(
-                  child: Icon(icon, size: 14, color: color),
-                ),
+                child: Center(child: Icon(icon, size: 14, color: color)),
               ),
               const SizedBox(width: 6),
               Expanded(

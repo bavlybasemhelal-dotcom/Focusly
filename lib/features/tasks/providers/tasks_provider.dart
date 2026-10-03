@@ -1,4 +1,8 @@
+import '../../productivity/services/trash_service.dart';
+import '../../../core/data/inbox_conversion_service.dart';
+import '../../../core/data/completion_ledger.dart';
 import 'dart:async';
+import '../../../core/data/item_progress_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,19 +11,16 @@ import '../../../core/auth/auth_provider.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../models/category_model.dart';
 import '../models/task_model.dart';
+import '../widgets/task_count_dialog.dart';
 import '../services/task_notification_service.dart';
 import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
-import '../../groups/assignments/services/group_assignment_service.dart';
 import '../../skills/services/skills_service.dart';
 
 /// Available view modes in the Tasks screen
-enum TasksViewMode {
-  list,
-  matrix,
-}
+enum TasksViewMode { list, matrix }
 
 /// Notifier controller for TasksViewMode (Riverpod 3.x pattern)
 class TasksViewModeNotifier extends Notifier<TasksViewMode> {
@@ -33,13 +34,16 @@ class TasksViewModeNotifier extends Notifier<TasksViewMode> {
 
 final tasksViewModeProvider =
     NotifierProvider<TasksViewModeNotifier, TasksViewMode>(
-  TasksViewModeNotifier.new,
-);
+      TasksViewModeNotifier.new,
+    );
 
 /// Notifier controller for filtering tasks by category ID
 class SelectedCategoryFilterNotifier extends Notifier<String> {
   @override
-  String build() => 'all';
+  String build() {
+    ref.watch(currentUserIdProvider);
+    return 'all';
+  }
 
   void setFilter(String categoryId) {
     state = categoryId;
@@ -48,8 +52,8 @@ class SelectedCategoryFilterNotifier extends Notifier<String> {
 
 final selectedCategoryFilterProvider =
     NotifierProvider<SelectedCategoryFilterNotifier, String>(
-  SelectedCategoryFilterNotifier.new,
-);
+      SelectedCategoryFilterNotifier.new,
+    );
 
 /// Stream of task categories (default seeded + custom from Firestore)
 ///
@@ -70,12 +74,12 @@ final categoriesProvider = StreamProvider<List<TaskCategory>>((ref) {
         .collection('categories')
         .snapshots()
         .map((snapshot) {
-      final customCategories = snapshot.docs
-          .map((doc) => TaskCategory.fromMap(doc.data(), doc.id))
-          .toList();
+          final customCategories = snapshot.docs
+              .map((doc) => TaskCategory.fromMap(doc.data(), doc.id))
+              .toList();
 
-      return [...TaskCategory.defaultCategories, ...customCategories];
-    }).handleError((_) => TaskCategory.defaultCategories);
+          return [...TaskCategory.defaultCategories, ...customCategories];
+        });
   } catch (_) {
     return Stream.value(TaskCategory.defaultCategories);
   }
@@ -101,13 +105,10 @@ final tasksStreamProvider = StreamProvider<List<TaskModel>>((ref) {
         .orderBy('date', descending: false)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => TaskModel.fromMap(doc.data(), doc.id))
-          .toList();
-    }).handleError((e) {
-      debugPrint('Firestore tasks stream error: $e');
-      return <TaskModel>[];
-    });
+          return snapshot.docs
+              .map((doc) => TaskModel.fromMap(doc.data(), doc.id))
+              .toList();
+        });
   } catch (_) {
     return Stream.value([]);
   }
@@ -115,7 +116,24 @@ final tasksStreamProvider = StreamProvider<List<TaskModel>>((ref) {
 
 /// Controller handling task additions, edits, deletions, subtasks, and quadrant assignments
 class TasksController {
-  final TaskNotificationService _notificationService = TaskNotificationService();
+  Future<void> cancelDeletedTaskReminders(String id) =>
+      _notificationService.cancelTaskNotifications(id);
+  Future<void> _validateProject(
+    Transaction transaction,
+    DocumentReference<Map<String, dynamic>> user,
+    String? projectId,
+  ) async {
+    if (projectId == null || projectId.isEmpty) return;
+    final project = await transaction.get(
+      user.collection('paraProjects').doc(projectId),
+    );
+    if (!project.exists || project.data()?['deletionPending'] == true) {
+      throw StateError('Project no longer exists');
+    }
+  }
+
+  final TaskNotificationService _notificationService =
+      TaskNotificationService();
 
   String? get _currentUserId {
     try {
@@ -135,39 +153,93 @@ class TasksController {
   }
 
   /// Adds a new task to Firestore and schedules its local reminder alerts
-  Future<void> addTask(TaskModel task, BuildContext context) async {
+  Future<bool> addTask(
+    TaskModel task,
+    BuildContext context, {
+    String? inboxId,
+  }) async {
     final localizations = AppLocalizations.of(context);
     final col = _tasksCollection;
-    if (col == null) return;
+    if (col == null) return false;
 
     try {
-      final docRef = col.doc();
+      final docRef = col.doc(inboxId != null ? 'inbox_$inboxId' : null);
       final newTask = task.copyWith(id: docRef.id);
-      await docRef.set(newTask.toMap());
+      if (inboxId != null) {
+        await InboxConversionService(col.firestore).convert(
+          uid: col.parent!.id,
+          inboxId: inboxId,
+          collection: 'tasks',
+          data: newTask.toMap(),
+        );
+      } else {
+        await col.firestore.runTransaction((transaction) async {
+          await _validateProject(transaction, col.parent!, newTask.projectId);
+          transaction.set(docRef, newTask.toMap());
+        });
+      }
 
       // Schedule notifications
-      await _notificationService.scheduleTaskNotifications(newTask, localizations);
+      try {
+        await _notificationService.scheduleTaskNotifications(
+          newTask,
+          localizations,
+          uid: col.parent!.id,
+        );
+      } catch (e) {
+        debugPrint('Task saved, but reminder scheduling failed: $e');
+      }
 
       // Achievement check hook (Early bird, night owl, 20 tasks, etc.)
-      ProgressService().checkAndUnlockAchievements(context: context);
+      if (_currentUserId == col.parent!.id) {
+        ProgressService().checkAndUnlockAchievements(
+          uid: col.parent!.id,
+          context: context.mounted ? context : null,
+        );
+      }
+      return true;
     } catch (e) {
       debugPrint('Error adding task: $e');
+      return false;
     }
   }
 
   /// Updates an existing task and reschedules its alerts
-  Future<void> updateTask(TaskModel task, BuildContext context) async {
+  Future<bool> updateTask(TaskModel task, BuildContext context) async {
     final localizations = AppLocalizations.of(context);
     final col = _tasksCollection;
-    if (col == null) return;
+    if (col == null) return false;
 
     try {
-      await col.doc(task.id).update(task.toMap());
+      final data = task.toMap()
+        ..remove('done')
+        ..remove('doneAt')
+        ..remove('currentCount')
+        ..remove('subtasks')
+        ..remove('createdAt');
+      await col.firestore.runTransaction((transaction) async {
+        final source = await transaction.get(col.doc(task.id));
+        if (!source.exists || source.data()?['deletionPending'] == true) {
+          throw StateError('Task no longer exists');
+        }
+        await _validateProject(transaction, col.parent!, task.projectId);
+        transaction.update(col.doc(task.id), data);
+      });
 
       // Reschedule notifications
-      await _notificationService.scheduleTaskNotifications(task, localizations);
+      try {
+        await _notificationService.scheduleTaskNotifications(
+          task,
+          localizations,
+          uid: col.parent!.id,
+        );
+      } catch (e) {
+        debugPrint('Task saved, but reminder scheduling failed: $e');
+      }
+      return true;
     } catch (e) {
       debugPrint('Error updating task: $e');
+      return false;
     }
   }
 
@@ -177,54 +249,88 @@ class TasksController {
     if (col == null) return;
 
     try {
-      await col.doc(taskId).delete();
-      await _notificationService.cancelTaskNotifications(taskId);
+      await TrashService(col.firestore).move(col.parent!.id, 'tasks', taskId);
+      if (_currentUserId == col.parent!.id) {
+        await _notificationService.cancelTaskNotifications(taskId);
+      }
     } catch (e) {
       debugPrint('Error deleting task: $e');
+      rethrow;
     }
   }
 
   /// Toggles task done status
   Future<void> toggleTaskDone(TaskModel task, BuildContext context) async {
-    final updated = task.copyWith(
-      done: !task.done,
-      doneAt: !task.done ? DateTime.now() : null,
-      clearDoneAt: task.done,
-    );
-    await updateTask(updated, context);
-
-    // Group Assignment Sync Hook: Update completion status in the group
-    if (updated.isGroupAssigned) {
-      GroupAssignmentService().syncTaskCompletion(updated);
+    final sessionUid = _currentUserId;
+    int? count;
+    if (task.completionMode == 'count') {
+      count = await showTaskCountDialog(context, task);
+      if (count == null || !context.mounted || _currentUserId != sessionUid) {
+        return;
+      }
     }
+    final completed = count != null
+        ? count >= (task.targetCount ?? 1)
+        : !task.done;
+    if (sessionUid == null) return;
+    late TaskModel updated;
+    try {
+      final data = await ItemProgressService(
+        FirebaseFirestore.instance,
+      ).task(uid: sessionUid, id: task.id, done: completed, count: count);
+      updated = TaskModel.fromMap(data, task.id);
+      if (_currentUserId != sessionUid) return;
+      await _notificationService.cancelTaskNotifications(task.id);
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.tr('task_save_error'))));
+      }
+      return;
+    }
+    if (_currentUserId != sessionUid) return;
 
     // =========================================================================
     // XP & ACHIEVEMENT HOOKS
     // NOTE: Group-assigned tasks explicitly BYPASS all personal XP awards.
     // =========================================================================
     if (updated.done) {
-      if (updated.isGroupAssigned) {
+      if (updated.isGroupAssigned || updated.learningSource != null) {
         // Explicitly SKIP personal XP and skill XP for group-assigned tasks
+        final ledger = CompletionLedger(FirebaseFirestore.instance);
+        await ledger.award(
+          uid: sessionUid,
+          eventId: 'task_${updated.id}',
+          sourceId: updated.id,
+          sourceType: 'task',
+          amount: 0,
+          label: updated.title,
+        );
+        await ledger.syncGroups(uid: sessionUid, eventId: 'task_${updated.id}');
         debugPrint(
           'Group-assigned task completed ("${updated.title}") — skipping personal XP award.',
         );
       } else {
         // Normal personal task: Award standard task completion XP (+10 XP)
-        if (context.mounted) {
-          ProgressService().awardXp(
+        {
+          await ProgressService().awardXp(
             XpConstants.taskCompletion,
             source: 'Completed task: "${updated.title}"',
             sourceType: 'task',
-            context: context,
+            uid: sessionUid,
+            sourceId: updated.id,
+            eventId: 'task_${updated.id}',
+            context: context.mounted ? context : null,
           );
 
           // Skill XP hook: Award skill XP based on task priority (High: 25, Medium: 15, Low: 10)
-          final uid = _currentUserId;
-          if (uid != null) {
-            SkillsService().awardTaskCompletionXp(
+          final uid = sessionUid;
+          {
+            await SkillsService().awardTaskCompletionXp(
               uid: uid,
               task: updated,
-              context: context,
+              context: context.mounted ? context : null,
             );
           }
         }
@@ -232,85 +338,76 @@ class TasksController {
 
       // Group feed hook & Challenge progress sync
       GroupFeedService().pushToAllUserGroups(
+        uid: sessionUid,
         type: 'task_milestone',
         message: 'Completed task: "${updated.title}"! 🎯',
         icon: '🎯',
       );
-      ChallengeService().triggerProgressSync();
+      ChallengeService().triggerProgressSync(uid: sessionUid);
     }
   }
 
-  /// Appends a new subtask item
+  Future<void> _changeSubtasks(
+    TaskModel task,
+    List<SubtaskModel> Function(List<SubtaskModel>) operation,
+  ) async {
+    final collection = _tasksCollection;
+    if (collection == null) throw StateError('Not signed in');
+    final target = collection.doc(task.id);
+    await collection.firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(target);
+      if (!snapshot.exists) throw StateError('Task no longer exists');
+      final current = TaskModel.fromMap(snapshot.data()!, task.id);
+      final changed = operation(current.subtasks);
+      transaction.update(target, {
+        'subtasks': changed.map((item) => item.toMap()).toList(),
+      });
+    });
+  }
+
   Future<void> addSubtask(TaskModel task, String title) async {
     if (title.trim().isEmpty) return;
-    final newSubtask = SubtaskModel(
-      id: UniqueKey().toString(),
-      title: title.trim(),
-      done: false,
+    final id = FirebaseFirestore.instance.collection('users').doc().id;
+    await _changeSubtasks(
+      task,
+      (items) => [
+        ...items,
+        SubtaskModel(id: id, title: title.trim(), done: false),
+      ],
     );
-    final updatedSubtasks = [...task.subtasks, newSubtask];
-
-    final col = _tasksCollection;
-    if (col == null) return;
-    try {
-      await col.doc(task.id).update({'subtasks': updatedSubtasks.map((s) => s.toMap()).toList()});
-      // Achievement check hook for adding subtask
-      ProgressService().checkAndUnlockAchievements();
-    } catch (e) {
-      debugPrint('Error adding subtask: $e');
-    }
   }
 
-  /// Toggles a specific subtask's completion checkbox
-  Future<void> toggleSubtask(TaskModel task, String subtaskId) async {
-    final updatedSubtasks = task.subtasks.map((s) {
-      if (s.id == subtaskId) {
-        return s.copyWith(done: !s.done);
-      }
-      return s;
-    }).toList();
-
-    final col = _tasksCollection;
-    if (col == null) return;
-    try {
-      await col.doc(task.id).update({'subtasks': updatedSubtasks.map((s) => s.toMap()).toList()});
-    } catch (e) {
-      debugPrint('Error toggling subtask: $e');
-    }
-  }
-
-  /// Deletes a subtask item from a task
-  Future<void> deleteSubtask(TaskModel task, String subtaskId) async {
-    final updatedSubtasks = task.subtasks.where((s) => s.id != subtaskId).toList();
-
-    final col = _tasksCollection;
-    if (col == null) return;
-    try {
-      await col.doc(task.id).update({'subtasks': updatedSubtasks.map((s) => s.toMap()).toList()});
-    } catch (e) {
-      debugPrint('Error deleting subtask: $e');
-    }
-  }
-
-  /// Updates the title of an existing subtask item
-  Future<void> editSubtask(TaskModel task, String subtaskId, String newTitle) async {
-    final trimmed = newTitle.trim();
-    if (trimmed.isEmpty) return;
-
-    final updatedSubtasks = task.subtasks.map((s) {
-      if (s.id == subtaskId) {
-        return s.copyWith(title: trimmed);
-      }
-      return s;
-    }).toList();
-
-    final col = _tasksCollection;
-    if (col == null) return;
-    try {
-      await col.doc(task.id).update({'subtasks': updatedSubtasks.map((s) => s.toMap()).toList()});
-    } catch (e) {
-      debugPrint('Error editing subtask: $e');
-    }
+  Future<void> toggleSubtask(TaskModel task, String subtaskId) =>
+      _changeSubtasks(
+        task,
+        (items) => items
+            .map(
+              (item) =>
+                  item.id == subtaskId ? item.copyWith(done: !item.done) : item,
+            )
+            .toList(),
+      );
+  Future<void> deleteSubtask(TaskModel task, String subtaskId) =>
+      _changeSubtasks(
+        task,
+        (items) => items.where((item) => item.id != subtaskId).toList(),
+      );
+  Future<void> editSubtask(
+    TaskModel task,
+    String subtaskId,
+    String title,
+  ) async {
+    if (title.trim().isEmpty) return;
+    await _changeSubtasks(
+      task,
+      (items) => items
+          .map(
+            (item) => item.id == subtaskId
+                ? item.copyWith(title: title.trim())
+                : item,
+          )
+          .toList(),
+    );
   }
 
   /// Moves a task into a specific Eisenhower Quadrant via drag & drop or quick select
@@ -334,11 +431,11 @@ class TasksController {
           .doc(uid)
           .collection('categories')
           .add({
-        'name': name.trim(),
-        'colorValue': colorValue,
-        'isDefault': false,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+            'name': name.trim(),
+            'colorValue': colorValue,
+            'isDefault': false,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
       // Achievement check hook for creating custom category (org_custom_cat)
       ProgressService().checkAndUnlockAchievements(uid: uid);
     } catch (e) {

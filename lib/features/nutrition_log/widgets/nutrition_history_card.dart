@@ -50,10 +50,14 @@ class NutritionHistoryCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
-            child: Text(dialogCtx.tr('delete_workout_confirm_title')), // or 'Delete'
+            child: Text(
+              dialogCtx.tr('delete_workout_confirm_title'),
+            ), // or 'Delete'
           ),
         ],
       ),
@@ -73,7 +77,9 @@ class NutritionHistoryCard extends ConsumerWidget {
             content: Text(context.tr('nutrition_deleted_toast')),
             backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -84,10 +90,14 @@ class NutritionHistoryCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
-    final brandAccent = isDark ? AppColors.cyanElectric : AppColors.primaryBlueVibrant;
+    final brandAccent = isDark
+        ? AppColors.cyanElectric
+        : AppColors.primaryBlueVibrant;
 
     final historyList = ref.watch(nutritionHistoryListProvider);
 
@@ -120,7 +130,9 @@ class NutritionHistoryCard extends ConsumerWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.2 : 0.12),
+                      color: const Color(
+                        0xFF10B981,
+                      ).withValues(alpha: isDark ? 0.2 : 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Center(
@@ -146,15 +158,23 @@ class NutritionHistoryCard extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF10B981),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   visualDensity: VisualDensity.compact,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
                 icon: const Icon(Icons.add_rounded, size: 16),
                 label: Text(
                   context.tr('nutrition_add_log_btn'),
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                  ),
                 ),
                 onPressed: () {
                   HapticFeedback.selectionClick();
@@ -186,13 +206,17 @@ class NutritionHistoryCard extends ConsumerWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: historyList.length,
               separatorBuilder: (context, index) => Divider(
-                color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF1F5F9),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : const Color(0xFFF1F5F9),
                 height: 16,
                 thickness: 1,
               ),
               itemBuilder: (context, index) {
                 final item = historyList[index];
-                final dateFormatted = NutritionLogHelpers.formatDateKey(item.date);
+                final dateFormatted = NutritionLogHelpers.formatDateKey(
+                  item.date,
+                );
                 final ratingLabel = context.tr(item.labelKey);
                 final hasNotes = item.note != null && item.note!.isNotEmpty;
 
@@ -282,7 +306,9 @@ class NutritionHistoryCard extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontStyle: FontStyle.italic,
-                                  color: secondaryTextColor.withValues(alpha: 0.7),
+                                  color: secondaryTextColor.withValues(
+                                    alpha: 0.7,
+                                  ),
                                 ),
                               ),
                           ],

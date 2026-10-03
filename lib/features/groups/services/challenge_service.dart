@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../models/challenge_model.dart';
 import '../models/challenge_participant_model.dart';
 import 'group_feed_service.dart';
+import 'challenge_events_service.dart';
 
 /// Service managing Challenge creation, participant registration, progress synchronization,
 /// and automated expiration resolution.
@@ -114,7 +115,7 @@ class ChallengeService {
       );
 
       // Baseline for creator
-      final baseline = await getCurrentUserStat(type);
+      const baseline = 0;
 
       final participant = ChallengeParticipantModel(
         uid: uid,
@@ -181,7 +182,7 @@ class ChallengeService {
       final participantDoc = await participantRef.get();
       if (participantDoc.exists) return true; // Already joined
 
-      final baseline = await getCurrentUserStat(type);
+      const baseline = 0;
 
       final participant = ChallengeParticipantModel(
         uid: uid,
@@ -193,7 +194,15 @@ class ChallengeService {
 
       await firestore.runTransaction((transaction) async {
         final challengeSnap = await transaction.get(challengeRef);
-        if (!challengeSnap.exists) return;
+        final existingParticipant = await transaction.get(participantRef);
+        if (existingParticipant.exists) return;
+        if (!challengeSnap.exists ||
+            challengeSnap.data()?['status'] != 'active' ||
+            DateTime.now().isAfter(
+              (challengeSnap.data()!['endDate'] as Timestamp).toDate(),
+            )) {
+          throw StateError('Challenge is no longer active');
+        }
 
         final currentCount =
             (challengeSnap.data()?['participantCount'] as num?)?.toInt() ?? 0;
@@ -212,18 +221,18 @@ class ChallengeService {
   }
 
   /// Debounced synchronization of user challenge progress when tasks/habits/XP change
-  void triggerProgressSync() {
+  void triggerProgressSync({String? uid}) {
+    final capturedUid = uid ?? FirebaseAuth.instance.currentUser?.uid;
     _debounceSyncTimer?.cancel();
     _debounceSyncTimer = Timer(const Duration(seconds: 2), () {
-      syncAllActiveChallenges();
+      syncAllActiveChallenges(uid: capturedUid);
     });
   }
 
   /// Synchronizes user scores across all active challenges in all groups
-  Future<void> syncAllActiveChallenges() async {
-    String? uid;
+  Future<void> syncAllActiveChallenges({String? uid}) async {
     try {
-      uid = FirebaseAuth.instance.currentUser?.uid;
+      uid ??= FirebaseAuth.instance.currentUser?.uid;
     } catch (_) {}
     if (uid == null || uid.isEmpty) return;
 
@@ -235,38 +244,20 @@ class ChallengeService {
       final groupIds = List<String>.from(userDoc.data()?['groupIds'] ?? []);
       if (groupIds.isEmpty) return;
 
-      final tasksStat = await getCurrentUserStat('tasks');
-      final habitsStat = await getCurrentUserStat('habits');
-
+      final scorer = ChallengeEventsService(firestore);
       for (final groupId in groupIds) {
-        final challengesSnap = await firestore
+        final challenges = await firestore
             .collection('groups')
             .doc(groupId)
             .collection('challenges')
             .where('status', isEqualTo: 'active')
             .get();
-
-        for (final doc in challengesSnap.docs) {
-          final type = doc.data()['type'] as String? ?? 'tasks';
-
-          // Skip legacy 'xp' challenges since XP challenge scoring has been removed
-          if (type == 'xp') continue;
-
-          final participantRef = doc.reference
-              .collection('participants')
-              .doc(uid);
-          final participantDoc = await participantRef.get();
-
-          if (participantDoc.exists) {
-            final baseline =
-                (participantDoc.data()?['baseline'] as num?)?.toInt() ?? 0;
-            int currentStat = 0;
-            if (type == 'tasks') currentStat = tasksStat;
-            if (type == 'habits') currentStat = habitsStat;
-
-            final score = (currentStat - baseline).clamp(0, 999999);
-            await participantRef.update({'score': score});
-          }
+        for (final challenge in challenges.docs) {
+          await scorer.syncParticipant(
+            groupId: groupId,
+            challengeId: challenge.id,
+            uid: uid,
+          );
         }
       }
     } catch (e) {
@@ -288,6 +279,20 @@ class ChallengeService {
     final firestore = _firestore;
     if (firestore == null) return null;
 
+    if (currentUid == null) return null;
+    final group = await firestore.collection('groups').doc(groupId).get();
+    final member = await firestore
+        .collection('groups')
+        .doc(groupId)
+        .collection('members')
+        .doc(currentUid)
+        .get();
+    if (group.data()?['createdBy'] != currentUid &&
+        !(member.data()?['status'] == 'approved' &&
+            member.data()?['role'] == 'admin')) {
+      return null;
+    }
+
     String? wonChallengeTitleForCurrentUser;
 
     for (final challenge in challenges) {
@@ -299,17 +304,28 @@ class ChallengeService {
               .collection('challenges')
               .doc(challenge.id);
 
+          final registered = await challengeRef
+              .collection('participants')
+              .get();
+          for (final participant in registered.docs) {
+            await ChallengeEventsService(firestore).syncParticipant(
+              groupId: groupId,
+              challengeId: challenge.id,
+              uid: participant.id,
+            );
+          }
           final participantsSnap = await challengeRef
               .collection('participants')
               .orderBy('score', descending: true)
-              .limit(1)
               .get();
 
           String? winnerUid;
           String? winnerName;
           int winnerScore = 0;
 
-          if (participantsSnap.docs.isNotEmpty) {
+          if (participantsSnap.docs.isNotEmpty &&
+              (participantsSnap.docs.first.data()['score'] as num).toInt() >=
+                  challenge.goal) {
             final topDoc = participantsSnap.docs.first;
             winnerUid = topDoc.data()['uid'] ?? topDoc.id;
             winnerName = topDoc.data()['name'] ?? 'Member';
@@ -320,10 +336,32 @@ class ChallengeService {
             'status': 'finished',
             'winnerScore': winnerScore,
           };
+          final tied = participantsSnap.docs
+              .where(
+                (document) =>
+                    (document.data()['score'] as num).toInt() == winnerScore &&
+                    winnerScore >= challenge.goal,
+              )
+              .toList();
+          updateData['winnerUids'] = tied
+              .map((document) => document.id)
+              .toList();
+          if (tied.length > 1) {
+            winnerUid = null;
+            winnerName = tied
+                .map((document) => document.data()['name'] as String)
+                .join(', ');
+          }
+          updateData['approvedBy'] = currentUid;
+          updateData['approvedAt'] = FieldValue.serverTimestamp();
           if (winnerUid != null) updateData['winnerUid'] = winnerUid;
           if (winnerName != null) updateData['winnerName'] = winnerName;
 
-          await challengeRef.update(updateData);
+          await firestore.runTransaction((transaction) async {
+            final fresh = await transaction.get(challengeRef);
+            if (fresh.data()?['status'] != 'active') return;
+            transaction.update(challengeRef, updateData);
+          });
 
           if (winnerName != null && winnerName.isNotEmpty) {
             await _feedService.postToGroup(
@@ -339,7 +377,8 @@ class ChallengeService {
             wonChallengeTitleForCurrentUser = challenge.title;
           }
         } catch (e) {
-          debugPrint('Error auto-finishing challenge: $e');
+          debugPrint('Error finalizing challenge: $e');
+          rethrow;
         }
       }
     }

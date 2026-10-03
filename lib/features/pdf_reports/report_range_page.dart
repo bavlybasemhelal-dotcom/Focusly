@@ -32,7 +32,9 @@ class _ReportRangePageState extends ConsumerState<ReportRangePage> {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -105,9 +107,7 @@ class _ReportRangePageState extends ConsumerState<ReportRangePage> {
                       color: cardBg,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isSelected
-                            ? activeColor
-                            : borderColor,
+                        color: isSelected ? activeColor : borderColor,
                         width: isSelected ? 2 : 1,
                       ),
                       boxShadow: isSelected && !isDark
@@ -127,8 +127,12 @@ class _ReportRangePageState extends ConsumerState<ReportRangePage> {
                           height: 44,
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? activeColor.withValues(alpha: isDark ? 0.25 : 0.12)
-                                : (isDark ? Colors.white10 : const Color(0xFFF1F5F9)),
+                                ? activeColor.withValues(
+                                    alpha: isDark ? 0.25 : 0.12,
+                                  )
+                                : (isDark
+                                      ? Colors.white10
+                                      : const Color(0xFFF1F5F9)),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
@@ -174,10 +178,14 @@ class _ReportRangePageState extends ConsumerState<ReportRangePage> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isSelected ? activeColor : secondaryTextColor,
+                              color: isSelected
+                                  ? activeColor
+                                  : secondaryTextColor,
                               width: 2,
                             ),
-                            color: isSelected ? activeColor : Colors.transparent,
+                            color: isSelected
+                                ? activeColor
+                                : Colors.transparent,
                           ),
                           child: isSelected
                               ? const Center(
@@ -213,10 +221,7 @@ class _ReportRangePageState extends ConsumerState<ReportRangePage> {
             icon: const Icon(Icons.picture_as_pdf_rounded, size: 22),
             label: Text(
               context.tr('generate_report_btn'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
             ),
             onPressed: _generatePdfReport,
           ),

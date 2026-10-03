@@ -29,7 +29,9 @@ class ScheduleScreen extends ConsumerWidget {
     final eventsList = eventsAsync.value ?? <EventModel>[];
 
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
-    final monthYearStr = DateFormat.yMMMM(isArabic ? 'ar' : 'en').format(focusedMonth);
+    final monthYearStr = DateFormat.yMMMM(
+      isArabic ? 'ar' : 'en',
+    ).format(focusedMonth);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -53,11 +55,16 @@ class ScheduleScreen extends ConsumerWidget {
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.chevron_left_rounded, size: 26),
+                            icon: const Icon(
+                              Icons.chevron_left_rounded,
+                              size: 26,
+                            ),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             onPressed: () {
-                              ref.read(focusedMonthProvider.notifier).previousMonth();
+                              ref
+                                  .read(focusedMonthProvider.notifier)
+                                  .previousMonth();
                             },
                           ),
                           const SizedBox(width: 8),
@@ -91,11 +98,16 @@ class ScheduleScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 8),
                           IconButton(
-                            icon: const Icon(Icons.chevron_right_rounded, size: 26),
+                            icon: const Icon(
+                              Icons.chevron_right_rounded,
+                              size: 26,
+                            ),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             onPressed: () {
-                              ref.read(focusedMonthProvider.notifier).nextMonth();
+                              ref
+                                  .read(focusedMonthProvider.notifier)
+                                  .nextMonth();
                             },
                           ),
                         ],
@@ -105,7 +117,9 @@ class ScheduleScreen extends ConsumerWidget {
                       TextButton.icon(
                         onPressed: () {
                           ref.read(selectedDateProvider.notifier).jumpToToday();
-                          ref.read(focusedMonthProvider.notifier).resetToCurrent();
+                          ref
+                              .read(focusedMonthProvider.notifier)
+                              .resetToCurrent();
                         },
                         icon: const Icon(Icons.today_rounded, size: 16),
                         label: Text(context.tr('today')),
@@ -131,11 +145,16 @@ class ScheduleScreen extends ConsumerWidget {
                 // 2. VIEW MODE SELECTOR (Month / Week / Day)
                 // -------------------------------------------------------------
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 4.0,
+                  ),
                   child: Container(
                     padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0F1B4C) : const Color(0xFFE2E8F5),
+                      color: isDark
+                          ? const Color(0xFF0F1B4C)
+                          : const Color(0xFFE2E8F5),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
@@ -149,9 +168,9 @@ class ScheduleScreen extends ConsumerWidget {
                             isDark: isDark,
                             brandPrimary: brandPrimary,
                             onTap: () {
-                              ref.read(scheduleViewModeProvider.notifier).setMode(
-                                    ScheduleViewMode.month,
-                                  );
+                              ref
+                                  .read(scheduleViewModeProvider.notifier)
+                                  .setMode(ScheduleViewMode.month);
                             },
                           ),
                         ),
@@ -164,9 +183,9 @@ class ScheduleScreen extends ConsumerWidget {
                             isDark: isDark,
                             brandPrimary: brandPrimary,
                             onTap: () {
-                              ref.read(scheduleViewModeProvider.notifier).setMode(
-                                    ScheduleViewMode.week,
-                                  );
+                              ref
+                                  .read(scheduleViewModeProvider.notifier)
+                                  .setMode(ScheduleViewMode.week);
                             },
                           ),
                         ),
@@ -179,9 +198,9 @@ class ScheduleScreen extends ConsumerWidget {
                             isDark: isDark,
                             brandPrimary: brandPrimary,
                             onTap: () {
-                              ref.read(scheduleViewModeProvider.notifier).setMode(
-                                    ScheduleViewMode.day,
-                                  );
+                              ref
+                                  .read(scheduleViewModeProvider.notifier)
+                                  .setMode(ScheduleViewMode.day);
                             },
                           ),
                         ),
@@ -277,7 +296,9 @@ class ScheduleScreen extends ConsumerWidget {
             Icon(
               icon,
               size: 15,
-              color: isSelected ? brandPrimary : (isDark ? Colors.white60 : Colors.black45),
+              color: isSelected
+                  ? brandPrimary
+                  : (isDark ? Colors.white60 : Colors.black45),
             ),
             const SizedBox(width: 4),
             Text(
@@ -285,7 +306,9 @@ class ScheduleScreen extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? brandPrimary : (isDark ? Colors.white60 : Colors.black54),
+                color: isSelected
+                    ? brandPrimary
+                    : (isDark ? Colors.white60 : Colors.black54),
               ),
             ),
           ],
@@ -312,9 +335,7 @@ class ScheduleScreen extends ConsumerWidget {
             height: 340,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -326,9 +347,7 @@ class ScheduleScreen extends ConsumerWidget {
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [greenGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [greenGlow, Colors.transparent]),
             ),
           ),
         ),

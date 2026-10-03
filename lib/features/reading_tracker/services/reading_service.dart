@@ -15,7 +15,7 @@ class ReadingService {
   final FirebaseFirestore _firestore;
 
   ReadingService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _booksCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('books');
@@ -27,10 +27,9 @@ class ReadingService {
 
   /// Streams all books for [uid] ordered by updatedAt descending.
   Stream<List<BookModel>> streamBooks(String uid) {
-    return _booksCollection(uid)
-        .orderBy('updatedAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _booksCollection(
+      uid,
+    ).orderBy('updatedAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => BookModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -39,10 +38,9 @@ class ReadingService {
 
   /// Streams all reading activity logs for [uid] ordered by date descending.
   Stream<List<ReadingLogModel>> streamReadingLogs(String uid) {
-    return _readingLogsCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _readingLogsCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => ReadingLogModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -87,32 +85,45 @@ class ReadingService {
         updatedAt: now,
       );
 
-      await docRef.set(book.toMap());
+      final batch = _firestore.batch();
+      batch.set(docRef, book.toMap());
+      if (book.currentPage > 0) {
+        batch.set(
+          _readingLogsCollection(uid).doc('${book.id}_${book.currentPage}'),
+          {
+            'bookId': book.id,
+            'pagesRead': book.currentPage,
+            'endPage': book.currentPage,
+            'date': Timestamp.now(),
+            'createdAt': FieldValue.serverTimestamp(),
+          },
+        );
+      }
+      await batch.commit();
 
       // If initial currentPage > 0, log reading activity and award initial XP
       if (currentPage > 0) {
-        await logReadingActivity(
-          uid: uid,
-          bookId: docRef.id,
-          pagesRead: currentPage,
-          date: now,
-        );
-
         // XP hook
         if (book.isFinished) {
-          await ProgressService().awardXp(
+          await ProgressService(firestore: _firestore).awardXp(
             XpConstants.readingBookFinished,
             source: 'Finished book: "${book.title}"',
-            sourceType: 'reading',
-            context: context,
+            sourceType: 'reading_finished',
+            uid: uid,
+            sourceId: book.id,
+            eventId: 'reading_finished_${book.id}',
+            context: context != null && context.mounted ? context : null,
             ref: ref,
           );
         } else {
-          await ProgressService().awardXp(
+          await ProgressService(firestore: _firestore).awardXp(
             XpConstants.readingProgress,
             source: 'Reading progress: "${book.title}" ($currentPage pages)',
             sourceType: 'reading',
-            context: context,
+            uid: uid,
+            sourceId: book.id,
+            eventId: 'reading_${book.id}_${book.currentPage}',
+            context: context != null && context.mounted ? context : null,
             ref: ref,
           );
         }
@@ -134,48 +145,72 @@ class ReadingService {
     WidgetRef? ref,
   }) async {
     try {
-      final now = DateTime.now();
-      var updated = newBook.copyWith(updatedAt: now);
-
-      // Auto-complete if currentPage reaches totalPages
-      if (updated.currentPage >= updated.totalPages && updated.status != 'done') {
-        updated = updated.copyWith(
-          status: 'done',
-          finishDate: updated.finishDate ?? now,
-          rating: updated.rating ?? 5,
-        );
+      if (newBook.title.trim().isEmpty ||
+          newBook.totalPages < 1 ||
+          newBook.currentPage < 0 ||
+          newBook.currentPage > newBook.totalPages) {
+        throw ArgumentError('Invalid reading progress');
       }
-
-      await _booksCollection(uid).doc(updated.id).update(updated.toMap());
-
-      // XP hook: Check if progress was made
-      if (updated.currentPage > oldBook.currentPage) {
-        final pagesRead = updated.currentPage - oldBook.currentPage;
-        await logReadingActivity(
-          uid: uid,
-          bookId: updated.id,
-          pagesRead: pagesRead,
-          date: now,
-        );
-
-        // Tiered XP: +50 if brought to done for the first time, +15 for standard progress
-        if (!oldBook.isFinished && updated.isFinished) {
-          await ProgressService().awardXp(
-            XpConstants.readingBookFinished,
-            source: 'Finished book: "${updated.title}"',
-            sourceType: 'reading',
-            context: context,
-            ref: ref,
-          );
-        } else {
-          await ProgressService().awardXp(
-            XpConstants.readingProgress,
-            source: 'Reading progress: "${updated.title}" (+$pagesRead pages)',
-            sourceType: 'reading',
-            context: context,
-            ref: ref,
-          );
+      final target = _booksCollection(uid).doc(newBook.id);
+      final result = await _firestore.runTransaction((transaction) async {
+        final snapshot = await transaction.get(target);
+        if (!snapshot.exists || snapshot.data()?['deletionPending'] == true) {
+          throw StateError('Book no longer exists');
         }
+        final fresh = BookModel.fromMap(snapshot.data()!, newBook.id);
+        final newData = newBook.toMap(), original = oldBook.toMap();
+        final patch = <String, dynamic>{
+          'updatedAt': FieldValue.serverTimestamp(),
+        };
+        for (final field in newData.keys) {
+          if (['id', 'createdAt', 'updatedAt'].contains(field)) continue;
+          if (newData[field].toString() != original[field].toString()) {
+            patch[field] = newData[field];
+          }
+        }
+        final page = patch['currentPage'] as int? ?? fresh.currentPage;
+        final total = patch['totalPages'] as int? ?? fresh.totalPages;
+        if (page < fresh.currentPage || total < page) {
+          throw StateError('Reading progress changed. Reopen the form.');
+        }
+        final delta = page - fresh.currentPage;
+        if (page >= total) {
+          patch['status'] = 'done';
+          patch['finishDate'] = fresh.finishDate == null
+              ? Timestamp.now()
+              : Timestamp.fromDate(fresh.finishDate!);
+        }
+        final logRef = _readingLogsCollection(uid).doc('${newBook.id}_$page');
+        final previousLog = await transaction.get(logRef);
+        transaction.update(target, patch);
+        if (delta > 0 && !previousLog.exists) {
+          transaction.set(logRef, {
+            'bookId': newBook.id,
+            'pagesRead': delta,
+            'endPage': page,
+            'date': Timestamp.now(),
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+        return (page, delta, patch['status'] == 'done' && !fresh.isFinished);
+      });
+      if (result.$2 > 0 || newBook.currentPage > oldBook.currentPage) {
+        final finished =
+            result.$3 || (newBook.isFinished && !oldBook.isFinished);
+        await ProgressService(firestore: _firestore).awardXp(
+          finished
+              ? XpConstants.readingBookFinished
+              : XpConstants.readingProgress,
+          source: finished ? 'Finished book' : 'Reading progress',
+          sourceType: finished ? 'reading_finished' : 'reading',
+          uid: uid,
+          sourceId: newBook.id,
+          eventId: finished
+              ? 'reading_finished_${newBook.id}'
+              : 'reading_${newBook.id}_${result.$1}',
+          context: context != null && context.mounted ? context : null,
+          ref: ref,
+        );
       }
 
       return true;
@@ -209,7 +244,7 @@ class ReadingService {
       uid: uid,
       newBook: updated,
       oldBook: book,
-      context: context,
+      context: context != null && context.mounted ? context : null,
       ref: ref,
     );
   }
@@ -239,11 +274,20 @@ class ReadingService {
   }
 
   /// Deletes a specific book.
-  Future<bool> deleteBook({
-    required String uid,
-    required String bookId,
-  }) async {
+  Future<bool> deleteBook({required String uid, required String bookId}) async {
     try {
+      await _booksCollection(uid).doc(bookId).update({'deletionPending': true});
+      while (true) {
+        final logs = await _readingLogsCollection(
+          uid,
+        ).where('bookId', isEqualTo: bookId).limit(150).get();
+        if (logs.docs.isEmpty) break;
+        final batch = _firestore.batch();
+        for (final doc in logs.docs) {
+          batch.delete(doc.reference);
+        }
+        await batch.commit();
+      }
       await _booksCollection(uid).doc(bookId).delete();
       return true;
     } catch (e) {

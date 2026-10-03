@@ -13,11 +13,7 @@ class BodyMetricFormModal extends ConsumerStatefulWidget {
   final BodyMetricModel? metricToEdit;
   final DateTime? initialDate;
 
-  const BodyMetricFormModal({
-    super.key,
-    this.metricToEdit,
-    this.initialDate,
-  });
+  const BodyMetricFormModal({super.key, this.metricToEdit, this.initialDate});
 
   /// Static helper to open the modal bottom sheet.
   static Future<void> show(
@@ -61,10 +57,14 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
       text: edit != null && edit.weight != null ? edit.weight.toString() : '',
     );
     _bpSystolicController = TextEditingController(
-      text: edit != null && edit.bpSystolic != null ? edit.bpSystolic.toString() : '',
+      text: edit != null && edit.bpSystolic != null
+          ? edit.bpSystolic.toString()
+          : '',
     );
     _bpDiastolicController = TextEditingController(
-      text: edit != null && edit.bpDiastolic != null ? edit.bpDiastolic.toString() : '',
+      text: edit != null && edit.bpDiastolic != null
+          ? edit.bpDiastolic.toString()
+          : '',
     );
     _pulseController = TextEditingController(
       text: edit != null && edit.pulse != null ? edit.pulse.toString() : '',
@@ -128,10 +128,17 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
     final pulse = int.tryParse(pulseStr);
 
     // Paired BP logic: If only one is filled, treat both as incomplete
-    final int? finalSystolic = (systolic != null && diastolic != null) ? systolic : null;
-    final int? finalDiastolic = (systolic != null && diastolic != null) ? diastolic : null;
+    final int? finalSystolic =
+        (systolic != null && systolic > 0 && diastolic != null && diastolic > 0)
+        ? systolic
+        : null;
+    final int? finalDiastolic =
+        (systolic != null && systolic > 0 && diastolic != null && diastolic > 0)
+        ? diastolic
+        : null;
 
-    final hasAnyData = (weight != null && weight > 0) ||
+    final hasAnyData =
+        (weight != null && weight > 0) ||
         (finalSystolic != null && finalDiastolic != null) ||
         (pulse != null && pulse > 0) ||
         note.isNotEmpty;
@@ -176,7 +183,9 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
               content: Text(context.tr('metric_saved_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         } else {
@@ -203,7 +212,9 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
               content: Text(context.tr('metric_saved_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         } else {
@@ -247,7 +258,9 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete_workout_confirm_title')),
@@ -274,7 +287,9 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
               content: Text(context.tr('metric_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }
@@ -288,10 +303,14 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
     final isEdit = widget.metricToEdit != null;
     final modalBg = isDark ? const Color(0xFF08123A) : Colors.white;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : const Color(0xFFE2E8F0);
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
-    final brandAccent = isDark ? AppColors.cyanElectric : const Color(0xFF10B981);
+    final brandAccent = isDark
+        ? AppColors.cyanElectric
+        : const Color(0xFF10B981);
 
     return Container(
       decoration: BoxDecoration(
@@ -340,7 +359,9 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.2 : 0.12),
+                        color: const Color(
+                          0xFF10B981,
+                        ).withValues(alpha: isDark ? 0.2 : 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(
@@ -375,15 +396,24 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
             // Validation Error Alert if any
             if (_validationError != null) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: Color(0xFFEF4444), size: 18),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: Color(0xFFEF4444),
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -415,7 +445,10 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: cardBg,
                   borderRadius: BorderRadius.circular(14),
@@ -438,7 +471,10 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                       ),
                     ),
                     const Spacer(),
-                    Icon(Icons.arrow_drop_down_rounded, color: secondaryTextColor),
+                    Icon(
+                      Icons.arrow_drop_down_rounded,
+                      color: secondaryTextColor,
+                    ),
                   ],
                 ),
               ),
@@ -457,11 +493,17 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
             const SizedBox(height: 6),
             TextField(
               controller: _weightController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('weight_input_hint'),
-                prefixIcon: const Icon(Icons.scale_rounded, size: 18, color: Color(0xFF10B981)),
+                prefixIcon: const Icon(
+                  Icons.scale_rounded,
+                  size: 18,
+                  color: Color(0xFF10B981),
+                ),
                 suffixText: context.tr('kg_unit'),
                 filled: true,
                 fillColor: cardBg,
@@ -476,7 +518,10 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.5),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF10B981),
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -502,7 +547,11 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                     style: TextStyle(fontSize: 14, color: primaryTextColor),
                     decoration: InputDecoration(
                       hintText: context.tr('bp_systolic_hint'),
-                      prefixIcon: const Icon(Icons.favorite_rounded, size: 18, color: Color(0xFFEF4444)),
+                      prefixIcon: const Icon(
+                        Icons.favorite_rounded,
+                        size: 18,
+                        color: Color(0xFFEF4444),
+                      ),
                       filled: true,
                       fillColor: cardBg,
                       contentPadding: const EdgeInsets.all(12),
@@ -516,7 +565,10 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFEF4444),
+                          width: 1.5,
+                        ),
                       ),
                     ),
                   ),
@@ -530,7 +582,11 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                     style: TextStyle(fontSize: 14, color: primaryTextColor),
                     decoration: InputDecoration(
                       hintText: context.tr('bp_diastolic_hint'),
-                      prefixIcon: const Icon(Icons.favorite_border_rounded, size: 18, color: Color(0xFFF43F5E)),
+                      prefixIcon: const Icon(
+                        Icons.favorite_border_rounded,
+                        size: 18,
+                        color: Color(0xFFF43F5E),
+                      ),
                       filled: true,
                       fillColor: cardBg,
                       contentPadding: const EdgeInsets.all(12),
@@ -544,7 +600,10 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: Color(0xFFF43F5E), width: 1.5),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFF43F5E),
+                          width: 1.5,
+                        ),
                       ),
                     ),
                   ),
@@ -569,7 +628,11 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
               style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('pulse_input_hint'),
-                prefixIcon: const Icon(Icons.bolt_rounded, size: 18, color: Color(0xFF0EA5E9)),
+                prefixIcon: const Icon(
+                  Icons.bolt_rounded,
+                  size: 18,
+                  color: Color(0xFF0EA5E9),
+                ),
                 suffixText: context.tr('bpm_unit'),
                 filled: true,
                 fillColor: cardBg,
@@ -584,7 +647,10 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF0EA5E9), width: 1.5),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF0EA5E9),
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -619,7 +685,10 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.5),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF10B981),
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -643,7 +712,10 @@ class _BodyMetricFormModalState extends ConsumerState<BodyMetricFormModal> {
                       icon: const Icon(Icons.delete_outline_rounded, size: 18),
                       label: Text(
                         context.tr('delete_workout_confirm_title'),
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
                       ),
                       onPressed: _isLoading ? null : _onDelete,
                     ),

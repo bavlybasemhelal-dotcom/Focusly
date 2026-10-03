@@ -28,7 +28,6 @@ class NotificationsPage extends ConsumerWidget {
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
 
     final logsAsync = ref.watch(notificationLogsStreamProvider);
-    final logs = logsAsync.value ?? <NotificationLogModel>[];
     final unreadCount = ref.watch(unreadNotificationCountProvider);
 
     return Scaffold(
@@ -52,18 +51,26 @@ class NotificationsPage extends ConsumerWidget {
         actions: [
           if (unreadCount > 0)
             TextButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 HapticFeedback.lightImpact();
-                ref.read(notificationsControllerProvider).markAllAsRead();
+                final saved = await ref
+                    .read(notificationsControllerProvider)
+                    .markAllAsRead();
+                if (!saved && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(context.tr('save_failed'))),
+                  );
+                }
               },
               icon: const Icon(Icons.done_all_rounded, size: 18),
               label: Text(
                 context.tr('mark_all_read_btn'),
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                ),
               ),
-              style: TextButton.styleFrom(
-                foregroundColor: brandPrimary,
-              ),
+              style: TextButton.styleFrom(foregroundColor: brandPrimary),
             ),
         ],
       ),
@@ -82,7 +89,7 @@ class NotificationsPage extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final log = items[index];
               return _buildNotificationCard(
@@ -99,15 +106,13 @@ class NotificationsPage extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (_, __) => _buildEmptyState(
-          context: context,
-          isDark: isDark,
-          primaryTextColor: primaryTextColor,
-          secondaryTextColor: secondaryTextColor,
-          brandPrimary: brandPrimary,
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, _) => Center(
+          child: TextButton.icon(
+            onPressed: () => ref.invalidate(notificationLogsStreamProvider),
+            icon: const Icon(Icons.refresh),
+            label: Text(context.tr('save_failed')),
+          ),
         ),
       ),
     );
@@ -139,18 +144,34 @@ class NotificationsPage extends ConsumerWidget {
         ),
         child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
       ),
-      onDismissed: (_) {
-        ref.read(notificationsControllerProvider).deleteNotification(log.id);
+      confirmDismiss: (_) async {
+        final saved = await ref
+            .read(notificationsControllerProvider)
+            .deleteNotification(log.id);
+        if (!saved && context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.tr('save_failed'))));
+        }
+        return saved;
       },
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
+          onTap: () async {
             HapticFeedback.lightImpact();
             // Mark notification as read upon tapping
             if (!log.read) {
-              ref.read(notificationsControllerProvider).markAsRead(log.id);
+              final saved = await ref
+                  .read(notificationsControllerProvider)
+                  .markAsRead(log.id);
+              if (!saved && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(context.tr('save_failed'))),
+                );
+              }
             }
+            if (!context.mounted) return;
             // Navigate to the dedicated Notification Detail Screen
             // (Direct jump to related item is accessible from the detail screen action button)
             Navigator.of(context).push(
@@ -168,13 +189,15 @@ class NotificationsPage extends ConsumerWidget {
               color: log.read
                   ? cardBg
                   : (isDark
-                      ? const Color(0xFF1E293B).withValues(alpha: 0.8)
-                      : const Color(0xFFF0F7FF)),
+                        ? const Color(0xFF1E293B).withValues(alpha: 0.8)
+                        : const Color(0xFFF0F7FF)),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: log.read
                     ? borderColor
-                    : (isDark ? const Color(0xFF3B82F6) : const Color(0xFF93C5FD)),
+                    : (isDark
+                          ? const Color(0xFF3B82F6)
+                          : const Color(0xFF93C5FD)),
                 width: log.read ? 1.0 : 1.4,
               ),
               boxShadow: isDark || log.read
@@ -245,7 +268,9 @@ class NotificationsPage extends ConsumerWidget {
                         log.body,
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: log.read ? FontWeight.w400 : FontWeight.w600,
+                          fontWeight: log.read
+                              ? FontWeight.w400
+                              : FontWeight.w600,
                           color: log.read
                               ? secondaryTextColor
                               : primaryTextColor.withValues(alpha: 0.9),
@@ -254,10 +279,26 @@ class NotificationsPage extends ConsumerWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      Text(
+                        Localizations.localeOf(context).languageCode == 'ar'
+                            ? (log.status == 'scheduled'
+                                  ? 'مُجدول — وصوله يعتمد على إعدادات الجهاز'
+                                  : 'أُرسل للنظام — الوصول غير مؤكد')
+                            : (log.status == 'scheduled'
+                                  ? 'Scheduled · delivery depends on device settings'
+                                  : 'Sent to OS · delivery unconfirmed'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: secondaryTextColor,
+                        ),
+                      ),
                       if (log.isScheduled && log.scheduledFor != null) ...[
                         const SizedBox(height: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: brandPrimary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
@@ -265,7 +306,11 @@ class NotificationsPage extends ConsumerWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.schedule_rounded, size: 12, color: brandPrimary),
+                              Icon(
+                                Icons.schedule_rounded,
+                                size: 12,
+                                color: brandPrimary,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 '${context.tr('notification_scheduled_tag')} • ${_formatScheduledTime(log.scheduledFor!)}',
@@ -421,8 +466,5 @@ class _TypeVisualConfig {
   final IconData icon;
   final Color color;
 
-  const _TypeVisualConfig({
-    required this.icon,
-    required this.color,
-  });
+  const _TypeVisualConfig({required this.icon, required this.color});
 }

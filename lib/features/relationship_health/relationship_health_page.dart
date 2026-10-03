@@ -59,7 +59,10 @@ class RelationshipHealthPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFFEF4444)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFFEF4444),
+            ),
             tooltip: context.tr('add_interaction_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -131,9 +134,7 @@ class RelationshipHealthPage extends ConsumerWidget {
                   secondaryTextColor,
                 )
               else
-                ...recentInteractions.map(
-                  (log) => InteractionCard(log: log),
-                ),
+                ...recentInteractions.map((log) => InteractionCard(log: log)),
 
               const SizedBox(height: 24),
 
@@ -170,7 +171,7 @@ class RelationshipHealthPage extends ConsumerWidget {
                     ),
                   ),
                 ),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
                 data: (contacts) {
                   if (contacts.isEmpty) {
                     return _buildNoContactsState(
@@ -315,9 +316,9 @@ class RelationshipHealthPage extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
             ),
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ContactsPage()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const ContactsPage()));
             },
           ),
         ],

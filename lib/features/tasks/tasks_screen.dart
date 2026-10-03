@@ -75,7 +75,9 @@ class TasksScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0F1B4C) : const Color(0xFFE2E8F5),
+                          color: isDark
+                              ? const Color(0xFF0F1B4C)
+                              : const Color(0xFFE2E8F5),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Row(
@@ -88,9 +90,9 @@ class TasksScreen extends ConsumerWidget {
                               isDark: isDark,
                               brandPrimary: brandPrimary,
                               onTap: () {
-                                ref.read(tasksViewModeProvider.notifier).setMode(
-                                      TasksViewMode.list,
-                                    );
+                                ref
+                                    .read(tasksViewModeProvider.notifier)
+                                    .setMode(TasksViewMode.list);
                               },
                             ),
                             // Matrix View Button
@@ -101,9 +103,9 @@ class TasksScreen extends ConsumerWidget {
                               isDark: isDark,
                               brandPrimary: brandPrimary,
                               onTap: () {
-                                ref.read(tasksViewModeProvider.notifier).setMode(
-                                      TasksViewMode.matrix,
-                                    );
+                                ref
+                                    .read(tasksViewModeProvider.notifier)
+                                    .setMode(TasksViewMode.matrix);
                               },
                             ),
                           ],
@@ -117,7 +119,26 @@ class TasksScreen extends ConsumerWidget {
                 // 2. ACTIVE VIEW (List View or Matrix View)
                 // -------------------------------------------------------------
                 Expanded(
-                  child: viewMode == TasksViewMode.list
+                  child: tasksAsync.hasError
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                context.tr('tasks_load_error'),
+                                textAlign: TextAlign.center,
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    ref.invalidate(tasksStreamProvider),
+                                child: Text(context.tr('retry')),
+                              ),
+                            ],
+                          ),
+                        )
+                      : tasksAsync.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : viewMode == TasksViewMode.list
                       ? TasksListView(tasks: tasksList)
                       : EisenhowerMatrixView(tasks: tasksList),
                 ),
@@ -197,7 +218,9 @@ class TasksScreen extends ConsumerWidget {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? brandPrimary : (isDark ? Colors.white60 : Colors.black45),
+              color: isSelected
+                  ? brandPrimary
+                  : (isDark ? Colors.white60 : Colors.black45),
             ),
             const SizedBox(width: 4),
             Text(
@@ -205,7 +228,9 @@ class TasksScreen extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? brandPrimary : (isDark ? Colors.white60 : Colors.black54),
+                color: isSelected
+                    ? brandPrimary
+                    : (isDark ? Colors.white60 : Colors.black54),
               ),
             ),
           ],
@@ -232,9 +257,7 @@ class TasksScreen extends ConsumerWidget {
             height: 340,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -246,9 +269,7 @@ class TasksScreen extends ConsumerWidget {
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [greenGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [greenGlow, Colors.transparent]),
             ),
           ),
         ),

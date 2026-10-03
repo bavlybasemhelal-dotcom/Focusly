@@ -15,10 +15,7 @@ import '../../groups/providers/groups_provider.dart';
 class GroupsPreviewWidget extends ConsumerWidget {
   final VoidCallback onViewAllGroups;
 
-  const GroupsPreviewWidget({
-    super.key,
-    required this.onViewAllGroups,
-  });
+  const GroupsPreviewWidget({super.key, required this.onViewAllGroups});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -100,7 +97,10 @@ class GroupsPreviewWidget extends ConsumerWidget {
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -142,7 +142,10 @@ class GroupsPreviewWidget extends ConsumerWidget {
                   },
                   borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.04)
@@ -162,7 +165,9 @@ class GroupsPreviewWidget extends ConsumerWidget {
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                            color: const Color(
+                              0xFF3B82F6,
+                            ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Center(
@@ -205,7 +210,9 @@ class GroupsPreviewWidget extends ConsumerWidget {
                         Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 12,
-                          color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                          color: isDark
+                              ? Colors.white38
+                              : const Color(0xFF94A3B8),
                         ),
                       ],
                     ),

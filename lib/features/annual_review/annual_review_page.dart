@@ -21,7 +21,9 @@ class AnnualReviewPage extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final reviewsAsync = ref.watch(annualReviewsStreamProvider);
     final reviews = reviewsAsync.value ?? <AnnualReviewModel>[];
@@ -64,25 +66,30 @@ class AnnualReviewPage extends ConsumerWidget {
               child: CircularProgressIndicator(color: Color(0xFF6366F1)),
             )
           : reviews.isEmpty
-              ? _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor)
-              : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: reviews.length,
-                  itemBuilder: (context, index) {
-                    final review = reviews[index];
-                    return _buildReviewCard(
-                      context: context,
-                      ref: ref,
-                      review: review,
-                      isDark: isDark,
-                      cardBg: cardBg,
-                      borderColor: borderColor,
-                      primaryTextColor: primaryTextColor,
-                      secondaryTextColor: secondaryTextColor,
-                    );
-                  },
-                ),
+          ? _buildEmptyState(
+              context,
+              isDark,
+              primaryTextColor,
+              secondaryTextColor,
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
+              physics: const BouncingScrollPhysics(),
+              itemCount: reviews.length,
+              itemBuilder: (context, index) {
+                final review = reviews[index];
+                return _buildReviewCard(
+                  context: context,
+                  ref: ref,
+                  review: review,
+                  isDark: isDark,
+                  cardBg: cardBg,
+                  borderColor: borderColor,
+                  primaryTextColor: primaryTextColor,
+                  secondaryTextColor: secondaryTextColor,
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF6366F1),
         foregroundColor: Colors.white,
@@ -116,7 +123,9 @@ class AnnualReviewPage extends ConsumerWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.1),
+                color: const Color(
+                  0xFF6366F1,
+                ).withValues(alpha: isDark ? 0.2 : 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -149,7 +158,10 @@ class AnnualReviewPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -306,9 +318,7 @@ class AnnualReviewPage extends ConsumerWidget {
     required bool isDark,
     required Color secondaryTextColor,
   }) {
-    final stripBg = isDark
-        ? const Color(0xFF1E293B)
-        : const Color(0xFFF8FAFC);
+    final stripBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -316,7 +326,9 @@ class AnnualReviewPage extends ConsumerWidget {
         color: stripBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE2E8F0),
         ),
       ),
       child: Row(
@@ -457,7 +469,11 @@ class AnnualReviewPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, AnnualReviewModel review) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    AnnualReviewModel review,
+  ) async {
     HapticFeedback.mediumImpact();
     final confirmed = await showDialog<bool>(
       context: context,
@@ -489,7 +505,9 @@ class AnnualReviewPage extends ConsumerWidget {
     if (confirmed == true) {
       final uid = ref.read(currentUserIdProvider);
       if (uid != null && uid.isNotEmpty) {
-        await ref.read(annualReviewServiceProvider).deleteReview(uid, review.id);
+        await ref
+            .read(annualReviewServiceProvider)
+            .deleteReview(uid, review.id);
       }
     }
   }

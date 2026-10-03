@@ -11,7 +11,10 @@ import 'circular_progress_ring.dart';
 import 'goal_form_modal.dart';
 
 /// Parses a hex color string (e.g. '#2563EB' or '2563EB') into a Flutter [Color].
-Color parseGoalColor(String? hexString, {Color fallback = const Color(0xFF2563EB)}) {
+Color parseGoalColor(
+  String? hexString, {
+  Color fallback = const Color(0xFF2563EB),
+}) {
   if (hexString == null || hexString.isEmpty) return fallback;
   try {
     final clean = hexString.replaceAll('#', '').trim();
@@ -28,10 +31,7 @@ Color parseGoalColor(String? hexString, {Color fallback = const Color(0xFF2563EB
 class GoalCard extends ConsumerWidget {
   final GoalModel goal;
 
-  const GoalCard({
-    super.key,
-    required this.goal,
-  });
+  const GoalCard({super.key, required this.goal});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,7 +47,8 @@ class GoalCard extends ConsumerWidget {
           ]
         : [
             baseColor,
-            Color.lerp(baseColor, Colors.black, isDark ? 0.4 : 0.2) ?? baseColor,
+            Color.lerp(baseColor, Colors.black, isDark ? 0.4 : 0.2) ??
+                baseColor,
           ];
 
     // Find linked Area name and emoji if set
@@ -90,7 +91,9 @@ class GoalCard extends ConsumerWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: baseColor.withValues(alpha: isDone ? 0.08 : (isDark ? 0.3 : 0.2)),
+            color: baseColor.withValues(
+              alpha: isDone ? 0.08 : (isDark ? 0.3 : 0.2),
+            ),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -103,7 +106,8 @@ class GoalCard extends ConsumerWidget {
             HapticFeedback.lightImpact();
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => GoalDetailPage(goalId: goal.id, initialGoal: goal),
+                builder: (_) =>
+                    GoalDetailPage(goalId: goal.id, initialGoal: goal),
               ),
             );
           },
@@ -130,7 +134,10 @@ class GoalCard extends ConsumerWidget {
                         ),
                       ),
                       child: Center(
-                        child: Text(goal.icon, style: const TextStyle(fontSize: 22)),
+                        child: Text(
+                          goal.icon,
+                          style: const TextStyle(fontSize: 22),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -146,7 +153,9 @@ class GoalCard extends ConsumerWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
-                              decoration: isDone ? TextDecoration.lineThrough : null,
+                              decoration: isDone
+                                  ? TextDecoration.lineThrough
+                                  : null,
                               decorationColor: Colors.white70,
                               decorationThickness: 2.0,
                               letterSpacing: -0.3,
@@ -157,15 +166,24 @@ class GoalCard extends ConsumerWidget {
                           if (isDone) ...[
                             const SizedBox(height: 3),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.check_circle_rounded, size: 12, color: Colors.white),
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     context.tr('status_done_badge'),
@@ -203,7 +221,10 @@ class GoalCard extends ConsumerWidget {
                   children: [
                     if (linkedArea != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3.5,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.22),
                           borderRadius: BorderRadius.circular(8),
@@ -214,7 +235,10 @@ class GoalCard extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(linkedArea.emoji, style: const TextStyle(fontSize: 12)),
+                            Text(
+                              linkedArea.emoji,
+                              style: const TextStyle(fontSize: 12),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               linkedArea.title,
@@ -230,7 +254,10 @@ class GoalCard extends ConsumerWidget {
 
                     if (goal.milestones.isNotEmpty)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3.5,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.22),
                           borderRadius: BorderRadius.circular(8),
@@ -241,7 +268,11 @@ class GoalCard extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.checklist_rounded, size: 13, color: Colors.white),
+                            const Icon(
+                              Icons.checklist_rounded,
+                              size: 13,
+                              color: Colors.white,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${goal.completedMilestonesCount}/${goal.milestones.length} ${context.tr('milestones_unit')}',
@@ -257,7 +288,10 @@ class GoalCard extends ConsumerWidget {
 
                     if (daysRemainingText != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3.5,
+                        ),
                         decoration: BoxDecoration(
                           color: daysBadgeColor,
                           borderRadius: BorderRadius.circular(8),
@@ -268,7 +302,11 @@ class GoalCard extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.schedule_rounded, size: 12, color: Colors.white),
+                            const Icon(
+                              Icons.schedule_rounded,
+                              size: 12,
+                              color: Colors.white,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               daysRemainingText,
@@ -315,7 +353,9 @@ class GoalCard extends ConsumerWidget {
                         final uid = ref.read(currentUserIdProvider);
                         if (uid != null) {
                           final newStatus = isDone ? 'active' : 'done';
-                          await ref.read(goalsServiceProvider).setGoalStatus(
+                          await ref
+                              .read(goalsServiceProvider)
+                              .setGoalStatus(
                                 uid: uid,
                                 goalId: goal.id,
                                 status: newStatus,
@@ -325,14 +365,22 @@ class GoalCard extends ConsumerWidget {
                               SnackBar(
                                 content: Text(
                                   newStatus == 'done'
-                                      ? context.tr('goal_completed_toast', args: {'title': goal.title})
-                                      : context.tr('goal_restored_toast', args: {'title': goal.title}),
+                                      ? context.tr(
+                                          'goal_completed_toast',
+                                          args: {'title': goal.title},
+                                        )
+                                      : context.tr(
+                                          'goal_restored_toast',
+                                          args: {'title': goal.title},
+                                        ),
                                 ),
                                 backgroundColor: newStatus == 'done'
                                     ? const Color(0xFF10B981)
                                     : const Color(0xFF2E6FF2),
                                 behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             );
                           }
@@ -340,7 +388,10 @@ class GoalCard extends ConsumerWidget {
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: isDone
                               ? Colors.white.withValues(alpha: 0.2)

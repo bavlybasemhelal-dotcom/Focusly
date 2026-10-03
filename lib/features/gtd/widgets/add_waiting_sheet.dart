@@ -32,8 +32,12 @@ class _AddWaitingSheetState extends State<AddWaitingSheet> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.taskToEdit?.title ?? '');
-    _waitingForController = TextEditingController(text: widget.taskToEdit?.waitingFor ?? '');
+    _titleController = TextEditingController(
+      text: widget.taskToEdit?.title ?? '',
+    );
+    _waitingForController = TextEditingController(
+      text: widget.taskToEdit?.waitingFor ?? '',
+    );
   }
 
   @override
@@ -111,7 +115,11 @@ class _AddWaitingSheetState extends State<AddWaitingSheet> {
                         color: const Color(0xFFF59E0B).withValues(alpha: 0.14),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.hourglass_top_rounded, color: Color(0xFFF59E0B), size: 20),
+                      child: const Icon(
+                        Icons.hourglass_top_rounded,
+                        color: Color(0xFFF59E0B),
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -131,23 +139,40 @@ class _AddWaitingSheetState extends State<AddWaitingSheet> {
                 // Task title input
                 Text(
                   context.tr('waiting_task_title_label'),
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: secondaryTextColor),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: secondaryTextColor,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Container(
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                    color: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F5)),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : const Color(0xFFE2E8F5),
+                    ),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: TextFormField(
                     controller: _titleController,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? context.tr('field_required') : null,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? context.tr('field_required')
+                        : null,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: primaryTextColor,
+                    ),
                     decoration: InputDecoration(
                       hintText: context.tr('waiting_task_title_hint'),
-                      hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor),
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: secondaryTextColor,
+                      ),
                       border: InputBorder.none,
                     ),
                   ),
@@ -157,23 +182,40 @@ class _AddWaitingSheetState extends State<AddWaitingSheet> {
                 // Waiting For person input
                 Text(
                   context.tr('waiting_for_person_label'),
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: secondaryTextColor),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: secondaryTextColor,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Container(
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                    color: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F5)),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : const Color(0xFFE2E8F5),
+                    ),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: TextFormField(
                     controller: _waitingForController,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? context.tr('field_required') : null,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? context.tr('field_required')
+                        : null,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: primaryTextColor,
+                    ),
                     decoration: InputDecoration(
                       hintText: context.tr('waiting_for_person_hint'),
-                      hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor),
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: secondaryTextColor,
+                      ),
                       border: InputBorder.none,
                     ),
                   ),
@@ -188,14 +230,21 @@ class _AddWaitingSheetState extends State<AddWaitingSheet> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF59E0B),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       elevation: 0,
                     ),
                     child: _isSaving
                         ? const CircularProgressIndicator(color: Colors.white)
                         : Text(
-                            isEditing ? context.tr('save') : context.tr('add_waiting_btn'),
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                            isEditing
+                                ? context.tr('save')
+                                : context.tr('add_waiting_btn'),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                   ),
                 ),

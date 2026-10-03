@@ -71,12 +71,15 @@ class BudgetHelpers {
     DateTime targetMonth,
   ) {
     return allTx.where((tx) {
-      return tx.date.year == targetMonth.year && tx.date.month == targetMonth.month;
+      return tx.date.year == targetMonth.year &&
+          tx.date.month == targetMonth.month;
     }).toList();
   }
 
   /// Computes monthly income, expenses, and net balance.
-  static MonthSummary computeMonthSummary(List<BudgetTransactionModel> thisMonthTx) {
+  static MonthSummary computeMonthSummary(
+    List<BudgetTransactionModel> thisMonthTx,
+  ) {
     double totalIncome = 0.0;
     double totalExpenses = 0.0;
 

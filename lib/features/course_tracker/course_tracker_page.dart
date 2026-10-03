@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
-import 'models/course_model.dart';
 import 'providers/course_tracker_provider.dart';
 import 'widgets/course_card.dart';
 import 'widgets/course_form_modal.dart';
@@ -56,7 +55,10 @@ class CourseTrackerPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF0EA5E9)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF0EA5E9),
+            ),
             tooltip: context.tr('add_course_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -95,7 +97,11 @@ class CourseTrackerPage extends ConsumerWidget {
         ),
         data: (courses) {
           if (courses.isEmpty) {
-            return _buildEmptyState(context, primaryTextColor, secondaryTextColor);
+            return _buildEmptyState(
+              context,
+              primaryTextColor,
+              secondaryTextColor,
+            );
           }
 
           return Column(
@@ -172,7 +178,10 @@ class CourseTrackerPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0EA5E9),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),

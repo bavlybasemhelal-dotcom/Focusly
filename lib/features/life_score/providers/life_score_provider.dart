@@ -1,3 +1,4 @@
+import '../../../core/data/calendar_clock.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../energy_mood/providers/energy_mood_provider.dart';
@@ -24,7 +25,7 @@ final lifeScoreLogsStreamProvider = StreamProvider<List<LifeScoreModel>>((ref) {
 
 /// Computes the start date (Sunday) of the active current week
 final currentWeekStartProvider = Provider<DateTime>((ref) {
-  return LifeScoreCalculator.getWeekStart(DateTime.now());
+  return LifeScoreCalculator.getWeekStart(ref.watch(calendarClockProvider));
 });
 
 /// Notifier managing the selected week start date for historical navigation
@@ -82,7 +83,8 @@ final selectedWeekLifeScoreProvider = Provider<LifeScoreModel?>((ref) {
   final selectedWeek = ref.watch(selectedWeekStartProvider);
   final currentWeek = ref.watch(currentWeekStartProvider);
 
-  final bool isCurrent = selectedWeek.year == currentWeek.year &&
+  final bool isCurrent =
+      selectedWeek.year == currentWeek.year &&
       selectedWeek.month == currentWeek.month &&
       selectedWeek.day == currentWeek.day;
 

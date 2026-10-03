@@ -1,3 +1,4 @@
+import '../../energy_mood/models/checkin_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/core/auth/auth_provider.dart';
 import '../../tasks/providers/tasks_provider.dart';
@@ -17,21 +18,30 @@ final annualReviewServiceProvider = Provider<AnnualReviewService>((ref) {
 /// ordered by year descending.
 final annualReviewsStreamProvider =
     StreamProvider.autoDispose<List<AnnualReviewModel>>((ref) {
-  final uid = ref.watch(currentUserIdProvider);
-  if (uid == null || uid.isEmpty) {
-    return Stream.value(<AnnualReviewModel>[]);
-  }
-  final service = ref.watch(annualReviewServiceProvider);
-  return service.getReviewsStream(uid);
-});
+      final uid = ref.watch(currentUserIdProvider);
+      if (uid == null || uid.isEmpty) {
+        return Stream.value(<AnnualReviewModel>[]);
+      }
+      final service = ref.watch(annualReviewServiceProvider);
+      return service.getReviewsStream(uid);
+    });
+
+final yearCheckinsProvider = StreamProvider.autoDispose
+    .family<List<CheckinModel>, int>((ref, year) {
+      final uid = ref.watch(currentUserIdProvider);
+      if (uid == null) return Stream.value([]);
+      return ref.watch(energyMoodServiceProvider).streamYearCheckins(uid, year);
+    });
 
 /// Derived provider computing live yearly productivity stats for a specific [year]
-final yearStatsProvider =
-    Provider.family.autoDispose<YearStatsData, int>((ref, year) {
+final yearStatsProvider = Provider.family.autoDispose<YearStatsData, int>((
+  ref,
+  year,
+) {
   final tasks = ref.watch(tasksStreamProvider).value ?? [];
   final workouts = ref.watch(workoutsStreamProvider).value ?? [];
   final books = ref.watch(booksStreamProvider).value ?? [];
-  final checkins = ref.watch(checkinsHistoryStreamProvider).value ?? [];
+  final checkins = ref.watch(yearCheckinsProvider(year)).value ?? [];
 
   return calculateYearStats(
     year,

@@ -5,7 +5,8 @@ class GroupFeedModel {
   final String id;
   final String uid;
   final String name;
-  final String type; // 'task_milestone', 'streak_milestone', 'level_up', 'challenge_created', 'challenge_won', 'custom_message'
+  final String
+  type; // 'task_milestone', 'streak_milestone', 'level_up', 'challenge_created', 'challenge_won', 'custom_message'
   final String message;
   final String icon; // Emoji, e.g. "🎯", "🔥", "🏆", "🌟"
   final Map<String, int> reactions; // {'like': 0, 'fire': 0, 'clap': 0}
@@ -63,6 +64,7 @@ class GroupFeedModel {
       'icon': icon,
       'reactions': reactions,
       'reactedBy': reactedBy,
+      'reactionUids': reactedBy.keys.toList(),
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

@@ -1,7 +1,6 @@
-import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+import 'package:flutter/services.dart';
 import 'package:focusly/core/localization/app_localizations.dart';
 import '../models/report_models.dart';
 
@@ -16,10 +15,16 @@ class ReportPdfBuilder {
   }) async {
     final pdf = pw.Document();
 
-    // Load Arabic-compatible Cairo fonts via printing package
-    final fontRegular = await PdfGoogleFonts.cairoRegular();
-    final fontBold = await PdfGoogleFonts.cairoBold();
-    final fontMedium = await PdfGoogleFonts.cairoMedium();
+    // Bundled SIL Open Font License fonts work without network access.
+    final fontRegular = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Cairo-Regular.ttf'),
+    );
+    final fontBold = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Cairo-Bold.ttf'),
+    );
+    final fontMedium = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Cairo-Medium.ttf'),
+    );
 
     final theme = pw.ThemeData.withFont(
       base: fontRegular,
@@ -37,8 +42,18 @@ class ReportPdfBuilder {
     final scoreTierColor = PdfColor.fromInt(data.score.tierColorHex);
 
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final dateRangeStr =
         '${months[data.startDate.month - 1]} ${data.startDate.day}, ${data.startDate.year} - ${months[data.endDate.month - 1]} ${data.endDate.day}, ${data.endDate.year}';
@@ -147,7 +162,9 @@ class ReportPdfBuilder {
                   padding: const pw.EdgeInsets.all(18),
                   decoration: pw.BoxDecoration(
                     color: cardBgColor,
-                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(14)),
+                    borderRadius: const pw.BorderRadius.all(
+                      pw.Radius.circular(14),
+                    ),
                     border: pw.Border.all(color: borderColor),
                   ),
                   child: pw.Row(
@@ -158,7 +175,10 @@ class ReportPdfBuilder {
                         height: 90,
                         decoration: pw.BoxDecoration(
                           shape: pw.BoxShape.circle,
-                          border: pw.Border.all(color: scoreTierColor, width: 6),
+                          border: pw.Border.all(
+                            color: scoreTierColor,
+                            width: 6,
+                          ),
                           color: PdfColors.white,
                         ),
                         child: pw.Center(
@@ -192,7 +212,8 @@ class ReportPdfBuilder {
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
                             pw.Row(
-                              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment:
+                                  pw.MainAxisAlignment.spaceBetween,
                               children: [
                                 pw.Text(
                                   localizations.tr(data.score.tierKey),
@@ -231,7 +252,9 @@ class ReportPdfBuilder {
 
                             // Habit Discipline Progress Bar (30%)
                             _buildSubScoreBar(
-                              label: localizations.tr('report_habit_discipline'),
+                              label: localizations.tr(
+                                'report_habit_discipline',
+                              ),
                               score: data.score.habitsScore,
                               color: const PdfColor.fromInt(0xFFF59E0B),
                             ),
@@ -318,7 +341,9 @@ class ReportPdfBuilder {
                     padding: const pw.EdgeInsets.all(14),
                     decoration: pw.BoxDecoration(
                       color: cardBgColor,
-                      borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
+                      borderRadius: const pw.BorderRadius.all(
+                        pw.Radius.circular(12),
+                      ),
                       border: pw.Border.all(color: borderColor),
                     ),
                     child: pw.Column(
@@ -395,14 +420,19 @@ class ReportPdfBuilder {
                   padding: const pw.EdgeInsets.all(12),
                   decoration: pw.BoxDecoration(
                     color: cardBgColor,
-                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
+                    borderRadius: const pw.BorderRadius.all(
+                      pw.Radius.circular(12),
+                    ),
                     border: pw.Border.all(color: borderColor),
                   ),
                   child: pw.Row(
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
                     children: data.trendPoints.take(12).map((point) {
-                      final taskBarHeight = (point.tasksCompleted * 6.0).clamp(4.0, 40.0);
+                      final taskBarHeight = (point.tasksCompleted * 6.0).clamp(
+                        4.0,
+                        40.0,
+                      );
                       return pw.Column(
                         mainAxisSize: pw.MainAxisSize.min,
                         children: [
@@ -504,7 +534,9 @@ class ReportPdfBuilder {
                 width: 180.0 * (score / 100.0).clamp(0.0, 1.0),
                 decoration: pw.BoxDecoration(
                   color: color,
-                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                  borderRadius: const pw.BorderRadius.all(
+                    pw.Radius.circular(4),
+                  ),
                 ),
               ),
             ],

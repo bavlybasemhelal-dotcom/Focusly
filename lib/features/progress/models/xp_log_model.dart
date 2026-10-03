@@ -26,7 +26,8 @@ class XpLogModel {
     if (data['createdAt'] is Timestamp) {
       parsedDate = (data['createdAt'] as Timestamp).toDate();
     } else if (data['createdAt'] is String) {
-      parsedDate = DateTime.tryParse(data['createdAt'] as String) ?? DateTime.now();
+      parsedDate =
+          DateTime.tryParse(data['createdAt'] as String) ?? DateTime.now();
     }
 
     return XpLogModel(

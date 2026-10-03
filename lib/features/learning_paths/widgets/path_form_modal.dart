@@ -12,13 +12,13 @@ import '../providers/learning_paths_provider.dart';
 class PathFormModal extends ConsumerStatefulWidget {
   final LearningPathModel? pathToEdit;
 
-  const PathFormModal({
-    super.key,
-    this.pathToEdit,
-  });
+  const PathFormModal({super.key, this.pathToEdit});
 
   /// Static helper to show the modal bottom sheet.
-  static Future<void> show(BuildContext context, {LearningPathModel? pathToEdit}) {
+  static Future<void> show(
+    BuildContext context, {
+    LearningPathModel? pathToEdit,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -53,7 +53,10 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
     _totalDays = edit?.totalDays ?? 30;
     _totalDaysController = TextEditingController(text: _totalDays.toString());
 
-    _steps = LearningPathHelpers.resizeSteps(edit?.steps ?? const [], _totalDays);
+    _steps = LearningPathHelpers.resizeSteps(
+      edit?.steps ?? const [],
+      _totalDays,
+    );
     _syncDayControllers();
   }
 
@@ -139,7 +142,9 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
               content: Text(context.tr('path_created_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -163,7 +168,9 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
               content: Text(context.tr('path_updated_toast')),
               backgroundColor: const Color(0xFF2E6FF2),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -183,7 +190,11 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -216,7 +227,9 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -238,7 +251,9 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
               content: Text(context.tr('path_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -347,11 +362,17 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
               decoration: BoxDecoration(
                 color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
+                border: Border.all(
+                  color: const Color(0xFFEF4444).withValues(alpha: 0.4),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error_outline_rounded, color: Color(0xFFEF4444), size: 20),
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    color: Color(0xFFEF4444),
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -399,7 +420,10 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                     ),
                     filled: true,
                     fillColor: inputBg,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor),
@@ -410,7 +434,10 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF2E6FF2),
+                        width: 1.8,
+                      ),
                     ),
                   ),
                 ),
@@ -432,7 +459,9 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                       child: TextField(
                         controller: _totalDaysController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -443,7 +472,10 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                           suffixStyle: TextStyle(color: secondaryTextColor),
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -454,7 +486,10 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF2E6FF2),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                         onChanged: _onTotalDaysChanged,
@@ -475,14 +510,19 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                           },
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 12,
+                            ),
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? const Color(0xFF2E6FF2)
                                   : inputBg,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: isSelected ? const Color(0xFF2E6FF2) : borderColor,
+                                color: isSelected
+                                    ? const Color(0xFF2E6FF2)
+                                    : borderColor,
                               ),
                             ),
                             child: Text(
@@ -490,7 +530,9 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
-                                color: isSelected ? Colors.white : primaryTextColor,
+                                color: isSelected
+                                    ? Colors.white
+                                    : primaryTextColor,
                               ),
                             ),
                           ),
@@ -513,10 +555,7 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                 const SizedBox(height: 4),
                 Text(
                   context.tr('daily_topics_curriculum_sub'),
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: secondaryTextColor,
-                  ),
+                  style: TextStyle(fontSize: 11, color: secondaryTextColor),
                 ),
                 const SizedBox(height: 10),
 
@@ -526,7 +565,10 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: inputBg,
                       borderRadius: BorderRadius.circular(12),
@@ -535,9 +577,14 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
+                            color: const Color(
+                              0xFF2E6FF2,
+                            ).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -553,16 +600,23 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                         Expanded(
                           child: TextField(
                             controller: controller,
-                            style: TextStyle(fontSize: 13, color: primaryTextColor),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: primaryTextColor,
+                            ),
                             decoration: InputDecoration(
                               hintText: context.tr('day_topic_hint'),
                               hintStyle: TextStyle(
-                                color: isDark ? Colors.white24 : const Color(0xFF94A3B8),
+                                color: isDark
+                                    ? Colors.white24
+                                    : const Color(0xFF94A3B8),
                                 fontSize: 12,
                               ),
                               isDense: true,
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                              ),
                             ),
                           ),
                         ),
@@ -618,7 +672,10 @@ class _PathFormModalState extends ConsumerState<PathFormModal> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : Text(
                           isEditMode

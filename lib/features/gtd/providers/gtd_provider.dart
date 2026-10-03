@@ -17,8 +17,9 @@ FirebaseFirestore? get _firestoreInstance {
 ///
 /// DATA ISOLATION: Watches [currentUserIdProvider] so inbox items are completely
 /// partitioned per authenticated user.
-final inboxStreamProvider =
-    StreamProvider.autoDispose<List<InboxItemModel>>((ref) {
+final inboxStreamProvider = StreamProvider.autoDispose<List<InboxItemModel>>((
+  ref,
+) {
   final uid = ref.watch(currentUserIdProvider);
 
   if (uid == null || uid.isEmpty) {
@@ -35,10 +36,10 @@ final inboxStreamProvider =
       .orderBy('createdAt', descending: true)
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs
-        .map((doc) => InboxItemModel.fromMap(doc.data(), doc.id))
-        .toList();
-  });
+        return snapshot.docs
+            .map((doc) => InboxItemModel.fromMap(doc.data(), doc.id))
+            .toList();
+      });
 });
 
 /// Count of unprocessed inbox items (for the Navigation Drawer badge)
@@ -52,34 +53,31 @@ final unprocessedInboxCountProvider = Provider.autoDispose<int>((ref) {
 });
 
 /// Stream of GTD "Waiting For" tasks
-final waitingTasksStreamProvider = Provider.autoDispose<AsyncValue<List<TaskModel>>>((ref) {
-  final tasksAsync = ref.watch(tasksStreamProvider);
-  return tasksAsync.whenData((tasks) {
-    return tasks
-        .where((t) => t.listType == 'waiting' && !t.done)
-        .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-  });
-});
+final waitingTasksStreamProvider =
+    Provider.autoDispose<AsyncValue<List<TaskModel>>>((ref) {
+      final tasksAsync = ref.watch(tasksStreamProvider);
+      return tasksAsync.whenData((tasks) {
+        return tasks.where((t) => t.listType == 'waiting' && !t.done).toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      });
+    });
 
 /// Stream of GTD "Someday / Maybe" tasks
-final somedayTasksStreamProvider = Provider.autoDispose<AsyncValue<List<TaskModel>>>((ref) {
-  final tasksAsync = ref.watch(tasksStreamProvider);
-  return tasksAsync.whenData((tasks) {
-    return tasks
-        .where((t) => t.listType == 'someday' && !t.done)
-        .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-  });
-});
+final somedayTasksStreamProvider =
+    Provider.autoDispose<AsyncValue<List<TaskModel>>>((ref) {
+      final tasksAsync = ref.watch(tasksStreamProvider);
+      return tasksAsync.whenData((tasks) {
+        return tasks.where((t) => t.listType == 'someday' && !t.done).toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      });
+    });
 
 /// Stream of GTD "Reference" items
-final referenceTasksStreamProvider = Provider.autoDispose<AsyncValue<List<TaskModel>>>((ref) {
-  final tasksAsync = ref.watch(tasksStreamProvider);
-  return tasksAsync.whenData((tasks) {
-    return tasks
-        .where((t) => t.listType == 'reference')
-        .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-  });
-});
+final referenceTasksStreamProvider =
+    Provider.autoDispose<AsyncValue<List<TaskModel>>>((ref) {
+      final tasksAsync = ref.watch(tasksStreamProvider);
+      return tasksAsync.whenData((tasks) {
+        return tasks.where((t) => t.listType == 'reference').toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      });
+    });

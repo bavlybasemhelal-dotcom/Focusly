@@ -11,7 +11,7 @@ class CourseTrackerService {
   final FirebaseFirestore _firestore;
 
   CourseTrackerService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _coursesCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('courses');
@@ -19,10 +19,9 @@ class CourseTrackerService {
 
   /// Streams all courses for [uid] ordered by updatedAt descending.
   Stream<List<CourseModel>> streamCourses(String uid) {
-    return _coursesCollection(uid)
-        .orderBy('updatedAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _coursesCollection(
+      uid,
+    ).orderBy('updatedAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => CourseModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -54,7 +53,9 @@ class CourseTrackerService {
       final course = CourseModel(
         id: docRef.id,
         title: title.trim(),
-        platform: (platform != null && platform.trim().isNotEmpty) ? platform.trim() : null,
+        platform: (platform != null && platform.trim().isNotEmpty)
+            ? platform.trim()
+            : null,
         totalLessons: normalized.totalLessons,
         completedLessons: normalized.completedLessons,
         status: normalized.status,
@@ -91,31 +92,66 @@ class CourseTrackerService {
     BuildContext? context,
   }) async {
     try {
-      final now = DateTime.now();
-
-      final normalized = CourseStatusHelper.normalizeCourseProgress(
-        totalLessons: newTotalLessons,
-        completedLessons: newCompletedLessons,
-        manualStatus: newStatus,
-        previousStatus: currentCourse.status,
-      );
-
-      final updated = currentCourse.copyWith(
-        title: newTitle.trim(),
-        platform: newPlatform != null && newPlatform.trim().isNotEmpty ? newPlatform.trim() : null,
-        clearPlatform: newPlatform == null || newPlatform.trim().isEmpty,
-        totalLessons: normalized.totalLessons,
-        completedLessons: normalized.completedLessons,
-        status: normalized.status,
-        certificate: newCertificate,
-        note: newNote != null && newNote.trim().isNotEmpty ? newNote.trim() : null,
-        clearNote: newNote == null || newNote.trim().isEmpty,
-        updatedAt: now,
-      );
-
-      await _coursesCollection(uid).doc(updated.id).update(updated.toMap());
-
-      if (normalized.isNewlyCompleted && context != null && context.mounted) {
+      if (newTitle.trim().isEmpty ||
+          newTotalLessons < 1 ||
+          newTotalLessons > 100000 ||
+          newCompletedLessons < 0 ||
+          newCompletedLessons > newTotalLessons) {
+        throw ArgumentError('Invalid course');
+      }
+      final docRef = _coursesCollection(uid).doc(currentCourse.id);
+      final updated = await _firestore.runTransaction((transaction) async {
+        final snapshot = await transaction.get(docRef);
+        if (!snapshot.exists) throw StateError('Course no longer exists');
+        final fresh = CourseModel.fromMap(snapshot.data()!, currentCourse.id);
+        final changedProgress =
+            newCompletedLessons != currentCourse.completedLessons ||
+            newStatus != currentCourse.status;
+        if (changedProgress &&
+            (fresh.completedLessons != currentCourse.completedLessons ||
+                fresh.status != currentCourse.status)) {
+          throw StateError('Course progress changed. Reopen the form.');
+        }
+        final normalized = CourseStatusHelper.normalizeCourseProgress(
+          totalLessons: newTotalLessons,
+          completedLessons: changedProgress
+              ? newCompletedLessons
+              : fresh.completedLessons,
+          manualStatus: changedProgress ? newStatus : fresh.status,
+          previousStatus: fresh.status,
+        );
+        if (newTotalLessons < fresh.completedLessons) {
+          throw StateError('Cannot truncate completed lessons');
+        }
+        final result = fresh.copyWith(
+          title: newTitle == currentCourse.title
+              ? fresh.title
+              : newTitle.trim(),
+          platform: newPlatform == currentCourse.platform
+              ? fresh.platform
+              : newPlatform,
+          clearPlatform:
+              newPlatform != currentCourse.platform &&
+              (newPlatform == null || newPlatform.trim().isEmpty),
+          totalLessons: normalized.totalLessons,
+          completedLessons: normalized.completedLessons,
+          status: normalized.status,
+          certificate: newCertificate == currentCourse.certificate
+              ? fresh.certificate
+              : newCertificate,
+          note: newNote == currentCourse.note ? fresh.note : newNote,
+          clearNote:
+              newNote != currentCourse.note &&
+              (newNote == null || newNote.trim().isEmpty),
+          updatedAt: DateTime.now(),
+        );
+        transaction.update(docRef, result.toMap()..remove('createdAt'));
+        return result;
+      });
+      if (currentCourse.status != 'completed' &&
+          updated.status == 'completed' &&
+          context != null &&
+          context.mounted) {
         _triggerCourseCompletedCelebration(updated.title, context);
       }
 
@@ -134,17 +170,31 @@ class CourseTrackerService {
     BuildContext? context,
   }) async {
     try {
-      final wasCompleted = course.status == 'completed';
-      final updated = CourseStatusHelper.adjustCompletedLessons(course, delta);
-
-      if (updated.completedLessons == course.completedLessons && updated.status == course.status) {
-        return true; // No-op at bounds
-      }
-
-      await _coursesCollection(uid).doc(updated.id).update(updated.toMap());
+      if (delta.abs() != 1) throw ArgumentError('Invalid lesson adjustment');
+      final docRef = _coursesCollection(uid).doc(course.id);
+      var wasCompleted = false;
+      final updated = await _firestore.runTransaction((transaction) async {
+        final snapshot = await transaction.get(docRef);
+        if (!snapshot.exists) throw StateError('Course no longer exists');
+        final current = CourseModel.fromMap(snapshot.data()!, course.id);
+        wasCompleted = current.status == 'completed';
+        final changed = CourseStatusHelper.adjustCompletedLessons(
+          current,
+          delta,
+        );
+        transaction.update(docRef, {
+          'completedLessons': changed.completedLessons,
+          'status': changed.status,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        return changed;
+      });
 
       // Trigger celebratory toast if course newly completed
-      if (!wasCompleted && updated.status == 'completed' && context != null && context.mounted) {
+      if (!wasCompleted &&
+          updated.status == 'completed' &&
+          context != null &&
+          context.mounted) {
         _triggerCourseCompletedCelebration(updated.title, context);
       }
 
@@ -169,11 +219,17 @@ class CourseTrackerService {
     }
   }
 
-  void _triggerCourseCompletedCelebration(String courseTitle, BuildContext context) {
+  void _triggerCourseCompletedCelebration(
+    String courseTitle,
+    BuildContext context,
+  ) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          context.tr('course_completed_celebration', args: {'title': courseTitle}),
+          context.tr(
+            'course_completed_celebration',
+            args: {'title': courseTitle},
+          ),
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         backgroundColor: const Color(0xFF10B981),

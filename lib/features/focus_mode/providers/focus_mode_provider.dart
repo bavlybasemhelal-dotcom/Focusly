@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 
 /// Notifier that manages whether Focus Mode full-screen overlay is currently active.
 ///
@@ -6,7 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// to suppress non-urgent celebratory popups/dialogs while the user is actively focusing.
 class FocusModeActiveNotifier extends Notifier<bool> {
   @override
-  bool build() => false;
+  bool build() {
+    ref.watch(currentUserIdProvider);
+    return false;
+  }
 
   /// Activates focus mode state
   void enterFocusMode() {

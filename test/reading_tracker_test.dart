@@ -8,7 +8,6 @@ import 'package:focusly/core/theme/app_theme.dart';
 import 'package:focusly/features/reading_tracker/books_shelves_page.dart';
 import 'package:focusly/features/reading_tracker/helpers/reading_streak_logic.dart';
 import 'package:focusly/features/reading_tracker/models/book_model.dart';
-import 'package:focusly/features/reading_tracker/models/reading_log_model.dart';
 import 'package:focusly/features/reading_tracker/providers/reading_provider.dart';
 import 'package:focusly/features/reading_tracker/widgets/book_card.dart';
 import 'package:focusly/features/reading_tracker/widgets/book_form_modal.dart';

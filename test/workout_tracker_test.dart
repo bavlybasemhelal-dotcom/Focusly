@@ -92,114 +92,125 @@ void main() {
       expect(stats.totalWorkoutsCount, equals(3));
     });
 
-    test('compute30DayHeatmap generates 30 days and accurately flags active workout days', () {
-      final workouts = [
-        WorkoutModel(
-          id: '1',
-          type: 'gym',
-          durationMin: 50,
-          calories: 400,
-          date: DateTime(2026, 8, 24), // Today (index 29)
-          createdAt: now,
-          updatedAt: now,
-        ),
-        WorkoutModel(
-          id: '2',
-          type: 'yoga',
-          durationMin: 30,
-          calories: 120,
-          date: DateTime(2026, 8, 24), // Second workout today
-          createdAt: now,
-          updatedAt: now,
-        ),
-        WorkoutModel(
-          id: '3',
-          type: 'running',
-          durationMin: 25,
-          calories: 250,
-          date: DateTime(2026, 8, 23), // Yesterday (index 28)
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
+    test(
+      'compute30DayHeatmap generates 30 days and accurately flags active workout days',
+      () {
+        final workouts = [
+          WorkoutModel(
+            id: '1',
+            type: 'gym',
+            durationMin: 50,
+            calories: 400,
+            date: DateTime(2026, 8, 24), // Today (index 29)
+            createdAt: now,
+            updatedAt: now,
+          ),
+          WorkoutModel(
+            id: '2',
+            type: 'yoga',
+            durationMin: 30,
+            calories: 120,
+            date: DateTime(2026, 8, 24), // Second workout today
+            createdAt: now,
+            updatedAt: now,
+          ),
+          WorkoutModel(
+            id: '3',
+            type: 'running',
+            durationMin: 25,
+            calories: 250,
+            date: DateTime(2026, 8, 23), // Yesterday (index 28)
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      final heatmap = WorkoutHelpers.compute30DayHeatmap(workouts, now);
-      expect(heatmap.length, equals(30));
+        final heatmap = WorkoutHelpers.compute30DayHeatmap(workouts, now);
+        expect(heatmap.length, equals(30));
 
-      final todayDay = heatmap[29];
-      expect(todayDay.hasWorkout, isTrue);
-      expect(todayDay.workoutCount, equals(2));
-      expect(todayDay.totalDurationMin, equals(80)); // 50 + 30
-      expect(todayDay.totalCalories, equals(520)); // 400 + 120
+        final todayDay = heatmap[29];
+        expect(todayDay.hasWorkout, isTrue);
+        expect(todayDay.workoutCount, equals(2));
+        expect(todayDay.totalDurationMin, equals(80)); // 50 + 30
+        expect(todayDay.totalCalories, equals(520)); // 400 + 120
 
-      final yesterdayDay = heatmap[28];
-      expect(yesterdayDay.hasWorkout, isTrue);
-      expect(yesterdayDay.workoutCount, equals(1));
+        final yesterdayDay = heatmap[28];
+        expect(yesterdayDay.hasWorkout, isTrue);
+        expect(yesterdayDay.workoutCount, equals(1));
 
-      final restDay = heatmap[20];
-      expect(restDay.hasWorkout, isFalse);
-      expect(restDay.workoutCount, equals(0));
-    });
+        final restDay = heatmap[20];
+        expect(restDay.hasWorkout, isFalse);
+        expect(restDay.workoutCount, equals(0));
+      },
+    );
   });
 
   group('WorkoutModel Serialization Tests', () {
-    test('WorkoutModel serializes toMap and deserializes fromMap correctly', () {
-      final now = DateTime(2026, 8, 24, 14, 0);
-      final workout = WorkoutModel(
-        id: 'w_1',
-        type: 'running',
-        durationMin: 45,
-        calories: 420,
-        date: DateTime(2026, 8, 24),
-        note: 'Morning trail run in the park.',
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'WorkoutModel serializes toMap and deserializes fromMap correctly',
+      () {
+        final now = DateTime(2026, 8, 24, 14, 0);
+        final workout = WorkoutModel(
+          id: 'w_1',
+          type: 'running',
+          durationMin: 45,
+          calories: 420,
+          date: DateTime(2026, 8, 24),
+          note: 'Morning trail run in the park.',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final map = workout.toMap();
-      expect(map['type'], equals('running'));
-      expect(map['durationMin'], equals(45));
-      expect(map['calories'], equals(420));
-      expect(map['note'], equals('Morning trail run in the park.'));
+        final map = workout.toMap();
+        expect(map['type'], equals('running'));
+        expect(map['durationMin'], equals(45));
+        expect(map['calories'], equals(420));
+        expect(map['note'], equals('Morning trail run in the park.'));
 
-      final reconstructed = WorkoutModel.fromMap(map, 'w_1');
-      expect(reconstructed.id, equals('w_1'));
-      expect(reconstructed.type, equals('running'));
-      expect(reconstructed.durationMin, equals(45));
-      expect(reconstructed.calories, equals(420));
-      expect(reconstructed.note, contains('trail run'));
-    });
+        final reconstructed = WorkoutModel.fromMap(map, 'w_1');
+        expect(reconstructed.id, equals('w_1'));
+        expect(reconstructed.type, equals('running'));
+        expect(reconstructed.durationMin, equals(45));
+        expect(reconstructed.calories, equals(420));
+        expect(reconstructed.note, contains('trail run'));
+      },
+    );
   });
 
   group('Workout Tracker UI & Widget Tests', () {
-    testWidgets('WorkoutCard renders workout type, duration, date, note, and calories badge', (tester) async {
-      final now = DateTime.now();
-      final workout = WorkoutModel(
-        id: 'w1',
-        type: 'gym',
-        durationMin: 60,
-        calories: 500,
-        date: now,
-        note: 'Chest and triceps heavy day.',
-        createdAt: now,
-        updatedAt: now,
-      );
+    testWidgets(
+      'WorkoutCard renders workout type, duration, date, note, and calories badge',
+      (tester) async {
+        final now = DateTime.now();
+        final workout = WorkoutModel(
+          id: 'w1',
+          type: 'gym',
+          durationMin: 60,
+          calories: 500,
+          date: now,
+          note: 'Chest and triceps heavy day.',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        createWorkoutTrackerTestWidget(
-          child: Scaffold(body: WorkoutCard(workout: workout)),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createWorkoutTrackerTestWidget(
+            child: Scaffold(body: WorkoutCard(workout: workout)),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Gym / Weights'), findsOneWidget);
-      expect(find.text('60 min'), findsOneWidget);
-      expect(find.text('500 kcal'), findsOneWidget);
-      expect(find.text('Chest and triceps heavy day.'), findsOneWidget);
-      expect(find.byIcon(Icons.fitness_center_rounded), findsOneWidget);
-    });
+        expect(find.text('Gym / Weights'), findsOneWidget);
+        expect(find.text('60 min'), findsOneWidget);
+        expect(find.text('500 kcal'), findsOneWidget);
+        expect(find.text('Chest and triceps heavy day.'), findsOneWidget);
+        expect(find.byIcon(Icons.fitness_center_rounded), findsOneWidget);
+      },
+    );
 
-    testWidgets('WorkoutHeatmapWidget renders 30 cells in grid', (tester) async {
+    testWidgets('WorkoutHeatmapWidget renders 30 cells in grid', (
+      tester,
+    ) async {
       final now = DateTime.now();
       final workout = WorkoutModel(
         id: 'w1',
@@ -225,7 +236,9 @@ void main() {
       expect(find.text('1 / 30 days'), findsOneWidget);
     });
 
-    testWidgets('WorkoutFormModal validates duration greater than 0', (tester) async {
+    testWidgets('WorkoutFormModal validates duration greater than 0', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createWorkoutTrackerTestWidget(
           child: const Scaffold(body: WorkoutFormModal()),
@@ -248,53 +261,62 @@ void main() {
       expect(find.text('Duration must be greater than 0'), findsOneWidget);
     });
 
-    testWidgets('WorkoutTrackerPage renders stats row, heatmap, and empty state', (tester) async {
-      await tester.pumpWidget(
-        createWorkoutTrackerTestWidget(
-          child: const WorkoutTrackerPage(),
-          overrides: [
-            workoutsStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'WorkoutTrackerPage renders stats row, heatmap, and empty state',
+      (tester) async {
+        await tester.pumpWidget(
+          createWorkoutTrackerTestWidget(
+            child: const WorkoutTrackerPage(),
+            overrides: [
+              workoutsStreamProvider.overrideWithValue(const AsyncData([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Workout Tracker'), findsOneWidget);
-      expect(find.text('This Week Minutes'), findsOneWidget);
-      expect(find.text('This Week Calories'), findsOneWidget);
-      expect(find.text('Recent Workouts'), findsOneWidget);
-      expect(find.text('Last 30 Days Streak'), findsOneWidget);
-      expect(find.text('💪 Start by logging your first workout'), findsOneWidget);
-    });
+        expect(find.text('Workout Tracker'), findsOneWidget);
+        expect(find.text('This Week Minutes'), findsOneWidget);
+        expect(find.text('This Week Calories'), findsOneWidget);
+        expect(find.text('Recent Workouts'), findsOneWidget);
+        expect(find.text('Last 30 Days Streak'), findsOneWidget);
+        expect(
+          find.text('💪 Start by logging your first workout'),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('Navigation Drawer contains Workout Tracker item in Health section', (tester) async {
-      await tester.pumpWidget(
-        createWorkoutTrackerTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            workoutsStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer contains Workout Tracker item in Health section',
+      (tester) async {
+        await tester.pumpWidget(
+          createWorkoutTrackerTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              workoutsStreamProvider.overrideWithValue(const AsyncData([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Open Navigation Drawer
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        // Open Navigation Drawer
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      // Scroll inside drawer to find "Workout Tracker"
-      final drawerScrollable = find.descendant(
-        of: find.byType(Drawer),
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(
-        find.text('Workout Tracker'),
-        50,
-        scrollable: drawerScrollable,
-      );
-      expect(find.text('Workout Tracker'), findsOneWidget);
-    });
+        // Scroll inside drawer to find "Workout Tracker"
+        final drawerScrollable = find.descendant(
+          of: find.byType(Drawer),
+          matching: find.byType(Scrollable),
+        );
+        await tester.scrollUntilVisible(
+          find.text('Workout Tracker'),
+          50,
+          scrollable: drawerScrollable,
+        );
+        expect(find.text('Workout Tracker'), findsOneWidget);
+      },
+    );
   });
 }

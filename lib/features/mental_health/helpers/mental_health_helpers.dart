@@ -5,10 +5,7 @@ class WeekRange {
   final DateTime startDate; // Sunday
   final DateTime endDate; // Saturday
 
-  const WeekRange({
-    required this.startDate,
-    required this.endDate,
-  });
+  const WeekRange({required this.startDate, required this.endDate});
 
   String get formattedStartDate => MentalHealthHelpers.formatDateKey(startDate);
   String get formattedEndDate => MentalHealthHelpers.formatDateKey(endDate);
@@ -28,12 +25,7 @@ class LowestDimensionTip {
 }
 
 /// Movement direction enum for Today vs Yesterday comparison.
-enum ComparisonDirection {
-  improved,
-  declined,
-  same,
-  noYesterday,
-}
+enum ComparisonDirection { improved, declined, same, noYesterday }
 
 /// Single dimension comparison result container.
 class DimensionComparison {
@@ -88,10 +80,7 @@ class MentalHealthHelpers {
     final sunday = dateOnly.subtract(Duration(days: diff));
     final saturday = sunday.add(const Duration(days: 6));
 
-    return WeekRange(
-      startDate: sunday,
-      endDate: saturday,
-    );
+    return WeekRange(startDate: sunday, endDate: saturday);
   }
 
   /// Computes the weekly average for all entries in the week containing [selectedDate].
@@ -106,7 +95,8 @@ class MentalHealthHelpers {
 
     final weekLogs = allLogs.where((log) {
       final logDate = toDateOnly(log.date);
-      return (logDate.isAtSameMomentAs(weekStart) || logDate.isAfter(weekStart)) &&
+      return (logDate.isAtSameMomentAs(weekStart) ||
+              logDate.isAfter(weekStart)) &&
           (logDate.isAtSameMomentAs(weekEnd) || logDate.isBefore(weekEnd));
     }).toList();
 
@@ -244,7 +234,10 @@ class MentalHealthHelpers {
         dimensionKey: 'dimension_happiness',
         todayValue: todayLog.happiness,
         yesterdayValue: yesterdayLog?.happiness,
-        direction: evaluateStandard(todayLog.happiness, yesterdayLog?.happiness),
+        direction: evaluateStandard(
+          todayLog.happiness,
+          yesterdayLog?.happiness,
+        ),
       ),
       DimensionComparison(
         dimensionKey: 'dimension_anxiety',
@@ -256,13 +249,19 @@ class MentalHealthHelpers {
         dimensionKey: 'dimension_social_energy',
         todayValue: todayLog.socialEnergy,
         yesterdayValue: yesterdayLog?.socialEnergy,
-        direction: evaluateStandard(todayLog.socialEnergy, yesterdayLog?.socialEnergy),
+        direction: evaluateStandard(
+          todayLog.socialEnergy,
+          yesterdayLog?.socialEnergy,
+        ),
       ),
       DimensionComparison(
         dimensionKey: 'dimension_self_satisfaction',
         todayValue: todayLog.selfSatisfaction,
         yesterdayValue: yesterdayLog?.selfSatisfaction,
-        direction: evaluateStandard(todayLog.selfSatisfaction, yesterdayLog?.selfSatisfaction),
+        direction: evaluateStandard(
+          todayLog.selfSatisfaction,
+          yesterdayLog?.selfSatisfaction,
+        ),
       ),
       DimensionComparison(
         dimensionKey: 'dimension_balance',

@@ -9,7 +9,7 @@ class MentalHealthService {
   final FirebaseFirestore _firestore;
 
   MentalHealthService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _mentalCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('mentalLog');
@@ -17,10 +17,9 @@ class MentalHealthService {
 
   /// Streams all mental logs for [uid] ordered by date descending.
   Stream<List<MentalLogModel>> streamMentalLogs(String uid) {
-    return _mentalCollection(uid)
-        .orderBy('weekOf', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _mentalCollection(
+      uid,
+    ).orderBy('weekOf', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => MentalLogModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -43,10 +42,14 @@ class MentalHealthService {
 
       // Check if doc already exists to preserve original createdAt
       final existingDoc = await docRef.get();
-      final DateTime createdAt = existingDoc.exists && existingDoc.data()?['createdAt'] != null
+      final DateTime createdAt =
+          existingDoc.exists && existingDoc.data()?['createdAt'] != null
           ? (existingDoc.data()!['createdAt'] is Timestamp
-              ? (existingDoc.data()!['createdAt'] as Timestamp).toDate()
-              : DateTime.tryParse(existingDoc.data()!['createdAt'].toString()) ?? now)
+                ? (existingDoc.data()!['createdAt'] as Timestamp).toDate()
+                : DateTime.tryParse(
+                        existingDoc.data()!['createdAt'].toString(),
+                      ) ??
+                      now)
           : now;
 
       final log = MentalLogModel(

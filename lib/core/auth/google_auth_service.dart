@@ -1,6 +1,8 @@
+import '../platform/desktop_bridge.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -40,36 +42,25 @@ class GoogleAuthResult {
     this.errorMessage,
   });
 
-  const GoogleAuthResult.success({
-    required User user,
-    bool isNewUser = false,
-  }) : this(
-          status: GoogleAuthStatus.success,
-          user: user,
-          isNewUser: isNewUser,
-        );
+  const GoogleAuthResult.success({required User user, bool isNewUser = false})
+    : this(status: GoogleAuthStatus.success, user: user, isNewUser: isNewUser);
 
-  const GoogleAuthResult.cancelled()
-      : this(status: GoogleAuthStatus.cancelled);
+  const GoogleAuthResult.cancelled() : this(status: GoogleAuthStatus.cancelled);
 
   const GoogleAuthResult.popupBlocked()
-      : this(
-          status: GoogleAuthStatus.popupBlocked,
-          errorMessage: 'Popup was blocked by the browser.',
-        );
+    : this(
+        status: GoogleAuthStatus.popupBlocked,
+        errorMessage: 'Popup was blocked by the browser.',
+      );
 
-  const GoogleAuthResult.accountExistsWithDifferentCredential({
-    String? message,
-  }) : this(
-          status: GoogleAuthStatus.accountExistsWithDifferentCredential,
-          errorMessage: message,
-        );
+  const GoogleAuthResult.accountExistsWithDifferentCredential({String? message})
+    : this(
+        status: GoogleAuthStatus.accountExistsWithDifferentCredential,
+        errorMessage: message,
+      );
 
   const GoogleAuthResult.error(String message)
-      : this(
-          status: GoogleAuthStatus.error,
-          errorMessage: message,
-        );
+    : this(status: GoogleAuthStatus.error, errorMessage: message);
 
   bool get isSuccess => status == GoogleAuthStatus.success;
   bool get isCancelled => status == GoogleAuthStatus.cancelled;
@@ -109,21 +100,25 @@ class GoogleAuthService {
       '1069563055495-7vtqi7v2k094gqlvu2ugifvpo14kii9l.apps.googleusercontent.com';
 
   final FirebaseAuth _auth;
-  final GoogleSignIn _googleSignIn;
-  final UserProfileService _userProfileService;
+  final GoogleSignIn? _googleSignIn;
+  final UserProfileService? _profileService;
+  UserProfileService get _userProfileService =>
+      _profileService ?? UserProfileService();
 
   GoogleAuthService({
     FirebaseAuth? auth,
     GoogleSignIn? googleSignIn,
     UserProfileService? userProfileService,
-  })  : _auth = auth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ??
-            GoogleSignIn(
-              scopes: const ['email', 'profile'],
-              serverClientId: webClientId,
-            ),
-        _userProfileService =
-            userProfileService ?? UserProfileService();
+  }) : _auth = auth ?? FirebaseAuth.instance,
+       _googleSignIn =
+           googleSignIn ??
+           (kIsWeb
+               ? null
+               : GoogleSignIn(
+                   scopes: const ['email', 'profile'],
+                   serverClientId: webClientId,
+                 )),
+       _profileService = userProfileService;
 
   /// Prompts the user with the interactive Google Account picker on mobile
   /// and returns the corresponding Firebase [AuthCredential].
@@ -131,29 +126,55 @@ class GoogleAuthService {
   /// Returns `null` if the user dismisses or cancels the account picker dialog
   /// or on platforms where [GoogleSignIn] is not natively supported.
   Future<AuthCredential?> getGoogleCredential() async {
-    if (kIsWeb || (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows)) {
+    if (kIsWeb) {
+      if (DesktopBridge.available) return _desktopCredential();
       return null;
+    }
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      AuthCredential? credential;
+      final result = await _signInWithGoogleWindows(
+        onCredential: (value) async {
+          credential = value;
+          return const GoogleAuthResult(status: GoogleAuthStatus.success);
+        },
+      );
+      if (result.isCancelled) return null;
+      if (!result.isSuccess) {
+        throw FirebaseAuthException(
+          code: 'google-credential-failed',
+          message: result.errorMessage,
+        );
+      }
+      return credential;
     }
 
     try {
-      debugPrint('[GoogleAuthService] Initiating Google Sign-In interactive flow...');
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      debugPrint(
+        '[GoogleAuthService] Initiating Google Sign-In interactive flow...',
+      );
+      final GoogleSignInAccount? googleUser = await _googleSignIn!.signIn();
 
       if (googleUser == null) {
-        debugPrint('[GoogleAuthService] User cancelled the Google Account picker dialog.');
+        debugPrint(
+          '[GoogleAuthService] User cancelled the Google Account picker dialog.',
+        );
         return null;
       }
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      debugPrint('[GoogleAuthService] Successfully retrieved Google credentials.');
+      debugPrint(
+        '[GoogleAuthService] Successfully retrieved Google credentials.',
+      );
       return GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
     } catch (e, stack) {
-      debugPrint('[GoogleAuthService] Error obtaining Google credentials: $e\n$stack');
+      debugPrint(
+        '[GoogleAuthService] Error obtaining Google credentials: $e\n$stack',
+      );
       rethrow;
     }
   }
@@ -175,41 +196,70 @@ class GoogleAuthService {
     }
   }
 
+  Future<AuthCredential?> _desktopCredential() async {
+    final result = await DesktopBridge.request('googleSignIn');
+    if (result['cancelled'] == true) return null;
+    final token = result['idToken'] as String?;
+    if (token == null) {
+      throw FirebaseAuthException(code: 'google-credential-failed');
+    }
+    return GoogleAuthProvider.credential(
+      idToken: token,
+      accessToken: result['accessToken'] as String?,
+    );
+  }
+
   /// Web-specific sign-in implementation using Firebase Auth's popup flow.
   Future<GoogleAuthResult> _signInWithGoogleWeb() async {
     try {
-      debugPrint('[GoogleAuthService] [Web] Initiating FirebaseAuth.signInWithPopup with GoogleAuthProvider...');
+      debugPrint(
+        '[GoogleAuthService] [Web] Initiating FirebaseAuth.signInWithPopup with GoogleAuthProvider...',
+      );
       final GoogleAuthProvider googleProvider = GoogleAuthProvider();
       googleProvider.addScope('email');
       googleProvider.addScope('profile');
 
-      final UserCredential userCredential =
-          await _auth.signInWithPopup(googleProvider);
+      final AuthCredential? desktopCredential = DesktopBridge.available
+          ? await _desktopCredential()
+          : null;
+      if (DesktopBridge.available && desktopCredential == null) {
+        return const GoogleAuthResult.cancelled();
+      }
+      final UserCredential userCredential = desktopCredential != null
+          ? await _auth.signInWithCredential(desktopCredential)
+          : await _auth.signInWithPopup(googleProvider);
 
       final User? user = userCredential.user;
       if (user == null) {
-        return const GoogleAuthResult.error('Failed to obtain user session from Google web sign-in.');
+        return const GoogleAuthResult.error(
+          'Failed to obtain user session from Google web sign-in.',
+        );
       }
 
-      debugPrint('[GoogleAuthService] [Web] Successfully authenticated user: ${user.uid} (${user.email})');
+      debugPrint(
+        '[GoogleAuthService] [Web] Successfully authenticated user: ${user.uid} (${user.email})',
+      );
 
       // Shared user document provisioning logic
       final bool isNew = await _userProfileService.ensureUserProfileDocument(
         user: user,
       );
 
-      return GoogleAuthResult.success(
-        user: user,
-        isNewUser: isNew,
-      );
+      return GoogleAuthResult.success(user: user, isNewUser: isNew);
     } on FirebaseAuthException catch (e) {
-      debugPrint('[GoogleAuthService] [Web] FirebaseAuthException: [${e.code}] ${e.message}');
+      debugPrint(
+        '[GoogleAuthService] [Web] FirebaseAuthException: [${e.code}] ${e.message}',
+      );
       if (e.code == 'popup-closed-by-user' || e.code == 'cancelled') {
-        debugPrint('[GoogleAuthService] [Web] User closed or cancelled the sign-in popup.');
+        debugPrint(
+          '[GoogleAuthService] [Web] User closed or cancelled the sign-in popup.',
+        );
         return const GoogleAuthResult.cancelled();
       }
       if (e.code == 'popup-blocked') {
-        debugPrint('[GoogleAuthService] [Web] Sign-in popup was blocked by browser.');
+        debugPrint(
+          '[GoogleAuthService] [Web] Sign-in popup was blocked by browser.',
+        );
         return const GoogleAuthResult.popupBlocked();
       }
       if (e.code == 'account-exists-with-different-credential') {
@@ -219,27 +269,53 @@ class GoogleAuthService {
       }
       return GoogleAuthResult.error(e.message ?? e.code);
     } catch (e, stack) {
-      debugPrint('[GoogleAuthService] [Web] Unexpected error during Google sign-in: $e\n$stack');
+      debugPrint(
+        '[GoogleAuthService] [Web] Unexpected error during Google sign-in: $e\n$stack',
+      );
       return GoogleAuthResult.error(e.toString());
     }
   }
 
   /// Windows desktop-specific sign-in implementation using a local loopback server.
-  Future<GoogleAuthResult> _signInWithGoogleWindows() async {
+  Future<GoogleAuthResult> _signInWithGoogleWindows({
+    Future<GoogleAuthResult> Function(AuthCredential)? onCredential,
+  }) async {
     HttpServer? server;
     try {
-      debugPrint('[GoogleAuthService] [Windows] Starting local loopback server for Google OAuth...');
+      debugPrint(
+        '[GoogleAuthService] [Windows] Starting local loopback server for Google OAuth...',
+      );
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       final int port = server.port;
+      final random = Random.secure();
+      final callbackState = base64Url.encode(
+        List<int>.generate(32, (_) => random.nextInt(256)),
+      );
       final authUrl = 'http://localhost:$port/auth';
 
       final completer = Completer<GoogleAuthResult>();
 
       server.listen((HttpRequest request) async {
         final path = request.uri.path;
-        request.response.headers.add('Access-Control-Allow-Origin', '*');
-        request.response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        request.response.headers.add('Access-Control-Allow-Headers', 'Content-Type');
+        final origin = request.headers.value('Origin');
+        if (origin != null && origin != 'http://localhost:$port') {
+          request.response.statusCode = HttpStatus.forbidden;
+          await request.response.close();
+          return;
+        }
+        request.response.headers.add(
+          'Access-Control-Allow-Origin',
+          'http://localhost:$port',
+        );
+        request.response.headers.add('X-Frame-Options', 'DENY');
+        request.response.headers.add(
+          'Access-Control-Allow-Methods',
+          'GET, POST, OPTIONS',
+        );
+        request.response.headers.add(
+          'Access-Control-Allow-Headers',
+          'Content-Type, X-Focusly-State',
+        );
 
         if (request.method == 'OPTIONS') {
           request.response.statusCode = HttpStatus.ok;
@@ -247,9 +323,15 @@ class GoogleAuthService {
           return;
         }
 
+        if (request.method == 'POST' &&
+            request.headers.value('X-Focusly-State') != callbackState) {
+          request.response.statusCode = HttpStatus.forbidden;
+          await request.response.close();
+          return;
+        }
         if (path == '/auth' && request.method == 'GET') {
           request.response.headers.contentType = ContentType.html;
-          request.response.write(_buildWindowsAuthHtml(port));
+          request.response.write(_buildWindowsAuthHtml(port, callbackState));
           await request.response.close();
         } else if (path == '/callback' && request.method == 'POST') {
           try {
@@ -268,21 +350,39 @@ class GoogleAuthService {
                 accessToken: accessToken,
               );
 
-              final userCredential = await _auth.signInWithCredential(credential);
-              final user = userCredential.user;
-              if (user != null) {
-                final isNew = await _userProfileService.ensureUserProfileDocument(user: user);
-                if (!completer.isCompleted) {
-                  completer.complete(GoogleAuthResult.success(user: user, isNewUser: isNew));
-                }
+              if (onCredential != null) {
+                final result = await onCredential(credential);
+                if (!completer.isCompleted) completer.complete(result);
               } else {
-                if (!completer.isCompleted) {
-                  completer.complete(const GoogleAuthResult.error('Failed to obtain user session.'));
+                final userCredential = await _auth.signInWithCredential(
+                  credential,
+                );
+                final user = userCredential.user;
+                if (user != null) {
+                  final isNew = await _userProfileService
+                      .ensureUserProfileDocument(user: user);
+                  if (!completer.isCompleted) {
+                    completer.complete(
+                      GoogleAuthResult.success(user: user, isNewUser: isNew),
+                    );
+                  }
+                } else {
+                  if (!completer.isCompleted) {
+                    completer.complete(
+                      const GoogleAuthResult.error(
+                        'Failed to obtain user session.',
+                      ),
+                    );
+                  }
                 }
               }
             } else {
               if (!completer.isCompleted) {
-                completer.complete(const GoogleAuthResult.error('Invalid credentials returned from Google.'));
+                completer.complete(
+                  const GoogleAuthResult.error(
+                    'Invalid credentials returned from Google.',
+                  ),
+                );
               }
             }
           } catch (err) {
@@ -290,13 +390,13 @@ class GoogleAuthService {
               completer.complete(GoogleAuthResult.error(err.toString()));
             }
           }
-        } else if (path == '/cancelled') {
+        } else if (path == '/cancelled' && request.method == 'POST') {
           request.response.statusCode = HttpStatus.ok;
           await request.response.close();
           if (!completer.isCompleted) {
             completer.complete(const GoogleAuthResult.cancelled());
           }
-        } else if (path == '/error') {
+        } else if (path == '/error' && request.method == 'POST') {
           try {
             final content = await utf8.decoder.bind(request).join();
             final data = jsonDecode(content) as Map<String, dynamic>;
@@ -307,14 +407,22 @@ class GoogleAuthService {
 
             if (!completer.isCompleted) {
               if (errCode == 'auth/account-exists-with-different-credential') {
-                completer.complete(GoogleAuthResult.accountExistsWithDifferentCredential(message: errMsg));
+                completer.complete(
+                  GoogleAuthResult.accountExistsWithDifferentCredential(
+                    message: errMsg,
+                  ),
+                );
               } else {
-                completer.complete(GoogleAuthResult.error(errMsg ?? 'Authentication failed'));
+                completer.complete(
+                  GoogleAuthResult.error(errMsg ?? 'Authentication failed'),
+                );
               }
             }
           } catch (_) {
             if (!completer.isCompleted) {
-              completer.complete(const GoogleAuthResult.error('Authentication failed'));
+              completer.complete(
+                const GoogleAuthResult.error('Authentication failed'),
+              );
             }
           }
         } else {
@@ -325,10 +433,15 @@ class GoogleAuthService {
 
       // Launch the browser with the local auth URL
       final uri = Uri.parse(authUrl);
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
       if (!launched) {
         await server.close(force: true);
-        return const GoogleAuthResult.error('Could not open default browser for Google Sign-In.');
+        return const GoogleAuthResult.error(
+          'Could not open default browser for Google Sign-In.',
+        );
       }
 
       // 2-minute safety timeout
@@ -341,7 +454,9 @@ class GoogleAuthService {
 
       return result;
     } catch (e, stack) {
-      debugPrint('[GoogleAuthService] [Windows] Error during loopback auth: $e\n$stack');
+      debugPrint(
+        '[GoogleAuthService] [Windows] Error during loopback auth: $e\n$stack',
+      );
       return GoogleAuthResult.error(e.toString());
     } finally {
       await server?.close(force: true);
@@ -349,7 +464,7 @@ class GoogleAuthService {
   }
 
   /// Builds the HTML page served on localhost for Windows desktop Google sign-in.
-  String _buildWindowsAuthHtml(int port) {
+  String _buildWindowsAuthHtml(int port, String callbackState) {
     return '''
 <!DOCTYPE html>
 <html lang="en">
@@ -474,7 +589,7 @@ class GoogleAuthService {
 
         await fetch('http://localhost:$port/callback', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-Focusly-State': '$callbackState' },
           body: JSON.stringify({ idToken: idToken, accessToken: accessToken })
         });
 
@@ -489,7 +604,7 @@ class GoogleAuthService {
           status.innerText = 'Sign-in window was closed.';
           btn.style.display = 'inline-block';
           btn.innerText = 'Try Again';
-          fetch('http://localhost:$port/cancelled', { method: 'POST' });
+          fetch('http://localhost:$port/cancelled', { method: 'POST', headers: { 'X-Focusly-State': '$callbackState' } });
         } else if (err.code === 'auth/popup-blocked') {
           status.innerText = 'Your browser blocked the popup. Click the button below to open Google Sign-In:';
           btn.style.display = 'inline-block';
@@ -498,7 +613,7 @@ class GoogleAuthService {
           status.innerText = 'Authentication error: ' + (err.message || err.code);
           fetch('http://localhost:$port/error', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-Focusly-State': '$callbackState' },
             body: JSON.stringify({ error: err.message || err.code, code: err.code })
           });
         }
@@ -524,28 +639,32 @@ class GoogleAuthService {
       }
 
       // 2. Sign in to Firebase Auth
-      debugPrint('[GoogleAuthService] Authenticating with Firebase Auth via credential...');
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
+      debugPrint(
+        '[GoogleAuthService] Authenticating with Firebase Auth via credential...',
+      );
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
 
       final User? user = userCredential.user;
       if (user == null) {
         return const GoogleAuthResult.error('Failed to obtain user session.');
       }
 
-      debugPrint('[GoogleAuthService] Successfully signed in user: ${user.uid} (${user.email})');
+      debugPrint(
+        '[GoogleAuthService] Successfully signed in user: ${user.uid} (${user.email})',
+      );
 
       // 3. Ensure Firestore user document exists (provisions if new user)
       final bool isNew = await _userProfileService.ensureUserProfileDocument(
         user: user,
       );
 
-      return GoogleAuthResult.success(
-        user: user,
-        isNewUser: isNew,
-      );
+      return GoogleAuthResult.success(user: user, isNewUser: isNew);
     } on FirebaseAuthException catch (e) {
-      debugPrint('[GoogleAuthService] FirebaseAuthException: [${e.code}] ${e.message}');
+      debugPrint(
+        '[GoogleAuthService] FirebaseAuthException: [${e.code}] ${e.message}',
+      );
       if (e.code == 'account-exists-with-different-credential') {
         return GoogleAuthResult.accountExistsWithDifferentCredential(
           message: e.message,
@@ -553,7 +672,9 @@ class GoogleAuthService {
       }
       return GoogleAuthResult.error(e.message ?? e.code);
     } catch (e, stack) {
-      debugPrint('[GoogleAuthService] Unexpected error during Google sign-in: $e\n$stack');
+      debugPrint(
+        '[GoogleAuthService] Unexpected error during Google sign-in: $e\n$stack',
+      );
       return GoogleAuthResult.error(e.toString());
     }
   }

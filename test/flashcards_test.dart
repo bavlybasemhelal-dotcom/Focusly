@@ -163,7 +163,7 @@ void main() {
       expect(reconstructed.id, equals('card_1'));
       expect(reconstructed.front, equals('What is idempotency?'));
       expect(reconstructed.back, contains('same result'));
-      expect(reconstructed.isDue, isFalse);
+      expect(reconstructed.isDueOn(now), isFalse);
     });
   });
 

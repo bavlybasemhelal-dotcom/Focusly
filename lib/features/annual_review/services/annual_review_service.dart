@@ -6,7 +6,7 @@ class AnnualReviewService {
   final FirebaseFirestore _firestore;
 
   AnnualReviewService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _collection(String uid) {
     return _firestore.collection('users').doc(uid).collection('annualReviews');
@@ -16,14 +16,13 @@ class AnnualReviewService {
   Stream<List<AnnualReviewModel>> getReviewsStream(String uid) {
     if (uid.isEmpty) return Stream.value([]);
 
-    return _collection(uid)
-        .orderBy('year', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _collection(uid).orderBy('year', descending: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs
           .map((doc) => AnnualReviewModel.fromFirestore(doc))
           .toList();
-    }).handleError((_) => <AnnualReviewModel>[]);
+    });
   }
 
   /// Adds a new annual review entry and returns the generated document ID

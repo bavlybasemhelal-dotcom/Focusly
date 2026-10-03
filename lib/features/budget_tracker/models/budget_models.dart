@@ -170,10 +170,15 @@ class BudgetTransactionModel {
   }
 
   /// Deserializes a Firestore snapshot map.
-  factory BudgetTransactionModel.fromMap(Map<String, dynamic> map, String docId) {
+  factory BudgetTransactionModel.fromMap(
+    Map<String, dynamic> map,
+    String docId,
+  ) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 
@@ -250,9 +255,7 @@ class BudgetTransactionModel {
 class BudgetConfigModel {
   final Map<String, double> limits;
 
-  const BudgetConfigModel({
-    this.limits = const {},
-  });
+  const BudgetConfigModel({this.limits = const {}});
 
   /// Converts to Firestore map (only contains keys with limit > 0).
   Map<String, dynamic> toMap() {

@@ -13,10 +13,7 @@ import '../widgets/add_edit_event_sheet.dart';
 class AgendaView extends ConsumerWidget {
   final List<EventModel> events;
 
-  const AgendaView({
-    super.key,
-    required this.events,
-  });
+  const AgendaView({super.key, required this.events});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,8 +27,10 @@ class AgendaView extends ConsumerWidget {
     final eventTypesAsync = ref.watch(eventTypesStreamProvider);
     final eventTypes = eventTypesAsync.value ?? EventType.defaultEventTypes;
 
-    final dayOccurrences =
-        RecurrenceHelper.getOccurrencesForDay(events, selectedDate);
+    final dayOccurrences = RecurrenceHelper.getOccurrencesForDay(
+      events,
+      selectedDate,
+    );
 
     final isToday = DateUtils.isSameDay(selectedDate, DateTime.now());
 
@@ -54,7 +53,9 @@ class AgendaView extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.chevron_left_rounded, size: 22),
                 onPressed: () {
-                  final prevDay = selectedDate.subtract(const Duration(days: 1));
+                  final prevDay = selectedDate.subtract(
+                    const Duration(days: 1),
+                  );
                   ref.read(selectedDateProvider.notifier).selectDate(prevDay);
                   ref.read(focusedMonthProvider.notifier).setMonth(prevDay);
                 },
@@ -126,10 +127,7 @@ class AgendaView extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     context.tr('no_events_agenda_subtitle'),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: secondaryTextColor,
-                    ),
+                    style: TextStyle(fontSize: 13, color: secondaryTextColor),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -142,8 +140,9 @@ class AgendaView extends ConsumerWidget {
               (t) => t.id == occ.typeId,
               orElse: () => EventType.defaultEventTypes.first,
             );
-            final typeName =
-                type.isDefault ? context.tr(type.nameKey) : type.nameKey;
+            final typeName = type.isDefault
+                ? context.tr(type.nameKey)
+                : type.nameKey;
 
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
@@ -161,7 +160,9 @@ class AgendaView extends ConsumerWidget {
                       ]
                     : [
                         BoxShadow(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.05),
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.05),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -273,7 +274,10 @@ class AgendaView extends ConsumerWidget {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, size: 19),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 19,
+                        ),
                         color: AppColors.errorRed.withValues(alpha: 0.8),
                         onPressed: () async {
                           await ref

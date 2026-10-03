@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
-import '../helpers/nutrition_log_helpers.dart';
 import '../providers/nutrition_log_provider.dart';
 import 'nutrition_form_modal.dart';
 
@@ -15,10 +14,14 @@ class Last7DaysCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
-    final brandAccent = isDark ? AppColors.cyanElectric : AppColors.primaryBlueVibrant;
+    final brandAccent = isDark
+        ? AppColors.cyanElectric
+        : AppColors.primaryBlueVibrant;
 
     final timelineCells = ref.watch(nutrition7DayTimelineProvider);
 
@@ -75,9 +78,14 @@ class Last7DaysCard extends ConsumerWidget {
               ),
               TextButton.icon(
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   visualDensity: VisualDensity.compact,
-                  foregroundColor: isDark ? const Color(0xFF4ADE80) : const Color(0xFF10B981),
+                  foregroundColor: isDark
+                      ? const Color(0xFF4ADE80)
+                      : const Color(0xFF10B981),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -93,7 +101,9 @@ class Last7DaysCard extends ConsumerWidget {
                 onPressed: () {
                   HapticFeedback.selectionClick();
                   // Check if today already has a log
-                  final todayCell = timelineCells.isNotEmpty ? timelineCells.last : null;
+                  final todayCell = timelineCells.isNotEmpty
+                      ? timelineCells.last
+                      : null;
                   NutritionFormModal.show(
                     context,
                     logToEdit: todayCell?.log,
@@ -128,24 +138,33 @@ class Last7DaysCard extends ConsumerWidget {
                         },
                         borderRadius: BorderRadius.circular(14),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: isToday
                                 ? (isDark
-                                    ? const Color(0xFF1E2958)
-                                    : const Color(0xFFEEF2FF))
+                                      ? const Color(0xFF1E2958)
+                                      : const Color(0xFFEEF2FF))
                                 : (isDark
-                                    ? const Color(0xFF0B1438).withValues(alpha: 0.6)
-                                    : const Color(0xFFF8FAFC)),
+                                      ? const Color(
+                                          0xFF0B1438,
+                                        ).withValues(alpha: 0.6)
+                                      : const Color(0xFFF8FAFC)),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isToday
                                   ? (isDark
-                                      ? AppColors.cyanElectric.withValues(alpha: 0.5)
-                                      : const Color(0xFF6366F1).withValues(alpha: 0.5))
+                                        ? AppColors.cyanElectric.withValues(
+                                            alpha: 0.5,
+                                          )
+                                        : const Color(
+                                            0xFF6366F1,
+                                          ).withValues(alpha: 0.5))
                                   : (isDark
-                                      ? Colors.white.withValues(alpha: 0.05)
-                                      : const Color(0xFFE2E8F0)),
+                                        ? Colors.white.withValues(alpha: 0.05)
+                                        : const Color(0xFFE2E8F0)),
                               width: isToday ? 1.5 : 1,
                             ),
                           ),
@@ -167,10 +186,16 @@ class Last7DaysCard extends ConsumerWidget {
                                 cell.formattedMonthDay,
                                 style: TextStyle(
                                   fontSize: 10,
-                                  fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
+                                  fontWeight: isToday
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
                                   color: isToday
-                                      ? (isDark ? AppColors.cyanElectric : const Color(0xFF4F46E5))
-                                      : secondaryTextColor.withValues(alpha: 0.8),
+                                      ? (isDark
+                                            ? AppColors.cyanElectric
+                                            : const Color(0xFF4F46E5))
+                                      : secondaryTextColor.withValues(
+                                          alpha: 0.8,
+                                        ),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

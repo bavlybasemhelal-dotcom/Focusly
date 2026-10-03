@@ -264,8 +264,9 @@ class GroupsHomePage extends ConsumerWidget {
             height: 300,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF38BDF8)
-                  .withValues(alpha: isDark ? 0.12 : 0.14),
+              color: const Color(
+                0xFF38BDF8,
+              ).withValues(alpha: isDark ? 0.12 : 0.14),
             ),
           ),
         ),

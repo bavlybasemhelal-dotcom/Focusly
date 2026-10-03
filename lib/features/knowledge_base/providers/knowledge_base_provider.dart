@@ -14,12 +14,12 @@ final knowledgeBaseServiceProvider = Provider<KnowledgeBaseService>((ref) {
 /// Strictly scoped to `users/{uid}/knowledge`.
 final knowledgeEntriesStreamProvider =
     StreamProvider<List<KnowledgeEntryModel>>((ref) {
-  final uid = ref.watch(currentUserIdProvider);
-  if (uid == null || uid.isEmpty) return const Stream.empty();
+      final uid = ref.watch(currentUserIdProvider);
+      if (uid == null || uid.isEmpty) return const Stream.empty();
 
-  final service = ref.watch(knowledgeBaseServiceProvider);
-  return service.streamEntries(uid);
-});
+      final service = ref.watch(knowledgeBaseServiceProvider);
+      return service.streamEntries(uid);
+    });
 
 /// Notifier for search query filter in Knowledge Base.
 class KnowledgeSearchQueryNotifier extends Notifier<String> {
@@ -32,8 +32,8 @@ class KnowledgeSearchQueryNotifier extends Notifier<String> {
 
 final knowledgeSearchQueryProvider =
     NotifierProvider<KnowledgeSearchQueryNotifier, String>(
-  KnowledgeSearchQueryNotifier.new,
-);
+      KnowledgeSearchQueryNotifier.new,
+    );
 
 /// Notifier for type filter dropdown in Knowledge Base ('all' | 'note' | 'idea' | 'quote' | 'link' | 'summary').
 class KnowledgeTypeFilterNotifier extends Notifier<String> {
@@ -45,12 +45,13 @@ class KnowledgeTypeFilterNotifier extends Notifier<String> {
 
 final knowledgeTypeFilterProvider =
     NotifierProvider<KnowledgeTypeFilterNotifier, String>(
-  KnowledgeTypeFilterNotifier.new,
-);
+      KnowledgeTypeFilterNotifier.new,
+    );
 
 /// Derived provider returning filtered list of knowledge entries based on search & type filter.
-final filteredKnowledgeEntriesProvider =
-    Provider<List<KnowledgeEntryModel>>((ref) {
+final filteredKnowledgeEntriesProvider = Provider<List<KnowledgeEntryModel>>((
+  ref,
+) {
   final entries = ref.watch(knowledgeEntriesStreamProvider).value ?? [];
   final query = ref.watch(knowledgeSearchQueryProvider);
   final selectedType = ref.watch(knowledgeTypeFilterProvider);

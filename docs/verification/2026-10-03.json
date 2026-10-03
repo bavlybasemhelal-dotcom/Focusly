@@ -1,0 +1,225 @@
+{
+  "release": "1.1.0+2",
+  "recordedOn": "2026-10-03",
+  "staticAnalysis": {
+    "issues": 0
+  },
+  "tests": {
+    "flutterPassed": 505,
+    "firestoreRulesPassed": 39,
+    "desktopBoundaryPassed": 2
+  },
+  "windowsInstaller": {
+    "verifiedAtUtc": "2026-10-03T09:07:00.5980692Z",
+    "installationLanguage": "arabic",
+    "payloadFilesVerified": 149,
+    "payloadHashesMatch": true,
+    "installPassed": true,
+    "uninstallPassed": true,
+    "launchedApplication": true,
+    "upgradePassed": true,
+    "scheduledReminderSurvivesExit": true,
+    "testReminderCancelled": true,
+    "localProfilePreserved": true,
+    "originalProtocolRestored": true,
+    "originalInstallationModified": false,
+    "originalShortcutModified": false
+  },
+  "desktopIntegration": {
+    "checkedAt": "2026-10-03T09:12:13.077Z",
+    "loginViaForm": false,
+    "correctAccount": true,
+    "termsAccepted": true,
+    "reward": {
+      "created": 0,
+      "rewardTotal": 10,
+      "forgedRejected": true
+    },
+    "notification": {
+      "setting": "Unavailable"
+    },
+    "myDayOpened": true,
+    "arabicUi": true,
+    "latestRelease": {
+      "version": "1.1.0",
+      "sha256": "59bbe1d01cdc3bf51381d4de038d371f317993b84ab8eeb0f64976f50571acef"
+    },
+    "errors": [],
+    "semanticCharacters": 217
+  },
+  "android": {
+    "application": "Focusly",
+    "version": "1.1.0",
+    "artifact": "Focusly-1.1.0-android-release.apk",
+    "sha256": "4e2e66569e6b39487047ea5724542600e450cefafc4425abac3492bd4479d4e0",
+    "bytes": 83170886,
+    "certificateSha256": "1DFBB691C7D2780ED378FA92369EE6D5D732B279EF68230F897CAD11FE909C11",
+    "releaseSignatureVerified": true
+  },
+  "production": {
+    "project": "focusly-87187",
+    "verifiedAt": "2026-10-03T09:08:57.622Z",
+    "site": "https://focusly-87187.web.app",
+    "activeRulesMatch": true,
+    "rulesSha256": "62e804538768d3d52dc43448b5710ec26ef1033e51a38822db9449014370300f",
+    "indexes": [
+      {
+        "collection": "goalAudit",
+        "kind": "composite",
+        "state": "READY"
+      },
+      {
+        "collection": "members",
+        "field": "uid",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "feed",
+        "field": "uid",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "xpEvents",
+        "field": "uid",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "weeklyScores",
+        "field": "uid",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "scoreEvents",
+        "field": "uid",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "completions",
+        "field": "uid",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "participants",
+        "field": "uid",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "audit",
+        "field": "actorUid",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "feed",
+        "field": "reactionUids",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "challenges",
+        "field": "createdBy",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "challenges",
+        "field": "approvedBy",
+        "kind": "field",
+        "state": "READY"
+      },
+      {
+        "collection": "challenges",
+        "field": "winnerUids",
+        "kind": "field",
+        "state": "READY"
+      }
+    ],
+    "billingEnabled": false,
+    "assets": [
+      {
+        "file": "index.html",
+        "status": 200,
+        "sha256": "9455d9e169c30710ec91eced50e60b244be337e3e9b96ad933510d8df4074657",
+        "cacheControl": "no-cache"
+      },
+      {
+        "file": "flutter_bootstrap.js",
+        "status": 200,
+        "sha256": "172921f39dee3be8690720e108c6e2701071c4062a3c6e21a34fb75401b0fa35",
+        "cacheControl": "no-cache"
+      },
+      {
+        "file": "main.dart.js",
+        "status": 200,
+        "sha256": "c0077d083ddd883dcc8b554280c9d9b2afa574b7a340bbd0b56d45ce3b18fe07",
+        "cacheControl": "no-cache"
+      },
+      {
+        "file": "sdk/firebase.js",
+        "status": 200,
+        "sha256": "4b55297c52c2ba40a848c16e663136d4a7bbc7973e79c88c24d5bddf499d78b9",
+        "cacheControl": "no-cache"
+      },
+      {
+        "file": "releases/windows.json",
+        "status": 200,
+        "sha256": "6a778d3273bd5879505b8982e32a0f4c228f5aa7a8b6f221e9e3454d14432b2d",
+        "cacheControl": "no-cache"
+      }
+    ]
+  },
+  "migration": {
+    "completedAt": "2026-10-03T08:19:22.640Z",
+    "reservedLegacyClaims": 1,
+    "existingTotalsPreserved": true,
+    "billingEnabled": false
+  },
+  "qaCleanup": {
+    "project": "focusly-87187",
+    "cleanedAt": "2026-10-03T09:12:53.421Z",
+    "disposableAuthAccountDeleted": true,
+    "firestoreDocumentsDeleted": 7,
+    "qaSubcollectionsEmpty": true,
+    "originalDocumentsUnchanged": true,
+    "originalUserCount": 3
+  },
+  "artifacts": {
+    "windows": {
+      "application": "Focusly",
+      "version": "1.1.0",
+      "architecture": "x64",
+      "firebaseProject": "focusly-87187",
+      "createdAtUtc": "2026-10-03T08:57:38.0250036Z",
+      "installer": "Focusly-Setup-1.1.0-x64.exe",
+      "sha256": "59BBE1D01CDC3BF51381D4DE038D371F317993B84AB8EEB0F64976F50571ACEF",
+      "bytes": 152819406,
+      "vcRuntimeVersion": "14.51.36247.0",
+      "vcRuntimeSource": "https://aka.ms/vc14/vc_redist.x64.exe",
+      "vcRuntimeSha256": "843068991DAAA1F73AD9F6239BCE4D0F6A07A51F18C37EA2A867E9BECA71295C"
+    },
+    "android": {
+      "application": "Focusly",
+      "version": "1.1.0",
+      "artifact": "Focusly-1.1.0-android-release.apk",
+      "sha256": "4e2e66569e6b39487047ea5724542600e450cefafc4425abac3492bd4479d4e0",
+      "bytes": 83170886,
+      "certificateSha256": "1DFBB691C7D2780ED378FA92369EE6D5D732B279EF68230F897CAD11FE909C11",
+      "releaseSignatureVerified": true
+    }
+  },
+  "limits": [
+    "Results are a recorded release snapshot, not CI or full code coverage.",
+    "Authenticated live QA used SDK login, not the login form or a human Google authorization.",
+    "APK was built and signed but not run on a physical phone.",
+    "Windows schedule retention/cancellation was tested; visual delivery was not claimed.",
+    "Web local reminders require an open tab.",
+    "An initial installer test affected the normal shortcut; it was restored and the final isolated cycle preserved its hash."
+  ]
+}

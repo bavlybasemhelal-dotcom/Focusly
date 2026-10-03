@@ -89,7 +89,9 @@ class _MentalHealthFormModalState extends ConsumerState<MentalHealthFormModal> {
               content: Text(context.tr('mental_saved_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         } else {
@@ -143,7 +145,10 @@ class _MentalHealthFormModalState extends ConsumerState<MentalHealthFormModal> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: isDark ? 0.2 : 0.12),
                   borderRadius: BorderRadius.circular(8),
@@ -189,7 +194,9 @@ class _MentalHealthFormModalState extends ConsumerState<MentalHealthFormModal> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final modalBg = isDark ? const Color(0xFF08123A) : Colors.white;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
     final dateStr = MentalHealthHelpers.formatDateKey(widget.targetDate);
@@ -241,7 +248,9 @@ class _MentalHealthFormModalState extends ConsumerState<MentalHealthFormModal> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.12),
+                        color: const Color(
+                          0xFF6366F1,
+                        ).withValues(alpha: isDark ? 0.2 : 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(

@@ -6,10 +6,7 @@ class EventOccurrence {
   final EventModel event;
   final DateTime date; // Normalized occurrence date (year, month, day)
 
-  const EventOccurrence({
-    required this.event,
-    required this.date,
-  });
+  const EventOccurrence({required this.event, required this.date});
 
   String get id => event.id;
   String get title => event.title;
@@ -20,13 +17,8 @@ class EventOccurrence {
   bool get isRecurring => event.isRecurring;
 
   /// Full DateTime representing the occurrence start instant
-  DateTime get startDateTime => DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
+  DateTime get startDateTime =>
+      DateTime(date.year, date.month, date.day, time.hour, time.minute);
 
   /// Sort priority key in minutes from midnight (0 .. 1439)
   int get minuteOfDay => time.hour * 60 + time.minute;
@@ -73,16 +65,20 @@ class RecurrenceHelper {
           return true;
         }
         // Handle edge cases for months with fewer days (e.g. 31st on Feb)
-        final lastDayOfTargetMonth = DateTime(target.year, target.month + 1, 0).day;
-        if (eventStart.day > lastDayOfTargetMonth && target.day == lastDayOfTargetMonth) {
+        final lastDayOfTargetMonth = DateTime(
+          target.year,
+          target.month + 1,
+          0,
+        ).day;
+        if (eventStart.day > lastDayOfTargetMonth &&
+            target.day == lastDayOfTargetMonth) {
           return true;
         }
         return false;
 
       case EventRecurrence.weekdays:
         // Monday (1) through Friday (5)
-        return target.weekday >= DateTime.monday &&
-            target.weekday <= DateTime.friday;
+        return event.weekdays.contains(target.weekday);
     }
   }
 
@@ -96,12 +92,7 @@ class RecurrenceHelper {
 
     for (final event in events) {
       if (doesEventOccurOn(event, normalizedDay)) {
-        occurrences.add(
-          EventOccurrence(
-            event: event,
-            date: normalizedDay,
-          ),
-        );
+        occurrences.add(EventOccurrence(event: event, date: normalizedDay));
       }
     }
 
@@ -123,7 +114,7 @@ class RecurrenceHelper {
     DateTime current = start;
     while (!current.isAfter(end)) {
       results.addAll(getOccurrencesForDay(events, current));
-      current = current.add(const Duration(days: 1));
+      current = DateTime(current.year, current.month, current.day + 1);
     }
 
     results.sort((a, b) => a.startDateTime.compareTo(b.startDateTime));
@@ -146,7 +137,7 @@ class RecurrenceHelper {
       if (dayOccurrences.isNotEmpty) {
         map[current] = dayOccurrences;
       }
-      current = current.add(const Duration(days: 1));
+      current = DateTime(current.year, current.month, current.day + 1);
     }
 
     return map;

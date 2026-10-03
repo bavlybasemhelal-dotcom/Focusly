@@ -15,7 +15,9 @@ class ParaGuidePage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
-    final scaffoldBg = isDark ? const Color(0xFF070D28) : const Color(0xFFF8FAFC);
+    final scaffoldBg = isDark
+        ? const Color(0xFF070D28)
+        : const Color(0xFFF8FAFC);
 
     return Scaffold(
       backgroundColor: scaffoldBg,
@@ -66,7 +68,11 @@ class ParaGuidePage extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.lightbulb_outline_rounded, color: Colors.white, size: 24),
+                      child: const Icon(
+                        Icons.lightbulb_outline_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -238,9 +244,7 @@ class ParaGuidePage extends StatelessWidget {
                     color: color.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Center(
-                    child: Icon(icon, color: color, size: 20),
-                  ),
+                  child: Center(child: Icon(icon, color: color, size: 20)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

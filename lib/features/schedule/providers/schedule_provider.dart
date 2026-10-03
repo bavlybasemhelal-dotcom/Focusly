@@ -1,3 +1,4 @@
+import '../../../core/data/inbox_conversion_service.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,11 +13,7 @@ import '../services/event_notification_service.dart';
 import '../../progress/services/progress_service.dart';
 
 /// Available view modes in the Schedule calendar
-enum ScheduleViewMode {
-  month,
-  week,
-  day,
-}
+enum ScheduleViewMode { month, week, day }
 
 /// Controller managing the active view mode (Month, Week, Day/Agenda)
 class ScheduleViewModeNotifier extends Notifier<ScheduleViewMode> {
@@ -30,8 +27,8 @@ class ScheduleViewModeNotifier extends Notifier<ScheduleViewMode> {
 
 final scheduleViewModeProvider =
     NotifierProvider<ScheduleViewModeNotifier, ScheduleViewMode>(
-  ScheduleViewModeNotifier.new,
-);
+      ScheduleViewModeNotifier.new,
+    );
 
 /// Controller managing the currently selected date in the calendar
 class SelectedDateNotifier extends Notifier<DateTime> {
@@ -50,8 +47,7 @@ class SelectedDateNotifier extends Notifier<DateTime> {
   }
 }
 
-final selectedDateProvider =
-    NotifierProvider<SelectedDateNotifier, DateTime>(
+final selectedDateProvider = NotifierProvider<SelectedDateNotifier, DateTime>(
   SelectedDateNotifier.new,
 );
 
@@ -81,8 +77,7 @@ class FocusedMonthNotifier extends Notifier<DateTime> {
   }
 }
 
-final focusedMonthProvider =
-    NotifierProvider<FocusedMonthNotifier, DateTime>(
+final focusedMonthProvider = NotifierProvider<FocusedMonthNotifier, DateTime>(
   FocusedMonthNotifier.new,
 );
 
@@ -104,12 +99,12 @@ final eventTypesStreamProvider = StreamProvider<List<EventType>>((ref) {
         .collection('event_types')
         .snapshots()
         .map((snapshot) {
-      final customTypes = snapshot.docs
-          .map((doc) => EventType.fromMap(doc.data(), doc.id))
-          .toList();
+          final customTypes = snapshot.docs
+              .map((doc) => EventType.fromMap(doc.data(), doc.id))
+              .toList();
 
-      return [...EventType.defaultEventTypes, ...customTypes];
-    }).handleError((_) => EventType.defaultEventTypes);
+          return [...EventType.defaultEventTypes, ...customTypes];
+        });
   } catch (_) {
     return Stream.value(EventType.defaultEventTypes);
   }
@@ -134,13 +129,10 @@ final eventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
         .orderBy('date', descending: false)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => EventModel.fromMap(doc.data(), doc.id))
-          .toList();
-    }).handleError((e) {
-      debugPrint('Firestore events stream error: $e');
-      return <EventModel>[];
-    });
+          return snapshot.docs
+              .map((doc) => EventModel.fromMap(doc.data(), doc.id))
+              .toList();
+        });
   } catch (_) {
     return Stream.value([]);
   }
@@ -169,45 +161,74 @@ class ScheduleController {
   }
 
   /// Adds a new calendar event and schedules its notification alerts
-  Future<void> addEvent(EventModel event, BuildContext context) async {
+  Future<bool> addEvent(
+    EventModel event,
+    BuildContext context, {
+    String? inboxId,
+  }) async {
     final localizations = AppLocalizations.of(context);
     final col = _eventsCollection;
-    if (col == null) return;
+    if (col == null) return false;
 
     try {
-      final docRef = col.doc();
+      final docRef = col.doc(inboxId != null ? 'inbox_$inboxId' : null);
       final newEvent = event.copyWith(id: docRef.id);
-      await docRef.set(newEvent.toMap());
+      if (inboxId != null) {
+        await InboxConversionService(col.firestore).convert(
+          uid: col.parent!.id,
+          inboxId: inboxId,
+          collection: 'events',
+          data: newEvent.toMap(),
+        );
+      } else {
+        await docRef.set(newEvent.toMap());
+      }
 
       // Schedule notifications for upcoming occurrences
-      await _notificationService.scheduleEventNotifications(
-        newEvent,
-        localizations,
-      );
+      try {
+        await _notificationService.scheduleEventNotifications(
+          newEvent,
+          localizations,
+          uid: col.parent!.id,
+        );
+      } catch (e) {
+        debugPrint('Event saved, but reminder scheduling failed: $e');
+      }
 
       // Achievement check hook for adding events (1st, 5th, 20th)
-      ProgressService().checkAndUnlockAchievements(context: context);
+      ProgressService().checkAndUnlockAchievements(
+        context: context.mounted ? context : null,
+      );
+      return true;
     } catch (e) {
       debugPrint('Error adding schedule event: $e');
+      return false;
     }
   }
 
   /// Updates an existing calendar event and reschedules its alerts
-  Future<void> updateEvent(EventModel event, BuildContext context) async {
+  Future<bool> updateEvent(EventModel event, BuildContext context) async {
     final localizations = AppLocalizations.of(context);
     final col = _eventsCollection;
-    if (col == null) return;
+    if (col == null) return false;
 
     try {
       await col.doc(event.id).update(event.toMap());
 
       // Reschedule notifications
-      await _notificationService.scheduleEventNotifications(
-        event,
-        localizations,
-      );
+      try {
+        await _notificationService.scheduleEventNotifications(
+          event,
+          localizations,
+          uid: col.parent!.id,
+        );
+      } catch (e) {
+        debugPrint('Event saved, but reminder scheduling failed: $e');
+      }
+      return true;
     } catch (e) {
       debugPrint('Error updating schedule event: $e');
+      return false;
     }
   }
 
@@ -235,11 +256,11 @@ class ScheduleController {
           .doc(uid)
           .collection('event_types')
           .add({
-        'name': name.trim(),
-        'colorValue': colorValue,
-        'isDefault': false,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+            'name': name.trim(),
+            'colorValue': colorValue,
+            'isDefault': false,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       debugPrint('Error adding custom event type: $e');
     }

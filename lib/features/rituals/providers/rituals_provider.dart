@@ -106,8 +106,8 @@ class MorningIntentionDismissedNotifier extends Notifier<bool> {
 
 final morningIntentionDismissedProvider =
     NotifierProvider<MorningIntentionDismissedNotifier, bool>(
-  MorningIntentionDismissedNotifier.new,
-);
+      MorningIntentionDismissedNotifier.new,
+    );
 
 /// Preference notifier for auto-prompting Morning Intention on Home screen load.
 class MorningIntentionPromptSettingNotifier extends Notifier<bool> {
@@ -133,8 +133,8 @@ class MorningIntentionPromptSettingNotifier extends Notifier<bool> {
 
 final morningIntentionPromptSettingProvider =
     NotifierProvider<MorningIntentionPromptSettingNotifier, bool>(
-  MorningIntentionPromptSettingNotifier.new,
-);
+      MorningIntentionPromptSettingNotifier.new,
+    );
 
 /// Preference notifier for Preferred Shutdown Time (default 22:00 / 10:00 PM).
 class PreferredShutdownTimeSettingNotifier extends Notifier<TimeOfDay> {
@@ -164,5 +164,5 @@ class PreferredShutdownTimeSettingNotifier extends Notifier<TimeOfDay> {
 
 final preferredShutdownTimeSettingProvider =
     NotifierProvider<PreferredShutdownTimeSettingNotifier, TimeOfDay>(
-  PreferredShutdownTimeSettingNotifier.new,
-);
+      PreferredShutdownTimeSettingNotifier.new,
+    );

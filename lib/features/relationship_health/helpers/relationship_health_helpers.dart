@@ -15,11 +15,7 @@ class RecencyInfo {
   final int? days; // null if never contacted
   final DateTime? lastDate;
 
-  const RecencyInfo({
-    required this.category,
-    this.days,
-    this.lastDate,
-  });
+  const RecencyInfo({required this.category, this.days, this.lastDate});
 
   Color get badgeColor {
     switch (category) {
@@ -48,7 +44,9 @@ class RelationshipHealthHelpers {
     List<RelationshipLogModel> allLogs, [
     DateTime? now,
   ]) {
-    final contactLogs = allLogs.where((l) => l.contactId == contact.id).toList();
+    final contactLogs = allLogs
+        .where((l) => l.contactId == contact.id)
+        .toList();
 
     if (contactLogs.isEmpty) {
       return const RecencyInfo(category: RecencyCategory.never);

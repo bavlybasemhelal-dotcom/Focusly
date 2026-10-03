@@ -13,7 +13,8 @@ class AchievementsGridView extends ConsumerStatefulWidget {
   const AchievementsGridView({super.key});
 
   @override
-  ConsumerState<AchievementsGridView> createState() => _AchievementsGridViewState();
+  ConsumerState<AchievementsGridView> createState() =>
+      _AchievementsGridViewState();
 }
 
 class _AchievementsGridViewState extends ConsumerState<AchievementsGridView> {
@@ -48,8 +49,9 @@ class _AchievementsGridViewState extends ConsumerState<AchievementsGridView> {
             .where((a) => a.category == category)
             .toList();
 
-        final unlockedCount =
-            items.where((a) => unlockedMap.containsKey(a.id)).length;
+        final unlockedCount = items
+            .where((a) => unlockedMap.containsKey(a.id))
+            .length;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 24.0),
@@ -78,8 +80,10 @@ class _AchievementsGridViewState extends ConsumerState<AchievementsGridView> {
                     ],
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: unlockedCount == items.length
                           ? const Color(0xFF10B981).withValues(alpha: 0.15)

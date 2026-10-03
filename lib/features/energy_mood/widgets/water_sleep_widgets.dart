@@ -44,7 +44,9 @@ class WaterTrackerWidget extends ConsumerWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF06B6D4).withValues(alpha: isDark ? 0.08 : 0.05),
+            color: const Color(
+              0xFF06B6D4,
+            ).withValues(alpha: isDark ? 0.08 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -85,7 +87,10 @@ class WaterTrackerWidget extends ConsumerWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: isGoalMet
                           ? const Color(0xFF10B981).withValues(alpha: 0.15)
@@ -97,7 +102,9 @@ class WaterTrackerWidget extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: isGoalMet ? const Color(0xFF10B981) : secondaryTextColor,
+                        color: isGoalMet
+                            ? const Color(0xFF10B981)
+                            : secondaryTextColor,
                       ),
                     ),
                   ),
@@ -131,7 +138,9 @@ class WaterTrackerWidget extends ConsumerWidget {
                       final wasGoalMetBefore = currentWater >= target;
                       final isGoalMetNow = newCount >= target;
 
-                      await ref.read(energyMoodServiceProvider).updateWater(
+                      await ref
+                          .read(energyMoodServiceProvider)
+                          .updateWater(
                             uid: uid,
                             date: dateStr,
                             newWaterCount: newCount,
@@ -140,10 +149,14 @@ class WaterTrackerWidget extends ConsumerWidget {
                             ref: ref,
                           );
 
-                      if (context.mounted && !wasGoalMetBefore && isGoalMetNow) {
+                      if (context.mounted &&
+                          !wasGoalMetBefore &&
+                          isGoalMetNow) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(context.tr('water_goal_reached_toast')),
+                            content: Text(
+                              context.tr('water_goal_reached_toast'),
+                            ),
                             backgroundColor: const Color(0xFF06B6D4),
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
@@ -160,18 +173,26 @@ class WaterTrackerWidget extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: isFilled
                             ? const Color(0xFF06B6D4).withValues(alpha: 0.2)
-                            : (isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC)),
+                            : (isDark
+                                  ? const Color(0xFF08123A)
+                                  : const Color(0xFFF8FAFC)),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: isFilled
                               ? const Color(0xFF06B6D4)
-                              : (isDark ? Colors.white12 : const Color(0xFFCBD5E1)),
+                              : (isDark
+                                    ? Colors.white12
+                                    : const Color(0xFFCBD5E1)),
                           width: isFilled ? 1.5 : 1.0,
                         ),
                       ),
                       child: Icon(
-                        isFilled ? Icons.local_drink_rounded : Icons.local_drink_outlined,
-                        color: isFilled ? const Color(0xFF06B6D4) : secondaryTextColor,
+                        isFilled
+                            ? Icons.local_drink_rounded
+                            : Icons.local_drink_outlined,
+                        color: isFilled
+                            ? const Color(0xFF06B6D4)
+                            : secondaryTextColor,
                         size: 22,
                       ),
                     ),
@@ -194,11 +215,7 @@ class SleepTrackerWidget extends ConsumerStatefulWidget {
   final String dateStr;
   final CheckinModel? checkin;
 
-  const SleepTrackerWidget({
-    super.key,
-    required this.dateStr,
-    this.checkin,
-  });
+  const SleepTrackerWidget({super.key, required this.dateStr, this.checkin});
 
   @override
   ConsumerState<SleepTrackerWidget> createState() => _SleepTrackerWidgetState();
@@ -211,8 +228,12 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
   @override
   void initState() {
     super.initState();
-    _sleepTime = parseTimeString(widget.checkin?.sleepTime) ?? const TimeOfDay(hour: 23, minute: 0);
-    _wakeTime = parseTimeString(widget.checkin?.wakeTime) ?? const TimeOfDay(hour: 7, minute: 0);
+    _sleepTime =
+        parseTimeString(widget.checkin?.sleepTime) ??
+        const TimeOfDay(hour: 23, minute: 0);
+    _wakeTime =
+        parseTimeString(widget.checkin?.wakeTime) ??
+        const TimeOfDay(hour: 7, minute: 0);
   }
 
   @override
@@ -238,7 +259,9 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
     final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
-    await ref.read(energyMoodServiceProvider).updateSleep(
+    await ref
+        .read(energyMoodServiceProvider)
+        .updateSleep(
           uid: uid,
           date: widget.dateStr,
           sleepTime: _sleepTime!,
@@ -265,7 +288,9 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.08 : 0.05),
+            color: const Color(
+              0xFF6366F1,
+            ).withValues(alpha: isDark ? 0.08 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -304,7 +329,10 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF6366F1).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
@@ -331,7 +359,8 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                   onTap: () async {
                     final picked = await showTimePicker(
                       context: context,
-                      initialTime: _sleepTime ?? const TimeOfDay(hour: 23, minute: 0),
+                      initialTime:
+                          _sleepTime ?? const TimeOfDay(hour: 23, minute: 0),
                     );
                     if (picked != null) {
                       setState(() {
@@ -342,12 +371,19 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                      color: isDark
+                          ? const Color(0xFF08123A)
+                          : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? Colors.white12
+                            : const Color(0xFFE2E8F0),
                       ),
                     ),
                     child: Column(
@@ -355,7 +391,11 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.nightlight_round, size: 14, color: secondaryTextColor),
+                            Icon(
+                              Icons.nightlight_round,
+                              size: 14,
+                              color: secondaryTextColor,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               context.tr('bedtime_label'),
@@ -369,7 +409,9 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _sleepTime != null ? formatTimeOfDay(_sleepTime!) : '--:--',
+                          _sleepTime != null
+                              ? formatTimeOfDay(_sleepTime!)
+                              : '--:--',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -389,7 +431,8 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                   onTap: () async {
                     final picked = await showTimePicker(
                       context: context,
-                      initialTime: _wakeTime ?? const TimeOfDay(hour: 7, minute: 0),
+                      initialTime:
+                          _wakeTime ?? const TimeOfDay(hour: 7, minute: 0),
                     );
                     if (picked != null) {
                       setState(() {
@@ -400,12 +443,19 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                      color: isDark
+                          ? const Color(0xFF08123A)
+                          : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? Colors.white12
+                            : const Color(0xFFE2E8F0),
                       ),
                     ),
                     child: Column(
@@ -413,7 +463,11 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.wb_sunny_rounded, size: 14, color: const Color(0xFFF59E0B)),
+                            Icon(
+                              Icons.wb_sunny_rounded,
+                              size: 14,
+                              color: const Color(0xFFF59E0B),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               context.tr('wake_time_label'),
@@ -427,7 +481,9 @@ class _SleepTrackerWidgetState extends ConsumerState<SleepTrackerWidget> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _wakeTime != null ? formatTimeOfDay(_wakeTime!) : '--:--',
+                          _wakeTime != null
+                              ? formatTimeOfDay(_wakeTime!)
+                              : '--:--',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,

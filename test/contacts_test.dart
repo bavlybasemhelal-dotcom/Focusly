@@ -24,9 +24,7 @@ Widget createContactsTestWidget({
     child: MaterialApp(
       locale: locale,
       supportedLocales: const [Locale('en'), Locale('ar')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate],
       theme: AppTheme.lightTheme,
       home: Scaffold(body: child),
     ),
@@ -105,137 +103,155 @@ void main() {
       expect(reconstructed.remindDays, equals(14));
       expect(reconstructed.notes, equals('Discuss AI agent architecture'));
 
-      final updated = reconstructed.copyWith(name: 'Sarah Connor PhD', remindDays: 21);
+      final updated = reconstructed.copyWith(
+        name: 'Sarah Connor PhD',
+        remindDays: 21,
+      );
       expect(updated.name, equals('Sarah Connor PhD'));
       expect(updated.remindDays, equals(21));
     });
   });
 
   group('Personal CRM Providers Tests', () {
-    test('overdueContactsProvider filters and sorts overdue contacts descending', () {
-      final now = DateTime.now();
-      final c1 = ContactModel(
-        id: '1',
-        name: 'Alice',
-        lastContact: now.subtract(const Duration(days: 3)), // 3 days ago, remind 30 -> not due
-        remindDays: 30,
-        createdAt: now,
-        updatedAt: now,
-      );
-      final c2 = ContactModel(
-        id: '2',
-        name: 'Bob',
-        lastContact: now.subtract(const Duration(days: 53)), // 53 days ago, remind 30 -> 23 days overdue
-        remindDays: 30,
-        createdAt: now,
-        updatedAt: now,
-      );
-      final c3 = ContactModel(
-        id: '3',
-        name: 'Charlie',
-        lastContact: now.subtract(const Duration(days: 83)), // 83 days ago, remind 30 -> 53 days overdue
-        remindDays: 30,
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'overdueContactsProvider filters and sorts overdue contacts descending',
+      () {
+        final now = DateTime.now();
+        final c1 = ContactModel(
+          id: '1',
+          name: 'Alice',
+          lastContact: now.subtract(
+            const Duration(days: 3),
+          ), // 3 days ago, remind 30 -> not due
+          remindDays: 30,
+          createdAt: now,
+          updatedAt: now,
+        );
+        final c2 = ContactModel(
+          id: '2',
+          name: 'Bob',
+          lastContact: now.subtract(
+            const Duration(days: 53),
+          ), // 53 days ago, remind 30 -> 23 days overdue
+          remindDays: 30,
+          createdAt: now,
+          updatedAt: now,
+        );
+        final c3 = ContactModel(
+          id: '3',
+          name: 'Charlie',
+          lastContact: now.subtract(
+            const Duration(days: 83),
+          ), // 83 days ago, remind 30 -> 53 days overdue
+          remindDays: 30,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final container = ProviderContainer(
-        overrides: [
-          contactsStreamProvider.overrideWithValue(AsyncData([c1, c2, c3])),
-        ],
-      );
-      addTearDown(container.dispose);
+        final container = ProviderContainer(
+          overrides: [
+            contactsStreamProvider.overrideWithValue(AsyncData([c1, c2, c3])),
+          ],
+        );
+        addTearDown(container.dispose);
 
-      final overdueList = container.read(overdueContactsProvider);
-      expect(overdueList.length, equals(2));
-      // Charlie (53d overdue) should come before Bob (23d overdue)
-      expect(overdueList.first.name, equals('Charlie'));
-      expect(overdueList.last.name, equals('Bob'));
-    });
+        final overdueList = container.read(overdueContactsProvider);
+        expect(overdueList.length, equals(2));
+        // Charlie (53d overdue) should come before Bob (23d overdue)
+        expect(overdueList.first.name, equals('Charlie'));
+        expect(overdueList.last.name, equals('Bob'));
+      },
+    );
   });
 
   group('Personal CRM UI & Widget Tests', () {
-    testWidgets('ContactsPage renders contacts list, avatar emojis, badges and filter chips', (tester) async {
-      final now = DateTime.now();
-      final contacts = [
-        ContactModel(
-          id: '1',
-          name: 'Ahmed Helal',
-          emoji: '🤝',
-          role: 'College friend',
-          contactInfo: '+201000000000',
-          lastContact: now.subtract(const Duration(days: 45)),
-          remindDays: 30,
-          notes: 'Call to catch up on new project',
-          createdAt: now,
-          updatedAt: now,
-        ),
-        ContactModel(
-          id: '2',
-          name: 'Maria Garcia',
-          emoji: '🌟',
-          role: 'Design Lead',
-          lastContact: now.subtract(const Duration(days: 5)),
-          remindDays: 14,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
+    testWidgets(
+      'ContactsPage renders contacts list, avatar emojis, badges and filter chips',
+      (tester) async {
+        final now = DateTime.now();
+        final contacts = [
+          ContactModel(
+            id: '1',
+            name: 'Ahmed Helal',
+            emoji: '🤝',
+            role: 'College friend',
+            contactInfo: '+201000000000',
+            lastContact: now.subtract(const Duration(days: 45)),
+            remindDays: 30,
+            notes: 'Call to catch up on new project',
+            createdAt: now,
+            updatedAt: now,
+          ),
+          ContactModel(
+            id: '2',
+            name: 'Maria Garcia',
+            emoji: '🌟',
+            role: 'Design Lead',
+            lastContact: now.subtract(const Duration(days: 5)),
+            remindDays: 14,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      await tester.pumpWidget(
-        createContactsTestWidget(
-          child: const ContactsPage(),
-          overrides: [
-            contactsStreamProvider.overrideWithValue(AsyncData(contacts)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createContactsTestWidget(
+            child: const ContactsPage(),
+            overrides: [
+              contactsStreamProvider.overrideWithValue(AsyncData(contacts)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Contacts'), findsOneWidget);
-      expect(find.text('All Contacts'), findsOneWidget);
-      expect(find.text('Due for Contact'), findsOneWidget);
-      expect(find.text('Ahmed Helal'), findsOneWidget);
-      expect(find.text('College friend'), findsOneWidget);
-      expect(find.text('Maria Garcia'), findsOneWidget);
-      expect(find.text('Design Lead'), findsOneWidget);
-      expect(find.textContaining('Call to catch up'), findsOneWidget);
+        expect(find.text('Contacts'), findsOneWidget);
+        expect(find.text('All Contacts'), findsOneWidget);
+        expect(find.text('Due for Contact'), findsOneWidget);
+        expect(find.text('Ahmed Helal'), findsOneWidget);
+        expect(find.text('College friend'), findsOneWidget);
+        expect(find.text('Maria Garcia'), findsOneWidget);
+        expect(find.text('Design Lead'), findsOneWidget);
+        expect(find.textContaining('Call to catch up'), findsOneWidget);
 
-      // Tap "Due for Contact" filter
-      await tester.tap(find.text('Due for Contact'));
-      await tester.pumpAndSettle();
+        // Tap "Due for Contact" filter
+        await tester.tap(find.text('Due for Contact'));
+        await tester.pumpAndSettle();
 
-      // Only Ahmed is overdue (45 days vs 30 interval)
-      expect(find.text('Ahmed Helal'), findsOneWidget);
-      expect(find.text('Maria Garcia'), findsNothing);
-    });
+        // Only Ahmed is overdue (45 days vs 30 interval)
+        expect(find.text('Ahmed Helal'), findsOneWidget);
+        expect(find.text('Maria Garcia'), findsNothing);
+      },
+    );
 
-    testWidgets('AddEditContactSheet renders fields, presets and validates required name', (tester) async {
-      await tester.pumpWidget(
-        createContactsTestWidget(
-          child: const AddEditContactSheet(),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'AddEditContactSheet renders fields, presets and validates required name',
+      (tester) async {
+        await tester.pumpWidget(
+          createContactsTestWidget(child: const AddEditContactSheet()),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Add Contact'), findsOneWidget);
-      expect(find.text('Avatar Emoji'), findsOneWidget);
-      expect(find.text('Name'), findsOneWidget);
-      expect(find.text('Role / Relationship (Optional)'), findsOneWidget);
+        expect(find.text('Add Contact'), findsOneWidget);
+        expect(find.text('Avatar Emoji'), findsOneWidget);
+        expect(find.text('Name'), findsOneWidget);
+        expect(find.text('Role / Relationship (Optional)'), findsOneWidget);
 
-      final saveButton = find.text('Save Contact');
-      expect(saveButton, findsOneWidget);
-      await tester.ensureVisible(saveButton);
-      await tester.pumpAndSettle();
+        final saveButton = find.text('Save Contact');
+        expect(saveButton, findsOneWidget);
+        await tester.ensureVisible(saveButton);
+        await tester.pumpAndSettle();
 
-      // Tap Save without entering name -> shows validation error
-      await tester.tap(saveButton);
-      await tester.pumpAndSettle();
+        // Tap Save without entering name -> shows validation error
+        await tester.tap(saveButton);
+        await tester.pumpAndSettle();
 
-      expect(find.text('Please enter a contact name'), findsOneWidget);
-    });
+        expect(find.text('Please enter a contact name'), findsOneWidget);
+      },
+    );
 
-    testWidgets('AddEditContactSheet in edit mode renders delete button', (tester) async {
+    testWidgets('AddEditContactSheet in edit mode renders delete button', (
+      tester,
+    ) async {
       final now = DateTime.now();
       final contact = ContactModel(
         id: 'contact_edit_1',
@@ -249,9 +265,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        createContactsTestWidget(
-          child: AddEditContactSheet(contact: contact),
-        ),
+        createContactsTestWidget(child: AddEditContactSheet(contact: contact)),
       );
       await tester.pumpAndSettle();
 
@@ -263,57 +277,64 @@ void main() {
       expect(deleteButton, findsOneWidget);
     });
 
-    testWidgets('HomeContactsWidget is visible when overdue contacts exist and hidden when none', (tester) async {
-      final now = DateTime.now();
+    testWidgets(
+      'HomeContactsWidget is visible when overdue contacts exist and hidden when none',
+      (tester) async {
+        final now = DateTime.now();
 
-      // 1. When no contacts are overdue -> widget is hidden (SizedBox.shrink)
-      final activeContact = ContactModel(
-        id: '1',
-        name: 'David',
-        lastContact: now.subtract(const Duration(days: 5)),
-        remindDays: 30,
-        createdAt: now,
-        updatedAt: now,
-      );
+        // 1. When no contacts are overdue -> widget is hidden (SizedBox.shrink)
+        final activeContact = ContactModel(
+          id: '1',
+          name: 'David',
+          lastContact: now.subtract(const Duration(days: 5)),
+          remindDays: 30,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        createContactsTestWidget(
-          child: const HomeContactsWidget(),
-          overrides: [
-            contactsStreamProvider.overrideWithValue(AsyncData([activeContact])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createContactsTestWidget(
+            child: const HomeContactsWidget(),
+            overrides: [
+              contactsStreamProvider.overrideWithValue(
+                AsyncData([activeContact]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('People to reach out to'), findsNothing);
+        expect(find.text('People to reach out to'), findsNothing);
 
-      // 2. When overdue contact exists -> widget renders overdue prompt card
-      final overdueContact = ContactModel(
-        id: '2',
-        name: 'Elena Rostova',
-        emoji: '☕',
-        role: 'Old Colleague',
-        lastContact: now.subtract(const Duration(days: 60)),
-        remindDays: 30,
-        createdAt: now,
-        updatedAt: now,
-      );
+        // 2. When overdue contact exists -> widget renders overdue prompt card
+        final overdueContact = ContactModel(
+          id: '2',
+          name: 'Elena Rostova',
+          emoji: '☕',
+          role: 'Old Colleague',
+          lastContact: now.subtract(const Duration(days: 60)),
+          remindDays: 30,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        createContactsTestWidget(
-          child: const HomeContactsWidget(),
-          overrides: [
-            contactsStreamProvider.overrideWithValue(AsyncData([overdueContact])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createContactsTestWidget(
+            child: const HomeContactsWidget(),
+            overrides: [
+              contactsStreamProvider.overrideWithValue(
+                AsyncData([overdueContact]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('People to reach out to'), findsOneWidget);
-      expect(find.text('Elena Rostova'), findsOneWidget);
-      expect(find.text('Old Colleague'), findsOneWidget);
-      expect(find.text('Reach out!'), findsOneWidget);
-    });
+        expect(find.text('People to reach out to'), findsOneWidget);
+        expect(find.text('Elena Rostova'), findsOneWidget);
+        expect(find.text('Old Colleague'), findsOneWidget);
+        expect(find.text('Reach out!'), findsOneWidget);
+      },
+    );
   });
 }

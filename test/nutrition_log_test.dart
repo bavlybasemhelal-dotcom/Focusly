@@ -214,20 +214,22 @@ void main() {
   });
 
   group('Nutrition Log UI & Widget Tests', () {
-    final testDate = DateTime(2026, 8, 25);
+    final current = DateTime.now();
+    final testDate = DateTime(current.year, current.month, current.day);
+    final previousDate = DateTime(current.year, current.month, current.day - 1);
     final mockLogs = [
       NutritionLogModel(
-        id: '2026-08-25',
+        id: NutritionLogHelpers.formatDateKey(testDate),
         rating: 5,
-        date: DateTime(2026, 8, 25),
+        date: testDate,
         note: 'Superfood quinoa bowl',
         createdAt: testDate,
         updatedAt: testDate,
       ),
       NutritionLogModel(
-        id: '2026-08-24',
+        id: NutritionLogHelpers.formatDateKey(previousDate),
         rating: 3,
-        date: DateTime(2026, 8, 24),
+        date: previousDate,
         note: null, // Test empty note placeholder
         createdAt: testDate,
         updatedAt: testDate,

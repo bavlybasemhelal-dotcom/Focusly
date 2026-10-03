@@ -1,6 +1,6 @@
+import '../../productivity/services/trash_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import '../models/para_area_model.dart';
 import '../models/para_project_model.dart';
 import '../models/para_resource_model.dart';
@@ -16,27 +16,21 @@ class ParaService {
 
   String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
 
-  CollectionReference _areasRef(String uid) =>
+  CollectionReference<Map<String,dynamic>> _areasRef(String uid) =>
       _firestore.collection('users').doc(uid).collection('paraAreas');
 
-  CollectionReference _projectsRef(String uid) =>
+  CollectionReference<Map<String,dynamic>> _projectsRef(String uid) =>
       _firestore.collection('users').doc(uid).collection('paraProjects');
 
-  CollectionReference _resourcesRef(String uid) =>
+  CollectionReference<Map<String,dynamic>> _resourcesRef(String uid) =>
       _firestore.collection('users').doc(uid).collection('paraResources');
-
-  CollectionReference _tasksRef(String uid) =>
-      _firestore.collection('users').doc(uid).collection('tasks');
 
   // ===========================================================================
   // 1. PARA AREAS CRUD
   // ===========================================================================
 
   /// Adds a new Area of Responsibility
-  Future<String?> addArea({
-    required String title,
-    String emoji = '🎯',
-  }) async {
+  Future<String?> addArea({required String title, String emoji = '🎯'}) async {
     final uid = _currentUserId;
     if (uid == null) return null;
 
@@ -82,7 +76,26 @@ class ParaService {
       return false; // Blocked: Still has active projects
     }
 
-    await _areasRef(uid).doc(areaId).delete();
+    final area = _areasRef(uid).doc(areaId);
+    await area.update({'deletionPending': true});
+    for (final name in ['paraProjects', 'paraResources', 'goals']) {
+      while (true) {
+        final linked = await _firestore
+            .collection('users')
+            .doc(uid)
+            .collection(name)
+            .where('areaId', isEqualTo: areaId)
+            .limit(150)
+            .get();
+        if (linked.docs.isEmpty) break;
+        final batch = _firestore.batch();
+        for (final doc in linked.docs) {
+          batch.update(doc.reference, {'areaId': null});
+        }
+        await batch.commit();
+      }
+    }
+    await area.delete();
     return true;
   }
 
@@ -109,7 +122,13 @@ class ParaService {
       createdAt: DateTime.now(),
     );
 
-    await docRef.set(project.toMap());
+    await _firestore.runTransaction((tx) async {
+      final area = await tx.get(_areasRef(uid).doc(areaId));
+      if (!area.exists || area.data()?['deletionPending'] == true) {
+        throw StateError('Area unavailable');
+      }
+      tx.set(docRef, project.toMap());
+    });
     return docRef.id;
   }
 
@@ -135,17 +154,29 @@ class ParaService {
       updates['deadline'] = Timestamp.fromDate(deadline);
     }
 
-    await _projectsRef(uid).doc(projectId).update(updates);
+    await _firestore.runTransaction((tx) async {
+      final area = await tx.get(_areasRef(uid).doc(areaId));
+      final target = _projectsRef(uid).doc(projectId),
+          project = await tx.get(target);
+      if (!area.exists ||
+          area.data()?['deletionPending'] == true ||
+          !project.exists ||
+          project.data()?['deletionPending'] == true) {
+        throw StateError('Project or area unavailable');
+      }
+      tx.update(target, updates);
+    });
   }
 
   /// Soft-archives or un-archives a Project
-  Future<void> setProjectArchived(String projectId, {required bool archived}) async {
+  Future<void> setProjectArchived(
+    String projectId, {
+    required bool archived,
+  }) async {
     final uid = _currentUserId;
     if (uid == null) return;
 
-    await _projectsRef(uid).doc(projectId).update({
-      'archived': archived,
-    });
+    await _projectsRef(uid).doc(projectId).update({'archived': archived});
   }
 
   /// Permanently deletes a Project and unlinks it from all associated tasks
@@ -153,25 +184,26 @@ class ParaService {
     final uid = _currentUserId;
     if (uid == null) return;
 
-    // 1. Delete project document
-    await _projectsRef(uid).doc(projectId).delete();
-
-    // 2. Unlink any tasks linked to this project (do not delete the tasks)
-    try {
-      final linkedTasksSnap = await _tasksRef(uid)
-          .where('projectId', isEqualTo: projectId)
-          .get();
-
-      final batch = _firestore.batch();
-      for (final doc in linkedTasksSnap.docs) {
-        batch.update(doc.reference, {'projectId': null});
-      }
-      if (linkedTasksSnap.docs.isNotEmpty) {
+    final project = _projectsRef(uid).doc(projectId);
+    await project.update({'deletionPending': true});
+    for (final collection in ['tasks', 'retrospectives', 'goals']) {
+      while (true) {
+        final linked = await _firestore
+            .collection('users')
+            .doc(uid)
+            .collection(collection)
+            .where('projectId', isEqualTo: projectId)
+            .limit(100)
+            .get();
+        if (linked.docs.isEmpty) break;
+        final batch = _firestore.batch();
+        for (final doc in linked.docs) {
+          batch.update(doc.reference, {'projectId': null});
+        }
         await batch.commit();
       }
-    } catch (e) {
-      debugPrint('Error unlinking tasks from deleted project $projectId: $e');
     }
+    await project.delete();
   }
 
   // ===========================================================================
@@ -227,13 +259,14 @@ class ParaService {
   }
 
   /// Soft-archives or un-archives a Resource
-  Future<void> setResourceArchived(String resourceId, {required bool archived}) async {
+  Future<void> setResourceArchived(
+    String resourceId, {
+    required bool archived,
+  }) async {
     final uid = _currentUserId;
     if (uid == null) return;
 
-    await _resourcesRef(uid).doc(resourceId).update({
-      'archived': archived,
-    });
+    await _resourcesRef(uid).doc(resourceId).update({'archived': archived});
   }
 
   /// Permanently deletes a Resource
@@ -241,6 +274,6 @@ class ParaService {
     final uid = _currentUserId;
     if (uid == null) return;
 
-    await _resourcesRef(uid).doc(resourceId).delete();
+    await TrashService(_firestore).move(uid, 'paraResources', resourceId);
   }
 }

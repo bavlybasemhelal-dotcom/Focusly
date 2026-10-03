@@ -31,7 +31,7 @@ class LevelLogic {
   // Threshold table: (level, minXp, titleKey, emoji)
   // TODO: Level-up rewards (themes, badges) can be reintroduced later once more content exists to unlock.
   static const List<({int level, int minXp, String titleKey, String emoji})>
-      levels = [
+  levels = [
     (level: 1, minXp: 0, titleKey: 'level_1_title', emoji: '🌱'),
     (level: 2, minXp: 100, titleKey: 'level_2_title', emoji: '📚'),
     (level: 3, minXp: 250, titleKey: 'level_3_title', emoji: '💪'),

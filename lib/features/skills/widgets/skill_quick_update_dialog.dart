@@ -12,10 +12,7 @@ import '../providers/skills_provider.dart';
 class SkillQuickUpdateDialog extends ConsumerStatefulWidget {
   final SkillModel skill;
 
-  const SkillQuickUpdateDialog({
-    super.key,
-    required this.skill,
-  });
+  const SkillQuickUpdateDialog({super.key, required this.skill});
 
   /// Static helper to show the dialog.
   static Future<void> show(BuildContext context, SkillModel skill) {
@@ -26,10 +23,12 @@ class SkillQuickUpdateDialog extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<SkillQuickUpdateDialog> createState() => _SkillQuickUpdateDialogState();
+  ConsumerState<SkillQuickUpdateDialog> createState() =>
+      _SkillQuickUpdateDialogState();
 }
 
-class _SkillQuickUpdateDialogState extends ConsumerState<SkillQuickUpdateDialog> {
+class _SkillQuickUpdateDialogState
+    extends ConsumerState<SkillQuickUpdateDialog> {
   late TextEditingController _levelController;
   late TextEditingController _xpController;
   bool _isLoading = false;
@@ -37,7 +36,9 @@ class _SkillQuickUpdateDialogState extends ConsumerState<SkillQuickUpdateDialog>
   @override
   void initState() {
     super.initState();
-    _levelController = TextEditingController(text: widget.skill.level.toString());
+    _levelController = TextEditingController(
+      text: widget.skill.level.toString(),
+    );
     _xpController = TextEditingController(text: widget.skill.xp.toString());
   }
 
@@ -52,7 +53,8 @@ class _SkillQuickUpdateDialogState extends ConsumerState<SkillQuickUpdateDialog>
     final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
-    final rawLevel = int.tryParse(_levelController.text.trim()) ?? widget.skill.level;
+    final rawLevel =
+        int.tryParse(_levelController.text.trim()) ?? widget.skill.level;
     final validLevel = rawLevel >= 1 ? rawLevel : 1;
 
     final rawXp = int.tryParse(_xpController.text.trim()) ?? widget.skill.xp;
@@ -199,7 +201,10 @@ class _SkillQuickUpdateDialogState extends ConsumerState<SkillQuickUpdateDialog>
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: inputBg,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(color: borderColor),
@@ -210,7 +215,10 @@ class _SkillQuickUpdateDialogState extends ConsumerState<SkillQuickUpdateDialog>
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF2E6FF2),
+                            width: 1.8,
+                          ),
                         ),
                       ),
                     ),
@@ -248,7 +256,10 @@ class _SkillQuickUpdateDialogState extends ConsumerState<SkillQuickUpdateDialog>
                         ),
                         filled: true,
                         fillColor: inputBg,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(color: borderColor),
@@ -259,7 +270,10 @@ class _SkillQuickUpdateDialogState extends ConsumerState<SkillQuickUpdateDialog>
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF2E6FF2),
+                            width: 1.8,
+                          ),
                         ),
                       ),
                     ),
@@ -273,22 +287,33 @@ class _SkillQuickUpdateDialogState extends ConsumerState<SkillQuickUpdateDialog>
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(context.tr('cancel'), style: TextStyle(color: secondaryTextColor)),
+          child: Text(
+            context.tr('cancel'),
+            style: TextStyle(color: secondaryTextColor),
+          ),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Color(widget.skill.color),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           onPressed: _isLoading ? null : _submit,
           child: _isLoading
               ? const SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
-              : Text(context.tr('save'), style: const TextStyle(fontWeight: FontWeight.w800)),
+              : Text(
+                  context.tr('save'),
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
         ),
       ],
     );

@@ -11,12 +11,12 @@ import '../providers/annual_review_provider.dart';
 class AnnualReviewFormModal extends ConsumerStatefulWidget {
   final AnnualReviewModel? reviewToEdit;
 
-  const AnnualReviewFormModal({
-    super.key,
-    this.reviewToEdit,
-  });
+  const AnnualReviewFormModal({super.key, this.reviewToEdit});
 
-  static Future<void> show(BuildContext context, {AnnualReviewModel? reviewToEdit}) {
+  static Future<void> show(
+    BuildContext context, {
+    AnnualReviewModel? reviewToEdit,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -26,7 +26,8 @@ class AnnualReviewFormModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<AnnualReviewFormModal> createState() => _AnnualReviewFormModalState();
+  ConsumerState<AnnualReviewFormModal> createState() =>
+      _AnnualReviewFormModalState();
 }
 
 class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
@@ -76,7 +77,8 @@ class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
     }
 
     final service = ref.read(annualReviewServiceProvider);
-    final year = int.tryParse(_yearController.text.trim()) ?? DateTime.now().year;
+    final year =
+        int.tryParse(_yearController.text.trim()) ?? DateTime.now().year;
     final q1 = _q1Controller.text.trim();
     final q2 = _q2Controller.text.trim();
     final q3 = _q3Controller.text.trim();
@@ -163,7 +165,9 @@ class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
     final secondaryTextColor = AppColors.textSecondary(context);
     final modalBg = isDark ? const Color(0xFF0F172A) : Colors.white;
     final inputBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final isEdit = widget.reviewToEdit != null;
 
     return Container(
@@ -208,7 +212,9 @@ class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
                           const SizedBox(width: 10),
                           Text(
                             context.tr(
-                              isEdit ? 'edit_annual_review_title' : 'add_annual_review_title',
+                              isEdit
+                                  ? 'edit_annual_review_title'
+                                  : 'add_annual_review_title',
                             ),
                             style: TextStyle(
                               fontSize: 18,
@@ -245,14 +251,28 @@ class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
                       TextFormField(
                         controller: _yearController,
                         keyboardType: TextInputType.number,
-                        style: TextStyle(color: primaryTextColor, fontSize: 15, fontWeight: FontWeight.w800),
+                        style: TextStyle(
+                          color: primaryTextColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'e.g. 2026',
-                          hintStyle: TextStyle(color: secondaryTextColor, fontSize: 13),
-                          prefixIcon: const Icon(Icons.calendar_today_rounded, size: 18, color: Color(0xFF6366F1)),
+                          hintStyle: TextStyle(
+                            color: secondaryTextColor,
+                            fontSize: 13,
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.calendar_today_rounded,
+                            size: 18,
+                            color: Color(0xFF6366F1),
+                          ),
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(color: borderColor),
@@ -263,7 +283,10 @@ class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6366F1),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                         validator: (v) {
@@ -357,7 +380,9 @@ class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : Text(
@@ -375,7 +400,10 @@ class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
                             foregroundColor: const Color(0xFFEF4444),
                             minimumSize: const Size(double.infinity, 44),
                           ),
-                          icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            size: 18,
+                          ),
                           label: Text(
                             context.tr('delete_review_btn'),
                             style: const TextStyle(fontWeight: FontWeight.w700),
@@ -451,7 +479,10 @@ class _AnnualReviewFormModalState extends ConsumerState<AnnualReviewFormModal> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.8),
+                borderSide: const BorderSide(
+                  color: Color(0xFF6366F1),
+                  width: 1.8,
+                ),
               ),
             ),
             validator: (value) {

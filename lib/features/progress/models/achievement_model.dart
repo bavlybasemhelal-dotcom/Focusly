@@ -17,10 +17,7 @@ enum AchievementCategory {
   final String titleKey;
   final String emoji;
 
-  const AchievementCategory({
-    required this.titleKey,
-    required this.emoji,
-  });
+  const AchievementCategory({required this.titleKey, required this.emoji});
 }
 
 /// Context snapshot passed to pure achievement evaluation functions

@@ -1,3 +1,4 @@
+import '../../relationship_health/services/relationship_health_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,10 +13,7 @@ import '../providers/contacts_provider.dart';
 class AddEditContactSheet extends ConsumerStatefulWidget {
   final ContactModel? contact;
 
-  const AddEditContactSheet({
-    super.key,
-    this.contact,
-  });
+  const AddEditContactSheet({super.key, this.contact});
 
   static Future<void> show(BuildContext context, {ContactModel? contact}) {
     HapticFeedback.lightImpact();
@@ -28,7 +26,8 @@ class AddEditContactSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<AddEditContactSheet> createState() => _AddEditContactSheetState();
+  ConsumerState<AddEditContactSheet> createState() =>
+      _AddEditContactSheetState();
 }
 
 class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
@@ -43,9 +42,22 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
   late DateTime _selectedLastContact;
   int _remindDays = 30;
   bool _isSaving = false;
+  bool _recordInitialContact = false;
+  bool _contactDateChanged = false;
 
   static const List<String> _emojiPresets = [
-    '🙂', '😊', '🤩', '😎', '🤝', '💼', '🎓', '❤️', '🌟', '👨‍👩‍👧', '🧑‍💻', '☕'
+    '🙂',
+    '😊',
+    '🤩',
+    '😎',
+    '🤝',
+    '💼',
+    '🎓',
+    '❤️',
+    '🌟',
+    '👨‍👩‍👧',
+    '🧑‍💻',
+    '☕',
   ];
 
   @override
@@ -89,7 +101,8 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
     final role = _roleController.text.trim();
     final contactInfo = _contactInfoController.text.trim();
     final notes = _notesController.text.trim();
-    final parsedRemindDays = int.tryParse(_remindDaysController.text.trim()) ?? _remindDays;
+    final parsedRemindDays =
+        int.tryParse(_remindDaysController.text.trim()) ?? _remindDays;
 
     bool success;
     if (_isEditMode) {
@@ -105,18 +118,28 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
         notes: notes.isNotEmpty ? notes : null,
         clearNotes: notes.isEmpty,
       );
-      success = await ref.read(contactsServiceProvider).updateContact(
-            uid: uid,
-            contact: updated,
-          );
+      success = await ref
+          .read(contactsServiceProvider)
+          .updateContact(uid: uid, contact: updated);
+      if (success && _contactDateChanged) {
+        success =
+            await RelationshipHealthService().addLog(
+              uid: uid,
+              contactId: widget.contact!.id,
+              date: _selectedLastContact,
+            ) !=
+            null;
+      }
     } else {
-      final newId = await ref.read(contactsServiceProvider).addContact(
+      final newId = await ref
+          .read(contactsServiceProvider)
+          .addContact(
             uid: uid,
             name: name,
             emoji: _selectedEmoji,
             role: role.isNotEmpty ? role : null,
             contactInfo: contactInfo.isNotEmpty ? contactInfo : null,
-            lastContact: _selectedLastContact,
+            lastContact: _recordInitialContact ? _selectedLastContact : null,
             remindDays: parsedRemindDays > 0 ? parsedRemindDays : 30,
             notes: notes.isNotEmpty ? notes : null,
           );
@@ -140,7 +163,9 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
             ),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -177,7 +202,9 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.errorRed,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(context.tr('delete')),
@@ -189,10 +216,9 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
     if (confirmed == true && mounted) {
       final uid = ref.read(currentUserIdProvider);
       if (uid != null) {
-        await ref.read(contactsServiceProvider).deleteContact(
-              uid: uid,
-              contactId: widget.contact!.id,
-            );
+        await ref
+            .read(contactsServiceProvider)
+            .deleteContact(uid: uid, contactId: widget.contact!.id);
         if (mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -200,7 +226,9 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
               content: Text(context.tr('contact_deleted_toast')),
               backgroundColor: AppColors.errorRed,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -279,7 +307,10 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close_rounded, color: secondaryTextColor),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: secondaryTextColor,
+                      ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -316,7 +347,9 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                             height: 44,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF2E6FF2).withValues(alpha: 0.15)
+                                  ? const Color(
+                                      0xFF2E6FF2,
+                                    ).withValues(alpha: 0.15)
                                   : inputBg,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
@@ -327,7 +360,10 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                               ),
                             ),
                             child: Center(
-                              child: Text(emoji, style: const TextStyle(fontSize: 22)),
+                              child: Text(
+                                emoji,
+                                style: const TextStyle(fontSize: 22),
+                              ),
                             ),
                           ),
                         ),
@@ -349,13 +385,22 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _nameController,
-                  style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: primaryTextColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                   decoration: InputDecoration(
                     hintText: context.tr('contact_name_hint'),
-                    hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                    hintStyle: TextStyle(
+                      color: secondaryTextColor.withValues(alpha: 0.6),
+                    ),
                     filled: true,
                     fillColor: inputBg,
-                    prefixIcon: Icon(Icons.person_outline_rounded, color: secondaryTextColor, size: 20),
+                    prefixIcon: Icon(
+                      Icons.person_outline_rounded,
+                      color: secondaryTextColor,
+                      size: 20,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor),
@@ -366,9 +411,15 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF2E6FF2),
+                        width: 1.8,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
@@ -391,13 +442,22 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _roleController,
-                  style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    color: primaryTextColor,
+                    fontWeight: FontWeight.w500,
+                  ),
                   decoration: InputDecoration(
                     hintText: context.tr('contact_role_hint'),
-                    hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                    hintStyle: TextStyle(
+                      color: secondaryTextColor.withValues(alpha: 0.6),
+                    ),
                     filled: true,
                     fillColor: inputBg,
-                    prefixIcon: Icon(Icons.badge_outlined, color: secondaryTextColor, size: 20),
+                    prefixIcon: Icon(
+                      Icons.badge_outlined,
+                      color: secondaryTextColor,
+                      size: 20,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor),
@@ -408,9 +468,15 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF2E6FF2),
+                        width: 1.8,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -427,13 +493,22 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _contactInfoController,
-                  style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    color: primaryTextColor,
+                    fontWeight: FontWeight.w500,
+                  ),
                   decoration: InputDecoration(
                     hintText: context.tr('contact_info_hint'),
-                    hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                    hintStyle: TextStyle(
+                      color: secondaryTextColor.withValues(alpha: 0.6),
+                    ),
                     filled: true,
                     fillColor: inputBg,
-                    prefixIcon: Icon(Icons.alternate_email_rounded, color: secondaryTextColor, size: 20),
+                    prefixIcon: Icon(
+                      Icons.alternate_email_rounded,
+                      color: secondaryTextColor,
+                      size: 20,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor),
@@ -444,14 +519,34 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF2E6FF2),
+                        width: 1.8,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
 
                 // Last Contact Date Picker & "Mark as contacted today" Button
+                if (!_isEditMode)
+                  CheckboxListTile(
+                    value: _recordInitialContact,
+                    onChanged: _isSaving
+                        ? null
+                        : (value) => setState(
+                            () => _recordInitialContact = value == true,
+                          ),
+                    title: Text(
+                      Localizations.localeOf(context).languageCode == 'ar'
+                          ? 'سجّل تاريخ تواصل فعلي'
+                          : 'Record a real interaction date',
+                    ),
+                  ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -468,15 +563,24 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                         HapticFeedback.selectionClick();
                         setState(() {
                           _selectedLastContact = DateTime.now();
+                          _contactDateChanged = true;
+                          _recordInitialContact = true;
                         });
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.check_circle_outline_rounded, size: 14, color: Color(0xFF10B981)),
+                            const Icon(
+                              Icons.check_circle_outline_rounded,
+                              size: 14,
+                              color: Color(0xFF10B981),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               context.tr('mark_contacted_today_btn'),
@@ -504,12 +608,17 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                     if (picked != null) {
                       setState(() {
                         _selectedLastContact = picked;
+                        _contactDateChanged = true;
+                        _recordInitialContact = true;
                       });
                     }
                   },
                   borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: inputBg,
                       borderRadius: BorderRadius.circular(14),
@@ -517,7 +626,11 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_month_rounded, color: const Color(0xFF2E6FF2), size: 20),
+                        Icon(
+                          Icons.calendar_month_rounded,
+                          color: const Color(0xFF2E6FF2),
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Text(
                           lastContactDisplay,
@@ -545,17 +658,16 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                 const SizedBox(height: 2),
                 Text(
                   context.tr('remind_days_helper'),
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: secondaryTextColor,
-                  ),
+                  style: TextStyle(fontSize: 11, color: secondaryTextColor),
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
                     IconButton(
                       onPressed: () {
-                        final current = int.tryParse(_remindDaysController.text) ?? _remindDays;
+                        final current =
+                            int.tryParse(_remindDaysController.text) ??
+                            _remindDays;
                         if (current > 1) {
                           setState(() {
                             _remindDays = current - 1;
@@ -590,15 +702,23 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF2E6FF2),
+                              width: 1.8,
+                            ),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ),
                     IconButton(
                       onPressed: () {
-                        final current = int.tryParse(_remindDaysController.text) ?? _remindDays;
+                        final current =
+                            int.tryParse(_remindDaysController.text) ??
+                            _remindDays;
                         setState(() {
                           _remindDays = current + 1;
                           _remindDaysController.text = '$_remindDays';
@@ -624,10 +744,15 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                 TextFormField(
                   controller: _notesController,
                   maxLines: 3,
-                  style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    color: primaryTextColor,
+                    fontWeight: FontWeight.w500,
+                  ),
                   decoration: InputDecoration(
                     hintText: context.tr('contact_notes_hint'),
-                    hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                    hintStyle: TextStyle(
+                      color: secondaryTextColor.withValues(alpha: 0.6),
+                    ),
                     filled: true,
                     fillColor: inputBg,
                     border: OutlineInputBorder(
@@ -640,7 +765,10 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF2E6FF2),
+                        width: 1.8,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.all(14),
                   ),
@@ -667,7 +795,9 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
+                      foregroundColor: isDark
+                          ? const Color(0xFF060B24)
+                          : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -678,7 +808,9 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : Text(
@@ -701,7 +833,11 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                     height: 48,
                     child: OutlinedButton.icon(
                       onPressed: _confirmDelete,
-                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.errorRed, size: 18),
+                      icon: Icon(
+                        Icons.delete_outline_rounded,
+                        color: AppColors.errorRed,
+                        size: 18,
+                      ),
                       label: Text(
                         context.tr('delete_contact_btn'),
                         style: TextStyle(
@@ -710,7 +846,9 @@ class _AddEditContactSheetState extends ConsumerState<AddEditContactSheet> {
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.errorRed.withValues(alpha: 0.5)),
+                        side: BorderSide(
+                          color: AppColors.errorRed.withValues(alpha: 0.5),
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),

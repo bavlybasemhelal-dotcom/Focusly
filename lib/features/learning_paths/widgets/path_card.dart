@@ -13,10 +13,7 @@ import 'path_step_row.dart';
 class PathCard extends ConsumerWidget {
   final LearningPathModel path;
 
-  const PathCard({
-    super.key,
-    required this.path,
-  });
+  const PathCard({super.key, required this.path});
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     HapticFeedback.heavyImpact();
@@ -30,7 +27,11 @@ class PathCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -45,10 +46,7 @@ class PathCard extends ConsumerWidget {
           ],
         ),
         content: Text(
-          dialogCtx.tr(
-            'delete_path_confirm_msg',
-            args: {'title': path.title},
-          ),
+          dialogCtx.tr('delete_path_confirm_msg', args: {'title': path.title}),
           style: TextStyle(
             fontSize: 13,
             color: AppColors.textSecondary(context),
@@ -63,7 +61,9 @@ class PathCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -84,7 +84,9 @@ class PathCard extends ConsumerWidget {
               content: Text(context.tr('path_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -147,9 +149,13 @@ class PathCard extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
-                        isDone ? Icons.check_circle_rounded : Icons.alt_route_rounded,
+                        isDone
+                            ? Icons.check_circle_rounded
+                            : Icons.alt_route_rounded,
                         size: 20,
-                        color: isDone ? const Color(0xFF10B981) : const Color(0xFF2E6FF2),
+                        color: isDone
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF2E6FF2),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -200,9 +206,13 @@ class PathCard extends ConsumerWidget {
                   child: LinearProgressIndicator(
                     value: pct / 100.0,
                     minHeight: 6,
-                    backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                    backgroundColor: isDark
+                        ? Colors.white12
+                        : const Color(0xFFE2E8F0),
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      isDone ? const Color(0xFF10B981) : const Color(0xFF2E6FF2),
+                      isDone
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFF2E6FF2),
                     ),
                   ),
                 ),
@@ -224,7 +234,9 @@ class PathCard extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: isDone ? const Color(0xFF10B981) : secondaryTextColor,
+                        color: isDone
+                            ? const Color(0xFF10B981)
+                            : secondaryTextColor,
                       ),
                     ),
 
@@ -237,7 +249,10 @@ class PathCard extends ConsumerWidget {
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
                         child: Row(
                           children: [
                             Text(
@@ -275,10 +290,7 @@ class PathCard extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
               child: Column(
                 children: path.steps.map((step) {
-                  return PathStepRow(
-                    path: path,
-                    step: step,
-                  );
+                  return PathStepRow(path: path, step: step);
                 }).toList(),
               ),
             ),

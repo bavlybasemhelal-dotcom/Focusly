@@ -18,8 +18,9 @@ final lastReviewDateStreamProvider = StreamProvider<DateTime?>((ref) {
 });
 
 /// Stream provider for all past weekly reviews.
-final weeklyReviewsStreamProvider =
-    StreamProvider<List<WeeklyReviewModel>>((ref) {
+final weeklyReviewsStreamProvider = StreamProvider<List<WeeklyReviewModel>>((
+  ref,
+) {
   final uid = ref.watch(currentUserIdProvider);
   if (uid == null || uid.isEmpty) return const Stream.empty();
 

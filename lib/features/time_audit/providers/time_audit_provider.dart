@@ -10,7 +10,9 @@ final timeAuditServiceProvider = Provider<TimeAuditService>((ref) {
 });
 
 /// Stream provider for user's manual time audit logs.
-final timeAuditLogsStreamProvider = StreamProvider<List<TimeAuditLogModel>>((ref) {
+final timeAuditLogsStreamProvider = StreamProvider<List<TimeAuditLogModel>>((
+  ref,
+) {
   final uid = ref.watch(currentUserIdProvider);
   if (uid == null) return const Stream.empty();
 
@@ -30,8 +32,8 @@ class TimeAuditPeriodFilterNotifier extends Notifier<String> {
 
 final timeAuditPeriodFilterProvider =
     NotifierProvider<TimeAuditPeriodFilterNotifier, String>(
-  TimeAuditPeriodFilterNotifier.new,
-);
+      TimeAuditPeriodFilterNotifier.new,
+    );
 
 /// Structured data class representing combined stats for Time Audit.
 class CombinedTimeAuditStats {

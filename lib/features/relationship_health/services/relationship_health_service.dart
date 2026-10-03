@@ -1,3 +1,4 @@
+import '../../../core/data/contact_history_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/relationship_log_model.dart';
@@ -9,22 +10,20 @@ class RelationshipHealthService {
   final FirebaseFirestore _firestore;
 
   RelationshipHealthService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _logsCollection(String uid) {
-    return _firestore.collection('users').doc(uid).collection('relationshipLogs');
-  }
-
-  CollectionReference<Map<String, dynamic>> _contactsCollection(String uid) {
-    return _firestore.collection('users').doc(uid).collection('contacts');
+    return _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('relationshipLogs');
   }
 
   /// Streams all relationship interaction logs for [uid] ordered by date descending.
   Stream<List<RelationshipLogModel>> streamLogs(String uid) {
-    return _logsCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _logsCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => RelationshipLogModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -53,10 +52,12 @@ class RelationshipHealthService {
         updatedAt: now,
       );
 
-      await docRef.set(log.toMap());
-
-      // Auto-sync: Update contact's lastContact in Contacts feature
-      await _syncContactLastContact(uid, contactId, date);
+      if (contactId.trim().isEmpty || rating < 1 || rating > 5) {
+        throw ArgumentError("Invalid interaction");
+      }
+      await ContactHistoryService(
+        _firestore,
+      ).mutate(uid, docRef.id, log.toMap());
 
       return docRef.id;
     } catch (e) {
@@ -80,15 +81,19 @@ class RelationshipHealthService {
         contactId: newContactId.trim(),
         date: newDate,
         rating: newRating.clamp(1, 5),
-        notes: newNotes != null && newNotes.trim().isNotEmpty ? newNotes.trim() : null,
+        notes: newNotes != null && newNotes.trim().isNotEmpty
+            ? newNotes.trim()
+            : null,
         clearNotes: newNotes == null || newNotes.trim().isEmpty,
         updatedAt: now,
       );
 
-      await _logsCollection(uid).doc(updated.id).update(updated.toMap());
-
-      // Auto-sync: Update contact's lastContact
-      await _syncContactLastContact(uid, newContactId, newDate);
+      if (newContactId.trim().isEmpty || newRating < 1 || newRating > 5) {
+        throw ArgumentError("Invalid interaction");
+      }
+      await ContactHistoryService(
+        _firestore,
+      ).mutate(uid, updated.id, updated.toMap(), mustExist: true);
 
       return true;
     } catch (e) {
@@ -98,31 +103,15 @@ class RelationshipHealthService {
   }
 
   /// Deletes a relationship interaction log.
-  Future<bool> deleteLog({
-    required String uid,
-    required String logId,
-  }) async {
+  Future<bool> deleteLog({required String uid, required String logId}) async {
     try {
-      await _logsCollection(uid).doc(logId).delete();
+      await ContactHistoryService(
+        _firestore,
+      ).mutate(uid, logId, null, mustExist: true);
       return true;
     } catch (e) {
       debugPrint('Error deleting relationship log: $e');
       return false;
-    }
-  }
-
-  /// Syncs the linked contact's lastContact timestamp if the new log date is more recent.
-  Future<void> _syncContactLastContact(String uid, String contactId, DateTime date) async {
-    try {
-      final contactDoc = await _contactsCollection(uid).doc(contactId).get();
-      if (contactDoc.exists) {
-        await _contactsCollection(uid).doc(contactId).update({
-          'lastContact': Timestamp.fromDate(date),
-          'updatedAt': Timestamp.fromDate(DateTime.now()),
-        });
-      }
-    } catch (e) {
-      debugPrint('Note: Could not sync contact lastContact date: $e');
     }
   }
 }

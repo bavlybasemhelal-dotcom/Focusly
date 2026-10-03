@@ -5,7 +5,6 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../contacts/models/contact_model.dart';
 import '../helpers/relationship_health_helpers.dart';
-import '../models/relationship_log_model.dart';
 import '../providers/relationship_health_provider.dart';
 import 'interaction_form_modal.dart';
 
@@ -13,10 +12,7 @@ import 'interaction_form_modal.dart';
 class KeepInTouchCard extends ConsumerWidget {
   final ContactModel contact;
 
-  const KeepInTouchCard({
-    super.key,
-    required this.contact,
-  });
+  const KeepInTouchCard({super.key, required this.contact});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +35,10 @@ class KeepInTouchCard extends ConsumerWidget {
       } else if (days == 1) {
         badgeLabel = context.tr('contacted_yesterday_badge');
       } else {
-        badgeLabel = context.tr('contacted_days_ago_badge', args: {'days': days.toString()});
+        badgeLabel = context.tr(
+          'contacted_days_ago_badge',
+          args: {'days': days.toString()},
+        );
       }
     }
 
@@ -75,10 +74,7 @@ class KeepInTouchCard extends ConsumerWidget {
                 color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                contact.emoji,
-                style: const TextStyle(fontSize: 18),
-              ),
+              child: Text(contact.emoji, style: const TextStyle(fontSize: 18)),
             ),
             const SizedBox(width: 12),
 
@@ -101,10 +97,7 @@ class KeepInTouchCard extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       contact.role!,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: secondaryTextColor,
-                      ),
+                      style: TextStyle(fontSize: 11, color: secondaryTextColor),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

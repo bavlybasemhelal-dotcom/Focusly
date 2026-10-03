@@ -55,76 +55,82 @@ void main() {
   group('BodyMetricsHelpers Unit Tests', () {
     final now = DateTime(2026, 8, 25);
 
-    test('computeLatestReadings extracts latest non-null value per metric independently', () {
-      final logs = [
-        // Most recent entry (only pulse logged)
-        BodyMetricModel(
-          id: '1',
-          date: DateTime(2026, 8, 25),
-          pulse: 68,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        // 1 day ago (only BP logged)
-        BodyMetricModel(
-          id: '2',
-          date: DateTime(2026, 8, 24),
-          bpSystolic: 118,
-          bpDiastolic: 78,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        // 2 days ago (only weight logged)
-        BodyMetricModel(
-          id: '3',
-          date: DateTime(2026, 8, 23),
-          weight: 76.5,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
+    test(
+      'computeLatestReadings extracts latest non-null value per metric independently',
+      () {
+        final logs = [
+          // Most recent entry (only pulse logged)
+          BodyMetricModel(
+            id: '1',
+            date: DateTime(2026, 8, 25),
+            pulse: 68,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          // 1 day ago (only BP logged)
+          BodyMetricModel(
+            id: '2',
+            date: DateTime(2026, 8, 24),
+            bpSystolic: 118,
+            bpDiastolic: 78,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          // 2 days ago (only weight logged)
+          BodyMetricModel(
+            id: '3',
+            date: DateTime(2026, 8, 23),
+            weight: 76.5,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      final latest = BodyMetricsHelpers.computeLatestReadings(logs);
+        final latest = BodyMetricsHelpers.computeLatestReadings(logs);
 
-      expect(latest.latestWeight, equals(76.5));
-      expect(latest.latestSystolic, equals(118));
-      expect(latest.latestDiastolic, equals(78));
-      expect(latest.latestPulse, equals(68));
-    });
+        expect(latest.latestWeight, equals(76.5));
+        expect(latest.latestSystolic, equals(118));
+        expect(latest.latestDiastolic, equals(78));
+        expect(latest.latestPulse, equals(68));
+      },
+    );
 
-    test('extractWeightSeries sorts ascending chronologically and ignores empty weight entries', () {
-      final logs = [
-        BodyMetricModel(
-          id: '1',
-          date: DateTime(2026, 8, 25),
-          weight: 75.0,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        BodyMetricModel(
-          id: '2',
-          date: DateTime(2026, 8, 20),
-          // No weight
-          pulse: 70,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        BodyMetricModel(
-          id: '3',
-          date: DateTime(2026, 8, 22),
-          weight: 76.0,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
+    test(
+      'extractWeightSeries sorts ascending chronologically and ignores empty weight entries',
+      () {
+        final logs = [
+          BodyMetricModel(
+            id: '1',
+            date: DateTime(2026, 8, 25),
+            weight: 75.0,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          BodyMetricModel(
+            id: '2',
+            date: DateTime(2026, 8, 20),
+            // No weight
+            pulse: 70,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          BodyMetricModel(
+            id: '3',
+            date: DateTime(2026, 8, 22),
+            weight: 76.0,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      final series = BodyMetricsHelpers.extractWeightSeries(logs);
-      expect(series.length, equals(2));
-      expect(series[0].date, equals(DateTime(2026, 8, 22)));
-      expect(series[0].value, equals(76.0));
-      expect(series[1].date, equals(DateTime(2026, 8, 25)));
-      expect(series[1].value, equals(75.0));
-    });
+        final series = BodyMetricsHelpers.extractWeightSeries(logs);
+        expect(series.length, equals(2));
+        expect(series[0].date, equals(DateTime(2026, 8, 22)));
+        expect(series[0].value, equals(76.0));
+        expect(series[1].date, equals(DateTime(2026, 8, 25)));
+        expect(series[1].value, equals(75.0));
+      },
+    );
 
     test('extractBpSeries requires complete paired systolic and diastolic', () {
       final logs = [
@@ -226,7 +232,9 @@ void main() {
       ),
     ];
 
-    testWidgets('BodyMetricStatCard renders label, value and icon', (tester) async {
+    testWidgets('BodyMetricStatCard renders label, value and icon', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createBodyMetricsTestWidget(
           child: const Scaffold(
@@ -248,7 +256,9 @@ void main() {
       expect(find.text('08-25'), findsOneWidget);
     });
 
-    testWidgets('TrendLineChart renders single and dual series smoothly', (tester) async {
+    testWidgets('TrendLineChart renders single and dual series smoothly', (
+      tester,
+    ) async {
       final points = [
         ChartDataPoint(
           date: DateTime(2026, 8, 20),
@@ -286,7 +296,9 @@ void main() {
       expect(find.text('08-25'), findsOneWidget);
     });
 
-    testWidgets('BodyMetricsPage renders empty state when zero entries exist', (tester) async {
+    testWidgets('BodyMetricsPage renders empty state when zero entries exist', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createBodyMetricsTestWidget(
           child: const BodyMetricsPage(),
@@ -297,91 +309,113 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('⚖️ Start by logging your measurements'), findsOneWidget);
-      expect(find.text('Add Metric'), findsNWidgets(2)); // in FAB and in empty state button
-    });
-
-    testWidgets('BodyMetricsPage renders stats, charts, and history list with inline chips', (tester) async {
-      await tester.pumpWidget(
-        createBodyMetricsTestWidget(
-          child: const BodyMetricsPage(),
-          overrides: [
-            bodyMetricsStreamProvider.overrideWith((ref) => Stream.value(mockMetrics)),
-          ],
-        ),
+      expect(
+        find.text('⚖️ Start by logging your measurements'),
+        findsOneWidget,
       );
-      await tester.pumpAndSettle();
-
-      // Stats
-      expect(find.text('Latest Weight'), findsWidgets);
-      expect(find.text('74.5 kg'), findsOneWidget);
-      expect(find.text('Blood Pressure'), findsWidgets);
-      expect(find.text('120/80'), findsOneWidget);
-      expect(find.text('Pulse'), findsWidgets);
-      expect(find.text('72 bpm'), findsOneWidget);
-
-      // Trend Charts (scroll down to ensure visible in ListView)
-      expect(find.text('Weight Trend'), findsOneWidget);
-      expect(find.text('Blood Pressure Trend'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('Pulse Trend'), 100);
-      expect(find.text('Pulse Trend'), findsOneWidget);
-
-      // History
-      await tester.scrollUntilVisible(find.text('Measurement History'), 100);
-      expect(find.text('Measurement History'), findsOneWidget);
-      expect(find.text('Morning post-run measurement'), findsOneWidget);
+      expect(
+        find.text('Add Metric'),
+        findsNWidgets(2),
+      ); // in FAB and in empty state button
     });
 
-    testWidgets('BodyMetricFormModal validates that at least one measurement is entered', (tester) async {
-      await tester.pumpWidget(
-        createBodyMetricsTestWidget(
-          child: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => BodyMetricFormModal.show(context),
-              child: const Text('Open Modal'),
+    testWidgets(
+      'BodyMetricsPage renders stats, charts, and history list with inline chips',
+      (tester) async {
+        await tester.pumpWidget(
+          createBodyMetricsTestWidget(
+            child: const BodyMetricsPage(),
+            overrides: [
+              bodyMetricsStreamProvider.overrideWith(
+                (ref) => Stream.value(mockMetrics),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Stats
+        expect(find.text('Latest Weight'), findsWidgets);
+        expect(find.text('74.5 kg'), findsOneWidget);
+        expect(find.text('Blood Pressure'), findsWidgets);
+        expect(find.text('120/80'), findsOneWidget);
+        expect(find.text('Pulse'), findsWidgets);
+        expect(find.text('72 bpm'), findsOneWidget);
+
+        // Trend Charts (scroll down to ensure visible in ListView)
+        expect(find.text('Weight Trend'), findsOneWidget);
+        expect(find.text('Blood Pressure Trend'), findsOneWidget);
+        await tester.scrollUntilVisible(find.text('Pulse Trend'), 100);
+        expect(find.text('Pulse Trend'), findsOneWidget);
+
+        // History
+        await tester.scrollUntilVisible(find.text('Measurement History'), 100);
+        expect(find.text('Measurement History'), findsOneWidget);
+        expect(find.text('Morning post-run measurement'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'BodyMetricFormModal validates that at least one measurement is entered',
+      (tester) async {
+        await tester.pumpWidget(
+          createBodyMetricsTestWidget(
+            child: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => BodyMetricFormModal.show(context),
+                child: const Text('Open Modal'),
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Open Modal'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Open Modal'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Log Body Metric'), findsOneWidget);
+        expect(find.text('Log Body Metric'), findsOneWidget);
 
-      // Scroll to Save button and tap
-      await tester.ensureVisible(find.text('Save'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Save'));
-      await tester.pumpAndSettle();
+        // Scroll to Save button and tap
+        await tester.ensureVisible(find.text('Save'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Save'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Please log at least one measurement'), findsOneWidget);
-    });
+        expect(
+          find.text('Please log at least one measurement'),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('Navigation Drawer contains Body Metrics item in Health section', (tester) async {
-      await tester.pumpWidget(
-        createBodyMetricsTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            bodyMetricsStreamProvider.overrideWith((ref) => Stream.value([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer contains Body Metrics item in Health section',
+      (tester) async {
+        await tester.pumpWidget(
+          createBodyMetricsTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              bodyMetricsStreamProvider.overrideWith((ref) => Stream.value([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      expect(find.text('HEALTH & FITNESS'), findsOneWidget);
-      expect(find.text('Workout Tracker'), findsOneWidget);
-      expect(find.text('Nutrition Log'), findsOneWidget);
-      expect(find.text('Body Metrics'), findsOneWidget);
-    });
+        expect(find.text('HEALTH & FITNESS'), findsOneWidget);
+        expect(find.text('Workout Tracker'), findsOneWidget);
+        expect(find.text('Nutrition Log'), findsOneWidget);
+        expect(find.text('Body Metrics'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Arabic localization renders all Body Metrics texts', (tester) async {
+    testWidgets('Arabic localization renders all Body Metrics texts', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createBodyMetricsTestWidget(
           locale: const Locale('ar'),

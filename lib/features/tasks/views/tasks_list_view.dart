@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../core/auth/auth_provider.dart';
+import '../../../core/data/completion_ledger.dart';
+import '../../productivity/services/trash_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -13,10 +17,7 @@ import '../widgets/add_edit_task_sheet.dart';
 class TasksListView extends ConsumerStatefulWidget {
   final List<TaskModel> tasks;
 
-  const TasksListView({
-    super.key,
-    required this.tasks,
-  });
+  const TasksListView({super.key, required this.tasks});
 
   @override
   ConsumerState<TasksListView> createState() => _TasksListViewState();
@@ -62,11 +63,16 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                       Text(context.tr('all_tasks')),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 1,
+                        ),
                         decoration: BoxDecoration(
                           color: selectedCategory == 'all'
                               ? Colors.white.withValues(alpha: 0.25)
-                              : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+                              : (isDark
+                                    ? Colors.white12
+                                    : const Color(0xFFE2E8F0)),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -84,10 +90,14 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                   ),
                   selected: selectedCategory == 'all',
                   selectedColor: brandPrimary,
-                  backgroundColor: isDark ? const Color(0xFF08123A) : Colors.white,
+                  backgroundColor: isDark
+                      ? const Color(0xFF08123A)
+                      : Colors.white,
                   labelStyle: TextStyle(
                     fontSize: 13,
-                    fontWeight: selectedCategory == 'all' ? FontWeight.w800 : FontWeight.w600,
+                    fontWeight: selectedCategory == 'all'
+                        ? FontWeight.w800
+                        : FontWeight.w600,
                     color: selectedCategory == 'all'
                         ? Colors.white
                         : primaryTextColor,
@@ -95,12 +105,16 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                     side: BorderSide(
-                      color: selectedCategory == 'all' ? brandPrimary : borderColor,
+                      color: selectedCategory == 'all'
+                          ? brandPrimary
+                          : borderColor,
                       width: 1.2,
                     ),
                   ),
                   onSelected: (_) {
-                    ref.read(selectedCategoryFilterProvider.notifier).setFilter('all');
+                    ref
+                        .read(selectedCategoryFilterProvider.notifier)
+                        .setFilter('all');
                   },
                 ),
               ),
@@ -108,8 +122,12 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
               // Dynamic Category Chips
               ...categories.map((cat) {
                 final isSelected = selectedCategory == cat.id;
-                final count = widget.tasks.where((t) => t.categoryId == cat.id).length;
-                final catName = cat.isDefault ? context.tr(cat.nameKey) : cat.nameKey;
+                final count = widget.tasks
+                    .where((t) => t.categoryId == cat.id)
+                    .length;
+                final catName = cat.isDefault
+                    ? context.tr(cat.nameKey)
+                    : cat.nameKey;
 
                 return Padding(
                   padding: const EdgeInsetsDirectional.only(end: 8.0),
@@ -128,11 +146,16 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                         Text(catName),
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 1,
+                          ),
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? Colors.white.withValues(alpha: 0.25)
-                                : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+                                : (isDark
+                                      ? Colors.white12
+                                      : const Color(0xFFE2E8F0)),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
@@ -140,7 +163,9 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: isSelected ? Colors.white : secondaryTextColor,
+                              color: isSelected
+                                  ? Colors.white
+                                  : secondaryTextColor,
                             ),
                           ),
                         ),
@@ -148,10 +173,14 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                     ),
                     selected: isSelected,
                     selectedColor: cat.color,
-                    backgroundColor: isDark ? const Color(0xFF08123A) : Colors.white,
+                    backgroundColor: isDark
+                        ? const Color(0xFF08123A)
+                        : Colors.white,
                     labelStyle: TextStyle(
                       fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.w800
+                          : FontWeight.w600,
                       color: isSelected ? Colors.white : primaryTextColor,
                     ),
                     shape: RoundedRectangleBorder(
@@ -162,7 +191,9 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                       ),
                     ),
                     onSelected: (_) {
-                      ref.read(selectedCategoryFilterProvider.notifier).setFilter(cat.id);
+                      ref
+                          .read(selectedCategoryFilterProvider.notifier)
+                          .setFilter(cat.id);
                     },
                   ),
                 );
@@ -176,7 +207,12 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
         // ---------------------------------------------------------------------
         Expanded(
           child: filteredTasks.isEmpty
-              ? _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor)
+              ? _buildEmptyState(
+                  context,
+                  isDark,
+                  primaryTextColor,
+                  secondaryTextColor,
+                )
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 80),
                   itemCount: filteredTasks.length,
@@ -274,9 +310,13 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
     required Color secondaryTextColor,
     required Color borderColor,
   }) {
-    final catName = category.isDefault ? context.tr(category.nameKey) : category.nameKey;
+    final catName = category.isDefault
+        ? context.tr(category.nameKey)
+        : category.nameKey;
     final isToday = DateUtils.isSameDay(task.date, DateTime.now());
-    final dateLabel = isToday ? context.tr('today') : DateFormat.MMMd().format(task.date);
+    final dateLabel = isToday
+        ? context.tr('today')
+        : DateFormat.MMMd().format(task.date);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
@@ -324,10 +364,7 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                 child: Row(
                   children: [
                     // Priority Color Accent Bar (Left)
-                    Container(
-                      width: 5,
-                      color: task.priority.color,
-                    ),
+                    Container(width: 5, color: task.priority.color),
                     const SizedBox(width: 10),
 
                     // Checkbox
@@ -338,7 +375,9 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       side: BorderSide(
-                        color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? Colors.white24
+                            : const Color(0xFFCBD5E1),
                         width: 1.5,
                       ),
                       onChanged: (_) {
@@ -384,7 +423,9 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                     vertical: 3,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: category.color.withValues(alpha: 0.14),
+                                    color: category.color.withValues(
+                                      alpha: 0.14,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -413,7 +454,9 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                       dateLabel,
                                       style: TextStyle(
                                         fontSize: 11,
-                                        fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+                                        fontWeight: isToday
+                                            ? FontWeight.w800
+                                            : FontWeight.w500,
                                         color: isToday
                                             ? AppColors.brandPrimary(context)
                                             : secondaryTextColor,
@@ -453,7 +496,9 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: isDark ? Colors.white12 : const Color(0xFFF1F5F9),
+                                      color: isDark
+                                          ? Colors.white12
+                                          : const Color(0xFFF1F5F9),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Row(
@@ -482,21 +527,31 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                 if (task.projectId != null) ...[
                                   Consumer(
                                     builder: (context, ref, _) {
-                                      final allProjectsAsync = ref.watch(allParaProjectsStreamProvider);
+                                      final allProjectsAsync = ref.watch(
+                                        allParaProjectsStreamProvider,
+                                      );
                                       final project = allProjectsAsync.value
                                           ?.where((p) => p.id == task.projectId)
                                           .firstOrNull;
-                                      if (project == null) return const SizedBox.shrink();
+                                      if (project == null) {
+                                        return const SizedBox.shrink();
+                                      }
                                       return Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 7,
                                           vertical: 2.5,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
-                                          borderRadius: BorderRadius.circular(6),
+                                          color: const Color(
+                                            0xFF2E6FF2,
+                                          ).withValues(alpha: 0.12),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
                                           border: Border.all(
-                                            color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                                            color: const Color(
+                                              0xFF2E6FF2,
+                                            ).withValues(alpha: 0.3),
                                             width: 0.8,
                                           ),
                                         ),
@@ -532,10 +587,14 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                       vertical: 2.5,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.22 : 0.12),
+                                      color: const Color(
+                                        0xFF0284C7,
+                                      ).withValues(alpha: isDark ? 0.22 : 0.12),
                                       borderRadius: BorderRadius.circular(6),
                                       border: Border.all(
-                                        color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                                        color: const Color(
+                                          0xFF0284C7,
+                                        ).withValues(alpha: 0.35),
                                         width: 0.8,
                                       ),
                                     ),
@@ -549,9 +608,14 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                         ),
                                         const SizedBox(width: 3.5),
                                         Text(
-                                          task.assignedByName != null && task.assignedByName!.isNotEmpty
+                                          task.assignedByName != null &&
+                                                  task
+                                                      .assignedByName!
+                                                      .isNotEmpty
                                               ? '${context.tr('assigned_by_badge')}: ${task.assignedByName}'
-                                              : context.tr('group_assigned_badge'),
+                                              : context.tr(
+                                                  'group_assigned_badge',
+                                                ),
                                           style: const TextStyle(
                                             fontSize: 10.5,
                                             fontWeight: FontWeight.w800,
@@ -662,7 +726,9 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 side: BorderSide(
-                                  color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                                  color: isDark
+                                      ? Colors.white24
+                                      : const Color(0xFFCBD5E1),
                                   width: 1.2,
                                 ),
                                 onChanged: (_) {
@@ -676,12 +742,18 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                             Expanded(
                               child: GestureDetector(
                                 behavior: HitTestBehavior.opaque,
-                                onTap: () => _showEditSubtaskDialog(context, task, subtask),
+                                onTap: () => _showEditSubtaskDialog(
+                                  context,
+                                  task,
+                                  subtask,
+                                ),
                                 child: Text(
                                   subtask.title,
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: subtask.done ? secondaryTextColor : primaryTextColor,
+                                    color: subtask.done
+                                        ? secondaryTextColor
+                                        : primaryTextColor,
                                     decoration: subtask.done
                                         ? TextDecoration.lineThrough
                                         : null,
@@ -695,7 +767,11 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                               tooltip: context.tr('edit_subtask'),
-                              onPressed: () => _showEditSubtaskDialog(context, task, subtask),
+                              onPressed: () => _showEditSubtaskDialog(
+                                context,
+                                task,
+                                subtask,
+                              ),
                             ),
                             const SizedBox(width: 8),
                             IconButton(
@@ -871,7 +947,42 @@ class _TasksListViewState extends ConsumerState<TasksListView> {
     );
 
     if (shouldDelete == true) {
-      await ref.read(tasksControllerProvider).deleteTask(taskId);
+      final account = ref.read(currentUserIdProvider);
+      try {
+        await ref.read(tasksControllerProvider).deleteTask(taskId);
+        if (context.mounted &&
+            account != null &&
+            ref.read(currentUserIdProvider) == account) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.tr('task_deleted')),
+              action: SnackBarAction(
+                label: context.tr('undo'),
+                onPressed: () async {
+                  try {
+                    await TrashService(FirebaseFirestore.instance).restore(
+                      account,
+                      CompletionLedger.eventKey('tasks/$taskId'),
+                    );
+                  } catch (error) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text('$error')));
+                    }
+                  }
+                },
+              ),
+            ),
+          );
+        }
+      } catch (error) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('$error')));
+        }
+      }
     }
   }
 }
@@ -883,10 +994,12 @@ class _InlineAddSubtaskInput extends ConsumerStatefulWidget {
   const _InlineAddSubtaskInput({required this.task});
 
   @override
-  ConsumerState<_InlineAddSubtaskInput> createState() => _InlineAddSubtaskInputState();
+  ConsumerState<_InlineAddSubtaskInput> createState() =>
+      _InlineAddSubtaskInputState();
 }
 
-class _InlineAddSubtaskInputState extends ConsumerState<_InlineAddSubtaskInput> {
+class _InlineAddSubtaskInputState
+    extends ConsumerState<_InlineAddSubtaskInput> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -925,7 +1038,10 @@ class _InlineAddSubtaskInputState extends ConsumerState<_InlineAddSubtaskInput> 
                 color: AppColors.textSecondary(context).withValues(alpha: 0.6),
               ),
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
               filled: true,
               fillColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
               border: OutlineInputBorder(

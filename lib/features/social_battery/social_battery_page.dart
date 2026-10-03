@@ -56,7 +56,10 @@ class SocialBatteryPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF10B981)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF10B981),
+            ),
             tooltip: context.tr('add_social_interaction_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();

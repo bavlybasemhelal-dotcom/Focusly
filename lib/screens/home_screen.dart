@@ -1,3 +1,6 @@
+import '../features/productivity/workspace_page.dart';
+import '../features/productivity/providers/workspace_preferences.dart';
+import '../features/productivity/productivity_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,7 +66,6 @@ import '../features/annual_review/annual_review_page.dart';
 import '../features/notifications/notifications_page.dart';
 import '../features/notifications/providers/notifications_provider.dart';
 import '../features/settings/profile_page.dart';
-import '../features/focus_mode/focus_mode_page.dart';
 import '../features/home/widgets/continue_reading_widget.dart';
 import '../features/home/widgets/groups_preview_widget.dart';
 import '../features/home/widgets/home_life_score_widget.dart';
@@ -86,11 +88,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentTabIndex = 0;
   bool _promptChecked = false;
+  bool _favoriteRestored = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkMorningIntentionPrompt());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _checkMorningIntentionPrompt(),
+    );
   }
 
   Future<void> _checkMorningIntentionPrompt() async {
@@ -108,17 +113,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final alreadyShown = await ref
         .read(morningIntentionDismissedProvider.notifier)
         .hasBeenShownToday();
-    if (alreadyShown || !mounted) return;
-
-    // Direct check if an intention is already recorded for today in Firestore
-    final todayStr = ref.read(todayDateStringProvider);
-    final ritual = await ref.read(ritualsServiceProvider).getTodayRitual(uid, todayStr);
-    if (ritual != null && ritual.hasIntention) {
-      await ref.read(morningIntentionDismissedProvider.notifier).markShownToday();
+    if (alreadyShown || !mounted || ref.read(currentUserIdProvider) != uid) {
       return;
     }
 
-    if (!mounted) return;
+    // Direct check if an intention is already recorded for today in Firestore
+    final todayStr = ref.read(todayDateStringProvider);
+    final ritual = await ref
+        .read(ritualsServiceProvider)
+        .getTodayRitual(uid, todayStr);
+    if (ritual != null && ritual.hasIntention) {
+      await ref
+          .read(morningIntentionDismissedProvider.notifier)
+          .markShownToday();
+      return;
+    }
+
+    if (!mounted || ref.read(currentUserIdProvider) != uid) return;
 
     Future.delayed(const Duration(milliseconds: 600), () async {
       if (!mounted) return;
@@ -126,23 +137,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final recheck = await ref
           .read(morningIntentionDismissedProvider.notifier)
           .hasBeenShownToday();
-      if (recheck || !mounted) return;
+      if (recheck || !mounted || ref.read(currentUserIdProvider) != uid) return;
 
       // Persist that the prompt has been shown today IMMEDIATELY before displaying the modal
-      await ref.read(morningIntentionDismissedProvider.notifier).markShownToday();
-      if (mounted) {
+      await ref
+          .read(morningIntentionDismissedProvider.notifier)
+          .markShownToday();
+      if (mounted && ref.read(currentUserIdProvider) == uid) {
         MorningIntentionModal.show(context);
       }
     });
   }
 
+  void _openProductivity([int tab = 0]) => Navigator.of(
+    context,
+  ).push(MaterialPageRoute(builder: (_) => ProductivityPage(initialTab: tab)));
+
   @override
   Widget build(BuildContext context) {
+    final preferences = ref.watch(workspacePreferencesProvider);
+    if (!_favoriteRestored && preferences.containsKey('favoriteTab')) {
+      _favoriteRestored = true;
+      _currentTabIndex = (preferences['favoriteTab'] as num).toInt().clamp(
+        0,
+        4,
+      );
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryTextColor = AppColors.textSecondary(context);
     final brandPrimary = AppColors.brandPrimary(context);
     final drawerBg = isDark ? const Color(0xFF08123A) : Colors.white;
-    final bottomBarBg = isDark ? const Color(0xFF0A1238) : Colors.white.withValues(alpha: 0.95);
+    final bottomBarBg = isDark
+        ? const Color(0xFF0A1238)
+        : Colors.white.withValues(alpha: 0.95);
     final borderColor = AppColors.border(context);
 
     // Current user reference from Firebase Authentication (safely wrapped for tests)
@@ -158,108 +185,209 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       userEmail = currentUser.email!;
     }
 
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true): () =>
+            _openProductivity(1),
+        const SingleActivator(LogicalKeyboardKey.keyN, control: true): () =>
+            QuickCaptureSheet.show(context),
+        const SingleActivator(LogicalKeyboardKey.keyD, control: true): () =>
+            _openProductivity(0),
+      },
+      child: Focus(
+        autofocus: true,
+        child: Scaffold(
+          backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
 
-      // -----------------------------------------------------------------------
-      // 1. APP BAR (Glassmorphic in Dark / Frosted Glow in Light)
-      // -----------------------------------------------------------------------
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: const SizedBox.shrink(),
-        leading: Builder(
-          builder: (builderContext) {
-            return Padding(
-              padding: const EdgeInsetsDirectional.only(start: 16.0),
-              child: Center(
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF0F1B4C).withValues(alpha: 0.6)
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.12)
-                          : const Color(0xFFDBEAFE),
-                      width: 1.2,
+          // -----------------------------------------------------------------------
+          // 1. APP BAR (Glassmorphic in Dark / Frosted Glow in Light)
+          // -----------------------------------------------------------------------
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            centerTitle: true,
+            title: const SizedBox.shrink(),
+            leading: Builder(
+              builder: (builderContext) {
+                return Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 16.0),
+                  child: Center(
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF0F1B4C).withValues(alpha: 0.6)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.12)
+                              : const Color(0xFFDBEAFE),
+                          width: 1.2,
+                        ),
+                        boxShadow: isDark
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF2E6FF2,
+                                  ).withValues(alpha: 0.08),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          Icons.menu_rounded,
+                          color: brandPrimary,
+                          size: 22,
+                        ),
+                        onPressed: () {
+                          Scaffold.of(builderContext).openDrawer();
+                        },
+                        tooltip: 'Open navigation menu',
+                      ),
                     ),
-                    boxShadow: isDark
-                        ? null
-                        : [
-                            BoxShadow(
-                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
                   ),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(
-                      Icons.menu_rounded,
-                      color: brandPrimary,
-                      size: 22,
-                    ),
-                    onPressed: () {
-                      Scaffold.of(builderContext).openDrawer();
-                    },
-                    tooltip: 'Open navigation menu',
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-        actions: [
-          // Quick Capture Action Button
-          Padding(
-            padding: const EdgeInsetsDirectional.only(end: 8.0),
-            child: Center(
-              child: Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF2E6FF2).withValues(alpha: 0.35),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    Icons.bolt_rounded,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                  onPressed: () => QuickCaptureSheet.show(context),
-                  tooltip: context.tr('quick_capture_title'),
-                ),
-              ),
+                );
+              },
             ),
-          ),
-          // Notifications Bell Action with Unread Count Badge
-          Padding(
-            padding: const EdgeInsetsDirectional.only(end: 8.0),
-            child: Center(
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
+            actions: [
+              // Quick Capture Action Button
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8.0),
+                child: Center(
+                  child: Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.35),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(
+                        Icons.bolt_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                      onPressed: () => QuickCaptureSheet.show(context),
+                      tooltip: context.tr('quick_capture_title'),
+                    ),
+                  ),
+                ),
+              ),
+              // Notifications Bell Action with Unread Count Badge
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8.0),
+                child: Center(
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF0F1B4C).withValues(alpha: 0.6)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.12)
+                                : const Color(0xFFDBEAFE),
+                            width: 1.2,
+                          ),
+                          boxShadow: isDark
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF2E6FF2,
+                                    ).withValues(alpha: 0.08),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                        ),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          icon: Icon(
+                            Icons.notifications_outlined,
+                            color: brandPrimary,
+                            size: 21,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationsPage(),
+                              ),
+                            );
+                          },
+                          tooltip: context.tr('notifications_title'),
+                        ),
+                      ),
+                      if (ref.watch(unreadNotificationCountProvider) > 0)
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEF4444),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF070E28)
+                                    : Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${ref.watch(unreadNotificationCountProvider)}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  height: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 16.0),
+                child: Center(
+                  child: Container(
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
@@ -277,7 +405,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ? null
                           : [
                               BoxShadow(
-                                color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
+                                color: const Color(
+                                  0xFF2E6FF2,
+                                ).withValues(alpha: 0.08),
                                 blurRadius: 10,
                                 offset: const Offset(0, 3),
                               ),
@@ -286,1280 +416,1335 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: Icon(
-                        Icons.notifications_outlined,
+                        Icons.settings_outlined,
                         color: brandPrimary,
-                        size: 21,
+                        size: 20,
                       ),
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const NotificationsPage(),
+                            builder: (context) => const SettingsPage(),
                           ),
                         );
                       },
-                      tooltip: context.tr('notifications_title'),
+                      tooltip: 'Settings',
                     ),
                   ),
-                  if (ref.watch(unreadNotificationCountProvider) > 0)
-                    Positioned(
-                      top: -2,
-                      right: -2,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEF4444),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark ? const Color(0xFF070E28) : Colors.white,
-                            width: 1.5,
+                ),
+              ),
+            ],
+          ),
+
+          // -----------------------------------------------------------------------
+          // 2. NAVIGATION DRAWER (Midnight Neon / Radiant Brand Blue Header)
+          // -----------------------------------------------------------------------
+          drawer: Drawer(
+            backgroundColor: drawerBg,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(right: BorderSide(color: borderColor, width: 1)),
+              ),
+              child: Column(
+                children: [
+                  // Drawer Header with User Info
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 52, 20, 20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isDark
+                            ? [const Color(0xFF08123A), const Color(0xFF0B1647)]
+                            : [
+                                const Color(0xFF2563EB),
+                                const Color(0xFF1D4ED8),
+                              ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: isDark
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF2563EB,
+                                ).withValues(alpha: 0.25),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Avatar Circle
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isDark
+                                ? const Color(0xFF0F1B4C)
+                                : Colors.white,
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.cyanElectric
+                                  : const Color(0xFF93C5FD),
+                              width: 2.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? AppColors.cyanElectric.withValues(
+                                        alpha: 0.3,
+                                      )
+                                    : Colors.black.withValues(alpha: 0.12),
+                                blurRadius: 16,
+                              ),
+                            ],
                           ),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${ref.watch(unreadNotificationCountProvider)}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              height: 1,
+                          child: Center(
+                            child: Text(
+                              displayName.isNotEmpty
+                                  ? displayName.substring(0, 1).toUpperCase()
+                                  : 'F',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                color: isDark
+                                    ? AppColors.cyanElectric
+                                    : const Color(0xFF1D4ED8),
+                              ),
                             ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+
+                        // User Display Name
+                        Text(
+                          displayName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 18,
+                            color: Colors.white,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+
+                        // User Email
+                        Text(
+                          userEmail,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : const Color(0xFFDBEAFE),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Scrollable Navigation Menu Items
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        children: [
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.today_outlined,
+                            title:
+                                Localizations.localeOf(context).languageCode ==
+                                    'ar'
+                                ? 'يومي وأدوات الإنتاجية'
+                                : 'My day & productivity',
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.pop(context);
+                              _openProductivity();
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.search,
+                            title:
+                                Localizations.localeOf(context).languageCode ==
+                                    'ar'
+                                ? 'بحث شامل · Ctrl+K'
+                                : 'Search all · Ctrl+K',
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.pop(context);
+                              _openProductivity(1);
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.home_rounded,
+                            title: context.tr('home'),
+                            isSelected: _currentTabIndex == 0,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _currentTabIndex = 0;
+                              });
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.check_circle_outline_rounded,
+                            title: context.tr('tasks'),
+                            isSelected: _currentTabIndex == 1,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _currentTabIndex = 1;
+                              });
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.calendar_month_outlined,
+                            title: context.tr('schedule'),
+                            isSelected: _currentTabIndex == 2,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _currentTabIndex = 2;
+                              });
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.view_timeline_rounded,
+                            title: context.tr('time_blocker_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const TimeBlockerPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.local_fire_department_outlined,
+                            title: context.tr('habits'),
+                            isSelected: _currentTabIndex == 3,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _currentTabIndex = 3;
+                              });
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.timer_outlined,
+                            title: context.tr('pomodoro'),
+                            isSelected: _currentTabIndex == 4,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _currentTabIndex = 4;
+                              });
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.center_focus_strong_rounded,
+                            title: context.tr('focus_mode_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const FocusModePage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.groups_rounded,
+                            title: context.tr('groups'),
+                            isSelected: _currentTabIndex == 5,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _currentTabIndex = 5;
+                              });
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.insights_rounded,
+                            title: context.tr('progress'),
+                            isSelected: _currentTabIndex == 6,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _currentTabIndex = 6;
+                              });
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.dashboard_customize_outlined,
+                            title:
+                                Localizations.localeOf(context).languageCode ==
+                                    'ar'
+                                ? 'التعلم والصحة وتخصيص الواجهة'
+                                : 'Learning, health & customization',
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const WorkspacePage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // -------------------------------------------------------
+                          // GTD PRODUCTIVITY SYSTEM SECTION
+                          // -------------------------------------------------------
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context.tr('gtd_section_header'),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    height: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.inbox_rounded,
+                            title: context.tr('inbox'),
+                            isSelected: false,
+                            badgeCount: ref.watch(
+                              unprocessedInboxCountProvider,
+                            ),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const InboxScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.hourglass_top_rounded,
+                            title: context.tr('waiting_for'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const WaitingScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.nightlight_round,
+                            title: context.tr('someday_maybe'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const SomedayScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.bookmark_outline_rounded,
+                            title: context.tr('reference'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ReferenceScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.fact_check_outlined,
+                            title: context.tr('weekly_review_title'),
+                            isSelected: false,
+                            badgeText: ref.watch(isWeeklyReviewDueProvider)
+                                ? context.tr('review_due_badge')
+                                : null,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              WeeklyReviewWizard.show(context);
+                            },
+                          ),
+
+                          // -------------------------------------------------------
+                          // PARA ORGANIZATIONAL SYSTEM SECTION
+                          // -------------------------------------------------------
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context.tr('para_section_header'),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    height: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.folder_special_rounded,
+                            title: context.tr('para_projects_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ProjectsPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.domain_rounded,
+                            title: context.tr('para_areas_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const AreasPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.source_rounded,
+                            title: context.tr('para_resources_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ResourcesPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.inventory_2_rounded,
+                            title: context.tr('para_archive_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ArchivePage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.menu_book_rounded,
+                            title: context.tr('para_guide_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ParaGuidePage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.find_in_page_rounded,
+                            title: context.tr('retrospectives_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const RetrospectivePage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // -------------------------------------------------------
+                          // LIFE MAP (GOALS) SECTION
+                          // -------------------------------------------------------
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context.tr('goals_section_header'),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    height: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.flag_rounded,
+                            title: context.tr('life_map_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const LifeMapPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.access_time_rounded,
+                            title: context.tr('time_audit_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const TimeAuditPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.balance_rounded,
+                            title: context.tr('decision_journal_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DecisionJournalPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // -------------------------------------------------------
+                          // WELLNESS SECTION
+                          // -------------------------------------------------------
+                          // TODO: Future wellness features (Daily Rituals, Mood Journal, Mindfulness) should join this same section.
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context.tr('wellness_section_header'),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    height: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.wb_twilight_rounded,
+                            title: context.tr('daily_rituals_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DailyRitualsPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.bolt_rounded,
+                            title: context.tr('energy_mood_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const EnergyMoodHistoryPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // =========================================================
+                          // SECTION: RELATIONSHIPS
+                          // TODO: Relationship Health, Social Battery, and Gratitude Log features will join this same Relationships section when built.
+                          // =========================================================
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context.tr('relationships_section_header'),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    thickness: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.people_alt_rounded,
+                            title: context.tr('contacts_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ContactsPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.favorite_rounded,
+                            title: context.tr('relationship_health_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const RelationshipHealthPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.battery_charging_full_rounded,
+                            title: context.tr('social_battery_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const SocialBatteryPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // =========================================================
+                          // SECTION: LEARNING & GROWTH
+                          // TODO: Skills Board, Learning Paths, Knowledge Base, Course Tracker, and Spaced Repetition (coming next) should join this same section.
+                          // =========================================================
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context.tr('learning_section_header'),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    thickness: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.auto_stories_rounded,
+                            title: context.tr('reading_tracker_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const BooksShelvesPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.track_changes_rounded,
+                            title: context.tr('skills_board_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const SkillsBoardPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.alt_route_rounded,
+                            title: context.tr('learning_paths_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const LearningPathsPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.collections_bookmark_rounded,
+                            title: context.tr('knowledge_base_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const KnowledgeBasePage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.school_rounded,
+                            title: context.tr('course_tracker_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const CourseTrackerPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.style_rounded,
+                            title: context.tr('flashcards_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const FlashcardsListPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // =========================================================
+                          // SECTION: HEALTH & FITNESS
+                          // TODO: Nutrition Log, Body Metrics, and Mental Health (coming next) should join this same section.
+                          // =========================================================
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context.tr('health_section_header'),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    thickness: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.fitness_center_rounded,
+                            title: context.tr('workout_tracker_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const WorkoutTrackerPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.restaurant_rounded,
+                            title: context.tr('nutrition_log_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NutritionLogPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.monitor_weight_outlined,
+                            title: context.tr('body_metrics_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const BodyMetricsPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.psychology_outlined,
+                            title: context.tr('mental_health_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const MentalHealthPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // =========================================================
+                          // SECTION: FINANCE
+                          // =========================================================
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context
+                                      .tr('finance_section_header')
+                                      .toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    thickness: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.account_balance_wallet_outlined,
+                            title: context.tr('budget_tracker_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const BudgetTrackerPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // =========================================================
+                          // SECTION: ANALYTICS
+                          // =========================================================
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  context
+                                      .tr('analytics_section_header')
+                                      .toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF94A3B8),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFE2E8F5),
+                                    thickness: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.insights_rounded,
+                            title: context.tr('life_analytics_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const LifeAnalyticsPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.speed_rounded,
+                            title: context.tr('life_score_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const LifeScoreDetailPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.picture_as_pdf_outlined,
+                            title: context.tr('pdf_reports_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ReportRangePage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.donut_large_rounded,
+                            title: context.tr('wheel_of_life_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const LifeAreasPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.stars_rounded,
+                            title: context.tr('bucket_list_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const BucketListPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.history_edu_rounded,
+                            title: context.tr('legacy_journal_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const LegacyJournalPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.event_note_rounded,
+                            title: context.tr('annual_review_title'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const AnnualReviewPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.notifications_outlined,
+                            title: context.tr('notifications_title'),
+                            isSelected: false,
+                            badgeCount: ref.watch(
+                              unreadNotificationCountProvider,
+                            ),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotificationsPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          const SizedBox(height: 6),
+                          _buildDrawerItem(
+                            context: context,
+                            icon: Icons.settings_outlined,
+                            title: context.tr('settings'),
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const SettingsPage(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 4.0,
+                    ),
+                    child: Divider(color: borderColor, height: 1),
+                  ),
+
+                  // Log Out Item
+                  _buildDrawerItem(
+                    context: context,
+                    icon: Icons.logout_rounded,
+                    title: context.tr('log_out'),
+                    isSelected: false,
+                    isDestructive: true,
+                    onTap: _confirmLogout,
+                  ),
+                  const SizedBox(height: 12),
                 ],
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsetsDirectional.only(end: 16.0),
-            child: Center(
-              child: Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
+
+          // -----------------------------------------------------------------------
+          // 3. BODY (Atmospheric Light/Dark Aurora Glows + IndexedStack)
+          // -----------------------------------------------------------------------
+          body: Stack(
+            children: [
+              // Ambient Aurora Background Blooms
+              _buildAmbientGlowBlooms(isDark),
+
+              // IndexedStack Content
+              IndexedStack(
+                index: _currentTabIndex,
+                children: [
+                  _HomeTabContent(
+                    userName: displayName,
+                    onNavigateTab: (index) {
+                      setState(() {
+                        _currentTabIndex = index;
+                      });
+                    },
+                  ),
+                  const TasksScreen(),
+                  const ScheduleScreen(),
+                  const HabitsScreen(),
+                  const PomodoroScreen(),
+                  const GroupsHomePage(),
+                  const ProgressScreen(),
+                  // Tab 7: Profile (Shares the exact same ProfilePage widget used in Settings -> Profile)
+                  const ProfilePage(showAppBar: false, showBackButton: false),
+                ],
+              ),
+            ],
+          ),
+
+          // -----------------------------------------------------------------------
+          // 4. BOTTOM NAVIGATION BAR (Vibrant Frosted Pill Navigation)
+          // -----------------------------------------------------------------------
+          bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+              color: bottomBarBg,
+              border: Border(
+                top: BorderSide(
                   color: isDark
-                      ? const Color(0xFF0F1B4C).withValues(alpha: 0.6)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.12)
-                        : const Color(0xFFDBEAFE),
-                    width: 1.2,
-                  ),
-                  boxShadow: isDark
-                      ? null
-                      : [
-                            BoxShadow(
-                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    Icons.settings_outlined,
-                    color: brandPrimary,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const SettingsPage(),
-                      ),
-                    );
-                  },
-                  tooltip: 'Settings',
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : const Color(0xFFE2E8F5),
+                  width: 1,
                 ),
               ),
-            ),
-          ),
-        ],
-      ),
-
-      // -----------------------------------------------------------------------
-      // 2. NAVIGATION DRAWER (Midnight Neon / Radiant Brand Blue Header)
-      // -----------------------------------------------------------------------
-      drawer: Drawer(
-        backgroundColor: drawerBg,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              right: BorderSide(color: borderColor, width: 1),
-            ),
-          ),
-          child: Column(
-            children: [
-              // Drawer Header with User Info
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(20, 52, 20, 20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isDark
-                        ? [const Color(0xFF08123A), const Color(0xFF0B1647)]
-                        : [const Color(0xFF2563EB), const Color(0xFF1D4ED8)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: isDark
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: const Color(0xFF2563EB).withValues(alpha: 0.25),
-                            blurRadius: 16,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.35)
+                      : const Color(0xFF2E6FF2).withValues(alpha: 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, -4),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Avatar Circle
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isDark
-                            ? const Color(0xFF0F1B4C)
-                            : Colors.white,
-                        border: Border.all(
-                          color: isDark ? AppColors.cyanElectric : const Color(0xFF93C5FD),
-                          width: 2.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDark
-                                ? AppColors.cyanElectric.withValues(alpha: 0.3)
-                                : Colors.black.withValues(alpha: 0.12),
-                            blurRadius: 16,
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          displayName.isNotEmpty
-                              ? displayName.substring(0, 1).toUpperCase()
-                              : 'F',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? AppColors.cyanElectric : const Color(0xFF1D4ED8),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // User Display Name
-                    Text(
-                      displayName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        color: Colors.white,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-
-                    // User Email
-                    Text(
-                      userEmail,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? AppColors.darkTextSecondary : const Color(0xFFDBEAFE),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+              ],
+            ),
+            child: BottomNavigationBar(
+              currentIndex: _currentTabIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentTabIndex = index;
+                });
+              },
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent,
+              selectedItemColor: brandPrimary,
+              unselectedItemColor: secondaryTextColor,
+              selectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 10,
+                letterSpacing: 0.1,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 10,
+              ),
+              elevation: 0,
+              items: [
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.home_outlined),
+                  activeIcon: const Icon(Icons.home_rounded),
+                  label: context.tr('home'),
                 ),
-              ),
-
-              // Scrollable Navigation Menu Items
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    children: [
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.home_rounded,
-                        title: context.tr('home'),
-                        isSelected: _currentTabIndex == 0,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _currentTabIndex = 0;
-                          });
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.check_circle_outline_rounded,
-                        title: context.tr('tasks'),
-                        isSelected: _currentTabIndex == 1,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _currentTabIndex = 1;
-                          });
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.calendar_month_outlined,
-                        title: context.tr('schedule'),
-                        isSelected: _currentTabIndex == 2,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _currentTabIndex = 2;
-                          });
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.view_timeline_rounded,
-                        title: context.tr('time_blocker_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const TimeBlockerPage()),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.local_fire_department_outlined,
-                        title: context.tr('habits'),
-                        isSelected: _currentTabIndex == 3,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _currentTabIndex = 3;
-                          });
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.timer_outlined,
-                        title: context.tr('pomodoro'),
-                        isSelected: _currentTabIndex == 4,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _currentTabIndex = 4;
-                          });
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.center_focus_strong_rounded,
-                        title: context.tr('focus_mode_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const FocusModePage()),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.groups_rounded,
-                        title: context.tr('groups'),
-                        isSelected: _currentTabIndex == 5,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _currentTabIndex = 5;
-                          });
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.insights_rounded,
-                        title: context.tr('progress'),
-                        isSelected: _currentTabIndex == 6,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _currentTabIndex = 6;
-                          });
-                        },
-                      ),
-
-                      // -------------------------------------------------------
-                      // GTD PRODUCTIVITY SYSTEM SECTION
-                      // -------------------------------------------------------
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('gtd_section_header'),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                height: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.inbox_rounded,
-                        title: context.tr('inbox'),
-                        isSelected: false,
-                        badgeCount: ref.watch(unprocessedInboxCountProvider),
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const InboxScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.hourglass_top_rounded,
-                        title: context.tr('waiting_for'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const WaitingScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.nightlight_round,
-                        title: context.tr('someday_maybe'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const SomedayScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.bookmark_outline_rounded,
-                        title: context.tr('reference'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ReferenceScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.fact_check_outlined,
-                        title: context.tr('weekly_review_title'),
-                        isSelected: false,
-                        badgeText: ref.watch(isWeeklyReviewDueProvider)
-                            ? context.tr('review_due_badge')
-                            : null,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          WeeklyReviewWizard.show(context);
-                        },
-                      ),
-
-                      // -------------------------------------------------------
-                      // PARA ORGANIZATIONAL SYSTEM SECTION
-                      // -------------------------------------------------------
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('para_section_header'),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                height: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.folder_special_rounded,
-                        title: context.tr('para_projects_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ProjectsPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.domain_rounded,
-                        title: context.tr('para_areas_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const AreasPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.source_rounded,
-                        title: context.tr('para_resources_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ResourcesPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.inventory_2_rounded,
-                        title: context.tr('para_archive_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ArchivePage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.menu_book_rounded,
-                        title: context.tr('para_guide_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ParaGuidePage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.find_in_page_rounded,
-                        title: context.tr('retrospectives_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const RetrospectivePage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      // -------------------------------------------------------
-                      // LIFE MAP (GOALS) SECTION
-                      // -------------------------------------------------------
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('goals_section_header'),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                height: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.flag_rounded,
-                        title: context.tr('life_map_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const LifeMapPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.access_time_rounded,
-                        title: context.tr('time_audit_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const TimeAuditPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.balance_rounded,
-                        title: context.tr('decision_journal_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const DecisionJournalPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      // -------------------------------------------------------
-                      // WELLNESS SECTION
-                      // -------------------------------------------------------
-                      // TODO: Future wellness features (Daily Rituals, Mood Journal, Mindfulness) should join this same section.
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('wellness_section_header'),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                height: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.wb_twilight_rounded,
-                        title: context.tr('daily_rituals_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const DailyRitualsPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.bolt_rounded,
-                        title: context.tr('energy_mood_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const EnergyMoodHistoryPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      // =========================================================
-                      // SECTION: RELATIONSHIPS
-                      // TODO: Relationship Health, Social Battery, and Gratitude Log features will join this same Relationships section when built.
-                      // =========================================================
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('relationships_section_header'),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                thickness: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.people_alt_rounded,
-                        title: context.tr('contacts_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ContactsPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.favorite_rounded,
-                        title: context.tr('relationship_health_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const RelationshipHealthPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.battery_charging_full_rounded,
-                        title: context.tr('social_battery_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const SocialBatteryPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      // =========================================================
-                      // SECTION: LEARNING & GROWTH
-                      // TODO: Skills Board, Learning Paths, Knowledge Base, Course Tracker, and Spaced Repetition (coming next) should join this same section.
-                      // =========================================================
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('learning_section_header'),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                thickness: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.auto_stories_rounded,
-                        title: context.tr('reading_tracker_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const BooksShelvesPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.track_changes_rounded,
-                        title: context.tr('skills_board_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const SkillsBoardPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.alt_route_rounded,
-                        title: context.tr('learning_paths_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const LearningPathsPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.collections_bookmark_rounded,
-                        title: context.tr('knowledge_base_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const KnowledgeBasePage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.school_rounded,
-                        title: context.tr('course_tracker_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const CourseTrackerPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.style_rounded,
-                        title: context.tr('flashcards_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const FlashcardsListPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      // =========================================================
-                      // SECTION: HEALTH & FITNESS
-                      // TODO: Nutrition Log, Body Metrics, and Mental Health (coming next) should join this same section.
-                      // =========================================================
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('health_section_header'),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                thickness: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.fitness_center_rounded,
-                        title: context.tr('workout_tracker_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const WorkoutTrackerPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.restaurant_rounded,
-                        title: context.tr('nutrition_log_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const NutritionLogPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.monitor_weight_outlined,
-                        title: context.tr('body_metrics_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const BodyMetricsPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.psychology_outlined,
-                        title: context.tr('mental_health_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const MentalHealthPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      // =========================================================
-                      // SECTION: FINANCE
-                      // =========================================================
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('finance_section_header').toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                thickness: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.account_balance_wallet_outlined,
-                        title: context.tr('budget_tracker_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const BudgetTrackerPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      // =========================================================
-                      // SECTION: ANALYTICS
-                      // =========================================================
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              context.tr('analytics_section_header').toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Divider(
-                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F5),
-                                thickness: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.insights_rounded,
-                        title: context.tr('life_analytics_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const LifeAnalyticsPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.speed_rounded,
-                        title: context.tr('life_score_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const LifeScoreDetailPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.picture_as_pdf_outlined,
-                        title: context.tr('pdf_reports_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ReportRangePage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.donut_large_rounded,
-                        title: context.tr('wheel_of_life_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const LifeAreasPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.stars_rounded,
-                        title: context.tr('bucket_list_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const BucketListPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.history_edu_rounded,
-                        title: context.tr('legacy_journal_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const LegacyJournalPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.event_note_rounded,
-                        title: context.tr('annual_review_title'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const AnnualReviewPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.notifications_outlined,
-                        title: context.tr('notifications_title'),
-                        isSelected: false,
-                        badgeCount: ref.watch(unreadNotificationCountProvider),
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const NotificationsPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 6),
-                      _buildDrawerItem(
-                        context: context,
-                        icon: Icons.settings_outlined,
-                        title: context.tr('settings'),
-                        isSelected: false,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsPage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.check_circle_outline_rounded),
+                  activeIcon: const Icon(Icons.check_circle_rounded),
+                  label: context.tr('tasks'),
                 ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
-                child: Divider(color: borderColor, height: 1),
-              ),
-
-              // Log Out Item
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.logout_rounded,
-                title: context.tr('log_out'),
-                isSelected: false,
-                isDestructive: true,
-                onTap: _confirmLogout,
-              ),
-              const SizedBox(height: 12),
-            ],
-          ),
-        ),
-      ),
-
-      // -----------------------------------------------------------------------
-      // 3. BODY (Atmospheric Light/Dark Aurora Glows + IndexedStack)
-      // -----------------------------------------------------------------------
-      body: Stack(
-        children: [
-          // Ambient Aurora Background Blooms
-          _buildAmbientGlowBlooms(isDark),
-
-          // IndexedStack Content
-          IndexedStack(
-            index: _currentTabIndex,
-            children: [
-              _HomeTabContent(
-                userName: displayName,
-                onNavigateTab: (index) {
-                  setState(() {
-                    _currentTabIndex = index;
-                  });
-                },
-              ),
-              const TasksScreen(),
-              const ScheduleScreen(),
-              const HabitsScreen(),
-              const PomodoroScreen(),
-              const GroupsHomePage(),
-              const ProgressScreen(),
-              // Tab 7: Profile (Shares the exact same ProfilePage widget used in Settings -> Profile)
-              const ProfilePage(showAppBar: false, showBackButton: false),
-            ],
-          ),
-        ],
-      ),
-
-      // -----------------------------------------------------------------------
-      // 4. BOTTOM NAVIGATION BAR (Vibrant Frosted Pill Navigation)
-      // -----------------------------------------------------------------------
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: bottomBarBg,
-          border: Border(
-            top: BorderSide(
-              color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F5),
-              width: 1,
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  activeIcon: const Icon(Icons.calendar_month_rounded),
+                  label: context.tr('schedule'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.local_fire_department_outlined),
+                  activeIcon: const Icon(Icons.local_fire_department_rounded),
+                  label: context.tr('habits'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.timer_outlined),
+                  activeIcon: const Icon(Icons.timer_rounded),
+                  label: context.tr('pomodoro'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.groups_outlined),
+                  activeIcon: const Icon(Icons.groups_rounded),
+                  label: context.tr('groups'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.insights_outlined),
+                  activeIcon: const Icon(Icons.insights_rounded),
+                  label: context.tr('progress'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.person_outline_rounded),
+                  activeIcon: const Icon(Icons.person_rounded),
+                  label: context.tr('profile'),
+                ),
+              ],
             ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.35)
-                  : const Color(0xFF2E6FF2).withValues(alpha: 0.06),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentTabIndex,
-          onTap: (index) {
-            setState(() {
-              _currentTabIndex = index;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          selectedItemColor: brandPrimary,
-          unselectedItemColor: secondaryTextColor,
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 10,
-            letterSpacing: 0.1,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 10,
-          ),
-          elevation: 0,
-          items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.home_outlined),
-              activeIcon: const Icon(Icons.home_rounded),
-              label: context.tr('home'),
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.check_circle_outline_rounded),
-              activeIcon: const Icon(Icons.check_circle_rounded),
-              label: context.tr('tasks'),
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.calendar_month_outlined),
-              activeIcon: const Icon(Icons.calendar_month_rounded),
-              label: context.tr('schedule'),
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.local_fire_department_outlined),
-              activeIcon: const Icon(Icons.local_fire_department_rounded),
-              label: context.tr('habits'),
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.timer_outlined),
-              activeIcon: const Icon(Icons.timer_rounded),
-              label: context.tr('pomodoro'),
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.groups_outlined),
-              activeIcon: const Icon(Icons.groups_rounded),
-              label: context.tr('groups'),
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.insights_outlined),
-              activeIcon: const Icon(Icons.insights_rounded),
-              label: context.tr('progress'),
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.person_outline_rounded),
-              activeIcon: const Icon(Icons.person_rounded),
-              label: context.tr('profile'),
-            ),
-          ],
         ),
       ),
     );
@@ -1584,9 +1769,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             height: 340,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -1598,9 +1781,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [greenGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [greenGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -1619,6 +1800,63 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     int? badgeCount,
     String? badgeText,
   }) {
+    final preferences = ref.read(workspacePreferencesProvider);
+    const moduleKeys = {
+      'gtd': [
+        'gtd_inbox',
+        'inbox',
+        'gtd_someday',
+        'someday',
+        'gtd_waiting',
+        'waiting',
+        'reference',
+      ],
+      'para': [
+        'projects_title',
+        'areas_title',
+        'resources_title',
+        'archive_title',
+        'para_guide_title',
+        'retrospectives_title',
+      ],
+      'goals': ['life_map_title', 'time_audit_title', 'decision_journal_title'],
+      'wellness': ['daily_rituals_title', 'energy_mood_title'],
+      'relationships': [
+        'contacts_title',
+        'relationship_health_title',
+        'social_battery_title',
+      ],
+      'learning': [
+        'reading_tracker_title',
+        'skills_board_title',
+        'learning_paths_title',
+        'knowledge_base_title',
+        'course_tracker_title',
+        'flashcards_title',
+      ],
+      'health': [
+        'workout_tracker_title',
+        'nutrition_log_title',
+        'body_metrics_title',
+        'mental_health_title',
+      ],
+      'finance': ['budget_tracker_title'],
+      'analytics': [
+        'life_analytics_title',
+        'life_score_title',
+        'pdf_reports_title',
+        'wheel_of_life_title',
+        'bucket_list_title',
+        'legacy_journal_title',
+        'annual_review_title',
+      ],
+    };
+    for (final module in moduleKeys.entries) {
+      if (!moduleVisible(preferences, module.key) &&
+          module.value.any((key) => context.tr(key) == title)) {
+        return const SizedBox.shrink();
+      }
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryTextColor = AppColors.textSecondary(context);
     final brandPrimary = AppColors.brandPrimary(context);
@@ -1632,8 +1870,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       decoration: BoxDecoration(
         color: isSelected
             ? (isDark
-                ? brandPrimary.withValues(alpha: 0.14)
-                : const Color(0xFFEFF6FF))
+                  ? brandPrimary.withValues(alpha: 0.14)
+                  : const Color(0xFFEFF6FF))
             : Colors.transparent,
         borderRadius: BorderRadius.circular(14),
         border: isSelected && !isDark
@@ -1652,8 +1890,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             color: isDestructive
                 ? AppColors.errorRed
                 : (isSelected
-                    ? (isDark ? Colors.white : const Color(0xFF1D4ED8))
-                    : secondaryTextColor),
+                      ? (isDark ? Colors.white : const Color(0xFF1D4ED8))
+                      : secondaryTextColor),
             fontSize: 14,
           ),
         ),
@@ -1683,34 +1921,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               )
             : ((badgeCount != null && badgeCount > 0)
-                ? Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
                         ),
-                      ],
-                    ),
-                    child: Text(
-                      badgeCount.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 11,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF2E6FF2,
+                            ).withValues(alpha: 0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    ),
-                  )
-                : null),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
+                      child: Text(
+                        badgeCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 11,
+                        ),
+                      ),
+                    )
+                  : null),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         onTap: onTap,
       ),
     );
@@ -1790,9 +2031,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (!mounted) return;
 
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
         (route) => false,
       );
     }
@@ -1825,17 +2064,16 @@ class _HomeTabContent extends StatelessWidget {
   final String userName;
   final ValueChanged<int> onNavigateTab;
 
-  const _HomeTabContent({
-    required this.userName,
-    required this.onNavigateTab,
-  });
+  const _HomeTabContent({required this.userName, required this.onNavigateTab});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryTextColor = AppColors.textPrimary(context);
     final brandPrimary = AppColors.brandPrimary(context);
-    final localizedDate = AppLocalizations.of(context).formatLocalizedDate(DateTime.now());
+    final localizedDate = AppLocalizations.of(
+      context,
+    ).formatLocalizedDate(DateTime.now());
 
     return SafeArea(
       child: ListView(
@@ -1863,7 +2101,10 @@ class _HomeTabContent extends StatelessWidget {
 
                 // Date Badge Pill with Radiant Border & Soft Gradient
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 7,
+                  ),
                   decoration: BoxDecoration(
                     gradient: isDark
                         ? null
@@ -1872,7 +2113,9 @@ class _HomeTabContent extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                    color: isDark ? const Color(0xFF0F1B4C).withValues(alpha: 0.6) : null,
+                    color: isDark
+                        ? const Color(0xFF0F1B4C).withValues(alpha: 0.6)
+                        : null,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: isDark
@@ -1884,7 +2127,9 @@ class _HomeTabContent extends StatelessWidget {
                         ? null
                         : [
                             BoxShadow(
-                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.08),
+                              color: const Color(
+                                0xFF2E6FF2,
+                              ).withValues(alpha: 0.08),
                               blurRadius: 12,
                               offset: const Offset(0, 3),
                             ),
@@ -1904,7 +2149,9 @@ class _HomeTabContent extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? AppColors.darkTextSecondary : const Color(0xFF1E40AF),
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : const Color(0xFF1E40AF),
                         ),
                       ),
                     ],
@@ -1988,7 +2235,9 @@ class _HomeTabContent extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : const Color(0xFF581C87),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF581C87),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -1996,7 +2245,9 @@ class _HomeTabContent extends StatelessWidget {
                             context.tr('end_my_day_subtitle'),
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDark ? Colors.white70 : const Color(0xFF6B21A8),
+                              color: isDark
+                                  ? Colors.white70
+                                  : const Color(0xFF6B21A8),
                             ),
                           ),
                         ],
@@ -2040,7 +2291,8 @@ class _HomeTabContent extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: QuickActionsRow(
-              onStartPomodoro: () => onNavigateTab(4), // Navigate to Pomodoro Tab
+              onStartPomodoro: () =>
+                  onNavigateTab(4), // Navigate to Pomodoro Tab
             ),
           ),
           const SizedBox(height: 16),
@@ -2100,9 +2352,7 @@ class _HomeTabContent extends StatelessWidget {
                 onTap: () {
                   HapticFeedback.lightImpact();
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const FocusModePage(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const FocusModePage()),
                   );
                 },
                 borderRadius: BorderRadius.circular(22),
@@ -2132,7 +2382,9 @@ class _HomeTabContent extends StatelessWidget {
                         ? null
                         : [
                             BoxShadow(
-                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.10),
+                              color: const Color(
+                                0xFF2E6FF2,
+                              ).withValues(alpha: 0.10),
                               blurRadius: 18,
                               offset: const Offset(0, 6),
                             ),
@@ -2147,16 +2399,26 @@ class _HomeTabContent extends StatelessWidget {
                           shape: BoxShape.circle,
                           gradient: isDark
                               ? const LinearGradient(
-                                  colors: [Color(0xFF00E5FF), Color(0xFF1E58F6)],
+                                  colors: [
+                                    Color(0xFF00E5FF),
+                                    Color(0xFF1E58F6),
+                                  ],
                                 )
                               : const LinearGradient(
-                                  colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                                  colors: [
+                                    Color(0xFF3B82F6),
+                                    Color(0xFF1D4ED8),
+                                  ],
                                 ),
                           boxShadow: [
                             BoxShadow(
                               color: isDark
-                                  ? AppColors.cyanElectric.withValues(alpha: 0.4)
-                                  : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                                  ? AppColors.cyanElectric.withValues(
+                                      alpha: 0.4,
+                                    )
+                                  : const Color(
+                                      0xFF2563EB,
+                                    ).withValues(alpha: 0.35),
                               blurRadius: 12,
                             ),
                           ],
@@ -2177,7 +2439,9 @@ class _HomeTabContent extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF1E3A8A),
                               ),
                             ),
                           ],
@@ -2186,7 +2450,9 @@ class _HomeTabContent extends StatelessWidget {
                       Icon(
                         Icons.arrow_forward_ios_rounded,
                         size: 13,
-                        color: isDark ? AppColors.cyanElectric : const Color(0xFF2563EB),
+                        color: isDark
+                            ? AppColors.cyanElectric
+                            : const Color(0xFF2563EB),
                       ),
                     ],
                   ),

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +14,7 @@ import '../services/group_assignment_service.dart';
 class AssignmentFormModal extends ConsumerStatefulWidget {
   final String groupId;
 
-  const AssignmentFormModal({
-    super.key,
-    required this.groupId,
-  });
+  const AssignmentFormModal({super.key, required this.groupId});
 
   /// Convenient helper to display the Assignment Form Modal
   static Future<bool?> show(BuildContext context, {required String groupId}) {
@@ -45,6 +43,10 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
 
   final Set<String> _selectedMemberUids = {};
   bool _isSaving = false;
+  final String _requestId = FirebaseFirestore.instance
+      .collection('groups')
+      .doc()
+      .id;
 
   @override
   void dispose() {
@@ -121,6 +123,7 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
     try {
       await GroupAssignmentService().createAssignment(
         groupId: widget.groupId,
+        requestId: _requestId,
         type: _selectedType,
         title: _titleController.text.trim(),
         deadline: deadline,
@@ -134,8 +137,9 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
           SnackBar(
             behavior: SnackBarBehavior.floating,
             backgroundColor: const Color(0xFF10B981),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             content: Text(
               context.tr('assignment_created_success'),
               style: const TextStyle(fontWeight: FontWeight.w800),
@@ -171,11 +175,9 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
     final brandPrimary = AppColors.brandPrimary(context);
     final sheetBg = isDark ? const Color(0xFF0A1238) : Colors.white;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF1F5F9);
-    final borderColor =
-        isDark ? Colors.white12 : const Color(0xFFE2E8F5);
+    final borderColor = isDark ? Colors.white12 : const Color(0xFFE2E8F5);
 
-    final membersAsync =
-        ref.watch(groupMembersStreamProvider(widget.groupId));
+    final membersAsync = ref.watch(groupMembersStreamProvider(widget.groupId));
 
     return Container(
       decoration: BoxDecoration(
@@ -218,7 +220,9 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                         width: 44,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                          color: isDark
+                              ? Colors.white24
+                              : const Color(0xFFCBD5E1),
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
@@ -337,13 +341,17 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide:
-                              BorderSide(color: borderColor, width: 1.2),
+                          borderSide: BorderSide(
+                            color: borderColor,
+                            width: 1.2,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide:
-                              BorderSide(color: brandPrimary, width: 1.8),
+                          borderSide: BorderSide(
+                            color: brandPrimary,
+                            width: 1.8,
+                          ),
                         ),
                       ),
                     ),
@@ -351,9 +359,7 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
 
                     // 3. DATE & TIME PICKER (Deadline for task, Start Date for habit)
                     _buildSectionLabel(
-                      _selectedType == 'task'
-                          ? context.tr('deadline_label')
-                          : context.tr('start_date_label'),
+                      context.tr('deadline_label'),
                       primaryTextColor,
                     ),
                     const SizedBox(height: 8),
@@ -366,8 +372,9 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                               final picked = await showDatePicker(
                                 context: context,
                                 initialDate: _selectedDate,
-                                firstDate: DateTime.now()
-                                    .subtract(const Duration(days: 1)),
+                                firstDate: DateTime.now().subtract(
+                                  const Duration(days: 1),
+                                ),
                                 lastDate: DateTime(2035),
                               );
                               if (picked != null) {
@@ -418,7 +425,8 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                             onTap: () async {
                               final picked = await showTimePicker(
                                 context: context,
-                                initialTime: _selectedTime ??
+                                initialTime:
+                                    _selectedTime ??
                                     const TimeOfDay(hour: 18, minute: 0),
                               );
                               if (picked != null) {
@@ -526,7 +534,7 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                         controller: _targetCountController,
                         keyboardType: TextInputType.number,
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                         style: TextStyle(
                           fontSize: 15,
@@ -558,13 +566,17 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide:
-                                BorderSide(color: borderColor, width: 1.2),
+                            borderSide: BorderSide(
+                              color: borderColor,
+                              width: 1.2,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide:
-                                BorderSide(color: brandPrimary, width: 1.8),
+                            borderSide: BorderSide(
+                              color: brandPrimary,
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -605,14 +617,13 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                       child: ListView.separated(
                         shrinkWrap: true,
                         itemCount: approved.length,
-                        separatorBuilder: (_, _) => Divider(
-                          height: 1,
-                          color: borderColor,
-                        ),
+                        separatorBuilder: (_, _) =>
+                            Divider(height: 1, color: borderColor),
                         itemBuilder: (context, idx) {
                           final member = approved[idx];
-                          final isSelected =
-                              _selectedMemberUids.contains(member.uid);
+                          final isSelected = _selectedMemberUids.contains(
+                            member.uid,
+                          );
 
                           return CheckboxListTile(
                             value: isSelected,
@@ -646,8 +657,8 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                                 color: isSelected
                                     ? brandPrimary
                                     : (isDark
-                                        ? const Color(0xFF1E293B)
-                                        : const Color(0xFFE2E8F0)),
+                                          ? const Color(0xFF1E293B)
+                                          : const Color(0xFFE2E8F0)),
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -661,8 +672,8 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                                     color: isSelected
                                         ? Colors.white
                                         : (isDark
-                                            ? Colors.white
-                                            : const Color(0xFF0F172A)),
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A)),
                                   ),
                                 ),
                               ),
@@ -678,8 +689,9 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                       width: double.infinity,
                       height: 52,
                       child: ElevatedButton(
-                        onPressed:
-                            _isSaving ? null : () => _handleSave(approved),
+                        onPressed: _isSaving
+                            ? null
+                            : () => _handleSave(approved),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: brandPrimary,
                           foregroundColor: Colors.white,
@@ -694,17 +706,15 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                                 height: 22,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
-                                  valueColor:
-                                      AlwaysStoppedAnimation(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.send_rounded,
-                                    size: 18,
-                                  ),
+                                  const Icon(Icons.send_rounded, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
                                     context.tr('assign_now_btn'),
@@ -785,8 +795,7 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                 title,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight:
-                      isSelected ? FontWeight.w900 : FontWeight.w700,
+                  fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
                   color: isSelected
                       ? brandPrimary
                       : (isDark ? Colors.white : const Color(0xFF0F172A)),
@@ -846,8 +855,9 @@ class _AssignmentFormModalState extends ConsumerState<AssignmentFormModal> {
                     title,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight:
-                          isSelected ? FontWeight.w900 : FontWeight.w700,
+                      fontWeight: isSelected
+                          ? FontWeight.w900
+                          : FontWeight.w700,
                       color: isSelected
                           ? brandPrimary
                           : (isDark ? Colors.white : const Color(0xFF0F172A)),

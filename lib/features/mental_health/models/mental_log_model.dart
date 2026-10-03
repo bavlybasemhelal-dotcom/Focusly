@@ -11,7 +11,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// on all 5 radar vertices consistently represents a more favorable/healthy state.
 class MentalLogModel {
   final String id;
-  final String weekOf; // Represents the entry's own calendar date (e.g. '2026-08-25')
+  final String
+  weekOf; // Represents the entry's own calendar date (e.g. '2026-08-25')
   final int anxiety; // 1 to 10 (1 = calm/low anxiety, 10 = high anxiety)
   final int happiness; // 1 to 10
   final int socialEnergy; // 1 to 10
@@ -57,7 +58,9 @@ class MentalLogModel {
   factory MentalLogModel.fromMap(Map<String, dynamic> map, String docId) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 
@@ -68,8 +71,12 @@ class MentalLogModel {
     final rawWeekOf = (map['weekOf'] as String?)?.trim() ?? docId;
     final anxiety = ((map['anxiety'] as num?)?.toInt() ?? 5).clamp(1, 10);
     final happiness = ((map['happiness'] as num?)?.toInt() ?? 5).clamp(1, 10);
-    final socialEnergy = ((map['socialEnergy'] as num?)?.toInt() ?? 5).clamp(1, 10);
-    final selfSatisfaction = ((map['selfSatisfaction'] as num?)?.toInt() ?? 5).clamp(1, 10);
+    final socialEnergy = ((map['socialEnergy'] as num?)?.toInt() ?? 5).clamp(
+      1,
+      10,
+    );
+    final selfSatisfaction = ((map['selfSatisfaction'] as num?)?.toInt() ?? 5)
+        .clamp(1, 10);
     final balance = ((map['balance'] as num?)?.toInt() ?? 5).clamp(1, 10);
 
     return MentalLogModel(

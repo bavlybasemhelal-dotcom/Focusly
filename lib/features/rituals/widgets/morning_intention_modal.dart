@@ -10,10 +10,7 @@ import '../providers/rituals_provider.dart';
 class MorningIntentionModal extends ConsumerStatefulWidget {
   final String? initialIntention;
 
-  const MorningIntentionModal({
-    super.key,
-    this.initialIntention,
-  });
+  const MorningIntentionModal({super.key, this.initialIntention});
 
   static Future<void> show(BuildContext context, {String? initialIntention}) {
     HapticFeedback.lightImpact();
@@ -26,7 +23,8 @@ class MorningIntentionModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<MorningIntentionModal> createState() => _MorningIntentionModalState();
+  ConsumerState<MorningIntentionModal> createState() =>
+      _MorningIntentionModalState();
 }
 
 class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
@@ -37,7 +35,9 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
   @override
   void initState() {
     super.initState();
-    _intentionController = TextEditingController(text: widget.initialIntention ?? '');
+    _intentionController = TextEditingController(
+      text: widget.initialIntention ?? '',
+    );
   }
 
   @override
@@ -59,11 +59,9 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
       _isSaving = true;
     });
 
-    final success = await ref.read(ritualsServiceProvider).setMorningIntention(
-          uid: uid,
-          dateStr: dateStr,
-          intention: intention,
-        );
+    final success = await ref
+        .read(ritualsServiceProvider)
+        .setMorningIntention(uid: uid, dateStr: dateStr, intention: intention);
 
     if (mounted) {
       setState(() {
@@ -73,7 +71,9 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
       if (success) {
         HapticFeedback.mediumImpact();
         // Persist shown today so subsequent app openings do not re-prompt
-        await ref.read(morningIntentionDismissedProvider.notifier).markShownToday();
+        await ref
+            .read(morningIntentionDismissedProvider.notifier)
+            .markShownToday();
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +81,9 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
             content: Text(context.tr('morning_intention_saved_toast')),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -167,15 +169,23 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
                           ),
                           Text(
                             context.tr('morning_intention_subtitle'),
-                            style: TextStyle(fontSize: 12, color: secondaryTextColor),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: secondaryTextColor,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close_rounded, color: secondaryTextColor),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: secondaryTextColor,
+                      ),
                       onPressed: () {
-                        ref.read(morningIntentionDismissedProvider.notifier).dismiss();
+                        ref
+                            .read(morningIntentionDismissedProvider.notifier)
+                            .dismiss();
                         Navigator.of(context).pop();
                       },
                     ),
@@ -211,7 +221,10 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFFF59E0B), width: 1.8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFFF59E0B),
+                        width: 1.8,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.all(16),
                   ),
@@ -257,7 +270,9 @@ class _MorningIntentionModalState extends ConsumerState<MorningIntentionModal> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : Text(

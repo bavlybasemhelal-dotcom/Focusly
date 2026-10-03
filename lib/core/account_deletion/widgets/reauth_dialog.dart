@@ -1,7 +1,9 @@
+import '../../platform/desktop_bridge.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import '../../auth/google_auth_service.dart';
 import '../../localization/app_localizations.dart';
 import '../../theme/app_colors.dart';
 import '../account_deletion_service.dart';
@@ -11,10 +13,7 @@ import '../account_deletion_service.dart';
 class ReauthDialog extends StatefulWidget {
   final ReauthenticationRequiredException exception;
 
-  const ReauthDialog({
-    super.key,
-    required this.exception,
-  });
+  const ReauthDialog({super.key, required this.exception});
 
   @override
   State<ReauthDialog> createState() => _ReauthDialogState();
@@ -33,7 +32,7 @@ class _ReauthDialogState extends State<ReauthDialog> {
   }
 
   Future<void> _reauthWithPassword() async {
-    final password = _passwordController.text.trim();
+    final password = _passwordController.text;
     if (password.isEmpty) return;
 
     final user = FirebaseAuth.instance.currentUser;
@@ -56,10 +55,7 @@ class _ReauthDialogState extends State<ReauthDialog> {
       // Signing in with the existing email and password updates currentUser's auth token
       // and establishes a fresh recent sign-in timestamp.
       await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-            email: email.trim(),
-            password: password,
-          )
+          .signInWithEmailAndPassword(email: email.trim(), password: password)
           .timeout(const Duration(seconds: 12));
 
       if (!mounted) return;
@@ -68,7 +64,8 @@ class _ReauthDialogState extends State<ReauthDialog> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = e.code == 'wrong-password' || e.code == 'invalid-credential'
+        _errorMessage =
+            e.code == 'wrong-password' || e.code == 'invalid-credential'
             ? context.tr('reauth_failed')
             : (e.message ?? context.tr('error'));
       });
@@ -100,26 +97,34 @@ class _ReauthDialogState extends State<ReauthDialog> {
     });
 
     try {
-      final googleSignIn = GoogleSignIn(scopes: const ['email', 'profile']);
-      final googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        // User cancelled Google picker
-        if (!mounted) return;
-        setState(() {
-          _isLoading = false;
-        });
-        return;
+      final auth = FirebaseAuth.instance;
+      final user = auth.currentUser;
+      if (user == null) throw StateError('No active session');
+      final expectedUid = user.uid;
+      if (kIsWeb && !DesktopBridge.available) {
+        await user.reauthenticateWithPopup(
+          GoogleAuthProvider()
+            ..setCustomParameters({'prompt': 'select_account'}),
+        );
+      } else {
+        final credential = await GoogleAuthService().getGoogleCredential();
+        if (credential == null) {
+          // User cancelled Google picker
+          if (!mounted) return;
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+
+        await auth
+            .signInWithCredential(credential)
+            .timeout(const Duration(seconds: 15));
       }
-
-      final googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await FirebaseAuth.instance
-          .signInWithCredential(credential)
-          .timeout(const Duration(seconds: 15));
+      if (auth.currentUser?.uid != expectedUid) {
+        await auth.signOut();
+        throw StateError('Please verify using the original Google account');
+      }
 
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -155,9 +160,12 @@ class _ReauthDialogState extends State<ReauthDialog> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dialogBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final primaryTextColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final secondaryTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final secondaryTextColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
 
-    final hasPassword = widget.exception.hasPasswordProvider ||
+    final hasPassword =
+        widget.exception.hasPasswordProvider ||
         widget.exception.providerIds.isEmpty;
     final hasGoogle = widget.exception.hasGoogleProvider;
 
@@ -332,10 +340,8 @@ class _ReauthDialogState extends State<ReauthDialog> {
                 icon: Image.asset(
                   'assets/images/google_logo.png',
                   height: 18,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.account_circle,
-                    size: 18,
-                  ),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.account_circle, size: 18),
                 ),
                 label: Text(context.tr('reauth_google_btn')),
                 style: OutlinedButton.styleFrom(

@@ -10,7 +10,6 @@ import 'package:focusly/features/energy_mood/models/checkin_model.dart';
 import 'package:focusly/features/energy_mood/providers/energy_mood_provider.dart';
 import 'package:focusly/features/life_analytics/helpers/life_analytics_helpers.dart';
 import 'package:focusly/features/life_analytics/life_analytics_page.dart';
-import 'package:focusly/features/life_analytics/providers/life_analytics_provider.dart';
 import 'package:focusly/features/rituals/providers/rituals_provider.dart';
 import 'package:focusly/features/tasks/models/task_model.dart';
 import 'package:focusly/features/tasks/providers/tasks_provider.dart';

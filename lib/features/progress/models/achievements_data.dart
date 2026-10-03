@@ -190,7 +190,9 @@ class AchievementsData {
       emoji: '⏳',
       checkCondition: (ctx) {
         final totalMins = ctx.pomodoroLogs.fold<int>(
-            0, (sum, item) => sum + item.durationMinutes);
+          0,
+          (sum, item) => sum + item.durationMinutes,
+        );
         return totalMins >= 60;
       },
     ),
@@ -202,7 +204,9 @@ class AchievementsData {
       emoji: '🧘',
       checkCondition: (ctx) {
         final totalMins = ctx.pomodoroLogs.fold<int>(
-            0, (sum, item) => sum + item.durationMinutes);
+          0,
+          (sum, item) => sum + item.durationMinutes,
+        );
         return totalMins >= 300;
       },
     ),
@@ -330,8 +334,8 @@ class AchievementsData {
       titleKey: 'achieve_night_owl_title',
       descKey: 'achieve_night_owl_desc',
       emoji: '🦉',
-      checkCondition: (ctx) => ctx.tasks.any((t) =>
-          t.createdAt.hour >= 0 && t.createdAt.hour < 5),
+      checkCondition: (ctx) =>
+          ctx.tasks.any((t) => t.createdAt.hour >= 0 && t.createdAt.hour < 5),
     ),
     AchievementModel(
       id: 'special_early_bird',
@@ -339,8 +343,8 @@ class AchievementsData {
       titleKey: 'achieve_early_bird_title',
       descKey: 'achieve_early_bird_desc',
       emoji: '🌅',
-      checkCondition: (ctx) => ctx.tasks.any((t) =>
-          t.createdAt.hour >= 5 && t.createdAt.hour < 7),
+      checkCondition: (ctx) =>
+          ctx.tasks.any((t) => t.createdAt.hour >= 5 && t.createdAt.hour < 7),
     ),
     AchievementModel(
       id: 'special_perfect_week',

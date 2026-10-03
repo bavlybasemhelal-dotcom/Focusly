@@ -60,7 +60,9 @@ class WeeklyFocusChart extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.2 : 0.12),
+                      color: const Color(
+                        0xFF10B981,
+                      ).withValues(alpha: isDark ? 0.2 : 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -82,9 +84,14 @@ class WeeklyFocusChart extends StatelessWidget {
               ),
               if (stats.bestDayMinutes > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.2 : 0.12),
+                    color: const Color(
+                      0xFFF59E0B,
+                    ).withValues(alpha: isDark ? 0.2 : 0.12),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: const Color(0xFFF59E0B).withValues(alpha: 0.4),
@@ -119,7 +126,8 @@ class WeeklyFocusChart extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: List.generate(7, (index) {
                 final mins = weeklyMins[index];
-                final isBest = stats.bestDayMinutes > 0 && index == stats.bestDayIndex;
+                final isBest =
+                    stats.bestDayMinutes > 0 && index == stats.bestDayIndex;
                 final heightFactor = (mins / maxMins).clamp(0.06, 1.0);
 
                 return Column(
@@ -132,7 +140,9 @@ class WeeklyFocusChart extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: isBest ? const Color(0xFFF59E0B) : secondaryTextColor,
+                          color: isBest
+                              ? const Color(0xFFF59E0B)
+                              : secondaryTextColor,
                         ),
                       )
                     else
@@ -152,18 +162,20 @@ class WeeklyFocusChart extends StatelessWidget {
                                 end: Alignment.bottomCenter,
                               )
                             : (mins > 0
-                                ? AppColors.primaryGradient(context)
-                                : null),
+                                  ? AppColors.primaryGradient(context)
+                                  : null),
                         color: mins == 0
                             ? (isDark
-                                ? Colors.white10
-                                : const Color(0xFFF1F5F9))
+                                  ? Colors.white10
+                                  : const Color(0xFFF1F5F9))
                             : null,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: isBest
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+                                  color: const Color(
+                                    0xFFF59E0B,
+                                  ).withValues(alpha: 0.35),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -181,7 +193,9 @@ class WeeklyFocusChart extends StatelessWidget {
                         fontSize: 11,
                         fontWeight: isBest ? FontWeight.w900 : FontWeight.w700,
                         color: isBest
-                            ? (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706))
+                            ? (isDark
+                                  ? const Color(0xFFFBBF24)
+                                  : const Color(0xFFD97706))
                             : secondaryTextColor,
                       ),
                     ),

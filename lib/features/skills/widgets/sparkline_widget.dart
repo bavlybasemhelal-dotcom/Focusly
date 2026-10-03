@@ -21,10 +21,7 @@ class SparklineWidget extends StatelessWidget {
       width: width,
       height: height,
       child: CustomPaint(
-        painter: _SparklinePainter(
-          history: history,
-          color: color,
-        ),
+        painter: _SparklinePainter(history: history, color: color),
       ),
     );
   }
@@ -34,16 +31,15 @@ class _SparklinePainter extends CustomPainter {
   final List<int> history;
   final Color color;
 
-  _SparklinePainter({
-    required this.history,
-    required this.color,
-  });
+  _SparklinePainter({required this.history, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (history.isEmpty) return;
 
-    final data = history.length == 7 ? history : List<int>.filled(7, history.last);
+    final data = history.length == 7
+        ? history
+        : List<int>.filled(7, history.last);
 
     int minVal = data[0];
     int maxVal = data[0];
@@ -77,10 +73,7 @@ class _SparklinePainter extends CustomPainter {
 
     final fillPaint = Paint()
       ..shader = LinearGradient(
-        colors: [
-          color.withValues(alpha: 0.35),
-          color.withValues(alpha: 0.0),
-        ],
+        colors: [color.withValues(alpha: 0.35), color.withValues(alpha: 0.0)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
@@ -104,16 +97,8 @@ class _SparklinePainter extends CustomPainter {
 
     // 3. Highlight the final point (Today's snapshot)
     final lastPoint = points.last;
-    canvas.drawCircle(
-      lastPoint,
-      4.0,
-      Paint()..color = color,
-    );
-    canvas.drawCircle(
-      lastPoint,
-      1.8,
-      Paint()..color = Colors.white,
-    );
+    canvas.drawCircle(lastPoint, 4.0, Paint()..color = color);
+    canvas.drawCircle(lastPoint, 1.8, Paint()..color = Colors.white);
   }
 
   @override

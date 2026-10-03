@@ -26,7 +26,9 @@ class SocialBatterySummary {
 /// Pure helper functions for Social Battery aggregations.
 class SocialBatteryHelpers {
   /// Computes the net energy balance and counts from a list of entries.
-  static SocialBatterySummary calculateSummary(List<SocialBatteryEntryModel> entries) {
+  static SocialBatterySummary calculateSummary(
+    List<SocialBatteryEntryModel> entries,
+  ) {
     int energizersCount = 0;
     int drainersCount = 0;
     int totalEnergizerImpact = 0;

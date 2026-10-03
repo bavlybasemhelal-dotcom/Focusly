@@ -14,6 +14,7 @@ class AddEditTaskSheet extends ConsumerStatefulWidget {
   final TaskModel? taskToEdit;
   final EisenhowerQuadrant? initialQuadrant;
   final String? initialTitle;
+  final String? originalInboxItemId;
   final String? initialProjectId;
 
   const AddEditTaskSheet({
@@ -21,6 +22,7 @@ class AddEditTaskSheet extends ConsumerStatefulWidget {
     this.taskToEdit,
     this.initialQuadrant,
     this.initialTitle,
+    this.originalInboxItemId,
     this.initialProjectId,
   });
 
@@ -63,14 +65,16 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
   String? _selectedSkillId;
 
   bool _isSaving = false;
+  String? _saveError;
 
   @override
   void initState() {
     super.initState();
     final task = widget.taskToEdit;
 
-    _titleController =
-        TextEditingController(text: task?.title ?? (widget.initialTitle ?? ''));
+    _titleController = TextEditingController(
+      text: task?.title ?? (widget.initialTitle ?? ''),
+    );
     _notesController = TextEditingController(text: task?.notes ?? '');
     _selectedCategoryId = task?.categoryId ?? 'work';
     _selectedPriority = task?.priority ?? TaskPriority.medium;
@@ -113,10 +117,12 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
   }
 
   Future<void> _handleSave() async {
+    if (_isSaving) return;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isSaving = true;
+      _saveError = null;
     });
 
     final title = _titleController.text.trim();
@@ -126,44 +132,61 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
 
     final controller = ref.read(tasksControllerProvider);
 
-    if (widget.taskToEdit != null) {
-      final updated = widget.taskToEdit!.copyWith(
-        title: title,
-        notes: notes,
-        categoryId: _selectedCategoryId,
-        priority: _selectedPriority,
-        date: _selectedDate,
-        time: _selectedTime,
-        deadline: _selectedDeadline,
-        projectId: _selectedProjectId,
-        skillId: _selectedSkillId,
-        clearTime: _selectedTime == null,
-        clearDeadline: _selectedDeadline == null,
-        clearProjectId: _selectedProjectId == null,
-        clearSkillId: _selectedSkillId == null,
-      );
-      await controller.updateTask(updated, context);
-    } else {
-      final newTask = TaskModel(
-        id: '',
-        title: title,
-        notes: notes,
-        categoryId: _selectedCategoryId,
-        priority: _selectedPriority,
-        date: _selectedDate,
-        time: _selectedTime,
-        deadline: _selectedDeadline,
-        done: false,
-        subtasks: const [],
-        createdAt: DateTime.now(),
-        projectId: _selectedProjectId,
-        skillId: _selectedSkillId,
-      );
-      await controller.addTask(newTask, context);
-    }
+    try {
+      if (widget.taskToEdit != null) {
+        final updated = widget.taskToEdit!.copyWith(
+          title: title,
+          notes: notes,
+          categoryId: _selectedCategoryId,
+          priority: _selectedPriority,
+          date: _selectedDate,
+          time: _selectedTime,
+          deadline: _selectedDeadline,
+          projectId: _selectedProjectId,
+          skillId: _selectedSkillId,
+          clearTime: _selectedTime == null,
+          clearNotes: notes == null,
+          clearDeadline: _selectedDeadline == null,
+          clearProjectId: _selectedProjectId == null,
+          clearSkillId: _selectedSkillId == null,
+        );
+        if (!await controller.updateTask(updated, context)) {
+          throw StateError('Task update failed');
+        }
+      } else {
+        final newTask = TaskModel(
+          id: '',
+          title: title,
+          notes: notes,
+          categoryId: _selectedCategoryId,
+          priority: _selectedPriority,
+          date: _selectedDate,
+          time: _selectedTime,
+          deadline: _selectedDeadline,
+          done: false,
+          subtasks: const [],
+          createdAt: DateTime.now(),
+          projectId: _selectedProjectId,
+          skillId: _selectedSkillId,
+        );
+        if (!await controller.addTask(
+          newTask,
+          context,
+          inboxId: widget.originalInboxItemId,
+        )) {
+          throw StateError('Task creation failed');
+        }
+      }
 
-    if (mounted) {
-      Navigator.of(context).pop(true);
+      if (mounted) {
+        Navigator.of(context).pop(true);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _saveError = context.tr('task_save_error'));
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -195,7 +218,10 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
               ),
               title: Text(
                 context.tr('add_category_title'),
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -207,7 +233,9 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     decoration: InputDecoration(
                       hintText: context.tr('category_name_hint'),
                       filled: true,
-                      fillColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                      fillColor: isDark
+                          ? const Color(0xFF08123A)
+                          : const Color(0xFFF1F5F9),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -217,7 +245,10 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                   const SizedBox(height: 16),
                   Text(
                     context.tr('select_color'),
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -243,14 +274,20 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
-                                      color: Color(colorVal).withValues(alpha: 0.5),
+                                      color: Color(
+                                        colorVal,
+                                      ).withValues(alpha: 0.5),
                                       blurRadius: 8,
                                     ),
                                   ]
                                 : null,
                           ),
                           child: isSelected
-                              ? const Icon(Icons.check, size: 18, color: Colors.white)
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 18,
+                                  color: Colors.white,
+                                )
                               : null,
                         ),
                       );
@@ -302,7 +339,8 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
     final borderColor = AppColors.border(context);
 
     final categoriesAsync = ref.watch(categoriesProvider);
-    final categoriesList = categoriesAsync.value ?? TaskCategory.defaultCategories;
+    final categoriesList =
+        categoriesAsync.value ?? TaskCategory.defaultCategories;
     final isLocked = widget.taskToEdit?.locked == true;
 
     return Container(
@@ -322,6 +360,19 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (_saveError != null)
+                  Semantics(
+                    liveRegion: true,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        _saveError!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ),
                 // Modal Drag Handle
                 Center(
                   child: Container(
@@ -362,9 +413,14 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                 if (isLocked) ...[
                   Container(
                     margin: const EdgeInsets.only(bottom: 14),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.2 : 0.1),
+                      color: const Color(
+                        0xFF0284C7,
+                      ).withValues(alpha: isDark ? 0.2 : 0.1),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: const Color(0xFF0284C7).withValues(alpha: 0.35),
@@ -372,7 +428,11 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.group_rounded, size: 18, color: Color(0xFF0284C7)),
+                        const Icon(
+                          Icons.group_rounded,
+                          size: 18,
+                          color: Color(0xFF0284C7),
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -390,13 +450,19 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                                 context.tr('locked_field_tooltip'),
                                 style: TextStyle(
                                   fontSize: 10.5,
-                                  color: isDark ? Colors.white70 : const Color(0xFF334155),
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF334155),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const Icon(Icons.lock_rounded, size: 16, color: Color(0xFF0284C7)),
+                        const Icon(
+                          Icons.lock_rounded,
+                          size: 16,
+                          color: Color(0xFF0284C7),
+                        ),
                       ],
                     ),
                   ),
@@ -427,21 +493,33 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     filled: true,
                     fillColor: isLocked
                         ? (isDark ? Colors.white10 : const Color(0xFFE2E8F0))
-                        : (isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC)),
+                        : (isDark
+                              ? const Color(0xFF08123A)
+                              : const Color(0xFFF8FAFC)),
                     suffixIcon: isLocked
                         ? Tooltip(
                             message: context.tr('locked_field_tooltip'),
-                            child: const Icon(Icons.lock_rounded, size: 18, color: Colors.grey),
+                            child: const Icon(
+                              Icons.lock_rounded,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
                           )
                         : null,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 15,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor, width: 1.2),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: isLocked ? borderColor : brandPrimary, width: 1.8),
+                      borderSide: BorderSide(
+                        color: isLocked ? borderColor : brandPrimary,
+                        width: 1.8,
+                      ),
                     ),
                   ),
                 ),
@@ -459,8 +537,13 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                       fontSize: 13,
                     ),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    fillColor: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor, width: 1.2),
@@ -474,7 +557,10 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                 const SizedBox(height: 20),
 
                 // 3. Quick Eisenhower Matrix Quadrant Selector
-                _buildFieldLabel(context.tr('quick_quadrant_select'), primaryTextColor),
+                _buildFieldLabel(
+                  context.tr('quick_quadrant_select'),
+                  primaryTextColor,
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -483,9 +569,14 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     return GestureDetector(
                       onTap: () => _applyQuadrantQuickSelect(quadrant),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 7,
+                        ),
                         decoration: BoxDecoration(
-                          color: quadrant.accentColor.withValues(alpha: isDark ? 0.18 : 0.12),
+                          color: quadrant.accentColor.withValues(
+                            alpha: isDark ? 0.18 : 0.12,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: quadrant.accentColor.withValues(alpha: 0.4),
@@ -495,7 +586,11 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(quadrant.badgeIcon, size: 14, color: quadrant.accentColor),
+                            Icon(
+                              quadrant.badgeIcon,
+                              size: 14,
+                              color: quadrant.accentColor,
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               context.tr(quadrant.titleKey),
@@ -522,21 +617,29 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     children: [
                       ...categoriesList.map((cat) {
                         final isSelected = _selectedCategoryId == cat.id;
-                        final catName = cat.isDefault ? context.tr(cat.nameKey) : cat.nameKey;
+                        final catName = cat.isDefault
+                            ? context.tr(cat.nameKey)
+                            : cat.nameKey;
                         return Padding(
                           padding: const EdgeInsetsDirectional.only(end: 8.0),
                           child: ChoiceChip(
                             label: Text(catName),
                             labelStyle: TextStyle(
                               fontSize: 13,
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              fontWeight: isSelected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
                               color: isSelected
                                   ? Colors.white
-                                  : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
+                                  : (isDark
+                                        ? Colors.white70
+                                        : AppColors.lightTextPrimary),
                             ),
                             selected: isSelected,
                             selectedColor: cat.color,
-                            backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                            backgroundColor: isDark
+                                ? const Color(0xFF08123A)
+                                : const Color(0xFFF1F5F9),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
@@ -591,11 +694,17 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? priority.color.withValues(alpha: isDark ? 0.25 : 0.15)
-                                  : (isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC)),
+                                  ? priority.color.withValues(
+                                      alpha: isDark ? 0.25 : 0.15,
+                                    )
+                                  : (isDark
+                                        ? const Color(0xFF08123A)
+                                        : const Color(0xFFF8FAFC)),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected ? priority.color : borderColor,
+                                color: isSelected
+                                    ? priority.color
+                                    : borderColor,
                                 width: isSelected ? 1.8 : 1.2,
                               ),
                             ),
@@ -616,8 +725,12 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                                     context.tr(priority.titleKey),
                                     style: TextStyle(
                                       fontSize: 13,
-                                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                      color: isSelected ? priority.color : secondaryTextColor,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w800
+                                          : FontWeight.w600,
+                                      color: isSelected
+                                          ? priority.color
+                                          : secondaryTextColor,
                                     ),
                                   ),
                                 ],
@@ -676,7 +789,9 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                         icon: isLocked
                             ? Icons.lock_outline_rounded
                             : Icons.access_time_rounded,
-                        color: isLocked ? secondaryTextColor : const Color(0xFF0EA5E9),
+                        color: isLocked
+                            ? secondaryTextColor
+                            : const Color(0xFF0EA5E9),
                         isDark: isDark,
                         borderColor: borderColor,
                         hasClear: isLocked ? false : _selectedTime != null,
@@ -731,7 +846,9 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                       : () async {
                           final pickedDate = await showDatePicker(
                             context: context,
-                            initialDate: _selectedDeadline ?? DateTime.now().add(const Duration(days: 1)),
+                            initialDate:
+                                _selectedDeadline ??
+                                DateTime.now().add(const Duration(days: 1)),
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2035),
                           );
@@ -755,7 +872,10 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                         },
                 ),
                 // Optional PARA Project Link
-                _buildFieldLabel(context.tr('link_to_project_label'), primaryTextColor),
+                _buildFieldLabel(
+                  context.tr('link_to_project_label'),
+                  primaryTextColor,
+                ),
                 const SizedBox(height: 8),
                 Consumer(
                   builder: (context, ref, _) {
@@ -765,15 +885,24 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                       data: (projects) {
                         if (projects.isEmpty) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                              color: isDark
+                                  ? const Color(0xFF08123A)
+                                  : const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: borderColor),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.folder_outlined, color: secondaryTextColor, size: 18),
+                                Icon(
+                                  Icons.folder_outlined,
+                                  color: secondaryTextColor,
+                                  size: 18,
+                                ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
@@ -791,26 +920,43 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                         }
 
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                            color: isDark
+                                ? const Color(0xFF08123A)
+                                : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: borderColor),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String?>(
-                              value: projects.any((p) => p.id == _selectedProjectId)
+                              value:
+                                  projects.any(
+                                    (p) => p.id == _selectedProjectId,
+                                  )
                                   ? _selectedProjectId
                                   : null,
                               isExpanded: true,
-                              dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                              dropdownColor: isDark
+                                  ? const Color(0xFF0F1B4C)
+                                  : Colors.white,
                               hint: Row(
                                 children: [
-                                  Icon(Icons.folder_outlined, color: secondaryTextColor, size: 18),
+                                  Icon(
+                                    Icons.folder_outlined,
+                                    color: secondaryTextColor,
+                                    size: 18,
+                                  ),
                                   const SizedBox(width: 8),
                                   Text(
                                     context.tr('no_project_linked'),
-                                    style: TextStyle(color: secondaryTextColor, fontSize: 13),
+                                    style: TextStyle(
+                                      color: secondaryTextColor,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -819,7 +965,10 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                                   value: null,
                                   child: Text(
                                     context.tr('no_project_linked'),
-                                    style: TextStyle(color: secondaryTextColor, fontSize: 13),
+                                    style: TextStyle(
+                                      color: secondaryTextColor,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                                 ...projects.map((p) {
@@ -827,7 +976,11 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                                     value: p.id,
                                     child: Row(
                                       children: [
-                                        const Icon(Icons.folder_special_rounded, color: Color(0xFF2E6FF2), size: 18),
+                                        const Icon(
+                                          Icons.folder_special_rounded,
+                                          color: Color(0xFF2E6FF2),
+                                          size: 18,
+                                        ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
@@ -863,7 +1016,10 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                 // =========================================================
                 // Optional Link to Skill (Skills Board Feature)
                 // =========================================================
-                _buildFieldLabel(context.tr('link_to_skill_label'), primaryTextColor),
+                _buildFieldLabel(
+                  context.tr('link_to_skill_label'),
+                  primaryTextColor,
+                ),
                 const SizedBox(height: 8),
                 Consumer(
                   builder: (context, ref, _) {
@@ -872,9 +1028,14 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     return skillsAsync.when(
                       data: (skills) {
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                            color: isDark
+                                ? const Color(0xFF08123A)
+                                : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: borderColor),
                           ),
@@ -884,14 +1045,23 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                                   ? _selectedSkillId
                                   : null,
                               isExpanded: true,
-                              dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                              dropdownColor: isDark
+                                  ? const Color(0xFF0F1B4C)
+                                  : Colors.white,
                               hint: Row(
                                 children: [
-                                  Icon(Icons.psychology_outlined, color: secondaryTextColor, size: 18),
+                                  Icon(
+                                    Icons.psychology_outlined,
+                                    color: secondaryTextColor,
+                                    size: 18,
+                                  ),
                                   const SizedBox(width: 8),
                                   Text(
                                     context.tr('no_skill_linked'),
-                                    style: TextStyle(color: secondaryTextColor, fontSize: 13),
+                                    style: TextStyle(
+                                      color: secondaryTextColor,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -900,7 +1070,10 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                                   value: null,
                                   child: Text(
                                     context.tr('no_skill_linked'),
-                                    style: TextStyle(color: secondaryTextColor, fontSize: 13),
+                                    style: TextStyle(
+                                      color: secondaryTextColor,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                                 ...skills.map((s) {
@@ -970,7 +1143,9 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
+                      foregroundColor: isDark
+                          ? const Color(0xFF060B24)
+                          : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -980,7 +1155,9 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                             width: 22,
                             height: 22,
                             child: CircularProgressIndicator(
-                              color: isDark ? const Color(0xFF060B24) : Colors.white,
+                              color: isDark
+                                  ? const Color(0xFF060B24)
+                                  : Colors.white,
                               strokeWidth: 2.5,
                             ),
                           )
@@ -1007,11 +1184,7 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
   Widget _buildFieldLabel(String text, Color color) {
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        color: color,
-      ),
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: color),
     );
   }
 
@@ -1069,7 +1242,11 @@ class _AddEditTaskSheetState extends ConsumerState<AddEditTaskSheet> {
                 onTap: onClear,
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: Icon(Icons.clear_rounded, size: 16, color: Colors.grey.shade500),
+                  child: Icon(
+                    Icons.clear_rounded,
+                    size: 16,
+                    color: Colors.grey.shade500,
+                  ),
                 ),
               ),
           ],

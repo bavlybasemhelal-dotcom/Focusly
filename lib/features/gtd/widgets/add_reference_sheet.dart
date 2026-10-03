@@ -38,7 +38,9 @@ class _AddReferenceSheetState extends State<AddReferenceSheet> {
 
     setState(() => _isSaving = true);
     final title = _titleController.text.trim();
-    final notes = _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null;
+    final notes = _notesController.text.trim().isNotEmpty
+        ? _notesController.text.trim()
+        : null;
 
     await GTDService().createReferenceTask(title, notes: notes);
 
@@ -92,7 +94,11 @@ class _AddReferenceSheetState extends State<AddReferenceSheet> {
                         color: const Color(0xFF38BDF8).withValues(alpha: 0.14),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.bookmark_outline_rounded, color: Color(0xFF38BDF8), size: 20),
+                      child: const Icon(
+                        Icons.bookmark_outline_rounded,
+                        color: Color(0xFF38BDF8),
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -110,23 +116,40 @@ class _AddReferenceSheetState extends State<AddReferenceSheet> {
                 // Note Title
                 Text(
                   context.tr('reference_title_label'),
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: secondaryTextColor),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: secondaryTextColor,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Container(
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                    color: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F5)),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : const Color(0xFFE2E8F5),
+                    ),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: TextFormField(
                     controller: _titleController,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? context.tr('field_required') : null,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? context.tr('field_required')
+                        : null,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: primaryTextColor,
+                    ),
                     decoration: InputDecoration(
                       hintText: context.tr('reference_title_hint'),
-                      hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor),
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: secondaryTextColor,
+                      ),
                       border: InputBorder.none,
                     ),
                   ),
@@ -136,23 +159,41 @@ class _AddReferenceSheetState extends State<AddReferenceSheet> {
                 // Reference Details / Link / Info
                 Text(
                   context.tr('reference_notes_label'),
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: secondaryTextColor),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: secondaryTextColor,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Container(
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                    color: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F5)),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : const Color(0xFFE2E8F5),
+                    ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 4,
+                  ),
                   child: TextFormField(
                     controller: _notesController,
                     maxLines: 3,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: primaryTextColor),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: primaryTextColor,
+                    ),
                     decoration: InputDecoration(
                       hintText: context.tr('reference_notes_hint'),
-                      hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor),
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: secondaryTextColor,
+                      ),
                       border: InputBorder.none,
                     ),
                   ),
@@ -167,14 +208,19 @@ class _AddReferenceSheetState extends State<AddReferenceSheet> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF38BDF8),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       elevation: 0,
                     ),
                     child: _isSaving
                         ? const CircularProgressIndicator(color: Colors.white)
                         : Text(
                             context.tr('add_reference_btn'),
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                   ),
                 ),

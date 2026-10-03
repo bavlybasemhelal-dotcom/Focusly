@@ -20,8 +20,6 @@ class NutritionLogPage extends ConsumerWidget {
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
-    final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
 
     final allLogsAsync = ref.watch(nutritionLogsStreamProvider);
 
@@ -59,7 +57,10 @@ class NutritionLogPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF10B981)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF10B981),
+            ),
             tooltip: context.tr('nutrition_add_log_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -102,7 +103,10 @@ class NutritionLogPage extends ConsumerWidget {
             return Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -112,17 +116,16 @@ class NutritionLogPage extends ConsumerWidget {
                       height: 90,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.15 : 0.1),
+                        color: const Color(
+                          0xFF10B981,
+                        ).withValues(alpha: isDark ? 0.15 : 0.1),
                         border: Border.all(
                           color: const Color(0xFF10B981).withValues(alpha: 0.3),
                           width: 2,
                         ),
                       ),
                       child: const Center(
-                        child: Text(
-                          '🥗',
-                          style: TextStyle(fontSize: 44),
-                        ),
+                        child: Text('🥗', style: TextStyle(fontSize: 44)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -159,7 +162,10 @@ class NutritionLogPage extends ConsumerWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF10B981),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -211,10 +217,7 @@ class NutritionLogPage extends ConsumerWidget {
                       const SizedBox(width: 24),
 
                       // Right Column: Weekly Comparison
-                      const Expanded(
-                        flex: 2,
-                        child: WeeklyComparisonCard(),
-                      ),
+                      const Expanded(flex: 2, child: WeeklyComparisonCard()),
                     ],
                   ),
                 );

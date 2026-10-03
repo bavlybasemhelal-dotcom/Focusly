@@ -2,10 +2,26 @@ import 'package:flutter/material.dart';
 
 /// Available date range options for PDF productivity reports.
 enum ReportRangeOption {
-  weekly(daysCount: 7, titleKey: 'report_range_weekly', icon: Icons.calendar_view_week_rounded),
-  monthly(daysCount: 30, titleKey: 'report_range_monthly', icon: Icons.calendar_month_rounded),
-  semiAnnual(daysCount: 180, titleKey: 'report_range_semi_annual', icon: Icons.date_range_rounded),
-  annual(daysCount: 365, titleKey: 'report_range_annual', icon: Icons.event_note_rounded);
+  weekly(
+    daysCount: 7,
+    titleKey: 'report_range_weekly',
+    icon: Icons.calendar_view_week_rounded,
+  ),
+  monthly(
+    daysCount: 30,
+    titleKey: 'report_range_monthly',
+    icon: Icons.calendar_month_rounded,
+  ),
+  semiAnnual(
+    daysCount: 180,
+    titleKey: 'report_range_semi_annual',
+    icon: Icons.date_range_rounded,
+  ),
+  annual(
+    daysCount: 365,
+    titleKey: 'report_range_annual',
+    icon: Icons.event_note_rounded,
+  );
 
   final int daysCount;
   final String titleKey;

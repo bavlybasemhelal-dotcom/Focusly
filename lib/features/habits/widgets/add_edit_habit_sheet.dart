@@ -34,8 +34,9 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
     super.initState();
     final habit = widget.habitToEdit;
     _titleController = TextEditingController(text: habit?.title ?? '');
-    _stackTriggerController =
-        TextEditingController(text: habit?.stackTrigger ?? '');
+    _stackTriggerController = TextEditingController(
+      text: habit?.stackTrigger ?? '',
+    );
     _selectedTime = habit?.time;
     _resetDay = habit?.resetDay ?? DateTime.saturday;
     _autoReset = habit?.autoReset ?? true;
@@ -49,7 +50,7 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
   }
 
   Future<void> _handleSave() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_isSaving || !_formKey.currentState!.validate()) return;
 
     setState(() {
       _isSaving = true;
@@ -60,35 +61,49 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
         ? _stackTriggerController.text.trim()
         : null;
 
-    final controller = ref.read(habitsControllerProvider);
+    try {
+      final controller = ref.read(habitsControllerProvider);
 
-    if (widget.habitToEdit != null) {
-      final updated = widget.habitToEdit!.copyWith(
-        title: title,
-        stackTrigger: stackTrigger,
-        clearStackTrigger: stackTrigger == null,
-        time: _selectedTime,
-        clearTime: _selectedTime == null,
-        resetDay: _resetDay,
-        autoReset: _autoReset,
-      );
-      if (!mounted) return;
-      await controller.updateHabit(updated, context);
-    } else {
-      final newHabit = HabitModel.create(
-        id: '',
-        title: title,
-        stackTrigger: stackTrigger,
-        time: _selectedTime,
-        resetDay: _resetDay,
-        autoReset: _autoReset,
-      );
-      if (!mounted) return;
-      await controller.addHabit(newHabit, context);
-    }
+      if (widget.habitToEdit != null) {
+        final updated = widget.habitToEdit!.copyWith(
+          title: title,
+          stackTrigger: stackTrigger,
+          clearStackTrigger: stackTrigger == null,
+          time: _selectedTime,
+          clearTime: _selectedTime == null,
+          resetDay: _resetDay,
+          autoReset: _autoReset,
+        );
+        if (!mounted) return;
+        if (!await controller.updateHabit(updated, context)) {
+          throw StateError('Save failed');
+        }
+      } else {
+        final newHabit = HabitModel.create(
+          id: '',
+          title: title,
+          stackTrigger: stackTrigger,
+          time: _selectedTime,
+          resetDay: _resetDay,
+          autoReset: _autoReset,
+        );
+        if (!mounted) return;
+        if (!await controller.addHabit(newHabit, context)) {
+          throw StateError('Save failed');
+        }
+      }
 
-    if (mounted) {
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr('habit_error_saving'))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -104,9 +119,7 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                     primary: Color(0xFF38BDF8),
                     surface: Color(0xFF0F1B4C),
                   )
-                : const ColorScheme.light(
-                    primary: Color(0xFF2E6FF2),
-                  ),
+                : const ColorScheme.light(primary: Color(0xFF2E6FF2)),
           ),
           child: child!,
         );
@@ -179,9 +192,7 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isEdit
-                        ? context.tr('edit_habit')
-                        : context.tr('new_habit'),
+                    isEdit ? context.tr('edit_habit') : context.tr('new_habit'),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
@@ -201,9 +212,14 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
               if (isLocked) ...[
                 Container(
                   margin: const EdgeInsets.only(bottom: 14),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.2 : 0.1),
+                    color: const Color(
+                      0xFF0284C7,
+                    ).withValues(alpha: isDark ? 0.2 : 0.1),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: const Color(0xFF0284C7).withValues(alpha: 0.35),
@@ -211,7 +227,11 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.group_rounded, size: 18, color: Color(0xFF0284C7)),
+                      const Icon(
+                        Icons.group_rounded,
+                        size: 18,
+                        color: Color(0xFF0284C7),
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
@@ -229,13 +249,19 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                               context.tr('locked_field_tooltip'),
                               style: TextStyle(
                                 fontSize: 10.5,
-                                color: isDark ? Colors.white70 : const Color(0xFF334155),
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF334155),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const Icon(Icons.lock_rounded, size: 16, color: Color(0xFF0284C7)),
+                      const Icon(
+                        Icons.lock_rounded,
+                        size: 16,
+                        color: Color(0xFF0284C7),
+                      ),
                     ],
                   ),
                 ),
@@ -260,12 +286,18 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                   suffixIcon: isLocked
                       ? Tooltip(
                           message: context.tr('locked_field_tooltip'),
-                          child: const Icon(Icons.lock_rounded, size: 18, color: Colors.grey),
+                          child: const Icon(
+                            Icons.lock_rounded,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
                         )
                       : null,
                   prefixIcon: Icon(
                     Icons.local_fire_department_rounded,
-                    color: isLocked ? secondaryTextColor : const Color(0xFFF59E0B),
+                    color: isLocked
+                        ? secondaryTextColor
+                        : const Color(0xFFF59E0B),
                     size: 22,
                   ),
                   border: OutlineInputBorder(
@@ -278,7 +310,10 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: isLocked ? borderColor : brandPrimary, width: 2),
+                    borderSide: BorderSide(
+                      color: isLocked ? borderColor : brandPrimary,
+                      width: 2,
+                    ),
                   ),
                 ),
                 validator: (val) {
@@ -370,7 +405,10 @@ class _AddEditHabitSheetState extends ConsumerState<AddEditHabitSheet> {
                 onTap: _pickTime,
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: cardBg,
                     borderRadius: BorderRadius.circular(16),

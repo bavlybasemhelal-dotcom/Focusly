@@ -59,7 +59,10 @@ class DecisionJournalPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF2E6FF2)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF2E6FF2),
+            ),
             tooltip: context.tr('log_decision_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -142,7 +145,9 @@ class DecisionJournalPage extends ConsumerWidget {
                   ),
                 ),
               ] else ...[
-                ...filteredList.map((decision) => DecisionCard(decision: decision)),
+                ...filteredList.map(
+                  (decision) => DecisionCard(decision: decision),
+                ),
               ],
             ],
           );
@@ -201,11 +206,16 @@ class DecisionJournalPage extends ConsumerWidget {
               borderRadius: BorderRadius.circular(20),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? const Color(0xFF2E6FF2)
-                      : (isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF1F5F9)),
+                      : (isDark
+                            ? const Color(0xFF0F1B4C)
+                            : const Color(0xFFF1F5F9)),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
@@ -219,19 +229,28 @@ class DecisionJournalPage extends ConsumerWidget {
                       label,
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        fontWeight: isSelected
+                            ? FontWeight.w800
+                            : FontWeight.w600,
                         color: isSelected
                             ? Colors.white
-                            : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                            : (isDark
+                                  ? Colors.white70
+                                  : const Color(0xFF475569)),
                       ),
                     ),
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? Colors.white.withValues(alpha: 0.25)
-                            : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+                            : (isDark
+                                  ? Colors.white12
+                                  : const Color(0xFFE2E8F0)),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -241,7 +260,9 @@ class DecisionJournalPage extends ConsumerWidget {
                           fontWeight: FontWeight.w800,
                           color: isSelected
                               ? Colors.white
-                              : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                              : (isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF64748B)),
                         ),
                       ),
                     ),
@@ -279,15 +300,14 @@ class DecisionJournalPage extends ConsumerWidget {
                           const Color(0xFF1E3A8A).withValues(alpha: 0.5),
                           const Color(0xFF0F1B4C),
                         ]
-                      : [
-                          const Color(0xFFDBEAFE),
-                          const Color(0xFFEFF6FF),
-                        ],
+                      : [const Color(0xFFDBEAFE), const Color(0xFFEFF6FF)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF2E6FF2).withValues(alpha: 0.3) : const Color(0xFFBFDBFE),
+                  color: isDark
+                      ? const Color(0xFF2E6FF2).withValues(alpha: 0.3)
+                      : const Color(0xFFBFDBFE),
                   width: 2,
                 ),
               ),
@@ -323,7 +343,10 @@ class DecisionJournalPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),

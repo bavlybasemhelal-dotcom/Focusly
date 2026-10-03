@@ -1,16 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../models/skill_model.dart';
 
 /// Radar/Spider chart visualizing proficiency levels across all skills.
 class RadarChartWidget extends StatelessWidget {
   final List<SkillModel> skills;
 
-  const RadarChartWidget({
-    super.key,
-    required this.skills,
-  });
+  const RadarChartWidget({super.key, required this.skills});
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +39,7 @@ class RadarChartWidget extends StatelessWidget {
             height: 240,
             width: double.infinity,
             child: CustomPaint(
-              painter: _RadarChartPainter(
-                skills: skills,
-                isDark: isDark,
-              ),
+              painter: _RadarChartPainter(skills: skills, isDark: isDark),
             ),
           ),
         ],
@@ -59,10 +52,7 @@ class _RadarChartPainter extends CustomPainter {
   final List<SkillModel> skills;
   final bool isDark;
 
-  _RadarChartPainter({
-    required this.skills,
-    required this.isDark,
-  });
+  _RadarChartPainter({required this.skills, required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -78,7 +68,9 @@ class _RadarChartPainter extends CustomPainter {
       }
     }
 
-    final gridLineColor = isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0);
+    final gridLineColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : const Color(0xFFE2E8F0);
     final gridPaint = Paint()
       ..color = gridLineColor
       ..style = PaintingStyle.stroke
@@ -213,7 +205,10 @@ class _RadarChartPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout(maxWidth: 80);
 
-      final offset = Offset(x - textPainter.width / 2, y - textPainter.height / 2);
+      final offset = Offset(
+        x - textPainter.width / 2,
+        y - textPainter.height / 2,
+      );
       textPainter.paint(canvas, offset);
     }
   }

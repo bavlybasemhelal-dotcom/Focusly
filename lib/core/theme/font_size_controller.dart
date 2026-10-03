@@ -4,7 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Enum representing the supported user-selectable font sizes.
 enum AppFontSize {
   small(scaleFactor: 0.88, storageKey: 'small', titleKey: 'font_size_small'),
-  standard(scaleFactor: 1.00, storageKey: 'standard', titleKey: 'font_size_standard'),
+  standard(
+    scaleFactor: 1.00,
+    storageKey: 'standard',
+    titleKey: 'font_size_standard',
+  ),
   large(scaleFactor: 1.15, storageKey: 'large', titleKey: 'font_size_large');
 
   final double scaleFactor;
@@ -68,5 +72,5 @@ class FontSizeController extends Notifier<AppFontSize> {
 /// Global provider for accessing and updating the app-wide font size scale
 final fontSizeControllerProvider =
     NotifierProvider<FontSizeController, AppFontSize>(() {
-  return FontSizeController();
-});
+      return FontSizeController();
+    });

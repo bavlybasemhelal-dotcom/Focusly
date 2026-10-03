@@ -9,8 +9,5 @@ final lifeAnalyticsSummaryProvider = Provider<LifeAnalyticsSummary>((ref) {
   final checkins = ref.watch(checkinsHistoryStreamProvider).value ?? [];
   final tasks = ref.watch(tasksStreamProvider).value ?? [];
 
-  return LifeAnalyticsHelpers.computeSummary(
-    checkins: checkins,
-    tasks: tasks,
-  );
+  return LifeAnalyticsHelpers.computeSummary(checkins: checkins, tasks: tasks);
 });

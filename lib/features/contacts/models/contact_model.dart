@@ -1,3 +1,4 @@
+import '../../../core/data/calendar_clock.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // TODO: Relationship Health feature will build directly on this same overdue-calculation logic.
@@ -6,8 +7,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 int daysSinceLastContact(DateTime lastContact, [DateTime? now]) {
   final current = now ?? DateTime.now();
   final todayStart = DateTime(current.year, current.month, current.day);
-  final contactStart = DateTime(lastContact.year, lastContact.month, lastContact.day);
-  final diff = todayStart.difference(contactStart).inDays;
+  final contactStart = DateTime(
+    lastContact.year,
+    lastContact.month,
+    lastContact.day,
+  );
+  final diff = calendarDaysBetween(contactStart, todayStart);
   return diff < 0 ? 0 : diff;
 }
 
@@ -27,19 +32,22 @@ int overdueDaysCount(DateTime lastContact, int remindDays, [DateTime? now]) {
 ///
 /// Stored in Firestore under: `users/{userId}/contacts/{contactId}`
 class ContactModel {
+  final bool hasContacted;
   final String id;
   final String name;
   final String emoji; // Avatar emoji, default 🙂
   final String? role; // e.g. "College friend", "Mentor", "Cousin"
   final String? contactInfo; // Free-text phone/email/handle
   final DateTime lastContact; // Date of last interaction
-  final int remindDays; // Interval in days before contact is considered due (default 30)
+  final int
+  remindDays; // Interval in days before contact is considered due (default 30)
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   const ContactModel({
     required this.id,
+    this.hasContacted = true,
     required this.name,
     this.emoji = '🙂',
     this.role,
@@ -55,7 +63,7 @@ class ContactModel {
   int get daysSinceLast => daysSinceLastContact(lastContact);
 
   /// Computed boolean indicating if reconnection is due/overdue
-  bool get isDue => isContactOverdue(lastContact, remindDays);
+  bool get isDue => !hasContacted || isContactOverdue(lastContact, remindDays);
 
   /// Number of days overdue beyond remind interval
   int get overdueByDays => overdueDaysCount(lastContact, remindDays);
@@ -63,6 +71,7 @@ class ContactModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'hasContacted': hasContacted,
       'name': name,
       'emoji': emoji,
       'role': role,
@@ -80,7 +89,8 @@ class ContactModel {
     if (map['lastContact'] is Timestamp) {
       parsedLastContact = (map['lastContact'] as Timestamp).toDate();
     } else if (map['lastContact'] is String) {
-      parsedLastContact = DateTime.tryParse(map['lastContact']) ?? DateTime.now();
+      parsedLastContact =
+          DateTime.tryParse(map['lastContact']) ?? DateTime.now();
     } else {
       parsedLastContact = DateTime.now();
     }
@@ -105,6 +115,7 @@ class ContactModel {
 
     return ContactModel(
       id: docId,
+      hasContacted: map['hasContacted'] as bool? ?? map['lastContact'] != null,
       name: map['name'] ?? '',
       emoji: map['emoji'] ?? '🙂',
       role: map['role'],
@@ -134,6 +145,7 @@ class ContactModel {
   }) {
     return ContactModel(
       id: id ?? this.id,
+      hasContacted: hasContacted,
       name: name ?? this.name,
       emoji: emoji ?? this.emoji,
       role: clearRole ? null : (role ?? this.role),

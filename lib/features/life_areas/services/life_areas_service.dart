@@ -6,7 +6,7 @@ class LifeAreasService {
   final FirebaseFirestore _firestore;
 
   LifeAreasService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _collection(String uid) {
     return _firestore.collection('users').doc(uid).collection('lifeAreas');
@@ -16,26 +16,29 @@ class LifeAreasService {
   Stream<List<LifeAreaAssessmentModel>> getAssessmentsStream(String uid) {
     if (uid.isEmpty) return Stream.value([]);
 
-    return _collection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _collection(uid).orderBy('date', descending: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs
           .map((doc) => LifeAreaAssessmentModel.fromFirestore(doc))
           .toList();
-    }).handleError((_) => <LifeAreaAssessmentModel>[]);
+    });
   }
 
   /// Adds a new assessment and returns the generated document ID
   Future<String> addAssessment(
-      String uid, LifeAreaAssessmentModel assessment) async {
+    String uid,
+    LifeAreaAssessmentModel assessment,
+  ) async {
     final docRef = await _collection(uid).add(assessment.toMap());
     return docRef.id;
   }
 
   /// Updates an existing assessment in Firestore
   Future<void> updateAssessment(
-      String uid, LifeAreaAssessmentModel assessment) async {
+    String uid,
+    LifeAreaAssessmentModel assessment,
+  ) async {
     await _collection(uid).doc(assessment.id).update(assessment.toMap());
   }
 

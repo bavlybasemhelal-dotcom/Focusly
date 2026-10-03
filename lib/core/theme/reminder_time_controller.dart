@@ -52,5 +52,5 @@ class ReminderTimeController extends Notifier<TimeOfDay> {
 /// Global provider for accessing and updating the default daily reminder time
 final reminderTimeControllerProvider =
     NotifierProvider<ReminderTimeController, TimeOfDay>(() {
-  return ReminderTimeController();
-});
+      return ReminderTimeController();
+    });

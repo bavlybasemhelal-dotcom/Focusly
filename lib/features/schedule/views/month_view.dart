@@ -14,10 +14,7 @@ import '../widgets/add_edit_event_sheet.dart';
 class MonthView extends ConsumerWidget {
   final List<EventModel> events;
 
-  const MonthView({
-    super.key,
-    required this.events,
-  });
+  const MonthView({super.key, required this.events});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,11 +35,14 @@ class MonthView extends ConsumerWidget {
 
     // Calculate grid start padding (Sunday vs Saturday based on RTL/Arabic)
     final int startOffset = isArabic
-        ? (firstDayOfMonth.weekday % 7 + 1) % 7 // Saturday = 0 in Arabic
+        ? (firstDayOfMonth.weekday % 7 + 1) %
+              7 // Saturday = 0 in Arabic
         : (firstDayOfMonth.weekday % 7); // Sunday = 0
 
     final gridStartDate = firstDayOfMonth.subtract(Duration(days: startOffset));
-    final gridEndDate = gridStartDate.add(const Duration(days: 41)); // 6 weeks = 42 days
+    final gridEndDate = gridStartDate.add(
+      const Duration(days: 41),
+    ); // 6 weeks = 42 days
 
     // Group occurrences for fast lookups
     final occurrencesMap = RecurrenceHelper.groupOccurrencesByDay(
@@ -237,7 +237,10 @@ class MonthView extends ConsumerWidget {
           occurrencesMap[RecurrenceHelper.normalizeDate(cellDate)] ?? [];
 
       // Collect distinct colored dots
-      final distinctTypeIds = dayOccurrences.map((o) => o.typeId).toSet().toList();
+      final distinctTypeIds = dayOccurrences
+          .map((o) => o.typeId)
+          .toSet()
+          .toList();
 
       dayCells.add(
         GestureDetector(
@@ -253,17 +256,19 @@ class MonthView extends ConsumerWidget {
               color: isSelected
                   ? brandPrimary.withValues(alpha: isDark ? 0.25 : 0.15)
                   : (isToday
-                      ? (isDark ? const Color(0xFF08123A) : const Color(0xFFEFF6FF))
-                      : Colors.transparent),
+                        ? (isDark
+                              ? const Color(0xFF08123A)
+                              : const Color(0xFFEFF6FF))
+                        : Colors.transparent),
               borderRadius: BorderRadius.circular(12),
               border: isSelected
                   ? Border.all(color: brandPrimary, width: 1.8)
                   : (isToday
-                      ? Border.all(
-                          color: brandPrimary.withValues(alpha: 0.5),
-                          width: 1.2,
-                        )
-                      : null),
+                        ? Border.all(
+                            color: brandPrimary.withValues(alpha: 0.5),
+                            width: 1.2,
+                          )
+                        : null),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -279,8 +284,8 @@ class MonthView extends ConsumerWidget {
                     color: isSelected
                         ? brandPrimary
                         : (isCurrentMonth
-                            ? primaryTextColor
-                            : secondaryTextColor.withValues(alpha: 0.35)),
+                              ? primaryTextColor
+                              : secondaryTextColor.withValues(alpha: 0.35)),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -301,7 +306,9 @@ class MonthView extends ConsumerWidget {
                               return Container(
                                 width: 4.5,
                                 height: 4.5,
-                                margin: const EdgeInsets.symmetric(horizontal: 1),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 1,
+                                ),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: type.color,
@@ -312,7 +319,9 @@ class MonthView extends ConsumerWidget {
                               Container(
                                 width: 4.5,
                                 height: 4.5,
-                                margin: const EdgeInsets.symmetric(horizontal: 1),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 1,
+                                ),
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Color(0xFF94A3B8),
@@ -411,10 +420,7 @@ class MonthView extends ConsumerWidget {
           child: Row(
             children: [
               // Left Event Type Color Accent
-              Container(
-                width: 5,
-                color: type.color,
-              ),
+              Container(width: 5, color: type.color),
               const SizedBox(width: 14),
 
               // Event Content

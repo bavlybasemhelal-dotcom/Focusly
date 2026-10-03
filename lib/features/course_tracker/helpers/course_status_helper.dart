@@ -36,7 +36,9 @@ class CourseStatusHelper {
     final validCompleted = completedLessons.clamp(0, validTotal);
 
     String finalStatus = manualStatus.trim().toLowerCase();
-    if (finalStatus != 'active' && finalStatus != 'paused' && finalStatus != 'completed') {
+    if (finalStatus != 'active' &&
+        finalStatus != 'paused' &&
+        finalStatus != 'completed') {
       finalStatus = 'active';
     }
 
@@ -47,7 +49,8 @@ class CourseStatusHelper {
       finalStatus = 'active';
     }
 
-    final isNewlyCompleted = finalStatus == 'completed' && previousStatus != 'completed';
+    final isNewlyCompleted =
+        finalStatus == 'completed' && previousStatus != 'completed';
 
     return CourseProgressResult(
       totalLessons: validTotal,

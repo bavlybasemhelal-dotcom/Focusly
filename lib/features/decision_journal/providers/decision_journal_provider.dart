@@ -55,11 +55,7 @@ final decisionStatsProvider = Provider<DecisionJournalStats>((ref) {
 });
 
 /// Filter state enum for viewing decisions.
-enum DecisionFilter {
-  all,
-  pending,
-  reviewed,
-}
+enum DecisionFilter { all, pending, reviewed }
 
 /// Notifier managing active filter for Decision Journal screen.
 class DecisionFilterNotifier extends Notifier<DecisionFilter> {
@@ -73,8 +69,8 @@ class DecisionFilterNotifier extends Notifier<DecisionFilter> {
 
 final decisionFilterProvider =
     NotifierProvider<DecisionFilterNotifier, DecisionFilter>(
-  DecisionFilterNotifier.new,
-);
+      DecisionFilterNotifier.new,
+    );
 
 /// Derived provider returning decisions filtered by the active [DecisionFilter].
 final filteredDecisionsProvider = Provider<List<DecisionModel>>((ref) {

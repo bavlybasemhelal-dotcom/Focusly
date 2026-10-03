@@ -28,17 +28,28 @@ class BookCoverWidget extends StatelessWidget {
 
     // Gradient styling derived from base coverColor
     final hsl = HSLColor.fromColor(baseColor);
-    final lighterColor = hsl.withLightness((hsl.lightness + 0.15).clamp(0.0, 1.0)).toColor();
-    final darkerColor = hsl.withLightness((hsl.lightness - 0.2).clamp(0.0, 1.0)).toColor();
+    final lighterColor = hsl
+        .withLightness((hsl.lightness + 0.15).clamp(0.0, 1.0))
+        .toColor();
+    final darkerColor = hsl
+        .withLightness((hsl.lightness - 0.2).clamp(0.0, 1.0))
+        .toColor();
 
     // Extract initials (up to 2 chars)
     String initials = 'B';
-    final parts = book.title.trim().split(' ').where((p) => p.isNotEmpty).toList();
+    final parts = book.title
+        .trim()
+        .split(' ')
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.isNotEmpty) {
       if (parts.length >= 2) {
-        initials = (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
+        initials = (parts[0].substring(0, 1) + parts[1].substring(0, 1))
+            .toUpperCase();
       } else {
-        initials = parts[0].substring(0, parts[0].length.clamp(1, 2)).toUpperCase();
+        initials = parts[0]
+            .substring(0, parts[0].length.clamp(1, 2))
+            .toUpperCase();
       }
     }
 

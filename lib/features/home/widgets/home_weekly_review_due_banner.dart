@@ -94,7 +94,9 @@ class HomeWeeklyReviewDueBanner extends ConsumerWidget {
                       context.tr('weekly_review_due_home_msg'),
                       style: TextStyle(
                         fontSize: 11,
-                        color: isDark ? Colors.white70 : const Color(0xFF92400E),
+                        color: isDark
+                            ? Colors.white70
+                            : const Color(0xFF92400E),
                       ),
                     ),
                   ],
@@ -103,7 +105,10 @@ class HomeWeeklyReviewDueBanner extends ConsumerWidget {
               const SizedBox(width: 8),
 
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFFF59E0B), Color(0xFFD97706)],

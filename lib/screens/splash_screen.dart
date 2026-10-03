@@ -3,7 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../core/localization/app_localizations.dart';
 import '../core/theme/app_colors.dart';
-import 'home_screen.dart';
+import '../core/auth/auth_gate.dart';
+import '../core/auth/session_preferences.dart';
 import 'onboarding_screen.dart';
 
 /// Model defining floating and rising productivity symbols across the screen.
@@ -38,10 +39,7 @@ class RisingSymbolConfig {
 class SplashScreen extends StatefulWidget {
   final bool isFirstLaunch;
 
-  const SplashScreen({
-    super.key,
-    this.isFirstLaunch = true,
-  });
+  const SplashScreen({super.key, this.isFirstLaunch = true});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -201,16 +199,14 @@ class _SplashScreenState extends State<SplashScreen>
     } catch (_) {}
 
     final Widget targetScreen = (currentUser != null)
-        ? const HomeScreen()
-        : (widget.isFirstLaunch
-            ? const OnboardingScreen()
-            : const HomeScreen());
+        ? const AuthGate()
+        : (widget.isFirstLaunch ? const OnboardingScreen() : const AuthGate());
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => targetScreen,
-      ),
-    );
+    if (widget.isFirstLaunch) SessionPreferences.completeOnboarding();
+
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (context) => targetScreen));
   }
 
   String _getStatusText(double progress) {
@@ -285,7 +281,9 @@ class _SplashScreenState extends State<SplashScreen>
                               BoxShadow(
                                 color: isDark
                                     ? brandPrimary.withValues(alpha: 0.45)
-                                    : const Color(0xFF2563EB).withValues(alpha: 0.25),
+                                    : const Color(
+                                        0xFF2563EB,
+                                      ).withValues(alpha: 0.25),
                                 blurRadius: 40,
                                 spreadRadius: 4,
                               ),
@@ -345,7 +343,9 @@ class _SplashScreenState extends State<SplashScreen>
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? secondaryTextColor : const Color(0xFF1E3A8A),
+                        color: isDark
+                            ? secondaryTextColor
+                            : const Color(0xFF1E3A8A),
                         letterSpacing: 0.1,
                       ),
                       textAlign: TextAlign.center,
@@ -434,9 +434,7 @@ class _SplashScreenState extends State<SplashScreen>
             height: 400,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -448,9 +446,7 @@ class _SplashScreenState extends State<SplashScreen>
             height: 380,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [greenGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [greenGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -534,10 +530,12 @@ class _RisingSymbolsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final config in symbols) {
-      final effectiveProgress = (progress * config.floatSpeed + config.ySeed) % 1.0;
+      final effectiveProgress =
+          (progress * config.floatSpeed + config.ySeed) % 1.0;
       final y = size.height * (1.0 - effectiveProgress);
 
-      final wobble = math.sin(effectiveProgress * 2 * math.pi) * config.horizontalWobble;
+      final wobble =
+          math.sin(effectiveProgress * 2 * math.pi) * config.horizontalWobble;
       final x = size.width * config.xRatio + wobble;
 
       double opacity = config.baseOpacity;

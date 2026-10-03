@@ -17,7 +17,8 @@ class BookModel {
   final int currentPage;
   final String status; // 'reading' | 'paused' | 'wishlist' | 'done'
   final int coverColor; // Hex Color integer (e.g. 0xFF2E6FF2)
-  final String? coverUrl; // Optional image URL (TODO: Image upload feature in future pass)
+  final String?
+  coverUrl; // Optional image URL (TODO: Image upload feature in future pass)
   final DateTime? startDate;
   final DateTime? finishDate;
   final int? rating; // 1-5 stars (only when status == 'done')
@@ -82,7 +83,9 @@ class BookModel {
   factory BookModel.fromMap(Map<String, dynamic> map, String docId) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 

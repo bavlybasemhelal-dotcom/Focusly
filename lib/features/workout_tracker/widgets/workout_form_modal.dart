@@ -11,10 +11,7 @@ import '../providers/workout_provider.dart';
 class WorkoutFormModal extends ConsumerStatefulWidget {
   final WorkoutModel? workoutToEdit;
 
-  const WorkoutFormModal({
-    super.key,
-    this.workoutToEdit,
-  });
+  const WorkoutFormModal({super.key, this.workoutToEdit});
 
   /// Static helper to open the modal bottom sheet.
   static Future<void> show(
@@ -143,7 +140,9 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
               content: Text(context.tr('workout_created_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -169,7 +168,9 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
               content: Text(context.tr('workout_updated_toast')),
               backgroundColor: const Color(0xFF2E6FF2),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -189,7 +190,11 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -219,7 +224,9 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -232,7 +239,10 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
       final uid = ref.read(currentUserIdProvider);
       if (uid != null && widget.workoutToEdit != null) {
         final service = ref.read(workoutServiceProvider);
-        await service.deleteWorkout(uid: uid, workoutId: widget.workoutToEdit!.id);
+        await service.deleteWorkout(
+          uid: uid,
+          workoutId: widget.workoutToEdit!.id,
+        );
 
         if (mounted) {
           Navigator.of(context).pop();
@@ -241,7 +251,9 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
               content: Text(context.tr('workout_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -363,7 +375,10 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -416,7 +431,9 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                 child: DropdownButton<String>(
                   isExpanded: true,
                   value: _type,
-                  dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                  dropdownColor: isDark
+                      ? const Color(0xFF0F1B4C)
+                      : Colors.white,
                   items: ['gym', 'running', 'swim', 'yoga', 'other'].map((t) {
                     return DropdownMenuItem<String>(
                       value: t,
@@ -458,7 +475,9 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                       TextField(
                         controller: _durationController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -467,12 +486,17 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                         decoration: InputDecoration(
                           hintText: '45',
                           hintStyle: TextStyle(
-                            color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                            color: isDark
+                                ? Colors.white30
+                                : const Color(0xFF94A3B8),
                             fontSize: 13,
                           ),
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -483,7 +507,10 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF10B981),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -509,7 +536,9 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                       TextField(
                         controller: _caloriesController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -518,12 +547,17 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                         decoration: InputDecoration(
                           hintText: '300',
                           hintStyle: TextStyle(
-                            color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                            color: isDark
+                                ? Colors.white30
+                                : const Color(0xFF94A3B8),
                             fontSize: 13,
                           ),
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -534,7 +568,10 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF10B981),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -559,7 +596,10 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: inputBg,
                   borderRadius: BorderRadius.circular(14),
@@ -567,8 +607,11 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today_rounded,
-                        size: 16, color: Color(0xFF10B981)),
+                    const Icon(
+                      Icons.calendar_today_rounded,
+                      size: 16,
+                      color: Color(0xFF10B981),
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       dateStr,
@@ -606,7 +649,10 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -617,7 +663,10 @@ class _WorkoutFormModalState extends ConsumerState<WorkoutFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF10B981),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),

@@ -22,7 +22,8 @@ class NutritionDayCell {
 /// Container for weekly comparison averages.
 class NutritionWeeklyComparison {
   final double? thisWeekAvg; // Average rating for past 7 days (last 0..6 days)
-  final double? lastWeekAvg; // Average rating for previous 7 days (last 7..13 days)
+  final double?
+  lastWeekAvg; // Average rating for previous 7 days (last 7..13 days)
 
   const NutritionWeeklyComparison({
     required this.thisWeekAvg,
@@ -116,8 +117,10 @@ class NutritionLogHelpers {
     for (final log in logs) {
       final logDate = toDateOnly(log.date);
       // Check if logDate falls in [windowStart, windowEnd] inclusive
-      if ((logDate.isAtSameMomentAs(windowStart) || logDate.isAfter(windowStart)) &&
-          (logDate.isAtSameMomentAs(windowEnd) || logDate.isBefore(windowEnd))) {
+      if ((logDate.isAtSameMomentAs(windowStart) ||
+              logDate.isAfter(windowStart)) &&
+          (logDate.isAtSameMomentAs(windowEnd) ||
+              logDate.isBefore(windowEnd))) {
         sumRatings += log.rating;
         count++;
       }

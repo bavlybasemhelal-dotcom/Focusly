@@ -32,8 +32,18 @@ class LegacyEntryModel {
   /// Formatted date string (e.g. "Aug 25, 2026")
   String get formattedDate {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
@@ -69,14 +79,16 @@ class LegacyEntryModel {
     if (map['createdAt'] is Timestamp) {
       parsedCreatedAt = (map['createdAt'] as Timestamp).toDate();
     } else if (map['createdAt'] is String) {
-      parsedCreatedAt = DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now();
+      parsedCreatedAt =
+          DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now();
     }
 
     DateTime parsedUpdatedAt = DateTime.now();
     if (map['updatedAt'] is Timestamp) {
       parsedUpdatedAt = (map['updatedAt'] as Timestamp).toDate();
     } else if (map['updatedAt'] is String) {
-      parsedUpdatedAt = DateTime.tryParse(map['updatedAt'] as String) ?? DateTime.now();
+      parsedUpdatedAt =
+          DateTime.tryParse(map['updatedAt'] as String) ?? DateTime.now();
     }
 
     return LegacyEntryModel(

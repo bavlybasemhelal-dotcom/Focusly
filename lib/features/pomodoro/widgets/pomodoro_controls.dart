@@ -66,7 +66,10 @@ class PomodoroControls extends ConsumerWidget {
                   if (timerState.distractionCount > 0) ...[
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: const BoxDecoration(
                         color: Color(0xFFF59E0B),
                         shape: BoxShape.circle,
@@ -145,10 +148,11 @@ class PomodoroControls extends ConsumerWidget {
                       ),
                 boxShadow: [
                   BoxShadow(
-                    color: (timerState.isWorkPhase
-                            ? brandPrimary
-                            : const Color(0xFF10B981))
-                        .withValues(alpha: 0.4),
+                    color:
+                        (timerState.isWorkPhase
+                                ? brandPrimary
+                                : const Color(0xFF10B981))
+                            .withValues(alpha: 0.4),
                     blurRadius: 20,
                     offset: const Offset(0, 6),
                   ),
@@ -165,14 +169,20 @@ class PomodoroControls extends ConsumerWidget {
                       notifier.pause();
                     } else {
                       notifier.start(
-                        workDoneTitle: context.tr('notification_work_done_title'),
-                        breakDoneTitle: context.tr('notification_break_done_title'),
+                        workDoneTitle: context.tr(
+                          'notification_work_done_title',
+                        ),
+                        breakDoneTitle: context.tr(
+                          'notification_break_done_title',
+                        ),
                       );
                     }
                   },
                   child: Center(
                     child: Icon(
-                      isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                      isRunning
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
                       size: 38,
                       color: isDark ? const Color(0xFF060B24) : Colors.white,
                     ),
@@ -214,9 +224,15 @@ class PomodoroControls extends ConsumerWidget {
                 ),
                 tooltip: context.tr('skip'),
                 onPressed: () {
-                  ref.read(pomodoroTimerProvider.notifier).skip(
-                        workDoneTitle: context.tr('notification_work_done_title'),
-                        breakDoneTitle: context.tr('notification_break_done_title'),
+                  ref
+                      .read(pomodoroTimerProvider.notifier)
+                      .skip(
+                        workDoneTitle: context.tr(
+                          'notification_work_done_title',
+                        ),
+                        breakDoneTitle: context.tr(
+                          'notification_break_done_title',
+                        ),
                       );
                 },
               ),

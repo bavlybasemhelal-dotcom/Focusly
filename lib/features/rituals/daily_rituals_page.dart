@@ -113,14 +113,16 @@ class DailyRitualsPage extends ConsumerWidget {
                 ),
               )
             else
-              ...history.map((r) => _buildHistoryCard(
-                    context: context,
-                    ritual: r,
-                    isDark: isDark,
-                    primaryTextColor: primaryTextColor,
-                    secondaryTextColor: secondaryTextColor,
-                    borderColor: borderColor,
-                  )),
+              ...history.map(
+                (r) => _buildHistoryCard(
+                  context: context,
+                  ritual: r,
+                  isDark: isDark,
+                  primaryTextColor: primaryTextColor,
+                  secondaryTextColor: secondaryTextColor,
+                  borderColor: borderColor,
+                ),
+              ),
           ],
         ),
       ),
@@ -168,7 +170,9 @@ class DailyRitualsPage extends ConsumerWidget {
                       color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Center(child: Text('🌅', style: TextStyle(fontSize: 18))),
+                    child: const Center(
+                      child: Text('🌅', style: TextStyle(fontSize: 18)),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -190,11 +194,15 @@ class DailyRitualsPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  hasIntention ? context.tr('status_set') : context.tr('status_pending'),
+                  hasIntention
+                      ? context.tr('status_set')
+                      : context.tr('status_pending'),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: hasIntention ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                    color: hasIntention
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFFF59E0B),
                   ),
                 ),
               ),
@@ -202,7 +210,9 @@ class DailyRitualsPage extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            hasIntention ? intentionText : context.tr('set_morning_intention_prompt_sub'),
+            hasIntention
+                ? intentionText
+                : context.tr('set_morning_intention_prompt_sub'),
             style: TextStyle(
               fontSize: 14,
               fontWeight: hasIntention ? FontWeight.w700 : FontWeight.w500,
@@ -230,7 +240,9 @@ class DailyRitualsPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF59E0B),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ),
@@ -280,7 +292,9 @@ class DailyRitualsPage extends ConsumerWidget {
                       color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Center(child: Text('🌙', style: TextStyle(fontSize: 18))),
+                    child: const Center(
+                      child: Text('🌙', style: TextStyle(fontSize: 18)),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -302,11 +316,15 @@ class DailyRitualsPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  isDone ? context.tr('status_done') : context.tr('status_pending'),
+                  isDone
+                      ? context.tr('status_done')
+                      : context.tr('status_pending'),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: isDone ? const Color(0xFF10B981) : const Color(0xFF8B5CF6),
+                    color: isDone
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF8B5CF6),
                   ),
                 ),
               ),
@@ -317,10 +335,7 @@ class DailyRitualsPage extends ConsumerWidget {
             isDone
                 ? context.tr('shutdown_completed_today_sub')
                 : context.tr('shutdown_ritual_card_desc'),
-            style: TextStyle(
-              fontSize: 13,
-              color: secondaryTextColor,
-            ),
+            style: TextStyle(fontSize: 13, color: secondaryTextColor),
           ),
           if (isDone && shutdown != null) ...[
             const SizedBox(height: 10),
@@ -339,7 +354,10 @@ class DailyRitualsPage extends ConsumerWidget {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () => ShutdownWizardModal.show(context),
-              icon: Icon(isDone ? Icons.check_circle_rounded : Icons.nightlight_round, size: 16),
+              icon: Icon(
+                isDone ? Icons.check_circle_rounded : Icons.nightlight_round,
+                size: 16,
+              ),
               label: Text(
                 isDone
                     ? context.tr('view_shutdown_btn')
@@ -347,9 +365,13 @@ class DailyRitualsPage extends ConsumerWidget {
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isDone ? const Color(0xFF10B981) : const Color(0xFF8B5CF6),
+                backgroundColor: isDone
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFF8B5CF6),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ),
@@ -393,7 +415,10 @@ class DailyRitualsPage extends ConsumerWidget {
               ),
               if (ritual.isShutdownCompleted)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF10B981).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
@@ -413,7 +438,11 @@ class DailyRitualsPage extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               '🎯 ${ritual.intention}',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: primaryTextColor),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: primaryTextColor,
+              ),
             ),
           ],
           if (ritual.shutdown?.gratitudeText.isNotEmpty == true) ...[
@@ -427,7 +456,11 @@ class DailyRitualsPage extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               '💡 ${ritual.shutdown!.lesson}',
-              style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: secondaryTextColor),
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: secondaryTextColor,
+              ),
             ),
           ],
         ],

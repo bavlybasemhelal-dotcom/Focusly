@@ -10,18 +10,23 @@ import '../widgets/add_edit_task_sheet.dart';
 class EisenhowerMatrixView extends ConsumerWidget {
   final List<TaskModel> tasks;
 
-  const EisenhowerMatrixView({
-    super.key,
-    required this.tasks,
-  });
+  const EisenhowerMatrixView({super.key, required this.tasks});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Partition tasks into their computed quadrants (pure logic)
-    final q1Tasks = tasks.where((t) => t.computedQuadrant == EisenhowerQuadrant.q1DoNow).toList();
-    final q2Tasks = tasks.where((t) => t.computedQuadrant == EisenhowerQuadrant.q2Schedule).toList();
-    final q3Tasks = tasks.where((t) => t.computedQuadrant == EisenhowerQuadrant.q3Delegate).toList();
-    final q4Tasks = tasks.where((t) => t.computedQuadrant == EisenhowerQuadrant.q4Eliminate).toList();
+    final q1Tasks = tasks
+        .where((t) => t.computedQuadrant == EisenhowerQuadrant.q1DoNow)
+        .toList();
+    final q2Tasks = tasks
+        .where((t) => t.computedQuadrant == EisenhowerQuadrant.q2Schedule)
+        .toList();
+    final q3Tasks = tasks
+        .where((t) => t.computedQuadrant == EisenhowerQuadrant.q3Delegate)
+        .toList();
+    final q4Tasks = tasks
+        .where((t) => t.computedQuadrant == EisenhowerQuadrant.q4Eliminate)
+        .toList();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -85,10 +90,7 @@ class _QuadrantBox extends ConsumerStatefulWidget {
   final EisenhowerQuadrant quadrant;
   final List<TaskModel> tasks;
 
-  const _QuadrantBox({
-    required this.quadrant,
-    required this.tasks,
-  });
+  const _QuadrantBox({required this.quadrant, required this.tasks});
 
   @override
   ConsumerState<_QuadrantBox> createState() => _QuadrantBoxState();
@@ -108,7 +110,9 @@ class _QuadrantBoxState extends ConsumerState<_QuadrantBox> {
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final borderColor = _isHovered
         ? accentColor
-        : (isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F5));
+        : (isDark
+              ? Colors.white.withValues(alpha: 0.12)
+              : const Color(0xFFE2E8F5));
 
     return DragTarget<TaskModel>(
       onWillAcceptWithDetails: (details) {
@@ -180,10 +184,15 @@ class _QuadrantBoxState extends ConsumerState<_QuadrantBox> {
               // Top Accent Strip & Header
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: isDark ? 0.18 : 0.12),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                   border: Border(
                     bottom: BorderSide(
                       color: accentColor.withValues(alpha: 0.3),
@@ -222,7 +231,10 @@ class _QuadrantBoxState extends ConsumerState<_QuadrantBox> {
                     ),
                     // Counter Badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: accentColor,
                         borderRadius: BorderRadius.circular(10),
@@ -244,10 +256,15 @@ class _QuadrantBoxState extends ConsumerState<_QuadrantBox> {
                           context: context,
                           isScrollControlled: true,
                           backgroundColor: Colors.transparent,
-                          builder: (_) => AddEditTaskSheet(initialQuadrant: quadrant),
+                          builder: (_) =>
+                              AddEditTaskSheet(initialQuadrant: quadrant),
                         );
                       },
-                      child: Icon(Icons.add_rounded, size: 18, color: accentColor),
+                      child: Icon(
+                        Icons.add_rounded,
+                        size: 18,
+                        color: accentColor,
+                      ),
                     ),
                   ],
                 ),
@@ -272,7 +289,10 @@ class _QuadrantBoxState extends ConsumerState<_QuadrantBox> {
                         ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
                         itemCount: widget.tasks.length,
                         itemBuilder: (context, index) {
                           final task = widget.tasks[index];
@@ -395,10 +415,7 @@ class _DraggableTaskItem extends ConsumerWidget {
           ),
         ),
       ),
-      childWhenDragging: Opacity(
-        opacity: 0.3,
-        child: itemWidget,
-      ),
+      childWhenDragging: Opacity(opacity: 0.3, child: itemWidget),
       child: itemWidget,
     );
   }

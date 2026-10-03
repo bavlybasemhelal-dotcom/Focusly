@@ -13,7 +13,7 @@ class UserProfileService {
   final FirebaseFirestore _firestore;
 
   UserProfileService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Writes a new user profile document in Firestore at `users/{uid}`.
   Future<void> createUserDocument({
@@ -23,17 +23,31 @@ class UserProfileService {
   }) async {
     try {
       debugPrint('[UserProfileService] Creating user document for UID: $uid');
-      await _firestore.collection('users').doc(uid).set({
-        'uid': uid,
-        'name': name.trim().isNotEmpty ? name.trim() : 'User',
-        'email': email.trim(),
-        'createdAt': FieldValue.serverTimestamp(),
+      final document = _firestore.collection('users').doc(uid);
+      await _firestore.runTransaction((transaction) async {
+        final existing = await transaction.get(document);
+        transaction.set(document, {
+          'uid': uid,
+          'name': name.trim().isNotEmpty ? name.trim() : 'User',
+          'email': email.trim(),
+          if (!existing.exists) 'createdAt': FieldValue.serverTimestamp(),
+          'schemaVersion': 2,
+        }, SetOptions(merge: true));
       });
       debugPrint('[UserProfileService] User document created successfully.');
     } catch (e, stack) {
-      debugPrint('[UserProfileService] Error creating user document: $e\n$stack');
+      debugPrint(
+        '[UserProfileService] Error creating user document: $e\n$stack',
+      );
       rethrow;
     }
+  }
+
+  Future<void> recordTermsConsent(String uid) async {
+    await _firestore.collection('users').doc(uid).set({
+      'termsVersion': '2026-10-03',
+      'termsAcceptedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   /// Checks if a user document exists under `users/{uid}`. If it does not exist
@@ -45,41 +59,31 @@ class UserProfileService {
     required User user,
     String? fallbackName,
   }) async {
+    final docRef = _firestore.collection('users').doc(user.uid);
     try {
-      final docRef = _firestore.collection('users').doc(user.uid);
-      final docSnap = await docRef.get();
+      return await _firestore.runTransaction((transaction) async {
+        final snapshot = await transaction.get(docRef);
+        if (snapshot.exists) return false;
 
-      if (!docSnap.exists) {
-        debugPrint('[UserProfileService] New user detected (${user.uid}). Provisioning profile document...');
         final name = (user.displayName?.trim().isNotEmpty == true)
             ? user.displayName!
             : (fallbackName?.trim().isNotEmpty == true
-                ? fallbackName!
-                : (user.email?.split('@').first ?? 'User'));
-
-        await createUserDocument(
-          uid: user.uid,
-          name: name,
-          email: user.email ?? '',
-        );
+                  ? fallbackName!
+                  : (user.email?.split('@').first ?? 'User'));
+        transaction.set(docRef, {
+          'uid': user.uid,
+          'name': name.trim().isEmpty ? 'User' : name.trim(),
+          'email': user.email?.trim() ?? '',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
         return true;
-      } else {
-        debugPrint('[UserProfileService] Returning user document found for UID: ${user.uid}');
-        return false;
-      }
+      });
     } catch (e, stack) {
-      debugPrint('[UserProfileService] Error checking/creating user profile: $e\n$stack');
-      // If reading fails, attempt to create without overwriting blindly
-      try {
-        await createUserDocument(
-          uid: user.uid,
-          name: user.displayName ?? (fallbackName ?? 'User'),
-          email: user.email ?? '',
-        );
-        return true;
-      } catch (_) {
-        return false;
-      }
+      debugPrint(
+        '[UserProfileService] Error provisioning user profile: $e\n$stack',
+      );
+      // A failed read must never trigger a blind overwrite of an existing profile.
+      rethrow;
     }
   }
 }

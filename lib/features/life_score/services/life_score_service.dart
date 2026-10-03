@@ -8,7 +8,7 @@ class LifeScoreService {
   final FirebaseFirestore _firestore;
 
   LifeScoreService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _lifeScoreCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('lifeScoreLog');
@@ -18,10 +18,9 @@ class LifeScoreService {
   Stream<List<LifeScoreModel>> streamLifeScoreLogs(String uid) {
     if (uid.isEmpty) return Stream.value([]);
 
-    return _lifeScoreCollection(uid)
-        .orderBy('weekOf', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _lifeScoreCollection(
+      uid,
+    ).orderBy('weekOf', descending: true).snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         return LifeScoreModel.fromMap(doc.data(), doc.id);
       }).toList();
@@ -43,8 +42,8 @@ class LifeScoreService {
   /// Saves or updates a week's life score snapshot.
   Future<void> saveSnapshot(String uid, LifeScoreModel model) async {
     if (uid.isEmpty) return;
-    await _lifeScoreCollection(uid)
-        .doc(model.weekOf)
-        .set(model.toMap(), SetOptions(merge: true));
+    await _lifeScoreCollection(
+      uid,
+    ).doc(model.weekOf).set(model.toMap(), SetOptions(merge: true));
   }
 }

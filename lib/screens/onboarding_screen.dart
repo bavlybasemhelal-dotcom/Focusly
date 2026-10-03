@@ -160,7 +160,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   ? null
                                   : [
                                       BoxShadow(
-                                        color: const Color(0xFF2E6FF2).withValues(alpha: 0.1),
+                                        color: const Color(
+                                          0xFF2E6FF2,
+                                        ).withValues(alpha: 0.1),
                                         blurRadius: 8,
                                       ),
                                     ],
@@ -252,8 +254,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               color: isSelected
                                   ? brandPrimary
                                   : (isDark
-                                      ? Colors.white.withValues(alpha: 0.15)
-                                      : const Color(0xFFCBD5E1)),
+                                        ? Colors.white.withValues(alpha: 0.15)
+                                        : const Color(0xFFCBD5E1)),
                               borderRadius: BorderRadius.circular(4.0),
                             ),
                           );
@@ -271,8 +273,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: isDark
-                                  ? AppColors.cyanElectric.withValues(alpha: 0.35)
-                                  : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                                  ? AppColors.cyanElectric.withValues(
+                                      alpha: 0.35,
+                                    )
+                                  : const Color(
+                                      0xFF2563EB,
+                                    ).withValues(alpha: 0.35),
                               blurRadius: 18,
                               offset: const Offset(0, 6),
                             ),
@@ -283,8 +289,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
-                            foregroundColor:
-                                isDark ? const Color(0xFF060B24) : Colors.white,
+                            foregroundColor: isDark
+                                ? const Color(0xFF060B24)
+                                : Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -371,11 +378,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   color: glowColor.withValues(alpha: isDark ? 0.12 : 0.09),
                 ),
                 child: Center(
-                  child: Icon(
-                    page.heroIcon,
-                    size: 78,
-                    color: glowColor,
-                  ),
+                  child: Icon(page.heroIcon, size: 78, color: glowColor),
                 ),
               ),
             ),

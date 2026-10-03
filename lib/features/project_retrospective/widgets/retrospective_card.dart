@@ -20,10 +20,7 @@ import 'retrospective_form_modal.dart';
 class RetrospectiveCard extends ConsumerWidget {
   final RetrospectiveModel retrospective;
 
-  const RetrospectiveCard({
-    super.key,
-    required this.retrospective,
-  });
+  const RetrospectiveCard({super.key, required this.retrospective});
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     HapticFeedback.heavyImpact();
@@ -37,7 +34,11 @@ class RetrospectiveCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -67,7 +68,9 @@ class RetrospectiveCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -90,7 +93,9 @@ class RetrospectiveCard extends ConsumerWidget {
               content: Text(context.tr('retrospective_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -114,7 +119,8 @@ class RetrospectiveCard extends ConsumerWidget {
     final resolvedProjectTitle = ref.watch(
       projectTitleResolverProvider(retrospective.projectId),
     );
-    final projectTitle = resolvedProjectTitle ?? context.tr('unknown_project_fallback');
+    final projectTitle =
+        resolvedProjectTitle ?? context.tr('unknown_project_fallback');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -147,7 +153,9 @@ class RetrospectiveCard extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(

@@ -11,10 +11,7 @@ import '../providers/course_tracker_provider.dart';
 class CourseFormModal extends ConsumerStatefulWidget {
   final CourseModel? courseToEdit;
 
-  const CourseFormModal({
-    super.key,
-    this.courseToEdit,
-  });
+  const CourseFormModal({super.key, this.courseToEdit});
 
   /// Static helper to open the modal bottom sheet.
   static Future<void> show(BuildContext context, {CourseModel? courseToEdit}) {
@@ -75,7 +72,8 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
   Future<void> _onSave() async {
     final title = _titleController.text.trim();
     final totalLessons = int.tryParse(_totalLessonsController.text.trim()) ?? 0;
-    final completedLessons = int.tryParse(_completedLessonsController.text.trim()) ?? 0;
+    final completedLessons =
+        int.tryParse(_completedLessonsController.text.trim()) ?? 0;
 
     if (title.isEmpty || totalLessons <= 0) {
       HapticFeedback.heavyImpact();
@@ -121,7 +119,9 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
               content: Text(context.tr('course_created_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -150,7 +150,9 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
               content: Text(context.tr('course_updated_toast')),
               backgroundColor: const Color(0xFF0EA5E9),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -170,7 +172,11 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -203,7 +209,9 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -225,7 +233,9 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
               content: Text(context.tr('course_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -328,7 +338,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -385,7 +398,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -396,7 +412,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF0EA5E9), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF0EA5E9),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -414,10 +433,7 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
             const SizedBox(height: 6),
             TextField(
               controller: _platformController,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('course_platform_hint'),
                 hintStyle: TextStyle(
@@ -426,7 +442,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -437,7 +456,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF0EA5E9), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF0EA5E9),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -463,7 +485,9 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                       TextField(
                         controller: _totalLessonsController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -472,7 +496,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -483,7 +510,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF0EA5E9), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0EA5E9),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -509,7 +539,9 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                       TextField(
                         controller: _completedLessonsController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -518,7 +550,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -529,7 +564,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF0EA5E9), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0EA5E9),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -561,20 +599,34 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                 child: DropdownButton<String>(
                   value: _status,
                   isExpanded: true,
-                  dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
-                  icon: Icon(Icons.keyboard_arrow_down_rounded, color: secondaryTextColor),
+                  dropdownColor: isDark
+                      ? const Color(0xFF0F1B4C)
+                      : Colors.white,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: secondaryTextColor,
+                  ),
                   items: [
                     DropdownMenuItem(
                       value: 'active',
-                      child: Text(context.tr('course_status_active'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('course_status_active'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'paused',
-                      child: Text(context.tr('course_status_paused'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('course_status_paused'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'completed',
-                      child: Text(context.tr('course_status_completed'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('course_status_completed'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                   ],
                   onChanged: (val) {
@@ -596,7 +648,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: inputBg,
                   borderRadius: BorderRadius.circular(14),
@@ -642,10 +697,7 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
             TextField(
               controller: _noteController,
               maxLines: 2,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('course_note_hint'),
                 hintStyle: TextStyle(
@@ -654,7 +706,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -665,7 +720,10 @@ class _CourseFormModalState extends ConsumerState<CourseFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF0EA5E9), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF0EA5E9),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),

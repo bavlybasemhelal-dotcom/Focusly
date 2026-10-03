@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../productivity/services/productivity_service.dart';
+import '../../../core/data/calendar_clock.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_provider.dart';
@@ -94,11 +96,16 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                context.tr('mind_sweep_added_toast', args: {'count': addedCount.toString()}),
+                context.tr(
+                  'mind_sweep_added_toast',
+                  args: {'count': addedCount.toString()},
+                ),
               ),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -111,21 +118,23 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
   /// Step 5 Promote Someday item to Active Task
   Future<void> _handlePromoteSomeday(TaskModel task) async {
     HapticFeedback.selectionClick();
-    await GTDService().promoteSomedayToTask(
-      task.id,
-      newDate: DateTime.now(),
-    );
+    await GTDService().promoteSomedayToTask(task.id, newDate: DateTime.now());
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            context.tr('review_someday_promoted_toast', args: {'title': task.title}),
+            context.tr(
+              'review_someday_promoted_toast',
+              args: {'title': task.title},
+            ),
           ),
           backgroundColor: const Color(0xFF10B981),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -148,7 +157,9 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
     setState(() => _isProcessing = true);
 
     final prefix = context.tr('weekly_priority_inbox_prefix');
-    final success = await ref.read(weeklyReviewServiceProvider).finishWeeklyReview(
+    final success = await ref
+        .read(weeklyReviewServiceProvider)
+        .finishWeeklyReview(
           uid: uid,
           priorities: priorities,
           priorityPrefix: prefix,
@@ -166,7 +177,9 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
             content: Text(context.tr('weekly_review_completed_toast')),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -252,9 +265,14 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.14),
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.14),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -290,8 +308,12 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
                   value: (_currentStep + 1) / 6.0,
-                  backgroundColor: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E6FF2)),
+                  backgroundColor: isDark
+                      ? Colors.white10
+                      : const Color(0xFFE2E8F0),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF2E6FF2),
+                  ),
                   minHeight: 6,
                 ),
               ),
@@ -359,8 +381,13 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: primaryTextColor,
                         side: BorderSide(color: borderColor),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       child: Text(
                         context.tr('back_btn'),
@@ -376,7 +403,9 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF2563EB).withValues(alpha: 0.35),
+                            color: const Color(
+                              0xFF2563EB,
+                            ).withValues(alpha: 0.35),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),
@@ -386,14 +415,16 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                         onPressed: _isProcessing
                             ? null
                             : (_currentStep == 0
-                                ? _handleStep1Next
-                                : (_currentStep == 5
-                                    ? _handleFinishReview
-                                    : _nextStep)),
+                                  ? _handleStep1Next
+                                  : (_currentStep == 5
+                                        ? _handleFinishReview
+                                        : _nextStep)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
+                          foregroundColor: isDark
+                              ? const Color(0xFF060B24)
+                              : Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -404,7 +435,9 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                                 height: 22,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : Text(
@@ -447,10 +480,17 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
         TextFormField(
           controller: _mindSweepController,
           maxLines: 6,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: primaryTextColor,
+          ),
           decoration: InputDecoration(
             hintText: context.tr('mind_sweep_hint'),
-            hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor.withValues(alpha: 0.6)),
+            hintStyle: TextStyle(
+              fontSize: 13,
+              color: secondaryTextColor.withValues(alpha: 0.6),
+            ),
             filled: true,
             fillColor: inputBg,
             border: OutlineInputBorder(
@@ -463,7 +503,10 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFF2E6FF2),
+                width: 1.5,
+              ),
             ),
             contentPadding: const EdgeInsets.all(16),
           ),
@@ -471,7 +514,11 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
         const SizedBox(height: 10),
         Text(
           context.tr('mind_sweep_footer_hint'),
-          style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: secondaryTextColor),
+          style: TextStyle(
+            fontSize: 11,
+            fontStyle: FontStyle.italic,
+            color: secondaryTextColor,
+          ),
         ),
       ],
     );
@@ -515,7 +562,11 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Center(
-                  child: Icon(Icons.inbox_rounded, color: Color(0xFF2E6FF2), size: 28),
+                  child: Icon(
+                    Icons.inbox_rounded,
+                    color: Color(0xFF2E6FF2),
+                    size: 28,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -555,19 +606,28 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
             child: OutlinedButton.icon(
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const InboxScreen()),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const InboxScreen()));
               },
-              icon: const Icon(Icons.open_in_new_rounded, size: 16, color: Color(0xFF2E6FF2)),
+              icon: const Icon(
+                Icons.open_in_new_rounded,
+                size: 16,
+                color: Color(0xFF2E6FF2),
+              ),
               label: Text(
                 context.tr('go_to_inbox_btn'),
-                style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF2E6FF2)),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2E6FF2),
+                ),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFF2E6FF2)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ),
@@ -614,7 +674,11 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Center(
-                  child: Icon(Icons.folder_special_rounded, color: Color(0xFF10B981), size: 28),
+                  child: Icon(
+                    Icons.folder_special_rounded,
+                    color: Color(0xFF10B981),
+                    size: 28,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -651,19 +715,28 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
           child: OutlinedButton.icon(
             onPressed: () {
               Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ProjectsPage()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const ProjectsPage()));
             },
-            icon: const Icon(Icons.open_in_new_rounded, size: 16, color: Color(0xFF10B981)),
+            icon: const Icon(
+              Icons.open_in_new_rounded,
+              size: 16,
+              color: Color(0xFF10B981),
+            ),
             label: Text(
               context.tr('review_view_projects_btn'),
-              style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF10B981)),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF10B981),
+              ),
             ),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: Color(0xFF10B981)),
               padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           ),
         ),
@@ -681,7 +754,9 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
   }) {
     final tasksAsync = ref.watch(tasksStreamProvider);
     final allTasks = tasksAsync.value ?? [];
-    final activeNormalTasks = allTasks.where((t) => !t.done && t.listType == null).toList();
+    final activeNormalTasks = allTasks
+        .where((t) => !t.done && t.listType == null)
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -711,7 +786,11 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Center(
-                  child: Icon(Icons.check_circle_outline_rounded, color: Color(0xFFF59E0B), size: 28),
+                  child: Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: Color(0xFFF59E0B),
+                    size: 28,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -780,7 +859,11 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
                 const SizedBox(height: 8),
                 Text(
                   context.tr('no_someday_items_title'),
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: primaryTextColor),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: primaryTextColor,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -792,60 +875,73 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
             ),
           )
         else
-          ...somedayTasks.map((task) => Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: inputBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            task.title,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: primaryTextColor,
-                            ),
+          ...somedayTasks.map(
+            (task) => Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: inputBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borderColor),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          task.title,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: primaryTextColor,
                           ),
-                          if (task.notes != null && task.notes!.isNotEmpty) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              task.notes!,
-                              style: TextStyle(fontSize: 12, color: secondaryTextColor),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                        ),
+                        if (task.notes != null && task.notes!.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            task.notes!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: secondaryTextColor,
                             ),
-                          ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () => _handlePromoteSomeday(task),
+                    icon: const Text('⚡', style: TextStyle(fontSize: 13)),
+                    label: Text(
+                      context.tr('activate_btn'),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      onPressed: () => _handlePromoteSomeday(task),
-                      icon: const Text('⚡', style: TextStyle(fontSize: 13)),
-                      label: Text(
-                        context.tr('activate_btn'),
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2E6FF2),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2E6FF2),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -858,6 +954,12 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
     required Color borderColor,
     required Color inputBg,
   }) {
+    final suggestions = ProductivityService.suggest(
+      tasks: ref.watch(tasksStreamProvider).value ?? [],
+      today: ref.watch(calendarClockProvider),
+      availableMinutes: 90,
+      metadata: {},
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -867,6 +969,32 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
         ),
         const SizedBox(height: 16),
 
+        Text(
+          Localizations.localeOf(context).languageCode == 'ar'
+              ? 'اقتراحات من مهامك الحالية؛ اضغط لإضافتها للأولويات'
+              : 'Suggestions from current tasks; tap to fill a priority',
+        ),
+        Wrap(
+          spacing: 8,
+          children: [
+            for (final suggestion in suggestions.take(3))
+              ActionChip(
+                label: Text(suggestion.task.title),
+                onPressed: () {
+                  for (final controller in [
+                    _priority1Controller,
+                    _priority2Controller,
+                    _priority3Controller,
+                  ]) {
+                    if (controller.text.trim().isEmpty) {
+                      controller.text = suggestion.task.title;
+                      break;
+                    }
+                  }
+                },
+              ),
+          ],
+        ),
         _buildPriorityField(
           controller: _priority1Controller,
           number: '1',
@@ -911,10 +1039,17 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
   }) {
     return TextFormField(
       controller: controller,
-      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: primaryTextColor,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor.withValues(alpha: 0.6)),
+        hintStyle: TextStyle(
+          fontSize: 13,
+          color: secondaryTextColor.withValues(alpha: 0.6),
+        ),
         filled: true,
         fillColor: inputBg,
         prefixIcon: Container(
@@ -941,7 +1076,10 @@ class _WeeklyReviewWizardState extends ConsumerState<WeeklyReviewWizard> {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
       ),
     );
   }

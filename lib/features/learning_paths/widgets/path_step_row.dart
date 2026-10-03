@@ -12,11 +12,7 @@ class PathStepRow extends ConsumerStatefulWidget {
   final LearningPathModel path;
   final PathStepModel step;
 
-  const PathStepRow({
-    super.key,
-    required this.path,
-    required this.step,
-  });
+  const PathStepRow({super.key, required this.path, required this.step});
 
   @override
   ConsumerState<PathStepRow> createState() => _PathStepRowState();
@@ -146,10 +142,14 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
           decoration: InputDecoration(
             hintText: dialogCtx.tr('day_topic_hint'),
             filled: true,
-            fillColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+            fillColor: isDark
+                ? const Color(0xFF08123A)
+                : const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+              borderSide: BorderSide(
+                color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+              ),
             ),
           ),
         ),
@@ -162,9 +162,12 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2E6FF2),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            onPressed: () => Navigator.of(dialogCtx).pop(titleController.text.trim()),
+            onPressed: () =>
+                Navigator.of(dialogCtx).pop(titleController.text.trim()),
             child: Text(dialogCtx.tr('save')),
           ),
         ],
@@ -201,7 +204,9 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: isCompleted
-            ? (isDark ? const Color(0xFF10B981).withValues(alpha: 0.08) : const Color(0xFFECFDF5))
+            ? (isDark
+                  ? const Color(0xFF10B981).withValues(alpha: 0.08)
+                  : const Color(0xFFECFDF5))
             : rowBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
@@ -220,7 +225,10 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
               children: [
                 // Day Number Pill
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isCompleted
                         ? const Color(0xFF10B981).withValues(alpha: 0.15)
@@ -257,7 +265,9 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
                           color: step.title.isNotEmpty
                               ? primaryTextColor
                               : secondaryTextColor.withValues(alpha: 0.6),
-                          decoration: isCompleted ? TextDecoration.lineThrough : null,
+                          decoration: isCompleted
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -271,11 +281,16 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
                 if (hasSubSteps)
                   InkWell(
                     onTap: () {
-                      setState(() => _isSubStepsExpanded = !_isSubStepsExpanded);
+                      setState(
+                        () => _isSubStepsExpanded = !_isSubStepsExpanded,
+                      );
                     },
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 4,
+                      ),
                       child: Row(
                         children: [
                           Text(
@@ -409,9 +424,14 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
                       decoration: InputDecoration(
                         hintText: context.tr('substep_hint'),
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
                         filled: true,
-                        fillColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                        fillColor: isDark
+                            ? const Color(0xFF0F1B4C)
+                            : Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: borderColor),
@@ -422,13 +442,21 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
                   ),
                   const SizedBox(width: 6),
                   IconButton(
-                    icon: const Icon(Icons.check_rounded, color: Color(0xFF2E6FF2), size: 18),
+                    icon: const Icon(
+                      Icons.check_rounded,
+                      color: Color(0xFF2E6FF2),
+                      size: 18,
+                    ),
                     constraints: const BoxConstraints(),
                     padding: const EdgeInsets.all(4),
                     onPressed: _addSubStep,
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Color(0xFFEF4444), size: 18),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: Color(0xFFEF4444),
+                      size: 18,
+                    ),
                     constraints: const BoxConstraints(),
                     padding: const EdgeInsets.all(4),
                     onPressed: () {
@@ -451,11 +479,18 @@ class _PathStepRowState extends ConsumerState<PathStepRow> {
                 },
                 borderRadius: BorderRadius.circular(6),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 2,
+                    horizontal: 4,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.add_rounded, size: 14, color: Color(0xFF2E6FF2)),
+                      const Icon(
+                        Icons.add_rounded,
+                        size: 14,
+                        color: Color(0xFF2E6FF2),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         context.tr('add_substep_btn'),

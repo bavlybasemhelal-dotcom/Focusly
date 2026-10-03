@@ -6,6 +6,7 @@ class AppTheme {
   /// Light Mode Theme (Vibrant, Frosted Glass, Daylight Aurora)
   static ThemeData get lightTheme {
     return ThemeData(
+      fontFamily: 'Cairo',
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.lightBg,
@@ -37,9 +38,7 @@ class AppTheme {
         dialBackgroundColor: const Color(0xFFF1F5F9),
         dialTextColor: AppColors.lightTextPrimary,
         entryModeIconColor: AppColors.primaryBlueVibrant,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.lightBorder,
@@ -51,6 +50,7 @@ class AppTheme {
   /// Dark Mode Theme (Midnight Neon Space)
   static ThemeData get darkTheme {
     return ThemeData(
+      fontFamily: 'Cairo',
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.darkBg,

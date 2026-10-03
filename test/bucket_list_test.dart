@@ -99,7 +99,9 @@ void main() {
   });
 
   group('BucketListPage UI & Widget Tests', () {
-    testWidgets('Renders overall empty state when zero bucket items exist', (tester) async {
+    testWidgets('Renders overall empty state when zero bucket items exist', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createBucketListTestWidget(
           child: const BucketListPage(),
@@ -115,7 +117,9 @@ void main() {
       expect(find.text('Add Dream'), findsWidgets);
     });
 
-    testWidgets('Renders Dreams to Achieve and Achieved Memories sections', (tester) async {
+    testWidgets('Renders Dreams to Achieve and Achieved Memories sections', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createBucketListTestWidget(
           child: const BucketListPage(),
@@ -139,27 +143,32 @@ void main() {
       expect(find.textContaining('Finished in 54 minutes'), findsOneWidget);
     });
 
-    testWidgets('Navigation Drawer includes Bucket List under Analytics section', (tester) async {
-      await tester.pumpWidget(
-        createBucketListTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            bucketListStreamProvider.overrideWith((ref) => Stream.value([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer includes Bucket List under Analytics section',
+      (tester) async {
+        await tester.pumpWidget(
+          createBucketListTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              bucketListStreamProvider.overrideWith((ref) => Stream.value([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      expect(find.text('ANALYTICS'), findsOneWidget);
-      expect(find.text('Bucket List'), findsOneWidget);
-    });
+        expect(find.text('ANALYTICS'), findsOneWidget);
+        expect(find.text('Bucket List'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Arabic localization renders all Bucket List texts', (tester) async {
+    testWidgets('Arabic localization renders all Bucket List texts', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createBucketListTestWidget(
           locale: const Locale('ar'),
@@ -181,14 +190,12 @@ void main() {
   });
 
   group('BucketItemFormModal Tests', () {
-    testWidgets('Validates required title and renders form inputs', (tester) async {
+    testWidgets('Validates required title and renders form inputs', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createBucketListTestWidget(
-          child: Scaffold(
-            body: BucketItemFormModal(
-              itemToEdit: pendingDream,
-            ),
-          ),
+          child: Scaffold(body: BucketItemFormModal(itemToEdit: pendingDream)),
         ),
       );
       await tester.pumpAndSettle();
@@ -198,24 +205,30 @@ void main() {
       expect(find.text('Status'), findsOneWidget);
       expect(find.text('Memory & Reflection'), findsOneWidget);
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Save Item'), findsOneWidget);
       expect(find.text('Delete Item'), findsOneWidget);
     });
 
-    testWidgets('Displays validation error when title is empty', (tester) async {
+    testWidgets('Displays validation error when title is empty', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createBucketListTestWidget(
-          child: const Scaffold(
-            body: BucketItemFormModal(),
-          ),
+          child: const Scaffold(body: BucketItemFormModal()),
         ),
       );
       await tester.pumpAndSettle();
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
       await tester.pumpAndSettle();
 
       // Tap Save with empty title

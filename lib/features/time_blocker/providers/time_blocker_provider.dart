@@ -1,3 +1,5 @@
+import '../../../core/data/calendar_clock.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../schedule/helpers/recurrence_helper.dart';
 import '../../schedule/models/event_model.dart';
@@ -18,12 +20,12 @@ class TimeBlockerSelectedDateNotifier extends Notifier<DateTime> {
 
   /// Advances to the next calendar day
   void nextDay() {
-    state = state.add(const Duration(days: 1));
+    state = calendarDay(state, 1);
   }
 
   /// Steps back to the previous calendar day
   void previousDay() {
-    state = state.subtract(const Duration(days: 1));
+    state = calendarDay(state, -1);
   }
 
   /// Jumps back to today
@@ -35,8 +37,8 @@ class TimeBlockerSelectedDateNotifier extends Notifier<DateTime> {
 /// Global provider for the selected timeline date
 final timeBlockerSelectedDateProvider =
     NotifierProvider<TimeBlockerSelectedDateNotifier, DateTime>(
-  TimeBlockerSelectedDateNotifier.new,
-);
+      TimeBlockerSelectedDateNotifier.new,
+    );
 
 /// Derived provider filtering all user events for the selected date down to Time Blocks.
 ///
@@ -48,10 +50,36 @@ final timeBlocksForSelectedDateProvider = Provider<List<EventModel>>((ref) {
   final selectedDate = ref.watch(timeBlockerSelectedDateProvider);
   final allEvents = eventsAsync.value ?? [];
 
-  // Filter to all events that occur on the selected date
-  final blocks = allEvents.where((event) {
-    return RecurrenceHelper.doesEventOccurOn(event, selectedDate);
-  }).toList();
+  final blocks = <EventModel>[];
+  for (final event in allEvents) {
+    final startMinutes = event.time.hour * 60 + event.time.minute;
+    if (RecurrenceHelper.doesEventOccurOn(event, selectedDate)) {
+      blocks.add(
+        event.copyWith(
+          date: selectedDate,
+          durationMinutes: event.effectiveDurationMinutes.clamp(
+            1,
+            1440 - startMinutes,
+          ),
+        ),
+      );
+    }
+    if (RecurrenceHelper.doesEventOccurOn(
+      event,
+      calendarDay(selectedDate, -1),
+    )) {
+      final carried = startMinutes + event.effectiveDurationMinutes - 1440;
+      if (carried > 0) {
+        blocks.add(
+          event.copyWith(
+            date: selectedDate,
+            time: const TimeOfDay(hour: 0, minute: 0),
+            durationMinutes: carried.clamp(1, 1440),
+          ),
+        );
+      }
+    }
+  }
 
   // Sort by start time of day in minutes
   blocks.sort((a, b) {

@@ -12,10 +12,7 @@ import 'social_battery_form_modal.dart';
 class SocialBatteryEntryCard extends ConsumerWidget {
   final SocialBatteryEntryModel entry;
 
-  const SocialBatteryEntryCard({
-    super.key,
-    required this.entry,
-  });
+  const SocialBatteryEntryCard({super.key, required this.entry});
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     HapticFeedback.heavyImpact();
@@ -29,7 +26,11 @@ class SocialBatteryEntryCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -59,7 +60,9 @@ class SocialBatteryEntryCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -80,7 +83,9 @@ class SocialBatteryEntryCard extends ConsumerWidget {
               content: Text(context.tr('social_entry_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -97,12 +102,20 @@ class SocialBatteryEntryCard extends ConsumerWidget {
     final borderColor = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
 
     final isEnergizer = entry.isEnergizer;
-    final typeColor = isEnergizer ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+    final typeColor = isEnergizer
+        ? const Color(0xFF10B981)
+        : const Color(0xFFEF4444);
     final typeEmoji = isEnergizer ? '🔋' : '🪫';
 
     final badgeLabel = isEnergizer
-        ? context.tr('energizer_badge', args: {'impact': entry.impact.toString()})
-        : context.tr('drainer_badge', args: {'impact': entry.impact.toString()});
+        ? context.tr(
+            'energizer_badge',
+            args: {'impact': entry.impact.toString()},
+          )
+        : context.tr(
+            'drainer_badge',
+            args: {'impact': entry.impact.toString()},
+          );
 
     final dateStr =
         '${entry.date.year}-${entry.date.month.toString().padLeft(2, '0')}-${entry.date.day.toString().padLeft(2, '0')}';
@@ -134,10 +147,7 @@ class SocialBatteryEntryCard extends ConsumerWidget {
               color: typeColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              typeEmoji,
-              style: const TextStyle(fontSize: 18),
-            ),
+            child: Text(typeEmoji, style: const TextStyle(fontSize: 18)),
           ),
           const SizedBox(width: 12),
 
@@ -171,11 +181,16 @@ class SocialBatteryEntryCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: typeColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: typeColor.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: typeColor.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Text(
                         badgeLabel,

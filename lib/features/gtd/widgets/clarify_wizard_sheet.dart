@@ -24,10 +24,7 @@ enum ClarifyStep {
 class ClarifyWizardSheet extends StatefulWidget {
   final InboxItemModel inboxItem;
 
-  const ClarifyWizardSheet({
-    super.key,
-    required this.inboxItem,
-  });
+  const ClarifyWizardSheet({super.key, required this.inboxItem});
 
   static Future<void> show(BuildContext context, InboxItemModel item) {
     return showModalBottomSheet(
@@ -60,7 +57,11 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
     });
   }
 
-  void _showToast(String message, {IconData icon = Icons.check_circle_rounded, Color iconColor = const Color(0xFF10B981)}) {
+  void _showToast(
+    String message, {
+    IconData icon = Icons.check_circle_rounded,
+    Color iconColor = const Color(0xFF10B981),
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -85,17 +86,25 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
   /// 1b - Reference destination
   Future<void> _handleReference() async {
     setState(() => _isProcessing = true);
-    await GTDService().createReferenceTask(
-      widget.inboxItem.text,
-      originalInboxItemId: widget.inboxItem.id,
-    );
-    if (mounted) {
-      Navigator.of(context).pop();
-      _showToast(
-        context.tr('clarify_moved_to_reference'),
-        icon: Icons.bookmark_added_rounded,
-        iconColor: const Color(0xFF38BDF8),
+    try {
+      await GTDService().createReferenceTask(
+        widget.inboxItem.text,
+        originalInboxItemId: widget.inboxItem.id,
       );
+      if (mounted) {
+        Navigator.of(context).pop();
+        _showToast(
+          context.tr('clarify_moved_to_reference'),
+          icon: Icons.bookmark_added_rounded,
+          iconColor: const Color(0xFF38BDF8),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        _showToast(context.tr('task_save_error'), icon: Icons.error_outline);
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -105,43 +114,73 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
   /// without an active task.
   Future<void> _handleArchive() async {
     setState(() => _isProcessing = true);
-    await GTDService().markInboxProcessed(widget.inboxItem.id, processed: true);
-    if (mounted) {
-      Navigator.of(context).pop();
-      _showToast(
-        context.tr('clarify_archived_toast'),
-        icon: Icons.archive_rounded,
-        iconColor: const Color(0xFF94A3B8),
+    try {
+      await GTDService().markInboxProcessed(
+        widget.inboxItem.id,
+        processed: true,
       );
+      if (mounted) {
+        Navigator.of(context).pop();
+        _showToast(
+          context.tr('clarify_archived_toast'),
+          icon: Icons.archive_rounded,
+          iconColor: const Color(0xFF94A3B8),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        _showToast(context.tr('task_save_error'), icon: Icons.error_outline);
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
   /// 1b - Delete destination (Destructive)
   Future<void> _handleDelete() async {
     setState(() => _isProcessing = true);
-    await GTDService().deleteInboxItem(widget.inboxItem.id);
-    if (mounted) {
-      Navigator.of(context).pop();
-      _showToast(
-        context.tr('clarify_deleted_toast'),
-        icon: Icons.delete_outline_rounded,
-        iconColor: const Color(0xFFEF4444),
-      );
+    try {
+      await GTDService().deleteInboxItem(widget.inboxItem.id);
+      if (mounted) {
+        Navigator.of(context).pop();
+        _showToast(
+          context.tr('clarify_deleted_toast'),
+          icon: Icons.delete_outline_rounded,
+          iconColor: const Color(0xFFEF4444),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        _showToast(context.tr('task_save_error'), icon: Icons.error_outline);
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
   /// 2 - 2-Minute Rule "Do it now"
   Future<void> _handleDoItNow() async {
     setState(() => _isProcessing = true);
-    HapticFeedback.heavyImpact();
-    await GTDService().markInboxProcessed(widget.inboxItem.id, processed: true);
-    if (mounted) {
-      Navigator.of(context).pop();
-      _showToast(
-        context.tr('clarify_two_min_celebrate'),
-        icon: Icons.timer_rounded,
-        iconColor: const Color(0xFFF59E0B),
+    try {
+      HapticFeedback.heavyImpact();
+      await GTDService().markInboxProcessed(
+        widget.inboxItem.id,
+        processed: true,
       );
+      if (mounted) {
+        Navigator.of(context).pop();
+        _showToast(
+          context.tr('clarify_two_min_celebrate'),
+          icon: Icons.timer_rounded,
+          iconColor: const Color(0xFFF59E0B),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        _showToast(context.tr('task_save_error'), icon: Icons.error_outline);
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -156,28 +195,35 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => AddEditTaskSheet(
         initialTitle: widget.inboxItem.text,
+        originalInboxItemId: widget.inboxItem.id,
       ),
     );
 
-    if (result == true) {
-      await GTDService().markInboxProcessed(widget.inboxItem.id, processed: true);
-    }
+    if (result == true) HapticFeedback.selectionClick();
   }
 
   /// 3 - Someday / Maybe destination
   Future<void> _handleSomeday() async {
     setState(() => _isProcessing = true);
-    await GTDService().createSomedayTask(
-      widget.inboxItem.text,
-      originalInboxItemId: widget.inboxItem.id,
-    );
-    if (mounted) {
-      Navigator.of(context).pop();
-      _showToast(
-        context.tr('clarify_moved_to_someday'),
-        icon: Icons.nightlight_round,
-        iconColor: const Color(0xFF8B5CF6),
+    try {
+      await GTDService().createSomedayTask(
+        widget.inboxItem.text,
+        originalInboxItemId: widget.inboxItem.id,
       );
+      if (mounted) {
+        Navigator.of(context).pop();
+        _showToast(
+          context.tr('clarify_moved_to_someday'),
+          icon: Icons.nightlight_round,
+          iconColor: const Color(0xFF8B5CF6),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        _showToast(context.tr('task_save_error'), icon: Icons.error_outline);
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -187,18 +233,26 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
     if (name.isEmpty) return;
 
     setState(() => _isProcessing = true);
-    await GTDService().createWaitingTask(
-      widget.inboxItem.text,
-      name,
-      originalInboxItemId: widget.inboxItem.id,
-    );
-    if (mounted) {
-      Navigator.of(context).pop();
-      _showToast(
-        context.tr('clarify_moved_to_waiting'),
-        icon: Icons.hourglass_top_rounded,
-        iconColor: const Color(0xFFF59E0B),
+    try {
+      await GTDService().createWaitingTask(
+        widget.inboxItem.text,
+        name,
+        originalInboxItemId: widget.inboxItem.id,
       );
+      if (mounted) {
+        Navigator.of(context).pop();
+        _showToast(
+          context.tr('clarify_moved_to_waiting'),
+          icon: Icons.hourglass_top_rounded,
+          iconColor: const Color(0xFFF59E0B),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        _showToast(context.tr('task_save_error'), icon: Icons.error_outline);
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -213,12 +267,11 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => AddEditEventSheet(
         initialTitle: widget.inboxItem.text,
+        originalInboxItemId: widget.inboxItem.id,
       ),
     );
 
-    if (result == true) {
-      await GTDService().markInboxProcessed(widget.inboxItem.id, processed: true);
-    }
+    if (result == true) HapticFeedback.selectionClick();
   }
 
   // ---------------------------------------------------------------------------
@@ -240,7 +293,9 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black54 : const Color(0xFF2E6FF2).withValues(alpha: 0.14),
+            color: isDark
+                ? Colors.black54
+                : const Color(0xFF2E6FF2).withValues(alpha: 0.14),
             blurRadius: 30,
             offset: const Offset(0, -6),
           ),
@@ -283,17 +338,24 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
                           _goTo(ClarifyStep.step1Actionable);
                         } else if (_currentStep == ClarifyStep.step3Decision) {
                           _goTo(ClarifyStep.step2TwoMinuteRule);
-                        } else if (_currentStep == ClarifyStep.step3WaitingForInput) {
+                        } else if (_currentStep ==
+                            ClarifyStep.step3WaitingForInput) {
                           _goTo(ClarifyStep.step3Decision);
                         }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                          color: isDark
+                              ? Colors.white10
+                              : const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(Icons.arrow_back_rounded, size: 18, color: primaryTextColor),
+                        child: Icon(
+                          Icons.arrow_back_rounded,
+                          size: 18,
+                          color: primaryTextColor,
+                        ),
                       ),
                     )
                   else
@@ -305,7 +367,11 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
                             color: brandPrimary.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(Icons.auto_fix_high_rounded, size: 18, color: brandPrimary),
+                          child: Icon(
+                            Icons.auto_fix_high_rounded,
+                            size: 18,
+                            color: brandPrimary,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -330,7 +396,9 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? const Color(0xFF08123A)
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: borderColor, width: 1.2),
                 ),
@@ -364,7 +432,12 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
                   ),
                 )
               else
-                _buildCurrentStepContent(context, isDark, primaryTextColor, secondaryTextColor),
+                _buildCurrentStepContent(
+                  context,
+                  isDark,
+                  primaryTextColor,
+                  secondaryTextColor,
+                ),
             ],
           ),
         ),
@@ -374,7 +447,8 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
 
   Widget _buildProgressDots(bool isDark, Color brandPrimary) {
     int activeDot = 0;
-    if (_currentStep == ClarifyStep.step1Actionable || _currentStep == ClarifyStep.step1bNoAction) {
+    if (_currentStep == ClarifyStep.step1Actionable ||
+        _currentStep == ClarifyStep.step1bNoAction) {
       activeDot = 0;
     } else if (_currentStep == ClarifyStep.step2TwoMinuteRule) {
       activeDot = 1;
@@ -390,7 +464,9 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
           width: index == activeDot ? 18 : 7,
           height: 7,
           decoration: BoxDecoration(
-            color: isActive ? brandPrimary : (isDark ? Colors.white24 : const Color(0xFFCBD5E1)),
+            color: isActive
+                ? brandPrimary
+                : (isDark ? Colors.white24 : const Color(0xFFCBD5E1)),
             borderRadius: BorderRadius.circular(10),
           ),
         );
@@ -414,12 +490,20 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
           children: [
             Text(
               context.tr('clarify_step1_question'),
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: primaryColor),
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+                color: primaryColor,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               context.tr('clarify_step1_prompt'),
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: secondaryColor),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: secondaryColor,
+              ),
             ),
             const SizedBox(height: 18),
             Row(
@@ -459,12 +543,20 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
           children: [
             Text(
               context.tr('clarify_step1b_question'),
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: primaryColor),
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+                color: primaryColor,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               context.tr('clarify_step1b_prompt'),
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: secondaryColor),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: secondaryColor,
+              ),
             ),
             const SizedBox(height: 18),
             _buildOptionTile(
@@ -506,12 +598,20 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
           children: [
             Text(
               context.tr('clarify_step2_question'),
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: primaryColor),
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+                color: primaryColor,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               context.tr('clarify_step2_prompt'),
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: secondaryColor),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: secondaryColor,
+              ),
             ),
             const SizedBox(height: 18),
             Row(
@@ -551,12 +651,20 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
           children: [
             Text(
               context.tr('clarify_step3_question'),
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: primaryColor),
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+                color: primaryColor,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               context.tr('clarify_step3_prompt'),
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: secondaryColor),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: secondaryColor,
+              ),
             ),
             const SizedBox(height: 18),
             _buildOptionTile(
@@ -606,17 +714,27 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
           children: [
             Text(
               context.tr('clarify_waiting_prompt_title'),
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: primaryColor),
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+                color: primaryColor,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               context.tr('clarify_waiting_prompt_sub'),
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: secondaryColor),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: secondaryColor,
+              ),
             ),
             const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                color: isDark
+                    ? const Color(0xFF08123A)
+                    : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDark ? Colors.white12 : const Color(0xFFE2E8F5),
@@ -627,7 +745,11 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
               child: TextField(
                 controller: _waitingForController,
                 autofocus: true,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: primaryColor),
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: primaryColor,
+                ),
                 decoration: InputDecoration(
                   hintText: context.tr('clarify_waiting_input_hint'),
                   hintStyle: TextStyle(fontSize: 14, color: secondaryColor),
@@ -644,12 +766,17 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF59E0B),
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   elevation: 0,
                 ),
                 child: Text(
                   context.tr('clarify_save_waiting_btn'),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ),
@@ -764,7 +891,9 @@ class _ClarifyWizardSheetState extends State<ClarifyWizardSheet> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: isDestructive ? color : AppColors.textPrimary(context),
+                      color: isDestructive
+                          ? color
+                          : AppColors.textPrimary(context),
                     ),
                   ),
                   Text(

@@ -6,7 +6,7 @@ class LegacyJournalService {
   final FirebaseFirestore _firestore;
 
   LegacyJournalService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _collection(String uid) {
     return _firestore.collection('users').doc(uid).collection('legacyJournal');
@@ -16,14 +16,13 @@ class LegacyJournalService {
   Stream<List<LegacyEntryModel>> getEntriesStream(String uid) {
     if (uid.isEmpty) return Stream.value([]);
 
-    return _collection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _collection(uid).orderBy('date', descending: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs
           .map((doc) => LegacyEntryModel.fromFirestore(doc))
           .toList();
-    }).handleError((_) => <LegacyEntryModel>[]);
+    });
   }
 
   /// Adds a new legacy journal entry and returns the generated document ID

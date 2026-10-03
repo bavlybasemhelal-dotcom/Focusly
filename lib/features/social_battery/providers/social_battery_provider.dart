@@ -14,19 +14,20 @@ final socialBatteryServiceProvider = Provider<SocialBatteryService>((ref) {
 /// Strictly scoped to `users/{uid}/socialBattery`.
 final socialBatteryStreamProvider =
     StreamProvider<List<SocialBatteryEntryModel>>((ref) {
-  final uid = ref.watch(currentUserIdProvider);
-  if (uid == null || uid.isEmpty) return const Stream.empty();
+      final uid = ref.watch(currentUserIdProvider);
+      if (uid == null || uid.isEmpty) return const Stream.empty();
 
-  final service = ref.watch(socialBatteryServiceProvider);
-  return service.streamEntries(uid);
-});
+      final service = ref.watch(socialBatteryServiceProvider);
+      return service.streamEntries(uid);
+    });
 
 /// Derived provider: The 10 most recent entries in reverse-chronological order.
-final recentSocialBatteryLogsProvider =
-    Provider<List<SocialBatteryEntryModel>>((ref) {
-  final entries = ref.watch(socialBatteryStreamProvider).value ?? [];
-  return entries.take(10).toList();
-});
+final recentSocialBatteryLogsProvider = Provider<List<SocialBatteryEntryModel>>(
+  (ref) {
+    final entries = ref.watch(socialBatteryStreamProvider).value ?? [];
+    return entries.take(10).toList();
+  },
+);
 
 /// Derived provider: Computed summary metrics (net energy balance, energizer/drainer counts).
 final socialBatterySummaryProvider = Provider<SocialBatterySummary>((ref) {

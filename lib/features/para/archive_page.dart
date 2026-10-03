@@ -20,7 +20,9 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
 
   Future<void> _handleRestoreProject(ParaProjectModel project) async {
     HapticFeedback.mediumImpact();
-    await ref.read(paraServiceProvider).setProjectArchived(project.id, archived: false);
+    await ref
+        .read(paraServiceProvider)
+        .setProjectArchived(project.id, archived: false);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -44,10 +46,16 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Text(
           context.tr('delete_project_confirm_title'),
-          style: TextStyle(fontWeight: FontWeight.w900, color: primaryTextColor),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: primaryTextColor,
+          ),
         ),
         content: Text(
-          context.tr('delete_project_confirm_msg', args: {'title': project.title}),
+          context.tr(
+            'delete_project_confirm_msg',
+            args: {'title': project.title},
+          ),
           style: TextStyle(color: secondaryTextColor),
         ),
         actions: [
@@ -60,7 +68,9 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.errorRed,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(context.tr('delete_group_btn')),
           ),
@@ -83,7 +93,9 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
 
   Future<void> _handleRestoreResource(ParaResourceModel resource) async {
     HapticFeedback.mediumImpact();
-    await ref.read(paraServiceProvider).setResourceArchived(resource.id, archived: false);
+    await ref
+        .read(paraServiceProvider)
+        .setResourceArchived(resource.id, archived: false);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -94,7 +106,9 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
     }
   }
 
-  Future<void> _handlePermanentDeleteResource(ParaResourceModel resource) async {
+  Future<void> _handlePermanentDeleteResource(
+    ParaResourceModel resource,
+  ) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dialogBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final primaryTextColor = AppColors.textPrimary(context);
@@ -107,10 +121,16 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Text(
           context.tr('delete_resource_confirm_title'),
-          style: TextStyle(fontWeight: FontWeight.w900, color: primaryTextColor),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: primaryTextColor,
+          ),
         ),
         content: Text(
-          context.tr('delete_resource_confirm_msg', args: {'title': resource.title}),
+          context.tr(
+            'delete_resource_confirm_msg',
+            args: {'title': resource.title},
+          ),
           style: TextStyle(color: secondaryTextColor),
         ),
         actions: [
@@ -123,7 +143,9 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.errorRed,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(context.tr('delete_group_btn')),
           ),
@@ -150,7 +172,9 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
     final brandPrimary = AppColors.brandPrimary(context);
-    final scaffoldBg = isDark ? const Color(0xFF070D28) : const Color(0xFFF8FAFC);
+    final scaffoldBg = isDark
+        ? const Color(0xFF070D28)
+        : const Color(0xFFF8FAFC);
 
     final archivedProjectsAsync = ref.watch(archivedProjectsStreamProvider);
     final archivedResourcesAsync = ref.watch(archivedResourcesStreamProvider);
@@ -179,7 +203,9 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F1B4C) : const Color(0xFFE2E8F5),
+                color: isDark
+                    ? const Color(0xFF0F1B4C)
+                    : const Color(0xFFE2E8F5),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -224,7 +250,8 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                             physics: const BouncingScrollPhysics(),
                             padding: const EdgeInsets.fromLTRB(20, 0, 20, 90),
                             itemCount: projects.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 10),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 10),
                             itemBuilder: (context, index) {
                               final project = projects[index];
                               return _buildArchivedCard(
@@ -233,14 +260,16 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                                 icon: Icons.folder_special_rounded,
                                 iconColor: const Color(0xFF8B5CF6),
                                 onRestore: () => _handleRestoreProject(project),
-                                onDelete: () => _handlePermanentDeleteProject(project),
+                                onDelete: () =>
+                                    _handlePermanentDeleteProject(project),
                                 isDark: isDark,
                                 primaryTextColor: primaryTextColor,
                                 secondaryTextColor: secondaryTextColor,
                               );
                             },
                           ),
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, stack) => Center(
                       child: Text(
                         context.tr('projects_load_error'),
@@ -262,7 +291,8 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                             physics: const BouncingScrollPhysics(),
                             padding: const EdgeInsets.fromLTRB(20, 0, 20, 90),
                             itemCount: resources.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 10),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 10),
                             itemBuilder: (context, index) {
                               final resource = resources[index];
                               return _buildArchivedCard(
@@ -271,15 +301,18 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                                 subtitle: resource.notes,
                                 icon: Icons.source_rounded,
                                 iconColor: const Color(0xFF06B6D4),
-                                onRestore: () => _handleRestoreResource(resource),
-                                onDelete: () => _handlePermanentDeleteResource(resource),
+                                onRestore: () =>
+                                    _handleRestoreResource(resource),
+                                onDelete: () =>
+                                    _handlePermanentDeleteResource(resource),
                                 isDark: isDark,
                                 primaryTextColor: primaryTextColor,
                                 secondaryTextColor: secondaryTextColor,
                               );
                             },
                           ),
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, stack) => Center(
                       child: Text(
                         context.tr('resources_load_error'),
@@ -313,7 +346,11 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: isSelected ? Colors.white : const Color(0xFF94A3B8)),
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+            ),
             const SizedBox(width: 8),
             Text(
               label,
@@ -384,10 +421,7 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: secondaryTextColor,
-                    ),
+                    style: TextStyle(fontSize: 12, color: secondaryTextColor),
                   ),
                 ],
               ],
@@ -395,12 +429,20 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.unarchive_rounded, color: Color(0xFF10B981), size: 22),
+            icon: const Icon(
+              Icons.unarchive_rounded,
+              color: Color(0xFF10B981),
+              size: 22,
+            ),
             onPressed: onRestore,
             tooltip: context.tr('restore_action_btn'),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.errorRed, size: 22),
+            icon: const Icon(
+              Icons.delete_outline_rounded,
+              color: AppColors.errorRed,
+              size: 22,
+            ),
             onPressed: onDelete,
             tooltip: context.tr('delete_group_btn'),
           ),

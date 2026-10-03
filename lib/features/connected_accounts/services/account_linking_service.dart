@@ -1,5 +1,8 @@
+import '../../../core/platform/desktop_bridge.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../../../core/auth/google_auth_service.dart';
 
 /// Result type for account linking operations.
 enum LinkingStatus {
@@ -38,11 +41,9 @@ class AccountLinkingService {
   final FirebaseAuth? _auth;
   final GoogleSignIn? _googleSignIn;
 
-  AccountLinkingService({
-    FirebaseAuth? auth,
-    GoogleSignIn? googleSignIn,
-  })  : _auth = auth,
-        _googleSignIn = googleSignIn;
+  AccountLinkingService({FirebaseAuth? auth, GoogleSignIn? googleSignIn})
+    : _auth = auth,
+      _googleSignIn = googleSignIn;
 
   FirebaseAuth get _firebaseAuth => _auth ?? FirebaseAuth.instance;
   GoogleSignIn get _googleSignInClient =>
@@ -82,19 +83,24 @@ class AccountLinkingService {
         );
       }
 
-      // 1. Trigger Google interactive sign-in flow
-      final googleUser = await _googleSignInClient.signIn();
-      if (googleUser == null) {
+      if (kIsWeb && !DesktopBridge.available) {
+        final result = await currentUser.linkWithPopup(
+          GoogleAuthProvider()
+            ..setCustomParameters({'prompt': 'select_account'}),
+        );
+        return AccountLinkingResult(
+          status: LinkingStatus.success,
+          user: result.user,
+        );
+      }
+      final credential = await GoogleAuthService(
+        auth: _firebaseAuth,
+        googleSignIn: _googleSignInClient,
+      ).getGoogleCredential();
+      if (credential == null) {
         // User dismissed the Google sign-in dialog
         return const AccountLinkingResult(status: LinkingStatus.cancelled);
       }
-
-      // 2. Obtain auth details (access & id tokens)
-      final googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
 
       // 3. Link credential with existing user
       final userCredential = await currentUser.linkWithCredential(credential);
@@ -138,6 +144,15 @@ class AccountLinkingService {
       }
 
       // 1. Unlink Google provider from Firebase Auth
+      if (!currentUser.providerData.any(
+        (provider) => provider.providerId != 'google.com',
+      )) {
+        return const AccountLinkingResult(
+          status: LinkingStatus.error,
+          errorMessage:
+              'Add an email and password before disconnecting your only sign-in method.',
+        );
+      }
       final updatedUser = await currentUser.unlink('google.com');
 
       // 2. Sign out of GoogleSignIn client so next connect prompts fresh account selection

@@ -40,7 +40,15 @@ class LifeAreaAssessmentModel {
 
   /// Average score across all 8 dimensions (1.0 to 10.0)
   double get averageScore {
-    final sum = career + finance + health + family + romance + growth + fun + environment;
+    final sum =
+        career +
+        finance +
+        health +
+        family +
+        romance +
+        growth +
+        fun +
+        environment;
     return (sum / 8.0 * 10).round() / 10.0;
   }
 
@@ -67,7 +75,10 @@ class LifeAreaAssessmentModel {
   }
 
   /// Factory constructor parsing from a Map and docId
-  factory LifeAreaAssessmentModel.fromMap(Map<String, dynamic> map, String docId) {
+  factory LifeAreaAssessmentModel.fromMap(
+    Map<String, dynamic> map,
+    String docId,
+  ) {
     DateTime parsedDate = DateTime.now();
     if (map['date'] is Timestamp) {
       parsedDate = (map['date'] as Timestamp).toDate();
@@ -79,7 +90,8 @@ class LifeAreaAssessmentModel {
     if (map['createdAt'] is Timestamp) {
       parsedCreatedAt = (map['createdAt'] as Timestamp).toDate();
     } else if (map['createdAt'] is String) {
-      parsedCreatedAt = DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now();
+      parsedCreatedAt =
+          DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now();
     }
 
     return LifeAreaAssessmentModel(
@@ -129,8 +141,18 @@ class LifeAreaAssessmentModel {
   /// Formatted date string (e.g. "Aug 25, 2026")
   String get formattedDate {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }

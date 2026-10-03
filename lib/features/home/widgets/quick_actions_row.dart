@@ -14,15 +14,11 @@ import '../../tasks/widgets/add_edit_task_sheet.dart';
 class QuickActionsRow extends StatelessWidget {
   final VoidCallback onStartPomodoro;
 
-  const QuickActionsRow({
-    super.key,
-    required this.onStartPomodoro,
-  });
+  const QuickActionsRow({super.key, required this.onStartPomodoro});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryTextColor = AppColors.textPrimary(context);
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final borderColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
@@ -114,8 +110,6 @@ class QuickActionsRow extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
-    final primaryTextColor = AppColors.textPrimary(context);
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -158,9 +152,7 @@ class QuickActionsRow extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Icon(icon, color: Colors.white, size: 18),
-                ),
+                child: Center(child: Icon(icon, color: Colors.white, size: 18)),
               ),
               const SizedBox(height: 8),
               Text(
@@ -168,7 +160,7 @@ class QuickActionsRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: primaryTextColor,
+                  color: AppColors.textPrimary(context),
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,

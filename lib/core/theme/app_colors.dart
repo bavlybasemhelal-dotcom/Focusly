@@ -44,32 +44,34 @@ class AppColors {
       Theme.of(context).brightness == Brightness.dark ? darkCard : lightCard;
 
   static Color surfaceBg(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? darkSurface : lightSurface;
+      Theme.of(context).brightness == Brightness.dark
+      ? darkSurface
+      : lightSurface;
 
   static Color textPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? darkTextPrimary
-          : lightTextPrimary;
+      ? darkTextPrimary
+      : lightTextPrimary;
 
   static Color textSecondary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? darkTextSecondary
-          : lightTextSecondary;
+      ? darkTextSecondary
+      : lightTextSecondary;
 
   static Color border(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? Colors.white.withValues(alpha: 0.12)
-          : lightBorder;
+      ? Colors.white.withValues(alpha: 0.12)
+      : lightBorder;
 
   static Color brandPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? cyanElectric
-          : primaryBlueVibrant;
+      ? cyanElectric
+      : primaryBlueVibrant;
 
   static Color brandAccent(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? accentGreenNeon
-          : accentGreen;
+      ? accentGreenNeon
+      : accentGreen;
 
   /// Dynamic Primary Button Gradient
   static LinearGradient primaryGradient(BuildContext context) {

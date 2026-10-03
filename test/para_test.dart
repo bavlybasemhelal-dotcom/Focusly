@@ -33,9 +33,7 @@ Widget createParaTestWidget({
     child: MaterialApp(
       locale: locale,
       supportedLocales: const [Locale('en'), Locale('ar')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate],
       theme: AppTheme.lightTheme,
       home: child,
     ),
@@ -94,27 +92,30 @@ void main() {
       expect(archivedCopy.archived, isTrue);
     });
 
-    test('ParaResourceModel serializes and deserializes with tags correctly', () {
-      final now = DateTime(2026, 8, 23);
-      final resource = ParaResourceModel(
-        id: 'res_1',
-        title: 'Flutter Performance Tips',
-        notes: 'Use const constructors and RepaintBoundary.',
-        tags: ['flutter', 'performance', 'dev'],
-        archived: false,
-        createdAt: now,
-      );
+    test(
+      'ParaResourceModel serializes and deserializes with tags correctly',
+      () {
+        final now = DateTime(2026, 8, 23);
+        final resource = ParaResourceModel(
+          id: 'res_1',
+          title: 'Flutter Performance Tips',
+          notes: 'Use const constructors and RepaintBoundary.',
+          tags: ['flutter', 'performance', 'dev'],
+          archived: false,
+          createdAt: now,
+        );
 
-      final map = resource.toMap();
-      expect(map['id'], equals('res_1'));
-      expect(map['title'], equals('Flutter Performance Tips'));
-      expect(map['tags'], equals(['flutter', 'performance', 'dev']));
+        final map = resource.toMap();
+        expect(map['id'], equals('res_1'));
+        expect(map['title'], equals('Flutter Performance Tips'));
+        expect(map['tags'], equals(['flutter', 'performance', 'dev']));
 
-      final reconstructed = ParaResourceModel.fromMap(map, 'res_1');
-      expect(reconstructed.id, equals('res_1'));
-      expect(reconstructed.tags.length, equals(3));
-      expect(reconstructed.notes, contains('RepaintBoundary'));
-    });
+        final reconstructed = ParaResourceModel.fromMap(map, 'res_1');
+        expect(reconstructed.id, equals('res_1'));
+        expect(reconstructed.tags.length, equals(3));
+        expect(reconstructed.notes, contains('RepaintBoundary'));
+      },
+    );
 
     test('TaskModel handles optional projectId field properly', () {
       final now = DateTime.now();
@@ -139,166 +140,290 @@ void main() {
   });
 
   group('PARA Riverpod Providers & Count Computations', () {
-    test('paraProjectsStreamProvider partitions active and archived projects correctly', () async {
-      final now = DateTime.now();
-      final allProjects = [
-        ParaProjectModel(id: 'p1', title: 'Active 1', areaId: 'a1', archived: false, createdAt: now),
-        ParaProjectModel(id: 'p2', title: 'Archived 1', areaId: 'a1', archived: true, createdAt: now),
-        ParaProjectModel(id: 'p3', title: 'Active 2', areaId: 'a2', archived: false, createdAt: now),
-      ];
+    test(
+      'paraProjectsStreamProvider partitions active and archived projects correctly',
+      () async {
+        final now = DateTime.now();
+        final allProjects = [
+          ParaProjectModel(
+            id: 'p1',
+            title: 'Active 1',
+            areaId: 'a1',
+            archived: false,
+            createdAt: now,
+          ),
+          ParaProjectModel(
+            id: 'p2',
+            title: 'Archived 1',
+            areaId: 'a1',
+            archived: true,
+            createdAt: now,
+          ),
+          ParaProjectModel(
+            id: 'p3',
+            title: 'Active 2',
+            areaId: 'a2',
+            archived: false,
+            createdAt: now,
+          ),
+        ];
 
-      final container = ProviderContainer(
-        overrides: [
-          currentUserIdProvider.overrideWithValue('user_test'),
-          allParaProjectsStreamProvider.overrideWith((ref) => Stream.value(allProjects)),
-        ],
-      );
-      addTearDown(container.dispose);
+        final container = ProviderContainer(
+          overrides: [
+            currentUserIdProvider.overrideWithValue('user_test'),
+            allParaProjectsStreamProvider.overrideWith(
+              (ref) => Stream.value(allProjects),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
 
-      container.listen(allParaProjectsStreamProvider, (prev, next) {});
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+        container.listen(allParaProjectsStreamProvider, (prev, next) {});
+        await Future<void>.delayed(const Duration(milliseconds: 10));
 
-      final active = container.read(paraProjectsStreamProvider).value ?? [];
-      expect(active.length, equals(2));
-      expect(active.map((p) => p.id), containsAll(['p1', 'p3']));
+        final active = container.read(paraProjectsStreamProvider).value ?? [];
+        expect(active.length, equals(2));
+        expect(active.map((p) => p.id), containsAll(['p1', 'p3']));
 
-      final archived = container.read(archivedProjectsStreamProvider).value ?? [];
-      expect(archived.length, equals(1));
-      expect(archived.first.id, equals('p2'));
-    });
+        final archived =
+            container.read(archivedProjectsStreamProvider).value ?? [];
+        expect(archived.length, equals(1));
+        expect(archived.first.id, equals('p2'));
+      },
+    );
 
-    test('areaActiveProjectsCountProvider accurately tallies active projects under an area', () async {
-      final now = DateTime.now();
-      final allProjects = [
-        ParaProjectModel(id: 'p1', title: 'Proj 1', areaId: 'area_health', archived: false, createdAt: now),
-        ParaProjectModel(id: 'p2', title: 'Proj 2', areaId: 'area_health', archived: true, createdAt: now),
-        ParaProjectModel(id: 'p3', title: 'Proj 3', areaId: 'area_health', archived: false, createdAt: now),
-        ParaProjectModel(id: 'p4', title: 'Proj 4', areaId: 'area_finance', archived: false, createdAt: now),
-      ];
+    test(
+      'areaActiveProjectsCountProvider accurately tallies active projects under an area',
+      () async {
+        final now = DateTime.now();
+        final allProjects = [
+          ParaProjectModel(
+            id: 'p1',
+            title: 'Proj 1',
+            areaId: 'area_health',
+            archived: false,
+            createdAt: now,
+          ),
+          ParaProjectModel(
+            id: 'p2',
+            title: 'Proj 2',
+            areaId: 'area_health',
+            archived: true,
+            createdAt: now,
+          ),
+          ParaProjectModel(
+            id: 'p3',
+            title: 'Proj 3',
+            areaId: 'area_health',
+            archived: false,
+            createdAt: now,
+          ),
+          ParaProjectModel(
+            id: 'p4',
+            title: 'Proj 4',
+            areaId: 'area_finance',
+            archived: false,
+            createdAt: now,
+          ),
+        ];
 
-      final container = ProviderContainer(
-        overrides: [
-          currentUserIdProvider.overrideWithValue('user_test'),
-          allParaProjectsStreamProvider.overrideWith((ref) => Stream.value(allProjects)),
-        ],
-      );
-      addTearDown(container.dispose);
+        final container = ProviderContainer(
+          overrides: [
+            currentUserIdProvider.overrideWithValue('user_test'),
+            allParaProjectsStreamProvider.overrideWith(
+              (ref) => Stream.value(allProjects),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
 
-      container.listen(allParaProjectsStreamProvider, (prev, next) {});
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+        container.listen(allParaProjectsStreamProvider, (prev, next) {});
+        await Future<void>.delayed(const Duration(milliseconds: 10));
 
-      final healthCount = container.read(areaActiveProjectsCountProvider('area_health'));
-      expect(healthCount, equals(2));
+        final healthCount = container.read(
+          areaActiveProjectsCountProvider('area_health'),
+        );
+        expect(healthCount, equals(2));
 
-      final financeCount = container.read(areaActiveProjectsCountProvider('area_finance'));
-      expect(financeCount, equals(1));
-    });
+        final financeCount = container.read(
+          areaActiveProjectsCountProvider('area_finance'),
+        );
+        expect(financeCount, equals(1));
+      },
+    );
   });
 
   group('PARA UI Screen & Widget Tests', () {
-    testWidgets('AreasPage renders area cards, emoji, and project count chips', (tester) async {
-      final areas = [
-        ParaAreaModel(id: 'a1', title: 'Career & Growth', emoji: '💼', createdAt: DateTime.now()),
-      ];
-      final projects = [
-        ParaProjectModel(id: 'p1', title: 'Portfolio Website', areaId: 'a1', archived: false, createdAt: DateTime.now()),
-      ];
+    testWidgets(
+      'AreasPage renders area cards, emoji, and project count chips',
+      (tester) async {
+        final areas = [
+          ParaAreaModel(
+            id: 'a1',
+            title: 'Career & Growth',
+            emoji: '💼',
+            createdAt: DateTime.now(),
+          ),
+        ];
+        final projects = [
+          ParaProjectModel(
+            id: 'p1',
+            title: 'Portfolio Website',
+            areaId: 'a1',
+            archived: false,
+            createdAt: DateTime.now(),
+          ),
+        ];
 
-      await tester.pumpWidget(
-        createParaTestWidget(
-          child: const AreasPage(),
-          overrides: [
-            paraAreasStreamProvider.overrideWith((ref) => Stream.value(areas)),
-            allParaProjectsStreamProvider.overrideWith((ref) => Stream.value(projects)),
-          ],
+        await tester.pumpWidget(
+          createParaTestWidget(
+            child: const AreasPage(),
+            overrides: [
+              paraAreasStreamProvider.overrideWith(
+                (ref) => Stream.value(areas),
+              ),
+              allParaProjectsStreamProvider.overrideWith(
+                (ref) => Stream.value(projects),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Areas'), findsOneWidget);
+        expect(find.text('Career & Growth'), findsOneWidget);
+        expect(find.text('💼'), findsOneWidget);
+        expect(find.text('1 projects'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'ProjectsPage renders projects, area badge, deadline, and task accordion',
+      (tester) async {
+        final now = DateTime.now().add(const Duration(days: 4));
+        final areas = [
+          ParaAreaModel(
+            id: 'a1',
+            title: 'Health',
+            emoji: '🏃',
+            createdAt: DateTime.now(),
+          ),
+        ];
+        final projects = [
+          ParaProjectModel(
+            id: 'p1',
+            title: 'Run 5K Race',
+            areaId: 'a1',
+            deadline: now,
+            archived: false,
+            createdAt: DateTime.now(),
+          ),
+        ];
+        final tasks = [
+          TaskModel(
+            id: 't1',
+            title: 'Buy running socks',
+            categoryId: 'work',
+            date: DateTime.now(),
+            createdAt: DateTime.now(),
+            projectId: 'p1',
+          ),
+        ];
+
+        await tester.pumpWidget(
+          createParaTestWidget(
+            child: const ProjectsPage(),
+            overrides: [
+              paraAreasStreamProvider.overrideWith(
+                (ref) => Stream.value(areas),
+              ),
+              allParaProjectsStreamProvider.overrideWith(
+                (ref) => Stream.value(projects),
+              ),
+              tasksStreamProvider.overrideWith((ref) => Stream.value(tasks)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Projects'), findsOneWidget);
+        expect(find.text('Run 5K Race'), findsOneWidget);
+        expect(find.text('Health'), findsOneWidget);
+        expect(find.text('1 tasks'), findsOneWidget);
+
+        // Expand task accordion
+        await tester.tap(find.text('1 tasks'));
+        await tester.pumpAndSettle();
+        expect(find.text('Buy running socks'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'ResourcesPage renders resources, note preview, and tag chips',
+      (tester) async {
+        final resources = [
+          ParaResourceModel(
+            id: 'r1',
+            title: 'Clean Architecture Summary',
+            notes: 'Entities, Use Cases, Repositories, Data Sources.',
+            tags: ['architecture', 'design'],
+            archived: false,
+            createdAt: DateTime.now(),
+          ),
+        ];
+
+        await tester.pumpWidget(
+          createParaTestWidget(
+            child: const ResourcesPage(),
+            overrides: [
+              allParaResourcesStreamProvider.overrideWith(
+                (ref) => Stream.value(resources),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Resources'), findsOneWidget);
+        expect(find.text('Clean Architecture Summary'), findsOneWidget);
+        expect(find.textContaining('Entities, Use Cases'), findsOneWidget);
+        expect(find.text('#architecture'), findsWidgets);
+        expect(find.text('#design'), findsWidgets);
+      },
+    );
+
+    testWidgets('ArchivePage switches between Projects and Resources tabs', (
+      tester,
+    ) async {
+      final archivedProjects = [
+        ParaProjectModel(
+          id: 'p_arch',
+          title: 'Completed App V1',
+          areaId: 'a1',
+          archived: true,
+          createdAt: DateTime.now(),
         ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Areas'), findsOneWidget);
-      expect(find.text('Career & Growth'), findsOneWidget);
-      expect(find.text('💼'), findsOneWidget);
-      expect(find.text('1 projects'), findsOneWidget);
-    });
-
-    testWidgets('ProjectsPage renders projects, area badge, deadline, and task accordion', (tester) async {
-      final now = DateTime.now().add(const Duration(days: 4));
-      final areas = [
-        ParaAreaModel(id: 'a1', title: 'Health', emoji: '🏃', createdAt: DateTime.now()),
       ];
-      final projects = [
-        ParaProjectModel(id: 'p1', title: 'Run 5K Race', areaId: 'a1', deadline: now, archived: false, createdAt: DateTime.now()),
-      ];
-      final tasks = [
-        TaskModel(id: 't1', title: 'Buy running socks', categoryId: 'work', date: DateTime.now(), createdAt: DateTime.now(), projectId: 'p1'),
-      ];
-
-      await tester.pumpWidget(
-        createParaTestWidget(
-          child: const ProjectsPage(),
-          overrides: [
-            paraAreasStreamProvider.overrideWith((ref) => Stream.value(areas)),
-            allParaProjectsStreamProvider.overrideWith((ref) => Stream.value(projects)),
-            tasksStreamProvider.overrideWith((ref) => Stream.value(tasks)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Projects'), findsOneWidget);
-      expect(find.text('Run 5K Race'), findsOneWidget);
-      expect(find.text('Health'), findsOneWidget);
-      expect(find.text('1 tasks'), findsOneWidget);
-
-      // Expand task accordion
-      await tester.tap(find.text('1 tasks'));
-      await tester.pumpAndSettle();
-      expect(find.text('Buy running socks'), findsOneWidget);
-    });
-
-    testWidgets('ResourcesPage renders resources, note preview, and tag chips', (tester) async {
-      final resources = [
+      final archivedResources = [
         ParaResourceModel(
-          id: 'r1',
-          title: 'Clean Architecture Summary',
-          notes: 'Entities, Use Cases, Repositories, Data Sources.',
-          tags: ['architecture', 'design'],
-          archived: false,
+          id: 'r_arch',
+          title: 'Old Server Configs',
+          tags: [],
+          archived: true,
           createdAt: DateTime.now(),
         ),
       ];
 
       await tester.pumpWidget(
         createParaTestWidget(
-          child: const ResourcesPage(),
-          overrides: [
-            allParaResourcesStreamProvider.overrideWith((ref) => Stream.value(resources)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Resources'), findsOneWidget);
-      expect(find.text('Clean Architecture Summary'), findsOneWidget);
-      expect(find.textContaining('Entities, Use Cases'), findsOneWidget);
-      expect(find.text('#architecture'), findsWidgets);
-      expect(find.text('#design'), findsWidgets);
-    });
-
-    testWidgets('ArchivePage switches between Projects and Resources tabs', (tester) async {
-      final archivedProjects = [
-        ParaProjectModel(id: 'p_arch', title: 'Completed App V1', areaId: 'a1', archived: true, createdAt: DateTime.now()),
-      ];
-      final archivedResources = [
-        ParaResourceModel(id: 'r_arch', title: 'Old Server Configs', tags: [], archived: true, createdAt: DateTime.now()),
-      ];
-
-      await tester.pumpWidget(
-        createParaTestWidget(
           child: const ArchivePage(),
           overrides: [
-            allParaProjectsStreamProvider.overrideWith((ref) => Stream.value(archivedProjects)),
-            allParaResourcesStreamProvider.overrideWith((ref) => Stream.value(archivedResources)),
+            allParaProjectsStreamProvider.overrideWith(
+              (ref) => Stream.value(archivedProjects),
+            ),
+            allParaResourcesStreamProvider.overrideWith(
+              (ref) => Stream.value(archivedResources),
+            ),
           ],
         ),
       );
@@ -313,27 +438,26 @@ void main() {
       expect(find.text('Old Server Configs'), findsOneWidget);
     });
 
-    testWidgets('ParaGuidePage renders hero overview and 4 pillar navigation cards', (tester) async {
-      await tester.pumpWidget(
-        createParaTestWidget(
-          child: const ParaGuidePage(),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'ParaGuidePage renders hero overview and 4 pillar navigation cards',
+      (tester) async {
+        await tester.pumpWidget(
+          createParaTestWidget(child: const ParaGuidePage()),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('PARA Guide'), findsOneWidget);
-      expect(find.text('The PARA Method'), findsOneWidget);
-      expect(find.text('Projects'), findsOneWidget);
-      expect(find.text('Areas'), findsOneWidget);
-    });
+        expect(find.text('PARA Guide'), findsOneWidget);
+        expect(find.text('The PARA Method'), findsOneWidget);
+        expect(find.text('Projects'), findsOneWidget);
+        expect(find.text('Areas'), findsOneWidget);
+      },
+    );
 
-    testWidgets('AddEditAreaSheet renders form and emoji presets', (tester) async {
+    testWidgets('AddEditAreaSheet renders form and emoji presets', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        createParaTestWidget(
-          child: const Scaffold(
-            body: AddEditAreaSheet(),
-          ),
-        ),
+        createParaTestWidget(child: const Scaffold(body: AddEditAreaSheet())),
       );
       await tester.pumpAndSettle();
 
@@ -342,16 +466,21 @@ void main() {
       expect(find.text('🎯'), findsWidgets);
     });
 
-    testWidgets('AddEditProjectSheet renders form and area selection', (tester) async {
+    testWidgets('AddEditProjectSheet renders form and area selection', (
+      tester,
+    ) async {
       final areas = [
-        ParaAreaModel(id: 'a1', title: 'Finance', emoji: '💰', createdAt: DateTime.now()),
+        ParaAreaModel(
+          id: 'a1',
+          title: 'Finance',
+          emoji: '💰',
+          createdAt: DateTime.now(),
+        ),
       ];
 
       await tester.pumpWidget(
         createParaTestWidget(
-          child: const Scaffold(
-            body: AddEditProjectSheet(),
-          ),
+          child: const Scaffold(body: AddEditProjectSheet()),
           overrides: [
             paraAreasStreamProvider.overrideWith((ref) => Stream.value(areas)),
           ],
@@ -363,12 +492,12 @@ void main() {
       expect(find.text('Finance'), findsOneWidget);
     });
 
-    testWidgets('AddEditResourceSheet renders form with tags input', (tester) async {
+    testWidgets('AddEditResourceSheet renders form with tags input', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createParaTestWidget(
-          child: const Scaffold(
-            body: AddEditResourceSheet(),
-          ),
+          child: const Scaffold(body: AddEditResourceSheet()),
         ),
       );
       await tester.pumpAndSettle();

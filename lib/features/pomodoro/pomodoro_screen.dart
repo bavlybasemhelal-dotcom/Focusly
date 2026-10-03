@@ -87,7 +87,10 @@ class PomodoroScreen extends ConsumerWidget {
                 side: BorderSide(color: borderColor),
               ),
               tileColor: cardBg,
-              leading: const Icon(Icons.flash_on_rounded, color: Color(0xFF2563EB)),
+              leading: const Icon(
+                Icons.flash_on_rounded,
+                color: Color(0xFF2563EB),
+              ),
               title: Text(
                 context.tr('generic_focus_session'),
                 style: TextStyle(
@@ -97,10 +100,9 @@ class PomodoroScreen extends ConsumerWidget {
                 ),
               ),
               onTap: () {
-                ref.read(pomodoroTimerProvider.notifier).setSelectedTask(
-                      null,
-                      null,
-                    );
+                ref
+                    .read(pomodoroTimerProvider.notifier)
+                    .setSelectedTask(null, null);
                 Navigator.of(bottomSheetContext).pop();
               },
             ),
@@ -145,10 +147,9 @@ class PomodoroScreen extends ConsumerWidget {
                             )
                           : null,
                       onTap: () {
-                        ref.read(pomodoroTimerProvider.notifier).setSelectedTask(
-                              task.id,
-                              task.title,
-                            );
+                        ref
+                            .read(pomodoroTimerProvider.notifier)
+                            .setSelectedTask(task.id, task.title);
                         Navigator.of(bottomSheetContext).pop();
                       },
                     );
@@ -237,7 +238,9 @@ class PomodoroScreen extends ConsumerWidget {
                           Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                              color: isDark
+                                  ? const Color(0xFF0F1B4C)
+                                  : Colors.white,
                               border: Border.all(
                                 color: isDark
                                     ? Colors.white.withValues(alpha: 0.1)
@@ -253,7 +256,9 @@ class PomodoroScreen extends ConsumerWidget {
                               tooltip: context.tr('enter_focus_mode_btn'),
                               onPressed: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => const FocusModePage()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const FocusModePage(),
+                                  ),
                                 );
                               },
                             ),
@@ -264,7 +269,9 @@ class PomodoroScreen extends ConsumerWidget {
                           Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                              color: isDark
+                                  ? const Color(0xFF0F1B4C)
+                                  : Colors.white,
                               border: Border.all(
                                 color: isDark
                                     ? Colors.white.withValues(alpha: 0.1)
@@ -296,7 +303,10 @@ class PomodoroScreen extends ConsumerWidget {
                       onTap: () => _showTaskPicker(context, ref),
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: isDark
                               ? const Color(0xFF0F1B4C)
@@ -309,7 +319,9 @@ class PomodoroScreen extends ConsumerWidget {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.04),
+                              color: const Color(
+                                0xFF2E6FF2,
+                              ).withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
@@ -374,11 +386,12 @@ class PomodoroScreen extends ConsumerWidget {
                   // -----------------------------------------------------------
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF0F1B4C)
-                          : Colors.white,
+                      color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
                         color: isDark
@@ -388,7 +401,9 @@ class PomodoroScreen extends ConsumerWidget {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.04),
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.04),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -484,8 +499,9 @@ class PomodoroScreen extends ConsumerWidget {
             height: 300,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: (isWork ? const Color(0xFF38BDF8) : const Color(0xFF10B981))
-                  .withValues(alpha: isDark ? 0.08 : 0.1),
+              color:
+                  (isWork ? const Color(0xFF38BDF8) : const Color(0xFF10B981))
+                      .withValues(alpha: isDark ? 0.08 : 0.1),
             ),
           ),
         ),

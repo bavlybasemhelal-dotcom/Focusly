@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/auth/auth_provider.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
-import '../energy_mood/providers/energy_mood_provider.dart';
-import '../goals/providers/goals_provider.dart';
-import '../habits/providers/habits_provider.dart';
-import '../reading_tracker/providers/reading_provider.dart';
-import '../tasks/providers/tasks_provider.dart';
-import 'helpers/life_score_calculator.dart';
-import 'models/life_score_model.dart';
 import 'providers/life_score_provider.dart';
 
 /// Detailed breakdown page for the Weekly Life Score with past week navigation.
@@ -20,8 +12,18 @@ class LifeScoreDetailPage extends ConsumerWidget {
   String _formatDateRange(DateTime start, BuildContext context) {
     final end = start.add(const Duration(days: 6));
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final startMonth = months[start.month - 1];
     final endMonth = months[end.month - 1];
@@ -40,11 +42,14 @@ class LifeScoreDetailPage extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final selectedWeek = ref.watch(selectedWeekStartProvider);
     final currentWeek = ref.watch(currentWeekStartProvider);
-    final isCurrent = selectedWeek.year == currentWeek.year &&
+    final isCurrent =
+        selectedWeek.year == currentWeek.year &&
         selectedWeek.month == currentWeek.month &&
         selectedWeek.day == currentWeek.day;
 
@@ -96,7 +101,10 @@ class LifeScoreDetailPage extends ConsumerWidget {
                 // 1. WEEK NAVIGATOR
                 // =============================================================
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: cardBg,
                     borderRadius: BorderRadius.circular(18),
@@ -106,10 +114,15 @@ class LifeScoreDetailPage extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.chevron_left_rounded, color: primaryTextColor),
+                        icon: Icon(
+                          Icons.chevron_left_rounded,
+                          color: primaryTextColor,
+                        ),
                         onPressed: () {
                           HapticFeedback.selectionClick();
-                          ref.read(selectedWeekStartProvider.notifier).previousWeek();
+                          ref
+                              .read(selectedWeekStartProvider.notifier)
+                              .previousWeek();
                         },
                       ),
                       Column(
@@ -138,12 +151,17 @@ class LifeScoreDetailPage extends ConsumerWidget {
                         ],
                       ),
                       IconButton(
-                        icon: Icon(Icons.chevron_right_rounded, color: primaryTextColor),
+                        icon: Icon(
+                          Icons.chevron_right_rounded,
+                          color: primaryTextColor,
+                        ),
                         onPressed: isCurrent
                             ? null
                             : () {
                                 HapticFeedback.selectionClick();
-                                ref.read(selectedWeekStartProvider.notifier).nextWeek();
+                                ref
+                                    .read(selectedWeekStartProvider.notifier)
+                                    .nextWeek();
                               },
                       ),
                     ],
@@ -177,51 +195,10 @@ class LifeScoreDetailPage extends ConsumerWidget {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6366F1),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          icon: const Icon(Icons.calculate_outlined, size: 18),
-                          label: Text(
-                            context.tr('compute_now_btn'),
-                            style: const TextStyle(fontWeight: FontWeight.w800),
-                          ),
-                          onPressed: () async {
-                            HapticFeedback.mediumImpact();
-                            final tasks = ref.read(tasksStreamProvider).value ?? [];
-                            final habits = ref.read(habitsStreamProvider).value ?? [];
-                            final checkins = ref.read(checkinsHistoryStreamProvider).value ?? [];
-                            final books = ref.read(booksStreamProvider).value ?? [];
-                            final goals = ref.read(goalsStreamProvider).value ?? [];
-
-                            final computed = LifeScoreCalculator.computeLifeScore(
-                              weekStart: selectedWeek,
-                              tasks: tasks,
-                              habits: habits,
-                              checkins: checkins,
-                              books: books,
-                              goals: goals,
-                              isCurrentWeek: false,
-                            );
-
-                            final uid = ref.read(currentUserIdProvider);
-                            if (uid != null && uid.isNotEmpty) {
-                              await ref.read(lifeScoreServiceProvider).saveSnapshot(uid, computed);
-                            }
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(context.tr('life_score_computed_toast')),
-                                  backgroundColor: const Color(0xFF10B981),
-                                ),
-                              );
-                            }
-                          },
+                        Text(
+                          Localizations.localeOf(context).languageCode == 'ar'
+                              ? 'لا توجد لقطة محفوظة لهذا الأسبوع؛ لا يمكن إعادة بناء تقييمه من الحالة الحالية.'
+                              : 'No snapshot was recorded for this week. Current data cannot recreate its historical score.',
                         ),
                       ],
                     ),
@@ -229,7 +206,10 @@ class LifeScoreDetailPage extends ConsumerWidget {
                 ] else ...[
                   // Prominent Circular Gauge Card
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 28,
+                    ),
                     decoration: BoxDecoration(
                       color: cardBg,
                       borderRadius: BorderRadius.circular(24),
@@ -256,8 +236,12 @@ class LifeScoreDetailPage extends ConsumerWidget {
                               child: CircularProgressIndicator(
                                 value: score.total / 100.0,
                                 strokeWidth: 10,
-                                backgroundColor: score.tierColor.withValues(alpha: isDark ? 0.2 : 0.12),
-                                valueColor: AlwaysStoppedAnimation<Color>(score.tierColor),
+                                backgroundColor: score.tierColor.withValues(
+                                  alpha: isDark ? 0.2 : 0.12,
+                                ),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  score.tierColor,
+                                ),
                                 strokeCap: StrokeCap.round,
                               ),
                             ),
@@ -289,12 +273,19 @@ class LifeScoreDetailPage extends ConsumerWidget {
 
                         // Qualitative Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
-                            color: score.tierColor.withValues(alpha: isDark ? 0.2 : 0.12),
+                            color: score.tierColor.withValues(
+                              alpha: isDark ? 0.2 : 0.12,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: score.tierColor.withValues(alpha: isDark ? 0.4 : 0.3),
+                              color: score.tierColor.withValues(
+                                alpha: isDark ? 0.4 : 0.3,
+                              ),
                             ),
                           ),
                           child: Text(
@@ -444,7 +435,10 @@ class LifeScoreDetailPage extends ConsumerWidget {
 
                         // Emphasized Total Row
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           decoration: BoxDecoration(
                             color: isDark
                                 ? const Color(0xFF141F48)

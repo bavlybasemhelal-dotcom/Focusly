@@ -1,6 +1,7 @@
+import '../../../core/data/completion_ledger.dart';
+import '../../../core/data/pending_operations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../groups/services/group_feed_service.dart';
 import '../../progress/constants/xp_constants.dart';
@@ -15,7 +16,7 @@ class SkillsService {
   final FirebaseFirestore _firestore;
 
   SkillsService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _skillsCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('skills');
@@ -23,10 +24,9 @@ class SkillsService {
 
   /// Streams all skills for [uid] ordered by level descending, then xp descending.
   Stream<List<SkillModel>> streamSkills(String uid) {
-    return _skillsCollection(uid)
-        .orderBy('level', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _skillsCollection(
+      uid,
+    ).orderBy('level', descending: true).snapshots().map((snapshot) {
       final list = snapshot.docs
           .map((doc) => SkillModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -90,31 +90,58 @@ class SkillsService {
     int? color,
   }) async {
     try {
+      if (levelInput < 1 ||
+          levelInput > 999 ||
+          xpInput < 0 ||
+          xpInput > 100000) {
+        throw ArgumentError('Invalid skill progress');
+      }
       final now = DateTime.now();
-
-      // Calculate normalized level and remaining XP
-      final norm = SkillMathHelper.normalizeDirectInput(
-        levelInput: levelInput,
-        xpInput: xpInput,
-        previousLevel: skill.level,
-      );
-
-      final updatedHistory = SkillMathHelper.updateHistoryToday(
-        skill.history,
-        norm.newLevel,
-      );
-
-      final updated = skill.copyWith(
-        name: name?.trim() ?? skill.name,
-        category: category?.trim() ?? skill.category,
-        level: norm.newLevel,
-        xp: norm.newXp,
-        color: color ?? skill.color,
-        history: updatedHistory,
-        updatedAt: now,
-      );
-
-      await _skillsCollection(uid).doc(updated.id).update(updated.toMap());
+      final target = _skillsCollection(uid).doc(skill.id);
+      await _firestore.runTransaction((tx) async {
+        final snapshot = await tx.get(target);
+        if (!snapshot.exists || snapshot.data()?['deletionPending'] == true) {
+          throw StateError('Skill no longer exists');
+        }
+        final current = SkillModel.fromMap(snapshot.data()!, snapshot.id);
+        final progressChanged =
+            levelInput != skill.level || xpInput != skill.xp;
+        if (progressChanged &&
+            (current.level != skill.level || current.xp != skill.xp)) {
+          throw StateError(
+            'Skill progress changed. Reload before replacing it.',
+          );
+        }
+        final norm = SkillMathHelper.normalizeDirectInput(
+          levelInput: progressChanged ? levelInput : current.level,
+          xpInput: progressChanged ? xpInput : current.xp,
+          previousLevel: current.level,
+        );
+        tx.update(target, {
+          'level': norm.newLevel,
+          'xp': norm.newXp,
+          if (name != null && name.trim() != skill.name) 'name': name.trim(),
+          if (category != null && category.trim() != skill.category)
+            'category': category.trim(),
+          if (color != null && color != skill.color) 'color': color,
+          'history': SkillMathHelper.updateHistoryToday(
+            current.history,
+            norm.newLevel,
+          ),
+          'updatedAt': Timestamp.fromDate(now),
+        });
+        tx.set(
+          target.collection('dailyProgress').doc(CompletionLedger.dateKey(now)),
+          {
+            'date': CompletionLedger.dateKey(now),
+            'level': norm.newLevel,
+            'xp': norm.newXp,
+            'totalXp': (norm.newLevel - 1) * 100 + norm.newXp,
+            'source': progressChanged ? 'manual' : 'metadata',
+            'updatedAt': Timestamp.fromDate(now),
+          },
+        );
+      });
       return true;
     } catch (e) {
       debugPrint('Error updating skill: $e');
@@ -128,7 +155,20 @@ class SkillsService {
     required String skillId,
   }) async {
     try {
-      await _skillsCollection(uid).doc(skillId).delete();
+      final target = _skillsCollection(uid).doc(skillId);
+      await target.update({'deletionPending': true});
+      for (final collection in ['taskClaims', 'dailyProgress']) {
+        while (true) {
+          final page = await target.collection(collection).limit(150).get();
+          if (page.docs.isEmpty) break;
+          final batch = _firestore.batch();
+          for (final doc in page.docs) {
+            batch.delete(doc.reference);
+          }
+          await batch.commit();
+        }
+      }
+      await target.delete();
       return true;
     } catch (e) {
       debugPrint('Error deleting skill: $e');
@@ -150,6 +190,7 @@ class SkillsService {
     required String uid,
     required TaskModel task,
     BuildContext? context,
+    bool throwOnFailure = false,
   }) async {
     try {
       int xpToAward;
@@ -166,7 +207,7 @@ class SkillsService {
       }
 
       final snapshot = await _skillsCollection(uid).get();
-      if (snapshot.docs.isEmpty) return;
+      if (snapshot.docs.isEmpty) { await PendingOperations.acknowledge(uid,'skill',task.id); return; }
 
       final allSkills = snapshot.docs
           .map((doc) => SkillModel.fromMap(doc.data(), doc.id))
@@ -180,46 +221,71 @@ class SkillsService {
       }
 
       // 2. Category matching fallback
-      if (targetSkills.isEmpty) {
-        targetSkills = allSkills.where((s) => s.category == task.categoryId).toList();
+      if (targetSkills.isEmpty &&
+          (task.skillId == null || task.skillId!.isEmpty)) {
+        targetSkills = allSkills
+            .where((s) => s.category == task.categoryId)
+            .toList();
       }
 
-      if (targetSkills.isEmpty) return;
+      if (targetSkills.isEmpty) { await PendingOperations.acknowledge(uid,'skill',task.id); return; }
 
-      final now = DateTime.now();
-      final batch = _firestore.batch();
       final List<SkillModel> leveledUpSkills = [];
-
       for (final skill in targetSkills) {
-        final result = SkillMathHelper.computeXpProgress(
-          currentLevel: skill.level,
-          currentXp: skill.xp,
-          addedXp: xpToAward,
-        );
-
-        final updatedHistory = SkillMathHelper.updateHistoryToday(
-          skill.history,
-          result.newLevel,
-        );
-
-        final updatedSkill = skill.copyWith(
-          level: result.newLevel,
-          xp: result.newXp,
-          history: updatedHistory,
-          updatedAt: now,
-        );
-
         final docRef = _skillsCollection(uid).doc(skill.id);
-        batch.update(docRef, updatedSkill.toMap());
-
-        if (result.didLevelUp) {
-          leveledUpSkills.add(updatedSkill);
-        }
+        final claim = docRef.collection('taskClaims').doc(task.id);
+        final changed = await _firestore.runTransaction<SkillModel?>((
+          transaction,
+        ) async {
+          final previousClaim = await transaction.get(claim);
+          final previous = await transaction.get(docRef);
+          if (previousClaim.exists ||
+              !previous.exists ||
+              previous.data()?['deletionPending'] == true) {
+            return null;
+          }
+          final current = SkillModel.fromMap(previous.data()!, skill.id);
+          final result = SkillMathHelper.computeXpProgress(
+            currentLevel: current.level,
+            currentXp: current.xp,
+            addedXp: xpToAward,
+          );
+          final history = SkillMathHelper.updateHistoryToday(
+            current.history,
+            result.newLevel,
+          );
+          final now = DateTime.now();
+          transaction.set(claim, {
+            'taskId': task.id,
+            'amount': xpToAward,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+          transaction.update(docRef, {
+            'level': result.newLevel,
+            'xp': result.newXp,
+            'history': history,
+            'updatedAt': Timestamp.fromDate(now),
+          });
+          transaction.set(
+            docRef
+                .collection('dailyProgress')
+                .doc(CompletionLedger.dateKey(now)),
+            {
+              'date': CompletionLedger.dateKey(now),
+              'level': result.newLevel,
+              'xp': result.newXp,
+              'totalXp': (result.newLevel - 1) * 100 + result.newXp,
+            },
+          );
+          return result.didLevelUp
+              ? current.copyWith(level: result.newLevel, xp: result.newXp)
+              : null;
+        });
+        if (changed != null) leveledUpSkills.add(changed);
       }
-
-      await batch.commit();
 
       // Show celebratory toasts and group feed hooks on level-up
+      await PendingOperations.acknowledge(uid,'skill',task.id);
       for (final s in leveledUpSkills) {
         if (context != null && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -241,6 +307,7 @@ class SkillsService {
         }
 
         GroupFeedService().pushToAllUserGroups(
+          uid: uid,
           type: 'level_up',
           message: 'Leveled up skill "${s.name}" to Level ${s.level}! ⚡🎯',
           icon: '🎯',
@@ -248,6 +315,7 @@ class SkillsService {
       }
     } catch (e) {
       debugPrint('Error awarding skill XP from task completion: $e');
+      if (throwOnFailure) rethrow;
     }
   }
 }

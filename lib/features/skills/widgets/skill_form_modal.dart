@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../tasks/models/category_model.dart';
 import '../../tasks/providers/tasks_provider.dart';
 import '../helpers/skill_math_helper.dart';
 import '../models/skill_model.dart';
@@ -25,10 +24,7 @@ const List<int> _kSkillColors = [
 class SkillFormModal extends ConsumerStatefulWidget {
   final SkillModel? skillToEdit;
 
-  const SkillFormModal({
-    super.key,
-    this.skillToEdit,
-  });
+  const SkillFormModal({super.key, this.skillToEdit});
 
   /// Static helper to show the modal bottom sheet.
   static Future<void> show(BuildContext context, {SkillModel? skillToEdit}) {
@@ -61,7 +57,9 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
     final edit = widget.skillToEdit;
 
     _nameController = TextEditingController(text: edit?.name ?? '');
-    _levelController = TextEditingController(text: (edit?.level ?? 1).toString());
+    _levelController = TextEditingController(
+      text: (edit?.level ?? 1).toString(),
+    );
     _xpController = TextEditingController(text: (edit?.xp ?? 0).toString());
 
     _category = edit?.category ?? 'work';
@@ -123,7 +121,9 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
               content: Text(context.tr('skill_created_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -166,7 +166,9 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                 ),
                 backgroundColor: const Color(0xFF10B981),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             );
           } else {
@@ -175,7 +177,9 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                 content: Text(context.tr('skill_updated_toast')),
                 backgroundColor: const Color(0xFF2E6FF2),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             );
           }
@@ -196,7 +200,11 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -229,7 +237,9 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -251,7 +261,9 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
               content: Text(context.tr('skill_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -356,7 +368,10 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -413,7 +428,10 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -453,10 +471,17 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                     child: DropdownButton<String>(
                       value: categories.any((c) => c.id == _category)
                           ? _category
-                          : (categories.isNotEmpty ? categories.first.id : 'work'),
+                          : (categories.isNotEmpty
+                                ? categories.first.id
+                                : 'work'),
                       isExpanded: true,
-                      dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
-                      icon: Icon(Icons.keyboard_arrow_down_rounded, color: secondaryTextColor),
+                      dropdownColor: isDark
+                          ? const Color(0xFF0F1B4C)
+                          : Colors.white,
+                      icon: Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: secondaryTextColor,
+                      ),
                       items: categories.map((cat) {
                         return DropdownMenuItem(
                           value: cat.id,
@@ -494,7 +519,7 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                 );
               },
               loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             ),
             const SizedBox(height: 14),
 
@@ -517,7 +542,9 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                       TextField(
                         controller: _levelController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -526,7 +553,10 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -537,7 +567,10 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: Color(_color), width: 1.8),
+                            borderSide: BorderSide(
+                              color: Color(_color),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -561,7 +594,9 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                       TextField(
                         controller: _xpController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -575,7 +610,10 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                           ),
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -586,7 +624,10 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: Color(_color), width: 1.8),
+                            borderSide: BorderSide(
+                              color: Color(_color),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -639,7 +680,11 @@ class _SkillFormModalState extends ConsumerState<SkillFormModal> {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                        ? const Icon(
+                            Icons.check_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          )
                         : null,
                   ),
                 );

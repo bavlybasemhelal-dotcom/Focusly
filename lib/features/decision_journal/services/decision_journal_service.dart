@@ -10,7 +10,7 @@ class DecisionJournalService {
   final FirebaseFirestore _firestore;
 
   DecisionJournalService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Returns the isolated Firestore collection reference for the given [uid].
   CollectionReference<Map<String, dynamic>> _decisionsCollection(String uid) {
@@ -19,10 +19,9 @@ class DecisionJournalService {
 
   /// Streams all decisions for the specified [uid], ordered by date descending.
   Stream<List<DecisionModel>> streamDecisions(String uid) {
-    return _decisionsCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _decisionsCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => DecisionModel.fromMap(doc.data(), doc.id))
           .toList();

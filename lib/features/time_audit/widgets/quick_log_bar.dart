@@ -18,7 +18,9 @@ class QuickLogBar extends ConsumerStatefulWidget {
 
 class _QuickLogBarState extends ConsumerState<QuickLogBar> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _hoursController = TextEditingController(text: '1');
+  final TextEditingController _hoursController = TextEditingController(
+    text: '1',
+  );
   final TextEditingController _descriptionController = TextEditingController();
 
   String _selectedCategoryId = 'work';
@@ -48,7 +50,9 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
         ? context.tr('manual_activity_default')
         : _descriptionController.text.trim();
 
-    final result = await ref.read(timeAuditServiceProvider).addLog(
+    final result = await ref
+        .read(timeAuditServiceProvider)
+        .addLog(
           uid: uid,
           category: _selectedCategoryId,
           hours: hours,
@@ -72,7 +76,9 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
             content: Text(context.tr('time_logged_toast')),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -137,7 +143,9 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
               child: Row(
                 children: categories.map((cat) {
                   final isSelected = _selectedCategoryId == cat.id;
-                  final catName = cat.isDefault ? context.tr(cat.nameKey) : cat.nameKey;
+                  final catName = cat.isDefault
+                      ? context.tr(cat.nameKey)
+                      : cat.nameKey;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: InkWell(
@@ -149,10 +157,15 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 7,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? cat.color.withValues(alpha: isDark ? 0.25 : 0.15)
+                              ? cat.color.withValues(
+                                  alpha: isDark ? 0.25 : 0.15,
+                                )
                               : inputBg,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
@@ -176,8 +189,12 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                               catName,
                               style: TextStyle(
                                 fontSize: 12,
-                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                color: isSelected ? cat.color : primaryTextColor,
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                                color: isSelected
+                                    ? cat.color
+                                    : primaryTextColor,
                               ),
                             ),
                           ],
@@ -199,7 +216,9 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                   width: 90,
                   child: TextFormField(
                     controller: _hoursController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -221,7 +240,10 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                       filled: true,
                       fillColor: inputBg,
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: borderColor),
@@ -232,7 +254,10 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF2E6FF2),
+                          width: 1.5,
+                        ),
                       ),
                     ),
                     validator: (val) {
@@ -267,7 +292,10 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                       filled: true,
                       fillColor: inputBg,
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: borderColor),
@@ -278,7 +306,10 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF2E6FF2),
+                          width: 1.5,
+                        ),
                       ),
                     ),
                     onFieldSubmitted: (_) => _handleLogTime(),
@@ -292,7 +323,10 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2E6FF2),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -304,7 +338,9 @@ class _QuickLogBarState extends ConsumerState<QuickLogBar> {
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Row(

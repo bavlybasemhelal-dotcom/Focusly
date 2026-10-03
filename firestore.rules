@@ -1,190 +1,432 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // =========================================================================
-    // FOCUSLY FIRESTORE SECURITY RULES
-    // =========================================================================
-    // DATA ISOLATION GUARANTEE:
-    // Every personal user resource (profile, tasks, categories, events,
-    // event types, habits, pomodoro logs, stats, and achievements) is strictly
-    // partitioned under `/users/{userId}/...`.
-    //
-    // A client can ONLY read or write documents if their authenticated UID matches
-    // the `{userId}` segment (`request.auth.uid == userId`).
-    // =========================================================================
-
-    // Helper functions
-    function isAuthenticated() {
-      return request.auth != null;
+    function signedIn() { return request.auth != null; }
+    function owner(uid) { return signedIn() && request.auth.uid == uid; }
+    function groupMember(groupId) {
+      return signedIn() && get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'approved';
     }
-
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    function isGroupMember(groupId) {
-      return isAuthenticated() && (
-        exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'approved'
+    function groupAdmin(groupId) {
+      return signedIn() && (
+        get(/databases/$(database)/documents/groups/$(groupId)).data.createdBy == request.auth.uid ||
+        (groupMember(groupId) && get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role == 'admin')
       );
     }
-
-    function isGroupAdmin(groupId) {
-      return isAuthenticated() && (
-        exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role == 'admin' &&
-        get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'approved'
-      );
+    function groupModerator(groupId) { return groupMember(groupId) && get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role == 'moderator'; }
+    function deletingAccount() { return signedIn() && exists(/databases/$(database)/documents/accountDeletions/$(request.auth.uid)) && get(/databases/$(database)/documents/accountDeletions/$(request.auth.uid)).data.pending == true; }
+    function groupOwner(groupId) {
+      return signedIn() && get(/databases/$(database)/documents/groups/$(groupId)).data.createdBy == request.auth.uid;
     }
-
-    // -------------------------------------------------------------------------
-    // 1. PERSONAL USER PROFILES & ALL PERSONAL SUBCOLLECTIONS
-    // -------------------------------------------------------------------------
-    match /users/{userId} {
-      // User can read and write their own top-level profile document
-      allow read, write: if isOwner(userId);
-
-      // Tasks Subcollection: users/{userId}/tasks/{taskId}
-      match /tasks/{taskId} {
-        allow read, write: if isOwner(userId);
+    function detachedItem(uid) {
+      let groupId = resource.data.get('assignedByGroupId', '');
+      return signedIn() && groupId is string && groupId.size() > 0 &&
+        (groupAdmin(groupId) || (owner(uid) &&
+          (!exists(/databases/$(database)/documents/groups/$(groupId)/members/$(uid)) ||
+           get(/databases/$(database)/documents/groups/$(groupId)/members/$(uid)).data.status != 'approved'))) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['locked', 'assignedByGroupId', 'groupAssignmentId', 'assignedByName']) &&
+        request.resource.data.locked == false && request.resource.data.assignedByGroupId == null && request.resource.data.groupAssignmentId == null;
+    }
+    function membershipCounter(groupId) {
+      let uid = request.resource.data.lastMembershipUid;
+      let before = get(/databases/$(database)/documents/groups/$(groupId)/members/$(uid));
+      let after = getAfter(/databases/$(database)/documents/groups/$(groupId)/members/$(uid));
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount', 'lastMembershipUid']) &&
+        request.resource.data.memberCount >= 0 && request.resource.data.memberCount <= resource.data.maxMembers &&
+        (((groupAdmin(groupId) || groupModerator(groupId)) && before.data.status == 'pending' && after.data.status == 'approved' &&
+          request.resource.data.memberCount == resource.data.memberCount + 1) ||
+         ((groupAdmin(groupId) || owner(uid)) && before.data.status == 'approved' &&
+          (!existsAfter(/databases/$(database)/documents/groups/$(groupId)/members/$(uid)) || after.data.status == 'leaving') &&
+          request.resource.data.memberCount == resource.data.memberCount - 1));
+    }
+    function reactionCount(key) {
+      let before = resource.data.get('reactedBy', {}).get(request.auth.uid, '');
+      let after = request.resource.data.get('reactedBy', {}).get(request.auth.uid, '');
+      return request.resource.data.reactions.get(key, 0) == resource.data.reactions.get(key, 0) +
+        (after == key ? 1 : 0) - (before == key ? 1 : 0);
+    }
+    // Admins may change one group membership reference, never personal profile data.
+    function adminMembershipUpdate(uid) {
+      let previous = resource.data.get('groupIds', []);
+      let next = request.resource.data.get('groupIds', []);
+      let added = next.removeAll(previous);
+      let changed = added.concat(previous.removeAll(next));
+      return signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['groupIds']) &&
+        (request.resource.data.diff(resource.data).affectedKeys().size() == 0 ||
+         (changed.size() == 1 && (groupAdmin(changed[0]) || (groupModerator(changed[0]) && added.size() == 1)) &&
+          (added.size() == 0 || getAfter(/databases/$(database)/documents/groups/$(changed[0])/members/$(uid)).data.status == 'approved')));
+    }
+    // Cross-user writes can only create an item matching a real group assignment.
+    function assignedItemCreate(uid, type) {
+      let data = request.resource.data;
+      let groupId = data.assignedByGroupId;
+      let assignment = getAfter(/databases/$(database)/documents/groups/$(groupId)/assignments/$(data.groupAssignmentId)).data;
+      return groupAdmin(groupId) && get(/databases/$(database)/documents/groups/$(groupId)/members/$(uid)).data.status == 'approved' &&
+        uid in assignment.assignedTo && assignment.type == type && assignment.createdBy == request.auth.uid &&
+        data.locked == true && data.title == assignment.title && data.completionMode == assignment.completionMode &&
+        data.targetCount == assignment.targetCount && data.get('deadline', null) == assignment.deadline;
+    }
+    function lockedProgress(uid, id, type) {
+      let item = request.resource.data;
+      let mirror = getAfter(/databases/$(database)/documents/groups/$(item.assignedByGroupId)/assignments/$(item.groupAssignmentId)/completions/$(uid)).data;
+      let done = type == 'task' ? item.done : item.isCompleted;
+      return groupMember(item.assignedByGroupId) && mirror.uid == uid && mirror.itemId == id &&
+        mirror.get('decision', 'offered') != 'rejected' && mirror.status == (done ? 'done' : 'pending') &&
+        item.currentCount is int && item.currentCount >= 0 &&
+        mirror.currentCount == (item.completionMode == 'count' ? item.currentCount : (done ? 1 : 0)) &&
+        (item.completionMode != 'count' || (item.targetCount is int && item.targetCount > 0 && item.currentCount <= item.targetCount && done == (item.currentCount >= item.targetCount)));
+    }
+    function validAssignmentProgress(uid, groupId, assignmentId) {
+      let data = request.resource.data;
+      let assignment = getAfter(/databases/$(database)/documents/groups/$(groupId)/assignments/$(assignmentId)).data;
+      let type = assignment.type;
+      let item = type == 'task' ?
+        getAfter(/databases/$(database)/documents/users/$(uid)/tasks/$(data.itemId)).data :
+        getAfter(/databases/$(database)/documents/users/$(uid)/habits/$(data.itemId)).data;
+      let done = type == 'task' ? item.done : item.isCompleted;
+      return data.uid == uid && uid in assignment.assignedTo &&
+        item.groupAssignmentId == assignmentId && item.assignedByGroupId == groupId && item.locked == true &&
+        data.keys().hasOnly(['uid', 'memberName', 'itemId', 'status', 'currentCount', 'completedAt', 'decision', 'delayReason', 'decisionAt']) &&
+        data.currentCount is int && data.currentCount >= 0 &&
+        data.currentCount == (assignment.completionMode == 'count' ? item.currentCount : (done ? 1 : 0)) &&
+        (assignment.completionMode != 'count' || (data.currentCount <= assignment.targetCount && done == (data.currentCount >= assignment.targetCount))) &&
+        data.status == (done ? 'done' : 'pending') &&
+        (done ? (data.completedAt is timestamp && data.completedAt <= request.time) : data.completedAt == null) &&
+        data.get('decision', 'offered') in ['offered', 'accepted', 'rejected'] && (data.get('decision', 'offered') != 'rejected' || data.currentCount == 0) &&
+        data.get('delayReason', '') is string && data.get('delayReason', '').size() <= 500;
+    }
+    function validScoreEvent(groupId, challengeId, claimId) {
+      let claim = request.resource.data;
+      let source = get(/databases/$(database)/documents/groups/$(groupId)/xpEvents/$(claimId)).data;
+      let challenge = get(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)).data;
+      let participant = get(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(claim.uid)).data;
+      return (owner(claim.uid) || groupAdmin(groupId)) && challenge.status == 'active' &&
+        claimId == claim.uid + '_' + claim.eventId && claim.groupEventId == claimId && source.uid == claim.uid &&
+        source.get('challengeEligible', true) == true && source.createdAt >= challenge.startDate && source.createdAt >= participant.joinedAt && source.createdAt <= challenge.endDate &&
+        ((challenge.type == 'tasks' && source.sourceType == 'task') ||
+         (challenge.type == 'habits' && source.sourceType in ['habit', 'habit_count'])) &&
+        getAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(claim.uid)).data.lastScoreEventId == claimId &&
+        getAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(claim.uid)).data.score == participant.score + 1;
+    }
+    function eventKey(value) { return hashing.sha256(value.toUtf8()).toHexString().lower(); }
+    function dateKey(value) {
+      return string(value.year()) + '-' + (value.month() < 10 ? '0' : '') + string(value.month()) + '-' +
+        (value.day() < 10 ? '0' : '') + string(value.day());
+    }
+    function validEventWeek(event) {
+      let offset = event.timezoneMinutes;
+      let start = event.weekStartAt + duration.value(offset, 'm');
+      let now = request.time + duration.value(offset, 'm');
+      return offset is int && offset >= -840 && offset <= 840 && start == start.date() &&
+        int(start.toMillis() / 86400000) % 7 == 2 && start <= now && now < start + duration.value(7, 'd') &&
+        event.week == dateKey(start);
+    }
+    function validCompletion(uid, eventId) {
+      let event = request.resource.data;
+      let kind = event.sourceType;
+      let source = event.sourceId;
+      let number = event.get('sourceNumber', 0);
+      let day = event.get('sourceDate', '');
+      return owner(uid) && get(/databases/$(database)/documents/users/$(uid)).data.get('deletionPending', false) == false && event.uid == uid && event.amount is int && event.amount >= 0 && event.amount <= 50 &&
+        event.createdAt == request.time && event.occurredOn == dateKey(request.time + duration.value(event.timezoneMinutes, 'm')) && validEventWeek(event) && source is string && source.size() > 0 &&
+        ((kind == 'task' && eventId == eventKey('task_' + source) && event.amount == ((get(/databases/$(database)/documents/users/$(uid)/tasks/$(source)).data.get('locked', false) || get(/databases/$(database)/documents/users/$(uid)/tasks/$(source)).data.get('learningSource', null) != null) ? 0 : 10) &&
+          get(/databases/$(database)/documents/users/$(uid)/tasks/$(source)).data.done == true) ||
+         (kind == 'habit' && eventId == eventKey('habit_' + source + '_' + day) && event.amount == (get(/databases/$(database)/documents/users/$(uid)/habits/$(source)).data.get('locked', false) ? 0 : 5) &&
+          get(/databases/$(database)/documents/users/$(uid)/habitLogs/$(source + '_' + day)).data.completed == true) ||
+         (kind == 'habit_count' && eventId == eventKey('habit_count_' + source) && event.amount == 0 &&
+          get(/databases/$(database)/documents/users/$(uid)/habits/$(source)).data.isCompleted == true &&
+          get(/databases/$(database)/documents/users/$(uid)/habits/$(source)).data.currentCount >= get(/databases/$(database)/documents/users/$(uid)/habits/$(source)).data.targetCount) ||
+         (kind == 'checkin' && eventId == eventKey('checkin_' + source) && event.amount == 15 &&
+          get(/databases/$(database)/documents/users/$(uid)/checkins/$(source)).data.energy >= 1) ||
+         (kind == 'sleep' && eventId == eventKey('sleep_' + source) && event.amount == 15 &&
+          get(/databases/$(database)/documents/users/$(uid)/checkins/$(source)).data.sleep > 0) ||
+         (kind == 'water' && number is int && number >= 1 && number <= 16 &&
+          eventId == eventKey('water_' + source + '_' + string(number)) && event.amount == 5 &&
+          get(/databases/$(database)/documents/users/$(uid)/checkins/$(source)).data.water >= number) ||
+         (kind == 'flashcards' && day == dateKey(request.time + duration.value(event.timezoneMinutes, 'm')) && eventId == eventKey('flashcards_' + source + '_' + day) && event.amount == 2 &&
+          get(/databases/$(database)/documents/users/$(uid)/flashcards/$(source)).data.updatedAt >= request.time - duration.value(1, 'd')) ||
+         (kind == 'reading' && number > 0 && eventId == eventKey('reading_' + source + '_' + string(number)) && event.amount == 15 &&
+          get(/databases/$(database)/documents/users/$(uid)/books/$(source)).data.currentPage >= number && get(/databases/$(database)/documents/users/$(uid)/readingLogs/$(source + '_' + string(number))).data.endPage == number) ||
+         (kind == 'reading_finished' && eventId == eventKey('reading_finished_' + source) && event.amount == 50 &&
+          get(/databases/$(database)/documents/users/$(uid)/books/$(source)).data.status == 'done') ||
+         (kind == 'learning_path' && number > 0 && eventId == eventKey('learning_path_' + source + '_' + string(number)) && event.amount == 10 &&
+          get(/databases/$(database)/documents/users/$(uid)/learningPaths/$(source)).data.steps[number - 1].completed == true) ||
+         (kind == 'rituals' && eventId == eventKey('rituals_' + source) && event.amount == 30 &&
+          get(/databases/$(database)/documents/users/$(uid)/rituals/$(source)).data.shutdown.completed == true) ||
+         (kind == 'weekly_review' && eventId == eventKey('weekly_review_' + source) && event.amount == 40 &&
+          exists(/databases/$(database)/documents/users/$(uid)/weeklyReviews/$(source))) ||
+         (kind == 'pomodoro' && eventId == eventKey('pomodoro_' + source) && event.amount >= 1 && event.amount <= 30 &&
+          get(/databases/$(database)/documents/users/$(uid)/pomodoroLogs/$(source)).data.durationSeconds >= 300 &&
+          event.amount == pomodoroAmount(uid, source)));
+    }
+    function pomodoroAmount(uid, source) {
+      let log = get(/databases/$(database)/documents/users/$(uid)/pomodoroLogs/$(source)).data;
+      let cap = log.get('partial', false) ? 29 : 30;
+      let earned = int(log.durationSeconds / 50);
+      return earned < cap ? earned : cap;
+    }
+    function validXpUpdate(uid) {
+      let eventId = request.resource.data.lastEventId;
+      let event = getAfter(/databases/$(database)/documents/users/$(uid)/completionEvents/$(eventId)).data;
+      return owner(uid) && !exists(/databases/$(database)/documents/users/$(uid)/completionEvents/$(eventId)) &&
+        event.createdAt == request.time && request.resource.data.xp == resource.data.get('xp', 0) + event.amount;
+    }
+    function optionalText(data, key, max) { return data.get(key, null) == null || (data[key] is string && data[key].size() <= max); }
+    function optionalNumber(data, key, min, max) { return data.get(key, null) == null || (data[key] is number && data[key] >= min && data[key] <= max); }
+    function validAssignment(data) {
+      return data.type in ['task', 'habit'] && data.title is string && data.title.size() > 0 && data.title.size() <= 500 &&
+        data.completionMode in ['simple', 'count'] && data.assignedTo is list && data.assignedTo.size() > 0 && data.assignedTo.size() <= 20 &&
+        (data.get('deadline', null) == null || data.deadline is timestamp) &&
+        (data.completionMode == 'simple' ? data.get('targetCount', null) == null :
+          (data.targetCount is int && data.targetCount >= 1 && data.targetCount <= 10000));
+    }
+    function validPrivateData(kind, data) {
+      return optionalText(data, 'title', 500) && optionalText(data, 'name', 500) && optionalText(data, 'notes', 30000) &&
+        (!(kind in ['tasks', 'habits']) || (optionalNumber(data, 'timeHour', 0, 23) && optionalNumber(data, 'timeMinute', 0, 59) &&
+          optionalNumber(data, 'currentCount', 0, 10000) && optionalNumber(data, 'targetCount', 1, 10000))) &&
+        (kind != 'checkins' || (optionalNumber(data, 'energy', 0, 5) && optionalText(data, 'mood', 16) && optionalNumber(data, 'water', 0, 16) && optionalNumber(data, 'sleep', 0, 24))) &&
+        (kind != 'goals' || optionalNumber(data, 'progress', 0, 100)) &&
+        (kind != 'pomodoroLogs' || (optionalNumber(data, 'durationSeconds', 0, 10800) && optionalNumber(data, 'durationMinutes', 0, 180))) &&
+        (!(kind in ['budgetTransactions','budgetLogs']) || optionalNumber(data, 'amount', 0.01, 1000000000)) &&
+        (kind != 'bodyMetrics' || (optionalNumber(data, 'weight', 1, 700) && optionalNumber(data,'bpSystolic',1,400) && optionalNumber(data,'bpDiastolic',1,300) && optionalNumber(data,'pulse',1,300) && ((data.get('bpSystolic',null)==null)==(data.get('bpDiastolic',null)==null)))) &&
+        (kind != 'timeAuditLogs' || optionalNumber(data, 'hours', 0, 24)) &&
+        (kind != 'habits' || (data.days is list && data.days.size() == 7 && data.days[0] is bool && data.days[1] is bool &&
+          data.days[2] is bool && data.days[3] is bool && data.days[4] is bool && data.days[5] is bool && data.days[6] is bool)) &&
+        (kind != 'tasks' || (data.done is bool && data.date is timestamp && data.get('dependsOn', []) is list && data.get('dependsOn', []).size() <= 5));
+    }
+    function dependencyDone(uid, list, index) {
+      return list.size() <= index || getAfter(/databases/$(database)/documents/users/$(uid)/tasks/$(list[index])).data.done == true;
+    }
+    function dependenciesSatisfied(uid, data) {
+      let list = data.get('dependsOn', []);
+      return data.done == false || (request.method == 'update' && resource.data.done == true) || (list.size() <= 5 && dependencyDone(uid, list, 0) && dependencyDone(uid, list, 1) &&
+        dependencyDone(uid, list, 2) && dependencyDone(uid, list, 3) && dependencyDone(uid, list, 4));
+    }
+    match /accountDeletions/{uid} {
+      allow get: if owner(uid);
+      allow create, update: if owner(uid) && request.resource.data.keys().hasOnly(['pending']) && request.resource.data.pending == true;
+      allow list, delete: if false;
+    }
+    match /users/{uid} {
+      allow read: if owner(uid);
+      allow create: if owner(uid) && request.resource.data.get('groupIds', []).size() <= 5;
+      allow delete: if owner(uid) && resource.data.get('deletionPending', false) == true;
+      allow update: if (owner(uid) || adminMembershipUpdate(uid)) && request.resource.data.get('groupIds', []).size() <= 5 &&
+        (resource.data.get('deletionPending', false) == false || request.resource.data.get('deletionPending', false) == true);
+      // All private trackers and logs remain scoped exclusively to their owner.
+      match /{collectionName}/{document=**} {
+        allow read: if owner(uid);
+        allow delete: if owner(uid) && !(collectionName in ['tasks', 'habits', 'completionEvents', 'xpLog', 'stats']);
+        allow create, update: if owner(uid) && !(collectionName in ['tasks', 'habits', 'completionEvents', 'xpLog', 'stats']) && validPrivateData(collectionName, request.resource.data);
       }
-
-      // Categories Subcollection: users/{userId}/categories/{categoryId}
-      match /categories/{categoryId} {
-        allow read, write: if isOwner(userId);
+      match /completionEvents/{eventId} {
+        allow create: if validCompletion(uid, eventId) &&
+          getAfter(/databases/$(database)/documents/users/$(uid)/stats/progress).data.lastEventId == eventId;
+        allow update: if false;
+        allow delete: if owner(uid) && get(/databases/$(database)/documents/users/$(uid)).data.get('deletionPending', false) == true && !existsAfter(/databases/$(database)/documents/users/$(uid)/stats/progress);
       }
-
-      // Schedule Events Subcollection: users/{userId}/events/{eventId}
-      match /events/{eventId} {
-        allow read, write: if isOwner(userId);
+      match /xpLog/{eventId} {
+        allow create: if owner(uid) && request.resource.data == getAfter(/databases/$(database)/documents/users/$(uid)/completionEvents/$(eventId)).data;
+        allow update: if false;
+        allow delete: if owner(uid) && get(/databases/$(database)/documents/users/$(uid)).data.get('deletionPending', false) == true;
       }
-
-      // Schedule Event Types Subcollection: users/{userId}/event_types/{typeId}
-      match /event_types/{typeId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Habits Subcollection: users/{userId}/habits/{habitId}
-      match /habits/{habitId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Pomodoro Logs Subcollection: users/{userId}/pomodoroLogs/{logId}
-      match /pomodoroLogs/{logId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Stats & Progress Subcollection: users/{userId}/stats/{statId}
       match /stats/{statId} {
-        allow read, write: if isOwner(userId);
+        allow delete: if owner(uid) && (statId != 'progress' || get(/databases/$(database)/documents/users/$(uid)).data.get('deletionPending', false) == true);
+        allow create: if owner(uid) && (statId != 'progress' ||
+          (request.resource.data.xp == getAfter(/databases/$(database)/documents/users/$(uid)/completionEvents/$(request.resource.data.lastEventId)).data.amount &&
+           !exists(/databases/$(database)/documents/users/$(uid)/completionEvents/$(request.resource.data.lastEventId))));
+        allow update: if owner(uid) && (statId != 'progress' ||
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['xp', 'lastEventId']) || validXpUpdate(uid));
       }
-
-      // GTD Inbox Subcollection: users/{userId}/inbox/{itemId}
-      match /inbox/{itemId} {
-        allow read, write: if isOwner(userId);
+      match /tasks/{taskId} {
+        allow delete: if owner(uid) && (resource.data.get('locked', false) == false ||
+          get(/databases/$(database)/documents/users/$(uid)).data.get('deletionPending', false) == true);
+        allow create: if validPrivateData('tasks', request.resource.data) && dependenciesSatisfied(uid, request.resource.data) && ((owner(uid) && request.resource.data.get('locked', false) == false && request.resource.data.get('groupAssignmentId', null) == null && request.resource.data.get('assignedByGroupId', null) == null) || assignedItemCreate(uid, 'task'));
+        allow update: if validPrivateData('tasks', request.resource.data) && dependenciesSatisfied(uid, request.resource.data) && (detachedItem(uid) || (owner(uid) && ((resource.data.get('locked', false) == false && request.resource.data.get('locked', false) == false && request.resource.data.get('groupAssignmentId', null) == resource.data.get('groupAssignmentId', null) && request.resource.data.get('assignedByGroupId', null) == resource.data.get('assignedByGroupId', null)) ||
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['done', 'doneAt', 'currentCount', 'subtasks']) && lockedProgress(uid, taskId, 'task')))));
       }
-
-      // PARA Organizational System Subcollections:
-      // Areas (users/{userId}/paraAreas/{areaId})
-      match /paraAreas/{areaId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Projects (users/{userId}/paraProjects/{projectId})
-      match /paraProjects/{projectId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Resources (users/{userId}/paraResources/{resourceId})
-      match /paraResources/{resourceId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Energy & Mood Daily Check-in Subcollection: users/{userId}/checkins/{dateStr}
-      match /checkins/{dateStr} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Personal CRM Contacts Subcollection: users/{userId}/contacts/{contactId}
-      match /contacts/{contactId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Life Map Goals Subcollection: users/{userId}/goals/{goalId}
-      match /goals/{goalId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Time Audit Logs Subcollection: users/{userId}/timeAuditLogs/{logId}
-      match /timeAuditLogs/{logId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Daily Rituals Subcollection: users/{userId}/rituals/{dateStr}
-      match /rituals/{dateStr} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Gratitude Subcollection: users/{userId}/gratitude/{gratitudeId}
-      match /gratitude/{gratitudeId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // Weekly Reviews Subcollection: users/{userId}/weeklyReviews/{reviewId}
-      match /weeklyReviews/{reviewId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      // User Meta Subcollection: users/{userId}/meta/{docId}
-      match /meta/{docId} {
-        allow read, write: if isOwner(userId);
+      match /habits/{habitId} {
+        allow delete: if owner(uid) && (resource.data.get('locked', false) == false ||
+          get(/databases/$(database)/documents/users/$(uid)).data.get('deletionPending', false) == true);
+        allow create: if validPrivateData('habits', request.resource.data) && ((owner(uid) && request.resource.data.get('locked', false) == false && request.resource.data.get('groupAssignmentId', null) == null && request.resource.data.get('assignedByGroupId', null) == null) || assignedItemCreate(uid, 'habit'));
+        allow update: if validPrivateData('habits', request.resource.data) && (detachedItem(uid) || (owner(uid) && ((resource.data.get('locked', false) == false && request.resource.data.get('locked', false) == false && request.resource.data.get('groupAssignmentId', null) == resource.data.get('groupAssignmentId', null) && request.resource.data.get('assignedByGroupId', null) == resource.data.get('assignedByGroupId', null)) ||
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['days', 'streak', 'baseStreak', 'lastResetDate', 'currentCount', 'isCompleted']) && lockedProgress(uid, habitId, 'habit')))));
       }
     }
-
-    // -------------------------------------------------------------------------
-    // 2. GROUPS & COLLABORATIVE FEATURES
-    // -------------------------------------------------------------------------
+    // Supports account deletion's collectionGroup('members').where('uid', ...).
+    match /{path=**}/members/{memberUid} {
+      allow read: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+    match /{path=**}/{collectionName}/{recordId} {
+      allow read: if signedIn() && collectionName in ['feed', 'xpEvents', 'weeklyScores', 'scoreEvents', 'completions', 'participants'] && resource.data.uid == request.auth.uid;
+    }
+    match /{path=**}/feed/{feedId} {
+      allow read: if deletingAccount() && request.auth.uid in resource.data.get('reactionUids', []);
+    }
+    match /{path=**}/challenges/{challengeId} {
+      allow read: if deletingAccount() && (resource.data.get('createdBy', '') == request.auth.uid || resource.data.get('approvedBy', '') == request.auth.uid || request.auth.uid in resource.data.get('winnerUids', []));
+    }
+    match /{path=**}/audit/{auditId} { allow read: if deletingAccount() && resource.data.actorUid == request.auth.uid; }
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() && getAfter(/databases/$(database)/documents/groups/$(request.resource.data.groupId)).data.createdBy == request.auth.uid &&
+        getAfter(/databases/$(database)/documents/groups/$(request.resource.data.groupId)).data.inviteCode == code &&
+        request.resource.data.keys().hasOnly(['groupId', 'name', 'icon', 'maxMembers', 'memberCount']);
+      allow update: if false;
+      allow delete: if groupOwner(resource.data.groupId);
+    }
     match /groups/{groupId} {
-      // Any authenticated user can create a group or lookup group by invite code
-      allow create: if isAuthenticated();
-      allow read: if isAuthenticated();
-      // Only group admin can update or delete the group document
-      allow update, delete: if isGroupAdmin(groupId) || resource.data.createdBy == request.auth.uid;
-
-      // Group Members: groups/{groupId}/members/{memberUid}
+      allow read: if groupMember(groupId) || groupAdmin(groupId) ||
+        (signedIn() && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)));
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid && request.resource.data.memberCount == 1 && request.resource.data.maxMembers >= 1 && request.resource.data.maxMembers <= 20;
+      allow update: if (groupOwner(groupId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['createdBy', 'ownershipChangedAt']) &&
+        get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.resource.data.createdBy)).data.status == 'approved' &&
+        getAfter(/databases/$(database)/documents/groups/$(groupId)/members/$(request.resource.data.createdBy)).data.role == 'admin') || membershipCounter(groupId) ||
+        (groupAdmin(groupId) && request.resource.data.createdBy == resource.data.createdBy &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'icon', 'description', 'status', 'inviteCode', 'deletionPending', 'weekStart']));
+      allow delete: if groupOwner(groupId);
+      match /audit/{entry} {
+        allow read: if groupMember(groupId) || groupAdmin(groupId);
+        allow create: if (groupAdmin(groupId) || (groupModerator(groupId) && request.resource.data.action == 'approveMember' &&
+          get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.resource.data.target)).data.status == 'pending' &&
+          getAfter(/databases/$(database)/documents/groups/$(groupId)/members/$(request.resource.data.target)).data.status == 'approved')) && request.resource.data.actorUid == request.auth.uid && request.resource.data.createdAt == request.time &&
+          request.resource.data.keys().hasOnly(['actorUid', 'action', 'target', 'createdAt']) && request.resource.data.action is string && request.resource.data.action.size() <= 64;
+        allow update: if false;
+        allow delete: if (deletingAccount() && resource.data.actorUid == request.auth.uid) || groupOwner(groupId) && get(/databases/$(database)/documents/groups/$(groupId)).data.get('deletionPending', false) == true;
+      }
       match /members/{memberUid} {
-        // Members list readable by any member or by the user themselves
-        allow read: if isAuthenticated();
-        // User can submit a join request for themselves (status == 'pending')
-        allow create: if isOwner(memberUid);
-        // Admin can approve/update roles; member can update their own weeklyXP
-        allow update: if isGroupAdmin(groupId) || isOwner(memberUid);
-        // Member can leave, or Admin can remove
-        allow delete: if isOwner(memberUid) || isGroupAdmin(groupId);
+        allow read: if owner(memberUid) || groupMember(groupId) || groupAdmin(groupId);
+        allow create: if owner(memberUid) && request.resource.data.uid == memberUid && (
+          (request.resource.data.role == 'member' && request.resource.data.status == 'pending' &&
+           request.resource.data.inviteCode == get(/databases/$(database)/documents/groups/$(groupId)).data.inviteCode &&
+           get(/databases/$(database)/documents/invites/$(request.resource.data.inviteCode)).data.groupId == groupId) ||
+          (request.resource.data.role == 'admin' && request.resource.data.status == 'approved' &&
+           getAfter(/databases/$(database)/documents/groups/$(groupId)).data.createdBy == request.auth.uid)
+        );
+        allow update: if request.resource.data.uid == resource.data.uid && (((groupAdmin(groupId) || (groupModerator(groupId) && resource.data.status == 'pending' && request.resource.data.status == 'approved')) && (request.resource.data.role == resource.data.role || groupOwner(groupId)) && request.resource.data.get('weeklyXP', 0) == resource.data.get('weeklyXP', 0) &&
+          (resource.data.status == request.resource.data.status ||
+           getAfter(/databases/$(database)/documents/groups/$(groupId)).data.lastMembershipUid == memberUid)) ||
+          (owner(memberUid) && resource.data.status == 'approved' && request.resource.data.status == 'leaving' &&
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) &&
+           getAfter(/databases/$(database)/documents/groups/$(groupId)).data.memberCount == get(/databases/$(database)/documents/groups/$(groupId)).data.memberCount - 1) ||
+          (owner(memberUid) && groupMember(groupId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])));
+        allow delete: if (owner(memberUid) || groupAdmin(groupId)) && (resource.data.status != 'approved' ||
+          get(/databases/$(database)/documents/groups/$(groupId)).data.get('deletionPending', false) == true ||
+          getAfter(/databases/$(database)/documents/groups/$(groupId)).data.memberCount == get(/databases/$(database)/documents/groups/$(groupId)).data.memberCount - 1);
       }
-
-      // Group Activity Feed: groups/{groupId}/feed/{feedId}
+      match /xpEvents/{copyId} {
+        allow read: if groupMember(groupId) || groupAdmin(groupId);
+        allow create: if groupMember(groupId) && request.resource.data.uid == request.auth.uid &&
+          (get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.get('joinedAt', null) == null || request.resource.data.createdAt >= get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.joinedAt) &&
+          copyId == request.auth.uid + '_' + request.resource.data.eventId &&
+          request.resource.data.amount == get(/databases/$(database)/documents/users/$(request.auth.uid)/completionEvents/$(request.resource.data.eventId)).data.amount &&
+          request.resource.data.createdAt == get(/databases/$(database)/documents/users/$(request.auth.uid)/completionEvents/$(request.resource.data.eventId)).data.createdAt &&
+          request.resource.data.week == get(/databases/$(database)/documents/users/$(request.auth.uid)/completionEvents/$(request.resource.data.eventId)).data.week &&
+          ((request.resource.data.sourceType in ['task', 'habit', 'habit_count'] && request.resource.data.sourceType == get(/databases/$(database)/documents/users/$(request.auth.uid)/completionEvents/$(request.resource.data.eventId)).data.sourceType) ||
+           (request.resource.data.sourceType == 'activity' && !(get(/databases/$(database)/documents/users/$(request.auth.uid)/completionEvents/$(request.resource.data.eventId)).data.sourceType in ['task', 'habit', 'habit_count']))) &&
+          request.resource.data.challengeEligible == (get(/databases/$(database)/documents/users/$(request.auth.uid)/completionEvents/$(request.resource.data.eventId)).data.sourceType != 'habit' ||
+            get(/databases/$(database)/documents/users/$(request.auth.uid)/completionEvents/$(request.resource.data.eventId)).data.sourceDate == get(/databases/$(database)/documents/users/$(request.auth.uid)/completionEvents/$(request.resource.data.eventId)).data.occurredOn) &&
+          request.resource.data.keys().hasOnly(['uid', 'amount', 'createdAt', 'sourceType', 'eventId', 'week', 'challengeEligible']);
+        allow delete: if groupOwner(groupId) && get(/databases/$(database)/documents/groups/$(groupId)).data.get('deletionPending', false) == true ||
+          (signedIn() && resource.data.uid == request.auth.uid && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('deletionPending', false) == true);
+      }
+      match /weeklyScores/{scoreId} {
+        allow read: if groupMember(groupId) || groupAdmin(groupId);
+        allow create, update: if groupMember(groupId) && request.resource.data.uid == request.auth.uid &&
+          scoreId == request.resource.data.week + '_' + request.auth.uid &&
+          !exists(/databases/$(database)/documents/groups/$(groupId)/xpEvents/$(request.auth.uid + '_' + request.resource.data.lastEventId)) &&
+          getAfter(/databases/$(database)/documents/groups/$(groupId)/xpEvents/$(request.auth.uid + '_' + request.resource.data.lastEventId)).data.week == request.resource.data.week &&
+          request.resource.data.xp == (resource == null ? 0 : resource.data.get('xp', 0)) +
+            getAfter(/databases/$(database)/documents/groups/$(groupId)/xpEvents/$(request.auth.uid + '_' + request.resource.data.lastEventId)).data.amount;
+        allow delete: if groupOwner(groupId) && get(/databases/$(database)/documents/groups/$(groupId)).data.get('deletionPending', false) == true ||
+          (signedIn() && resource.data.uid == request.auth.uid && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('deletionPending', false) == true);
+      }
       match /feed/{feedId} {
-        allow read: if isGroupMember(groupId);
-        allow create: if isGroupMember(groupId);
-        // Reactions: Group members can toggle emoji reactions
-        allow update: if isGroupMember(groupId);
-        allow delete: if isGroupAdmin(groupId) || resource.data.uid == request.auth.uid;
+        allow read: if groupMember(groupId) || groupAdmin(groupId);
+        allow create: if groupMember(groupId) && request.resource.data.uid == request.auth.uid &&
+          optionalText(request.resource.data, 'message', 4000) && optionalText(request.resource.data, 'name', 500) &&
+          optionalText(request.resource.data, 'type', 64) && optionalText(request.resource.data, 'icon', 64) &&
+          request.resource.data.get('reactedBy', {}).size() == 0 && request.resource.data.get('reactions', {}).get('like', 0) == 0 &&
+          request.resource.data.get('reactions', {}).get('fire', 0) == 0 && request.resource.data.get('reactions', {}).get('clap', 0) == 0;
+        allow update: if (groupMember(groupId) || (deletingAccount() && resource.data.get('reactedBy', {}).get(request.auth.uid, '') != '' && request.resource.data.get('reactedBy', {}).get(request.auth.uid, '') == '')) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions', 'reactedBy', 'reactionUids']) &&
+          request.resource.data.reactedBy.diff(resource.data.reactedBy).affectedKeys().hasOnly([request.auth.uid]) &&
+          request.resource.data.reactedBy.get(request.auth.uid, '') in ['', 'like', 'fire', 'clap'] &&
+          request.resource.data.reactions.keys().hasOnly(['like', 'fire', 'clap']) &&
+          reactionCount('like') && reactionCount('fire') && reactionCount('clap') && (!('reactionUids' in request.resource.data) || request.resource.data.reactionUids.toSet() == request.resource.data.reactedBy.keys().toSet());
+        allow delete: if groupAdmin(groupId) || (signedIn() && resource.data.uid == request.auth.uid);
       }
-
-      // Group Challenges: groups/{groupId}/challenges/{challengeId}
       match /challenges/{challengeId} {
-        allow read: if isGroupMember(groupId);
-        allow create, update: if isGroupMember(groupId);
-        allow delete: if isGroupAdmin(groupId);
-
-        // Challenge Participants: groups/{groupId}/challenges/{challengeId}/participants/{participantUid}
+        allow update: if deletingAccount() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['createdBy', 'approvedBy', 'winnerUid', 'winnerName', 'winnerUids']) &&
+          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['createdBy']) || (resource.data.createdBy == request.auth.uid && request.resource.data.createdBy == null)) &&
+          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['approvedBy']) || (resource.data.approvedBy == request.auth.uid && request.resource.data.approvedBy == null)) &&
+          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['winnerUid', 'winnerName', 'winnerUids']) || (request.auth.uid in resource.data.get('winnerUids', []) && request.resource.data.winnerUids == resource.data.winnerUids.removeAll([request.auth.uid]) && request.resource.data.winnerUid == null && request.resource.data.winnerName == null));
+        allow read: if groupMember(groupId) || groupAdmin(groupId) || (deletingAccount() && exists(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(request.auth.uid)));
+        allow create: if groupMember(groupId) && request.resource.data.createdBy == request.auth.uid &&
+          request.resource.data.type in ['tasks', 'habits'] && request.resource.data.goal is int &&
+          request.resource.data.goal >= 1 && request.resource.data.goal <= 10000 && request.resource.data.status == 'active' &&
+          request.resource.data.startDate <= request.time + duration.value(30, 's') &&
+          request.resource.data.endDate > request.resource.data.startDate &&
+          request.resource.data.endDate <= request.resource.data.startDate + duration.value(31, 'd') &&
+          request.resource.data.participantCount == 1 &&
+          existsAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(request.auth.uid));
+        allow update: if
+          (signedIn() && request.resource.data.lastRemovedParticipant == request.auth.uid &&
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantCount', 'lastRemovedParticipant', 'winnerUid', 'winnerName', 'winnerUids']) &&
+           request.resource.data.participantCount == resource.data.participantCount - 1 &&
+           exists(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(request.auth.uid)) &&
+           !existsAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(request.auth.uid)) &&
+           (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['winnerUid', 'winnerName', 'winnerUids']) ||
+            (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('deletionPending', false) == true && request.resource.data.winnerUid == null && request.resource.data.winnerName == null &&
+             request.resource.data.winnerUids == resource.data.get('winnerUids', []).removeAll([request.auth.uid])))) ||
+          (groupMember(groupId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantCount']) &&
+           request.resource.data.participantCount == resource.data.participantCount + 1 && resource.data.status == 'active' && request.time < resource.data.endDate &&
+           !exists(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(request.auth.uid)) &&
+           existsAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/participants/$(request.auth.uid))) ||
+          (groupAdmin(groupId) && request.time >= resource.data.endDate && resource.data.status == 'active' && request.resource.data.status == 'finished' &&
+           request.resource.data.approvedBy == request.auth.uid && request.resource.data.approvedAt == request.time &&
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'winnerUid', 'winnerName', 'winnerScore', 'winnerUids', 'approvedBy', 'approvedAt'])) ||
+          (groupMember(groupId) && resource.data.createdBy == request.auth.uid &&
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title']));
+        allow delete: if groupAdmin(groupId);
         match /participants/{participantUid} {
-          allow read: if isGroupMember(groupId);
-          // User can join a challenge for themselves and update their score
-          allow create, update: if isOwner(participantUid) && isGroupMember(groupId);
-          allow delete: if isOwner(participantUid) || isGroupAdmin(groupId);
+          allow read: if groupMember(groupId) || groupAdmin(groupId);
+          allow create: if owner(participantUid) && groupMember(groupId) && request.resource.data.uid == participantUid &&
+            request.resource.data.score == 0 && request.resource.data.get('baseline', 0) == 0 &&
+            request.resource.data.joinedAt >= request.time - duration.value(30, 's') && request.resource.data.joinedAt <= request.time + duration.value(30, 's') &&
+            getAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)).data.status == 'active' &&
+            request.time < getAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)).data.endDate &&
+            ((exists(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)) &&
+              getAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)).data.participantCount ==
+              get(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)).data.participantCount + 1) ||
+             (!exists(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)) &&
+              getAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)).data.createdBy == request.auth.uid));
+          allow update: if (owner(participantUid) || groupAdmin(groupId)) && request.resource.data.uid == participantUid &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['score', 'lastScoreEventId']) &&
+            request.resource.data.score == resource.data.score + 1 &&
+            !exists(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/scoreEvents/$(request.resource.data.lastScoreEventId)) &&
+            getAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)/scoreEvents/$(request.resource.data.lastScoreEventId)).data.uid == participantUid;
+          allow delete: if (owner(participantUid) || groupAdmin(groupId)) &&
+            (get(/databases/$(database)/documents/groups/$(groupId)).data.get('deletionPending', false) == true ||
+             getAfter(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)).data.participantCount ==
+             get(/databases/$(database)/documents/groups/$(groupId)/challenges/$(challengeId)).data.participantCount - 1);
+        }
+        match /scoreEvents/{claimId} {
+          allow read: if groupMember(groupId) || groupAdmin(groupId);
+          allow create: if validScoreEvent(groupId, challengeId, claimId);
+          allow delete: if groupOwner(groupId) && get(/databases/$(database)/documents/groups/$(groupId)).data.get('deletionPending', false) == true ||
+            (signedIn() && resource.data.uid == request.auth.uid && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('deletionPending', false) == true);
+        }
+      }
+      match /assignments/{assignmentId} {
+        allow read: if groupMember(groupId) || groupAdmin(groupId);
+        allow create: if groupAdmin(groupId) && request.resource.data.createdBy == request.auth.uid && validAssignment(request.resource.data);
+        allow update: if groupAdmin(groupId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['distributionPending']) &&
+          request.resource.data.distributionPending is bool;
+        allow delete: if groupAdmin(groupId);
+        match /completions/{memberUid} {
+          allow read: if groupMember(groupId) || groupAdmin(groupId);
+          allow create, update: if (groupAdmin(groupId) || (owner(memberUid) && groupMember(groupId))) && validAssignmentProgress(memberUid, groupId, assignmentId);
+          allow delete: if owner(memberUid) || groupAdmin(groupId);
         }
       }
     }

@@ -101,7 +101,8 @@ class LifeAnalyticsHelpers {
       if (task.done) {
         final completionDate = task.doneAt ?? task.date;
         final dateKey = formatDateKey(completionDate);
-        completedTasksByDate[dateKey] = (completedTasksByDate[dateKey] ?? 0) + 1;
+        completedTasksByDate[dateKey] =
+            (completedTasksByDate[dateKey] ?? 0) + 1;
       }
     }
 
@@ -142,7 +143,9 @@ class LifeAnalyticsHelpers {
   }
 
   /// Tallies completed tasks across days of the week (Sun-Sat) and finds the most productive day.
-  static MostProductiveDayResult computeMostProductiveDay(List<TaskModel> tasks) {
+  static MostProductiveDayResult computeMostProductiveDay(
+    List<TaskModel> tasks,
+  ) {
     final completedTasks = tasks.where((t) => t.done).toList();
     if (completedTasks.isEmpty) {
       return const MostProductiveDayResult(

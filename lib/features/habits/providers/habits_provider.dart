@@ -1,3 +1,5 @@
+import '../../productivity/services/trash_service.dart';
+import '../../../core/data/item_progress_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +14,19 @@ import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../../groups/services/challenge_service.dart';
 import '../../groups/services/group_feed_service.dart';
-import '../../groups/assignments/services/group_assignment_service.dart';
+import '../../../core/data/calendar_clock.dart';
+import '../../../core/data/completion_ledger.dart';
+import '../services/habit_history_service.dart';
 
 /// Stream provider that listens to real-time habits subcollection in Firestore
 /// and applies automatic weekly reset checks on the fly.
 ///
 /// DATA ISOLATION: Watches [currentUserIdProvider] so habits never leak between accounts.
-final habitsStreamProvider = StreamProvider.autoDispose<List<HabitModel>>((ref) {
+final habitsStreamProvider = StreamProvider.autoDispose<List<HabitModel>>((
+  ref,
+) {
   final uid = ref.watch(currentUserIdProvider);
+  final now = ref.watch(calendarClockProvider);
 
   if (uid == null || uid.isEmpty) {
     return Stream.value(<HabitModel>[]);
@@ -32,24 +39,55 @@ final habitsStreamProvider = StreamProvider.autoDispose<List<HabitModel>>((ref) 
       .orderBy('createdAt', descending: false)
       .snapshots()
       .map((snapshot) {
-    final now = DateTime.now();
-    final List<HabitModel> habits = [];
+        final List<HabitModel> habits = [];
 
-    for (final doc in snapshot.docs) {
-      final habit = HabitModel.fromFirestore(doc);
-      // Run automatic weekly rollover check
-      final updated = StreakLogic.evaluateWeeklyReset(habit, now);
+        for (final doc in snapshot.docs) {
+          final habit = HabitModel.fromFirestore(doc);
+          // Run automatic weekly rollover check
+          final raw = doc.data();
+          final currentWeek = StreakLogic.getStartOfWeek(
+            now,
+            weekStartDay: habit.resetDay,
+          );
+          final sameWeek =
+              habit.lastResetDate != null &&
+              StreakLogic.getStartOfWeek(
+                    habit.lastResetDate!,
+                    weekStartDay: habit.resetDay,
+                  ) ==
+                  currentWeek;
+          final lastCompleted = DateTime.tryParse(
+            raw['lastCompletedDate'] as String? ?? '',
+          );
+          var streak = lastCompleted == null ? 0 : habit.streak;
+          if (lastCompleted != null) {
+            var cursor = calendarDay(lastCompleted, 1);
+            while (cursor.isBefore(calendarDay(now))) {
+              if (habit.weekdays.contains(cursor.weekday)) {
+                streak = 0;
+                break;
+              }
+              cursor = calendarDay(cursor, 1);
+            }
+          }
+          final updated = habit.copyWith(
+            days: [
+              for (var day = 0; day < 7; day++)
+                sameWeek &&
+                    !calendarDay(currentWeek, day).isAfter(now) &&
+                    habit.weekdays.contains(
+                      calendarDay(currentWeek, day).weekday,
+                    ) &&
+                    habit.days[day],
+            ],
+            streak: streak,
+          );
 
-      // If weekly reset changed habit state, persist asynchronously to Firestore
-      if (updated.lastResetDate != habit.lastResetDate) {
-        doc.reference.update(updated.toMap()).catchError((_) {});
-      }
+          habits.add(updated);
+        }
 
-      habits.add(updated);
-    }
-
-    return habits;
-  });
+        return habits;
+      });
 });
 
 /// Derived provider for summary statistics
@@ -116,73 +154,117 @@ class HabitsController {
   }
 
   /// Adds a new Habit to Firestore and schedules daily local notification if time is set
-  Future<void> addHabit(HabitModel habit, BuildContext context) async {
+  Future<bool> addHabit(HabitModel habit, BuildContext context) async {
     final notificationTitle = context.tr('notification_habit_title');
     try {
       final col = _habitsCollection;
-      if (col == null) return;
+      if (col == null) return false;
 
       final docRef = await col.add(habit.toMap());
       final createdHabit = habit.copyWith(id: docRef.id);
 
-      if (createdHabit.time != null) {
-        await HabitNotificationService().scheduleHabitReminder(
-          habit: createdHabit,
-          notificationTitle: notificationTitle,
-        );
-      }
+      await _scheduleReminder(createdHabit, notificationTitle, col.parent!.id);
 
       if (context.mounted) {
         _showToast(context, context.tr('habit_added_success'), isError: false);
       }
       // Achievement check hook for adding habit (1st, 5th)
-      ProgressService().checkAndUnlockAchievements(context: context);
+      ProgressService().checkAndUnlockAchievements(
+        context: context.mounted ? context : null,
+      );
+      return true;
     } catch (e) {
       if (context.mounted) {
         _showToast(context, context.tr('habit_error_saving'), isError: true);
       }
+      return false;
     }
   }
 
   /// Updates an existing Habit in Firestore and refreshes its notification schedule
-  Future<void> updateHabit(HabitModel habit, BuildContext context) async {
+  Future<bool> updateHabit(HabitModel habit, BuildContext context) async {
     final notificationTitle = context.tr('notification_habit_title');
     try {
       final col = _habitsCollection;
-      if (col == null) return;
+      if (col == null) return false;
 
-      await col.doc(habit.id).update(habit.toMap());
+      final metadata = habit.toMap()
+        ..remove('days')
+        ..remove('streak')
+        ..remove('totalCount')
+        ..remove('currentCount')
+        ..remove('lastResetDate')
+        ..remove('lastCompletedDate')
+        ..remove('createdAt');
+      await col.doc(habit.id).update(metadata);
 
-      if (habit.time != null) {
-        await HabitNotificationService().scheduleHabitReminder(
-          habit: habit,
-          notificationTitle: notificationTitle,
-        );
-      } else {
-        await HabitNotificationService().cancelHabitReminder(habit.id);
-      }
+      await _scheduleReminder(habit, notificationTitle, col.parent!.id);
 
       if (context.mounted) {
-        _showToast(context, context.tr('habit_updated_success'), isError: false);
+        _showToast(
+          context,
+          context.tr('habit_updated_success'),
+          isError: false,
+        );
       }
+      return true;
     } catch (e) {
       if (context.mounted) {
         _showToast(context, context.tr('habit_error_saving'), isError: true);
       }
+      return false;
     }
   }
 
   /// Deletes a Habit from Firestore and cancels any scheduled reminder notification
+  Future<void> _scheduleReminder(
+    HabitModel habit,
+    String title,
+    String account,
+  ) async {
+    if (_currentUserId != account) return;
+    try {
+      if (habit.time != null) {
+        await HabitNotificationService().scheduleHabitReminder(
+          habit: habit,
+          notificationTitle: title,
+          uid: account,
+        );
+      } else {
+        await HabitNotificationService().cancelHabitReminder(habit.id);
+      }
+    } catch (e) {
+      debugPrint('Habit saved, but reminder scheduling failed: $e');
+    }
+  }
+
   Future<void> deleteHabit(String habitId, BuildContext context) async {
     try {
       final col = _habitsCollection;
       if (col == null) return;
 
-      await col.doc(habitId).delete();
+      final account = col.parent!.id;
+      final key = await TrashService(
+        col.firestore,
+      ).move(account, 'habits', habitId);
       await HabitNotificationService().cancelHabitReminder(habitId);
 
       if (context.mounted) {
-        _showToast(context, context.tr('habit_deleted_success'), isError: false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr('habit_deleted_success')),
+            action: SnackBarAction(
+              label: Localizations.localeOf(context).languageCode == 'ar'
+                  ? 'تراجع'
+                  : 'Undo',
+              onPressed: () async {
+                if (ref.read(currentUserIdProvider) == account) {
+                  await TrashService(col.firestore).restore(account, key);
+                }
+              },
+            ),
+          ),
+        );
       }
     } catch (e) {
       if (context.mounted) {
@@ -199,8 +281,60 @@ class HabitsController {
     BuildContext context,
   ) async {
     final oldStreak = habit.streak;
-    final toggleResult = StreakLogic.toggleHabitDayWithResult(habit, dayIndex);
-    final updatedHabit = toggleResult.habit;
+    final now = ref.read(calendarClockProvider);
+    final date = calendarDay(
+      StreakLogic.getStartOfWeek(now, weekStartDay: habit.resetDay),
+      dayIndex,
+    );
+    if (dayIndex < 0 || dayIndex > 6 || date.isAfter(calendarDay(now))) return;
+    final retrospective = date.isBefore(calendarDay(now));
+    if (retrospective) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialog) => AlertDialog(
+          title: Text(context.tr('habit_retrospective_title')),
+          content: Text(CompletionLedger.dateKey(date)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialog, false),
+              child: Text(context.tr('cancel')),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialog, true),
+              child: Text(context.tr('confirm')),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+    late HabitModel updatedHabit;
+
+    // Persist first: a failed write must not award XP or announce completion.
+    final uid = _currentUserId;
+    if (uid == null) return;
+    try {
+      final col = _habitsCollection;
+      if (col == null) return;
+      updatedHabit = await HabitHistoryService(FirebaseFirestore.instance)
+          .setCompleted(
+            uid: uid,
+            habitId: habit.id,
+            date: date,
+            completed: !habit.isDayCompleted(dayIndex),
+            retrospective: retrospective,
+          );
+    } catch (e) {
+      if (context.mounted) {
+        _showToast(context, context.tr('habit_error_saving'), isError: true);
+      }
+      return;
+    }
+    if (_currentUserId != uid) return;
+    final toggleResult = HabitToggleResult(
+      habit: updatedHabit,
+      wasEarlyWeekReset: false,
+    );
 
     // Check for milestone celebration (3, 7, 14, 30, 60, 100 days)
     final milestone = StreakLogic.checkMilestoneCelebration(
@@ -218,8 +352,10 @@ class HabitsController {
 
       // Group feed hook: habit streak milestone
       GroupFeedService().pushToAllUserGroups(
+        uid: uid,
         type: 'streak_milestone',
-        message: 'Reached a $milestone-day streak on "${updatedHabit.title}"! 🔥',
+        message:
+            'Reached a $milestone-day streak on "${updatedHabit.title}"! 🔥',
         icon: '🔥',
       );
     } else if (toggleResult.wasEarlyWeekReset && context.mounted) {
@@ -231,9 +367,23 @@ class HabitsController {
     // XP & ACHIEVEMENT HOOKS
     // NOTE: Group-assigned habits explicitly BYPASS all personal XP awards.
     // =========================================================================
-    if (toggleResult.wasEarlyWeekReset || updatedHabit.isDayCompleted(dayIndex)) {
+    if (toggleResult.wasEarlyWeekReset ||
+        updatedHabit.isDayCompleted(dayIndex)) {
       if (updatedHabit.isGroupAssigned) {
         // Explicitly SKIP personal XP award for group-assigned habits
+        final ledger = CompletionLedger(FirebaseFirestore.instance);
+        await ledger.award(
+          uid: uid,
+          eventId: 'habit_${updatedHabit.id}_${CompletionLedger.dateKey(date)}',
+          sourceId: updatedHabit.id,
+          sourceType: 'habit',
+          amount: 0,
+          label: updatedHabit.title,
+        );
+        await ledger.syncGroups(
+          uid: uid,
+          eventId: 'habit_${updatedHabit.id}_${CompletionLedger.dateKey(date)}',
+        );
         debugPrint(
           'Group-assigned habit checked ("${updatedHabit.title}") — skipping personal XP award.',
         );
@@ -243,22 +393,14 @@ class HabitsController {
           XpConstants.habitDayCompletion,
           source: 'Completed habit: "${updatedHabit.title}"',
           sourceType: 'habit',
-          context: context,
+          uid: uid,
+          sourceId: updatedHabit.id,
+          eventId: 'habit_${updatedHabit.id}_${CompletionLedger.dateKey(date)}',
+          context: context.mounted ? context : null,
         );
       }
-      ChallengeService().triggerProgressSync();
+      ChallengeService().triggerProgressSync(uid: uid);
     }
-
-    // Group Assignment Sync Hook
-    if (updatedHabit.isGroupAssigned) {
-      GroupAssignmentService().syncHabitCompletion(updatedHabit);
-    }
-
-    try {
-      final col = _habitsCollection;
-      if (col == null) return;
-      await col.doc(habit.id).update(updatedHabit.toMap());
-    } catch (_) {}
   }
 
   /// Increments progress count for a group-assigned habit in count-mode
@@ -266,63 +408,39 @@ class HabitsController {
   ///
   /// NOTE: Count-mode group-assigned habits bypass the 7-day streak system
   /// and explicitly DO NOT award personal XP.
-  Future<void> incrementHabitCount(
+  Future<void> incrementHabitCount(HabitModel habit, BuildContext context) =>
+      _changeHabitCount(habit, 1, context);
+  Future<void> decrementHabitCount(HabitModel habit, BuildContext context) =>
+      _changeHabitCount(habit, -1, context);
+  Future<void> _changeHabitCount(
     HabitModel habit,
+    int delta,
     BuildContext context,
   ) async {
-    final target = habit.targetCount ?? 1;
-    final newCount = habit.currentCount + 1;
-    final isDone = newCount >= target;
-
-    final updated = habit.copyWith(
-      currentCount: newCount,
-      isCompleted: isDone,
-    );
-
+    final uid = _currentUserId;
+    if (uid == null) return;
     try {
-      final col = _habitsCollection;
-      if (col == null) return;
-      await col.doc(habit.id).update(updated.toMap());
-
-      // Sync back to group assignment completions
-      if (updated.isGroupAssigned) {
-        GroupAssignmentService().syncHabitCompletion(updated);
+      final firestore = FirebaseFirestore.instance;
+      final data = await ItemProgressService(
+        firestore,
+      ).habitCount(uid: uid, id: habit.id, delta: delta);
+      if (data['isCompleted'] == true && _currentUserId == uid) {
+        final ledger = CompletionLedger(firestore);
+        await ledger.award(
+          uid: uid,
+          eventId: 'habit_count_${habit.id}',
+          sourceId: habit.id,
+          sourceType: 'habit_count',
+          amount: 0,
+          label: habit.title,
+        );
+        await ledger.syncGroups(uid: uid, eventId: 'habit_count_${habit.id}');
+        ChallengeService().triggerProgressSync(uid: uid);
       }
-
-      if (isDone && context.mounted) {
-        _showToast(context, '🎯 Completed "${habit.title}" target! ($newCount/$target)', isError: false);
+    } catch (error) {
+      if (context.mounted) {
+        _showToast(context, context.tr('habit_error_saving'), isError: true);
       }
-    } catch (e) {
-      debugPrint('Error incrementing habit count: $e');
-    }
-  }
-
-  /// Decrements progress count for a group-assigned habit in count-mode
-  Future<void> decrementHabitCount(
-    HabitModel habit,
-    BuildContext context,
-  ) async {
-    if (habit.currentCount <= 0) return;
-    final newCount = habit.currentCount - 1;
-    final target = habit.targetCount ?? 1;
-    final isDone = newCount >= target;
-
-    final updated = habit.copyWith(
-      currentCount: newCount,
-      isCompleted: isDone,
-    );
-
-    try {
-      final col = _habitsCollection;
-      if (col == null) return;
-      await col.doc(habit.id).update(updated.toMap());
-
-      // Sync back to group assignment completions
-      if (updated.isGroupAssigned) {
-        GroupAssignmentService().syncHabitCompletion(updated);
-      }
-    } catch (e) {
-      debugPrint('Error decrementing habit count: $e');
     }
   }
 
@@ -365,10 +483,7 @@ class HabitsController {
     );
   }
 
-  void _showEarlyWeekCelebration(
-    BuildContext context,
-    String habitTitle,
-  ) {
+  void _showEarlyWeekCelebration(BuildContext context, String habitTitle) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -399,7 +514,11 @@ class HabitsController {
     );
   }
 
-  void _showToast(BuildContext context, String message, {bool isError = false}) {
+  void _showToast(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -411,7 +530,9 @@ class HabitsController {
         behavior: SnackBarBehavior.floating,
         backgroundColor: isError
             ? AppColors.errorRed
-            : (isDark ? const Color(0xFF0F1B4C) : AppColors.brandPrimary(context)),
+            : (isDark
+                  ? const Color(0xFF0F1B4C)
+                  : AppColors.brandPrimary(context)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         duration: const Duration(seconds: 2),
       ),

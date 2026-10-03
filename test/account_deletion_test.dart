@@ -6,8 +6,23 @@ import 'package:focusly/core/localization/app_localizations.dart';
 
 void main() {
   group('Account Deletion Collections Registry', () {
-    test('contains all expected 43 user-scoped subcollections', () {
-      expect(kUserDataSubcollections.length, equals(43));
+    test('contains all source and productivity collections', () {
+      expect(kUserDataSubcollections.length, greaterThanOrEqualTo(43));
+      expect(
+        kUserDataSubcollections,
+        containsAll([
+          'habitLogs',
+          'completionEvents',
+          'trash',
+          'taskTemplates',
+          'taskRecurrences',
+          'recurrenceSkips',
+          'templateRuns',
+          'dailyPlans',
+          'productivity',
+          'goalAudit',
+        ]),
+      );
     });
 
     test('has no duplicate subcollection names', () {
@@ -135,11 +150,23 @@ void main() {
         final enVal = enLoc.tr(key);
         final arVal = arLoc.tr(key);
 
-        expect(enVal, isNot(equals(key)), reason: 'English translation missing for $key');
-        expect(arVal, isNot(equals(key)), reason: 'Arabic translation missing for $key');
+        expect(
+          enVal,
+          isNot(equals(key)),
+          reason: 'English translation missing for $key',
+        );
+        expect(
+          arVal,
+          isNot(equals(key)),
+          reason: 'Arabic translation missing for $key',
+        );
         expect(enVal, isNotEmpty);
         expect(arVal, isNotEmpty);
-        expect(enVal, isNot(equals(arVal)), reason: 'Arabic should differ from English for $key');
+        expect(
+          enVal,
+          isNot(equals(arVal)),
+          reason: 'Arabic should differ from English for $key',
+        );
       }
     });
   });

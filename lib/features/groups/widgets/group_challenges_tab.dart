@@ -30,15 +30,25 @@ class _GroupChallengesTabState extends ConsumerState<GroupChallengesTab> {
 
   void _checkAutoFinish(List<ChallengeModel> challenges) async {
     if (_evaluatedAutoFinish) return;
-    _evaluatedAutoFinish = true;
+    setState(() => _evaluatedAutoFinish = true);
 
-    final wonChallengeTitle = await ChallengeService().evaluateAutoFinish(
-      groupId: widget.groupId,
-      challenges: challenges,
-    );
+    try {
+      final wonChallengeTitle = await ChallengeService().evaluateAutoFinish(
+        groupId: widget.groupId,
+        challenges: challenges,
+      );
 
-    if (wonChallengeTitle != null && mounted) {
-      _showWinnerCelebrationDialog(wonChallengeTitle);
+      if (wonChallengeTitle != null && mounted) {
+        _showWinnerCelebrationDialog(wonChallengeTitle);
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.tr('save_failed'))));
+      }
+    } finally {
+      if (mounted) setState(() => _evaluatedAutoFinish = false);
     }
   }
 
@@ -125,14 +135,37 @@ class _GroupChallengesTabState extends ConsumerState<GroupChallengesTab> {
         ),
       ),
       data: (challenges) {
-        _checkAutoFinish(challenges);
+        final group = ref
+            .watch(groupDetailStreamProvider(widget.groupId))
+            .value;
+        final members =
+            ref.watch(groupMembersStreamProvider(widget.groupId)).value ?? [];
+        final isAdmin =
+            group?.createdBy == currentUid ||
+            members.any(
+              (member) =>
+                  member.uid == currentUid &&
+                  member.isApproved &&
+                  member.isAdmin,
+            );
+        final expired = challenges
+            .where(
+              (challenge) =>
+                  challenge.isActive &&
+                  DateTime.now().isAfter(challenge.endDate),
+            )
+            .toList();
 
         // Filter challenges:
         // NOTE: Legacy 'xp' type challenges are treated as finished/read-only since XP-based challenge scoring
         // has been intentionally removed from the app.
         // TODO: A future data migration/cleanup script could archive or remove legacy 'xp' challenge documents.
-        final active = challenges.where((c) => c.isActive && c.type != 'xp').toList();
-        final finished = challenges.where((c) => c.isFinished || c.type == 'xp').toList();
+        final active = challenges
+            .where((c) => c.isActive && c.type != 'xp')
+            .toList();
+        final finished = challenges
+            .where((c) => c.isFinished || c.type == 'xp')
+            .toList();
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -175,6 +208,17 @@ class _GroupChallengesTabState extends ConsumerState<GroupChallengesTab> {
               ),
 
               const SizedBox(height: 20),
+              if (isAdmin && expired.isNotEmpty) ...[
+                Text(context.tr('challenge_result_policy')),
+                FilledButton.icon(
+                  onPressed: _evaluatedAutoFinish
+                      ? null
+                      : () => _checkAutoFinish(expired),
+                  icon: const Icon(Icons.fact_check_outlined),
+                  label: Text(context.tr('approve_challenge_results')),
+                ),
+                const SizedBox(height: 20),
+              ],
 
               // ---------------------------------------------------------------
               // 2. ACTIVE CHALLENGES SECTION

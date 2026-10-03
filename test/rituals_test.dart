@@ -31,9 +31,7 @@ Widget createRitualsTestWidget({
     child: MaterialApp(
       locale: locale,
       supportedLocales: const [Locale('en'), Locale('ar')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate],
       theme: AppTheme.lightTheme,
       home: Scaffold(body: child),
     ),
@@ -62,7 +60,10 @@ void main() {
 
       final reconstructed = ShutdownData.fromMap(map);
       expect(reconstructed.completed, isTrue);
-      expect(reconstructed.gratitudeText, equals('Coffee • Sunshine • Friends'));
+      expect(
+        reconstructed.gratitudeText,
+        equals('Coffee • Sunshine • Friends'),
+      );
       expect(reconstructed.tomorrowTasks.length, equals(2));
       expect(reconstructed.lesson, equals('Stay focused on one thing'));
     });
@@ -80,9 +81,7 @@ void main() {
       expect(ritual.hasIntention, isTrue);
       expect(ritual.isShutdownCompleted, isTrue);
 
-      final updated = ritual.copyWith(
-        clearShutdown: true,
-      );
+      final updated = ritual.copyWith(clearShutdown: true);
       expect(updated.isShutdownCompleted, isFalse);
       expect(updated.hasIntention, isTrue);
     });
@@ -99,7 +98,10 @@ void main() {
         updatedAt: now,
       );
 
-      expect(gratitude.combinedText, equals('Family health • Focusly app growth • Fresh morning coffee'));
+      expect(
+        gratitude.combinedText,
+        equals('Family health • Focusly app growth • Fresh morning coffee'),
+      );
       final map = gratitude.toMap();
       expect(map['id'], equals('2026-08-24'));
       expect(map['item1'], equals('Family health'));
@@ -110,37 +112,49 @@ void main() {
   });
 
   group('Daily Rituals Provider Tests', () {
-    test('MorningIntentionDismissedNotifier tracks and persists state', () async {
-      SharedPreferences.setMockInitialValues({});
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
+    test(
+      'MorningIntentionDismissedNotifier tracks and persists state',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
 
-      expect(container.read(morningIntentionDismissedProvider), isFalse);
-      await container.read(morningIntentionDismissedProvider.notifier).markShownToday();
-      expect(container.read(morningIntentionDismissedProvider), isTrue);
+        expect(container.read(morningIntentionDismissedProvider), isFalse);
+        await container
+            .read(morningIntentionDismissedProvider.notifier)
+            .markShownToday();
+        expect(container.read(morningIntentionDismissedProvider), isTrue);
 
-      await container.read(morningIntentionDismissedProvider.notifier).reset();
-      expect(container.read(morningIntentionDismissedProvider), isFalse);
+        await container
+            .read(morningIntentionDismissedProvider.notifier)
+            .reset();
+        expect(container.read(morningIntentionDismissedProvider), isFalse);
 
-      await container.read(morningIntentionDismissedProvider.notifier).dismiss();
-      expect(container.read(morningIntentionDismissedProvider), isTrue);
-    });
+        await container
+            .read(morningIntentionDismissedProvider.notifier)
+            .dismiss();
+        expect(container.read(morningIntentionDismissedProvider), isTrue);
+      },
+    );
 
-    test('hasBeenShownToday returns true across app restarts for today', () async {
-      final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      SharedPreferences.setMockInitialValues({
-        'setting_morning_intention_last_prompt_date': todayStr,
-      });
+    test(
+      'hasBeenShownToday returns true across app restarts for today',
+      () async {
+        final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        SharedPreferences.setMockInitialValues({
+          'setting_morning_intention_last_prompt_date': todayStr,
+        });
 
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
 
-      final isShown = await container
-          .read(morningIntentionDismissedProvider.notifier)
-          .hasBeenShownToday();
-      expect(isShown, isTrue);
-      expect(container.read(morningIntentionDismissedProvider), isTrue);
-    });
+        final isShown = await container
+            .read(morningIntentionDismissedProvider.notifier)
+            .hasBeenShownToday();
+        expect(isShown, isTrue);
+        expect(container.read(morningIntentionDismissedProvider), isTrue);
+      },
+    );
 
     test('hasBeenShownToday naturally resets for a new calendar day', () async {
       SharedPreferences.setMockInitialValues({
@@ -159,11 +173,11 @@ void main() {
   });
 
   group('Daily Rituals UI & Widget Tests', () {
-    testWidgets('MorningIntentionModal renders and validates required input', (tester) async {
+    testWidgets('MorningIntentionModal renders and validates required input', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        createRitualsTestWidget(
-          child: const MorningIntentionModal(),
-        ),
+        createRitualsTestWidget(child: const MorningIntentionModal()),
       );
       await tester.pumpAndSettle();
 
@@ -177,156 +191,176 @@ void main() {
       expect(find.text('Please enter your focus for today'), findsOneWidget);
     });
 
-    testWidgets('MorningIntentionBanner renders prompt card with dismiss and calm entry point', (tester) async {
-      await tester.pumpWidget(
-        createRitualsTestWidget(
-          child: const MorningIntentionBanner(),
-          overrides: [
-            todayRitualStreamProvider.overrideWithValue(const AsyncData(null)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'MorningIntentionBanner renders prompt card with dismiss and calm entry point',
+      (tester) async {
+        await tester.pumpWidget(
+          createRitualsTestWidget(
+            child: const MorningIntentionBanner(),
+            overrides: [
+              todayRitualStreamProvider.overrideWithValue(
+                const AsyncData(null),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Initial state: shows prompt card with Set button and close X
-      expect(find.text('Set Morning Intention'), findsOneWidget);
-      expect(find.text('Set'), findsOneWidget);
-      expect(find.byIcon(Icons.close_rounded), findsOneWidget);
+        // Initial state: shows prompt card with Set button and close X
+        expect(find.text('Set Morning Intention'), findsOneWidget);
+        expect(find.text('Set'), findsOneWidget);
+        expect(find.byIcon(Icons.close_rounded), findsOneWidget);
 
-      // Dismiss the prompt
-      await tester.tap(find.byIcon(Icons.close_rounded));
-      await tester.pumpAndSettle();
+        // Dismiss the prompt
+        await tester.tap(find.byIcon(Icons.close_rounded));
+        await tester.pumpAndSettle();
 
-      // After dismissal: shows calm, non-intrusive persistent entry point
-      expect(find.text('Set Morning Intention'), findsOneWidget);
-      expect(find.text('Set'), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_forward_ios_rounded), findsOneWidget);
+        // After dismissal: shows calm, non-intrusive persistent entry point
+        expect(find.text('Set Morning Intention'), findsOneWidget);
+        expect(find.text('Set'), findsOneWidget);
+        expect(find.byIcon(Icons.arrow_forward_ios_rounded), findsOneWidget);
 
-      // Tapping the calm persistent entry point opens the modal
-      await tester.tap(find.text('Set Morning Intention'));
-      await tester.pumpAndSettle();
-      expect(find.text('Set Intention'), findsOneWidget);
-    });
+        // Tapping the calm persistent entry point opens the modal
+        await tester.tap(find.text('Set Morning Intention'));
+        await tester.pumpAndSettle();
+        expect(find.text('Set Intention'), findsOneWidget);
+      },
+    );
 
-    testWidgets('MorningIntentionBanner renders intention when set and allows dismissal', (tester) async {
-      final now = DateTime.now();
-      final ritual = RitualModel(
-        date: '2026-08-24',
-        intention: 'Master Flutter and Riverpod',
-        createdAt: now,
-        updatedAt: now,
-      );
-
-      await tester.pumpWidget(
-        createRitualsTestWidget(
-          child: const MorningIntentionBanner(),
-          overrides: [
-            todayRitualStreamProvider.overrideWithValue(AsyncData(ritual)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text("TODAY'S FOCUS"), findsOneWidget);
-      expect(find.text('Master Flutter and Riverpod'), findsOneWidget);
-
-      // Tap dismiss X icon
-      await tester.tap(find.byIcon(Icons.close_rounded));
-      await tester.pumpAndSettle();
-
-      expect(find.text("TODAY'S FOCUS"), findsNothing);
-    });
-
-    testWidgets('ShutdownWizardModal steps through 5-step flow and checks gratitude', (tester) async {
-      final now = DateTime.now();
-      final tasks = [
-        TaskModel(
-          id: 't1',
-          title: 'Daily Standup',
-          categoryId: 'work',
-          done: true,
-          date: now,
+    testWidgets(
+      'MorningIntentionBanner renders intention when set and allows dismissal',
+      (tester) async {
+        final now = DateTime.now();
+        final ritual = RitualModel(
+          date: '2026-08-24',
+          intention: 'Master Flutter and Riverpod',
           createdAt: now,
-        ),
-      ];
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        createRitualsTestWidget(
-          child: const ShutdownWizardModal(),
-          overrides: [
-            todayRitualStreamProvider.overrideWithValue(const AsyncData(null)),
-            tasksStreamProvider.overrideWithValue(AsyncData(tasks)),
-            todayCheckinStreamProvider.overrideWithValue(const AsyncData(null)),
-            preferredShutdownTimeSettingProvider.overrideWith(
-              PreferredShutdownTimeSettingNotifier.new,
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createRitualsTestWidget(
+            child: const MorningIntentionBanner(),
+            overrides: [
+              todayRitualStreamProvider.overrideWithValue(AsyncData(ritual)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Step 1: Review Today
-      expect(find.text('Review Today'), findsOneWidget);
-      expect(find.text('1 of 1 tasks completed today'), findsOneWidget);
-      expect(find.text('Continue'), findsOneWidget);
+        expect(find.text("TODAY'S FOCUS"), findsOneWidget);
+        expect(find.text('Master Flutter and Riverpod'), findsOneWidget);
 
-      // Advance to Step 2: Plan Tomorrow
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-      expect(find.text('Plan Tomorrow'), findsOneWidget);
+        // Tap dismiss X icon
+        await tester.tap(find.byIcon(Icons.close_rounded));
+        await tester.pumpAndSettle();
 
-      // Advance to Step 3: Quick Check-In
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-      expect(find.text('Quick Check-In'), findsOneWidget);
+        expect(find.text("TODAY'S FOCUS"), findsNothing);
+      },
+    );
 
-      // Advance to Step 4: Lesson Learned
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-      expect(find.text('Lesson Learned'), findsOneWidget);
+    testWidgets(
+      'ShutdownWizardModal steps through 5-step flow and checks gratitude',
+      (tester) async {
+        final now = DateTime.now();
+        final tasks = [
+          TaskModel(
+            id: 't1',
+            title: 'Daily Standup',
+            categoryId: 'work',
+            done: true,
+            date: now,
+            createdAt: now,
+          ),
+        ];
 
-      // Advance to Step 5: Daily Gratitude
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-      expect(find.text('Daily Gratitude'), findsOneWidget);
-      expect(find.text('Finish & Close Day'), findsOneWidget);
+        await tester.pumpWidget(
+          createRitualsTestWidget(
+            child: const ShutdownWizardModal(),
+            overrides: [
+              todayRitualStreamProvider.overrideWithValue(
+                const AsyncData(null),
+              ),
+              tasksStreamProvider.overrideWithValue(AsyncData(tasks)),
+              todayCheckinStreamProvider.overrideWithValue(
+                const AsyncData(null),
+              ),
+              preferredShutdownTimeSettingProvider.overrideWith(
+                PreferredShutdownTimeSettingNotifier.new,
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Attempt finish without gratitude items
-      await tester.tap(find.text('Finish & Close Day'));
-      await tester.pumpAndSettle();
-      expect(find.text('Please fill in all 3 items'), findsOneWidget);
-    });
+        // Step 1: Review Today
+        expect(find.text('Review Today'), findsOneWidget);
+        expect(find.text('1 of 1 tasks completed today'), findsOneWidget);
+        expect(find.text('Continue'), findsOneWidget);
 
-    testWidgets('DailyRitualsPage renders intention card, shutdown card, and history', (tester) async {
-      final now = DateTime.now();
-      final ritual = RitualModel(
-        date: '2026-08-24',
-        intention: 'Crush all feature requirements',
-        shutdown: const ShutdownData(
-          completed: true,
-          gratitudeText: 'Good food • Great code',
-          lesson: 'Patience brings excellence',
-        ),
-        createdAt: now,
-        updatedAt: now,
-      );
+        // Advance to Step 2: Plan Tomorrow
+        await tester.tap(find.text('Continue'));
+        await tester.pumpAndSettle();
+        expect(find.text('Plan Tomorrow'), findsOneWidget);
 
-      await tester.pumpWidget(
-        createRitualsTestWidget(
-          child: const DailyRitualsPage(),
-          overrides: [
-            todayRitualStreamProvider.overrideWithValue(AsyncData(ritual)),
-            ritualsHistoryStreamProvider.overrideWithValue(AsyncData([ritual])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        // Advance to Step 3: Quick Check-In
+        await tester.tap(find.text('Continue'));
+        await tester.pumpAndSettle();
+        expect(find.text('Quick Check-In'), findsOneWidget);
 
-      expect(find.text('Daily Rituals'), findsOneWidget);
-      expect(find.text('Morning Intention'), findsOneWidget);
-      expect(find.text('Shutdown Ritual'), findsOneWidget);
-      expect(find.text('Rituals History'), findsOneWidget);
-      expect(find.text('Crush all feature requirements'), findsWidgets);
-    });
+        // Advance to Step 4: Lesson Learned
+        await tester.tap(find.text('Continue'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson Learned'), findsOneWidget);
+
+        // Advance to Step 5: Daily Gratitude
+        await tester.tap(find.text('Continue'));
+        await tester.pumpAndSettle();
+        expect(find.text('Daily Gratitude'), findsOneWidget);
+        expect(find.text('Finish & Close Day'), findsOneWidget);
+
+        // Attempt finish without gratitude items
+        await tester.tap(find.text('Finish & Close Day'));
+        await tester.pumpAndSettle();
+        expect(find.text('Please fill in all 3 items'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'DailyRitualsPage renders intention card, shutdown card, and history',
+      (tester) async {
+        final now = DateTime.now();
+        final ritual = RitualModel(
+          date: '2026-08-24',
+          intention: 'Crush all feature requirements',
+          shutdown: const ShutdownData(
+            completed: true,
+            gratitudeText: 'Good food • Great code',
+            lesson: 'Patience brings excellence',
+          ),
+          createdAt: now,
+          updatedAt: now,
+        );
+
+        await tester.pumpWidget(
+          createRitualsTestWidget(
+            child: const DailyRitualsPage(),
+            overrides: [
+              todayRitualStreamProvider.overrideWithValue(AsyncData(ritual)),
+              ritualsHistoryStreamProvider.overrideWithValue(
+                AsyncData([ritual]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Daily Rituals'), findsOneWidget);
+        expect(find.text('Morning Intention'), findsOneWidget);
+        expect(find.text('Shutdown Ritual'), findsOneWidget);
+        expect(find.text('Rituals History'), findsOneWidget);
+        expect(find.text('Crush all feature requirements'), findsWidgets);
+      },
+    );
   });
 }

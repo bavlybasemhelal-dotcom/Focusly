@@ -39,7 +39,9 @@ Widget createPdfReportTestWidget({
       eventsStreamProvider.overrideWith((ref) => Stream.value([])),
       habitsStreamProvider.overrideWith((ref) => Stream.value([])),
       pomodoroLogsStreamProvider.overrideWith((ref) => Stream.value([])),
-      categoriesProvider.overrideWith((ref) => Stream.value(TaskCategory.defaultCategories)),
+      categoriesProvider.overrideWith(
+        (ref) => Stream.value(TaskCategory.defaultCategories),
+      ),
       morningIntentionPromptSettingProvider.overrideWith(
         MorningIntentionPromptSettingNotifier.new,
       ),
@@ -122,119 +124,134 @@ void main() {
       expect(score.tierColorHex, equals(0xFF06B6D4));
     });
 
-    test('aggregateReportData collects tasks, events, categories, and trends accurately', () {
-      final tasks = [
-        TaskModel(
-          id: 't1',
-          title: 'Work task 1',
-          categoryId: 'work',
-          date: DateTime(2026, 8, 24),
-          done: true,
-          doneAt: DateTime(2026, 8, 24),
-          createdAt: DateTime(2026, 8, 24),
-        ),
-        TaskModel(
-          id: 't2',
-          title: 'Work task 2',
-          categoryId: 'work',
-          date: DateTime(2026, 8, 25),
-          done: true,
-          doneAt: DateTime(2026, 8, 25),
-          createdAt: DateTime(2026, 8, 25),
-        ),
-        TaskModel(
-          id: 't3',
-          title: 'Personal task',
-          categoryId: 'personal',
-          date: DateTime(2026, 8, 25),
-          done: true,
-          doneAt: DateTime(2026, 8, 25),
-          createdAt: DateTime(2026, 8, 25),
-        ),
-        TaskModel(
-          id: 't4',
-          title: 'Pending task',
-          categoryId: 'work',
-          date: DateTime(2026, 8, 25),
-          done: false,
-          createdAt: DateTime(2026, 8, 25),
-        ),
-      ];
+    test(
+      'aggregateReportData collects tasks, events, categories, and trends accurately',
+      () {
+        final tasks = [
+          TaskModel(
+            id: 't1',
+            title: 'Work task 1',
+            categoryId: 'work',
+            date: DateTime(2026, 8, 24),
+            done: true,
+            doneAt: DateTime(2026, 8, 24),
+            createdAt: DateTime(2026, 8, 24),
+          ),
+          TaskModel(
+            id: 't2',
+            title: 'Work task 2',
+            categoryId: 'work',
+            date: DateTime(2026, 8, 25),
+            done: true,
+            doneAt: DateTime(2026, 8, 25),
+            createdAt: DateTime(2026, 8, 25),
+          ),
+          TaskModel(
+            id: 't3',
+            title: 'Personal task',
+            categoryId: 'personal',
+            date: DateTime(2026, 8, 25),
+            done: true,
+            doneAt: DateTime(2026, 8, 25),
+            createdAt: DateTime(2026, 8, 25),
+          ),
+          TaskModel(
+            id: 't4',
+            title: 'Pending task',
+            categoryId: 'work',
+            date: DateTime(2026, 8, 25),
+            done: false,
+            createdAt: DateTime(2026, 8, 25),
+          ),
+        ];
 
-      final events = <EventModel>[
-        EventModel(
-          id: 'e1',
-          title: 'Meeting',
-          date: DateTime(2026, 8, 24),
-          time: const TimeOfDay(hour: 10, minute: 0),
-          typeId: 'work',
-          createdAt: refDate,
-        ),
-      ];
+        final events = <EventModel>[
+          EventModel(
+            id: 'e1',
+            title: 'Meeting',
+            date: DateTime(2026, 8, 24),
+            time: const TimeOfDay(hour: 10, minute: 0),
+            typeId: 'work',
+            createdAt: refDate,
+          ),
+        ];
 
-      final habits = [
-        HabitModel(
-          id: 'h1',
-          title: 'Workout',
-          days: [true, true, true, true, false, false, false], // 4 checked
-          createdAt: refDate,
-        ),
-      ];
+        final habits = [
+          HabitModel(
+            id: 'h1',
+            title: 'Workout',
+            days: [true, true, true, true, false, false, false], // 4 checked
+            createdAt: refDate,
+          ),
+        ];
 
-      final pomodoroLogs = [
-        PomodoroLogModel(
-          id: 'p1',
-          date: DateTime(2026, 8, 25),
-          taskTitle: 'Work Session',
-          durationMinutes: 50,
-          durationSeconds: 3000,
-          distractionCount: 2,
-          createdAt: refDate,
-        ),
-        PomodoroLogModel(
-          id: 'p2',
-          date: DateTime(2026, 8, 24),
-          taskTitle: 'Study Session',
-          durationMinutes: 25,
-          durationSeconds: 1500,
-          distractionCount: 0,
-          createdAt: refDate,
-        ),
-      ];
+        final pomodoroLogs = [
+          PomodoroLogModel(
+            id: 'p1',
+            date: DateTime(2026, 8, 25),
+            taskTitle: 'Work Session',
+            durationMinutes: 50,
+            durationSeconds: 3000,
+            distractionCount: 2,
+            createdAt: refDate,
+          ),
+          PomodoroLogModel(
+            id: 'p2',
+            date: DateTime(2026, 8, 24),
+            taskTitle: 'Study Session',
+            durationMinutes: 25,
+            durationSeconds: 1500,
+            distractionCount: 0,
+            createdAt: refDate,
+          ),
+        ];
 
-      final data = ReportDataAggregator.aggregateReportData(
-        rangeOption: ReportRangeOption.weekly,
-        tasks: tasks,
-        events: events,
-        habits: habits,
-        pomodoroLogs: pomodoroLogs,
-        categories: TaskCategory.defaultCategories,
-        referenceDate: refDate,
-      );
+        final data = ReportDataAggregator.aggregateReportData(
+          rangeOption: ReportRangeOption.weekly,
+          tasks: tasks,
+          events: events,
+          habits: habits,
+          habitLogs: [
+            for (var day = 22; day <= 25; day++)
+              {
+                'habitId': 'h1',
+                'date': '2026-08-${day.toString().padLeft(2, '0')}',
+                'completed': true,
+              },
+          ],
+          pomodoroLogs: pomodoroLogs,
+          categories: TaskCategory.defaultCategories,
+          referenceDate: refDate,
+        );
 
-      expect(data.completedTasksCount, equals(3));
-      expect(data.pendingTasksCount, equals(1));
-      expect(data.totalTasksCount, equals(4));
-      expect(data.completionRatePercent, equals(75)); // 3/4
-      expect(data.eventsCount, equals(1));
-      expect(data.habitDaysLogged, equals(4));
-      expect(data.totalFocusMinutes, equals(75));
-      expect(data.formattedFocusTime, equals('1h 15m'));
-      expect(data.avgDistractionsPerSession, equals(1.0)); // (2+0)/2
+        expect(data.completedTasksCount, equals(3));
+        expect(data.pendingTasksCount, equals(1));
+        expect(data.totalTasksCount, equals(4));
+        expect(data.completionRatePercent, equals(75)); // 3/4
+        expect(data.eventsCount, equals(1));
+        expect(data.habitDaysLogged, equals(4));
+        expect(data.totalFocusMinutes, equals(75));
+        expect(data.formattedFocusTime, equals('1h 15m'));
+        expect(data.avgDistractionsPerSession, equals(1.0)); // (2+0)/2
 
-      // Category breakdown: 2 work (66.7%), 1 personal (33.3%)
-      expect(data.categoryStats.length, equals(2));
-      final workStat = data.categoryStats.firstWhere((s) => s.categoryId == 'work');
-      expect(workStat.count, equals(2));
-      expect(workStat.percentage, equals(66.7));
+        // Category breakdown: 2 work (66.7%), 1 personal (33.3%)
+        expect(data.categoryStats.length, equals(2));
+        final workStat = data.categoryStats.firstWhere(
+          (s) => s.categoryId == 'work',
+        );
+        expect(workStat.count, equals(2));
+        expect(workStat.percentage, equals(66.7));
 
-      // Trend points length for weekly = 7 days
-      expect(data.trendPoints.length, equals(7));
-    });
+        // Trend points length for weekly = 7 days
+        expect(data.trendPoints.length, equals(7));
+      },
+    );
   });
 
   group('PDF Builder Tests', () {
-    testWidgets('ReportPdfBuilder builds valid PDF document buffer', (tester) async {
+    testWidgets('ReportPdfBuilder builds valid PDF document buffer', (
+      tester,
+    ) async {
       late AppLocalizations localizations;
 
       await tester.pumpWidget(
@@ -277,47 +294,51 @@ void main() {
   });
 
   group('PDF Reports UI & Widget Tests', () {
-    testWidgets('ReportRangePage renders 4 range selection cards and generate button', (tester) async {
-      await tester.pumpWidget(
-        createPdfReportTestWidget(
-          child: const ReportRangePage(),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'ReportRangePage renders 4 range selection cards and generate button',
+      (tester) async {
+        await tester.pumpWidget(
+          createPdfReportTestWidget(child: const ReportRangePage()),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('PDF Reports'), findsOneWidget);
-      expect(find.text('Select Report Range'), findsOneWidget);
-      expect(find.text('Weekly (Last 7 Days)'), findsOneWidget);
-      expect(find.text('Monthly (Last 30 Days)'), findsOneWidget);
-      expect(find.text('Semi-Annual (Last 180 Days)'), findsOneWidget);
-      expect(find.text('Annual (Last 365 Days)'), findsOneWidget);
-      expect(find.text('Generate PDF Report'), findsOneWidget);
+        expect(find.text('PDF Reports'), findsOneWidget);
+        expect(find.text('Select Report Range'), findsOneWidget);
+        expect(find.text('Weekly (Last 7 Days)'), findsOneWidget);
+        expect(find.text('Monthly (Last 30 Days)'), findsOneWidget);
+        expect(find.text('Semi-Annual (Last 180 Days)'), findsOneWidget);
+        expect(find.text('Annual (Last 365 Days)'), findsOneWidget);
+        expect(find.text('Generate PDF Report'), findsOneWidget);
 
-      // Tap Monthly card to switch range
-      await tester.tap(find.text('Monthly (Last 30 Days)'));
-      await tester.pumpAndSettle();
+        // Tap Monthly card to switch range
+        await tester.tap(find.text('Monthly (Last 30 Days)'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('30 days aggregated analysis'), findsOneWidget);
-    });
+        expect(find.text('30 days aggregated analysis'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Navigation Drawer contains PDF Reports under Analytics section', (tester) async {
-      await tester.pumpWidget(
-        createPdfReportTestWidget(
-          child: const HomeScreen(),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer contains PDF Reports under Analytics section',
+      (tester) async {
+        await tester.pumpWidget(
+          createPdfReportTestWidget(child: const HomeScreen()),
+        );
+        await tester.pumpAndSettle();
 
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      expect(find.text('ANALYTICS'), findsOneWidget);
-      expect(find.text('PDF Reports'), findsOneWidget);
-    });
+        expect(find.text('ANALYTICS'), findsOneWidget);
+        expect(find.text('PDF Reports'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Arabic localization renders all PDF Reports texts', (tester) async {
+    testWidgets('Arabic localization renders all PDF Reports texts', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createPdfReportTestWidget(
           locale: const Locale('ar'),

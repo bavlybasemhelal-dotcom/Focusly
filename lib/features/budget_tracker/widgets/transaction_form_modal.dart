@@ -12,10 +12,7 @@ import '../providers/budget_provider.dart';
 class TransactionFormModal extends ConsumerStatefulWidget {
   final BudgetTransactionModel? initialTransaction;
 
-  const TransactionFormModal({
-    super.key,
-    this.initialTransaction,
-  });
+  const TransactionFormModal({super.key, this.initialTransaction});
 
   /// Static helper to display the modal bottom sheet.
   static Future<void> show(
@@ -52,7 +49,9 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
     super.initState();
     final tx = widget.initialTransaction;
     if (tx != null) {
-      _amountController.text = tx.amount.toStringAsFixed(tx.amount.truncateToDouble() == tx.amount ? 0 : 2);
+      _amountController.text = tx.amount.toStringAsFixed(
+        tx.amount.truncateToDouble() == tx.amount ? 0 : 2,
+      );
       _noteController.text = tx.note ?? '';
       _type = tx.type;
       _category = tx.category;
@@ -135,7 +134,9 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
 
     try {
       final service = ref.read(budgetServiceProvider);
-      final note = _noteController.text.trim().isEmpty ? null : _noteController.text.trim();
+      final note = _noteController.text.trim().isEmpty
+          ? null
+          : _noteController.text.trim();
 
       if (_isEditing) {
         await service.updateTransaction(
@@ -166,7 +167,9 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
             content: Text(context.tr('tx_saved_toast')),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -224,7 +227,9 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
             content: Text(context.tr('tx_deleted_toast')),
             backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -236,7 +241,9 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final modalBg = isDark ? const Color(0xFF08123A) : Colors.white;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
 
@@ -291,10 +298,11 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: (_type == TransactionType.expense
-                                ? const Color(0xFFEF4444)
-                                : const Color(0xFF10B981))
-                            .withValues(alpha: isDark ? 0.2 : 0.12),
+                        color:
+                            (_type == TransactionType.expense
+                                    ? const Color(0xFFEF4444)
+                                    : const Color(0xFF10B981))
+                                .withValues(alpha: isDark ? 0.2 : 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -334,7 +342,9 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F1B4C) : const Color(0xFFEEF2F6),
+                color: isDark
+                    ? const Color(0xFF0F1B4C)
+                    : const Color(0xFFEEF2F6),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: borderColor),
               ),
@@ -433,7 +443,9 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
             const SizedBox(height: 6),
             TextField(
               controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -524,7 +536,10 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: cardBg,
                   borderRadius: BorderRadius.circular(14),
@@ -587,9 +602,13 @@ class _TransactionFormModalState extends ConsumerState<TransactionFormModal> {
                 if (_isEditing) ...[
                   IconButton(
                     style: IconButton.styleFrom(
-                      backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                      backgroundColor: const Color(
+                        0xFFEF4444,
+                      ).withValues(alpha: 0.12),
                       foregroundColor: const Color(0xFFEF4444),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       padding: const EdgeInsets.all(14),
                     ),
                     icon: const Icon(Icons.delete_outline_rounded),

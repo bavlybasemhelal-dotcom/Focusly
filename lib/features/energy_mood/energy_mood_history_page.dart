@@ -17,26 +17,11 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
   const EnergyMoodHistoryPage({super.key});
 
   static const List<Map<String, dynamic>> _energyMeta = [
-    {
-      'icon': Icons.battery_1_bar_rounded,
-      'color': Color(0xFFEF4444),
-    },
-    {
-      'icon': Icons.battery_2_bar_rounded,
-      'color': Color(0xFFF97316),
-    },
-    {
-      'icon': Icons.battery_4_bar_rounded,
-      'color': Color(0xFFFBBF24),
-    },
-    {
-      'icon': Icons.battery_5_bar_rounded,
-      'color': Color(0xFF10B981),
-    },
-    {
-      'icon': Icons.battery_full_rounded,
-      'color': Color(0xFF06B6D4),
-    },
+    {'icon': Icons.battery_1_bar_rounded, 'color': Color(0xFFEF4444)},
+    {'icon': Icons.battery_2_bar_rounded, 'color': Color(0xFFF97316)},
+    {'icon': Icons.battery_4_bar_rounded, 'color': Color(0xFFFBBF24)},
+    {'icon': Icons.battery_5_bar_rounded, 'color': Color(0xFF10B981)},
+    {'icon': Icons.battery_full_rounded, 'color': Color(0xFF06B6D4)},
   ];
 
   @override
@@ -78,14 +63,25 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
       body: historyAsync.when(
         data: (list) {
           if (list.isEmpty) {
-            return _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor);
+            return _buildEmptyState(
+              context,
+              isDark,
+              primaryTextColor,
+              secondaryTextColor,
+            );
           }
 
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
             children: [
               // 1. Weekly Energy Level Trends Chart Card
-              _buildEnergyTrendCard(context, list, isDark, primaryTextColor, secondaryTextColor),
+              _buildEnergyTrendCard(
+                context,
+                list,
+                isDark,
+                primaryTextColor,
+                secondaryTextColor,
+              ),
               const SizedBox(height: 24),
 
               // 2. Section Header: Past Check-Ins
@@ -126,9 +122,7 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
             ],
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
           child: Text(
             context.tr('history_load_error'),
@@ -170,7 +164,9 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2E6FF2).withValues(alpha: isDark ? 0.1 : 0.04),
+            color: const Color(
+              0xFF2E6FF2,
+            ).withValues(alpha: isDark ? 0.1 : 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -190,7 +186,11 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
                       color: const Color(0xFF2E6FF2).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.insights_rounded, color: Color(0xFF2E6FF2), size: 18),
+                    child: const Icon(
+                      Icons.insights_rounded,
+                      color: Color(0xFF2E6FF2),
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -231,10 +231,7 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
-                      entry.mood,
-                      style: const TextStyle(fontSize: 14),
-                    ),
+                    Text(entry.mood, style: const TextStyle(fontSize: 14)),
                     const SizedBox(height: 4),
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 400),
@@ -302,8 +299,8 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
     final dateTitle = isToday
         ? context.tr('today')
         : (isYesterday
-            ? context.tr('yesterday')
-            : DateFormat.yMMMMd().format(parsedDate));
+              ? context.tr('yesterday')
+              : DateFormat.yMMMMd().format(parsedDate));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -367,11 +364,16 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
 
                     // Energy Badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: energyColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: energyColor.withValues(alpha: 0.4)),
+                        border: Border.all(
+                          color: energyColor.withValues(alpha: 0.4),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -393,7 +395,8 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
                 ),
 
                 // Note Preview
-                if (checkin.note != null && checkin.note!.trim().isNotEmpty) ...[
+                if (checkin.note != null &&
+                    checkin.note!.trim().isNotEmpty) ...[
                   const SizedBox(height: 10),
                   Text(
                     '“${checkin.note}”',
@@ -415,15 +418,24 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
                   children: [
                     if (checkin.water > 0) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF06B6D4).withValues(alpha: 0.12),
+                          color: const Color(
+                            0xFF06B6D4,
+                          ).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.water_drop_rounded, size: 13, color: Color(0xFF06B6D4)),
+                            const Icon(
+                              Icons.water_drop_rounded,
+                              size: 13,
+                              color: Color(0xFF06B6D4),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${checkin.water} ${context.tr('glasses_unit')}',
@@ -441,15 +453,24 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
 
                     if (checkin.sleep > 0) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                          color: const Color(
+                            0xFF6366F1,
+                          ).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.bedtime_rounded, size: 13, color: Color(0xFF6366F1)),
+                            const Icon(
+                              Icons.bedtime_rounded,
+                              size: 13,
+                              color: Color(0xFF6366F1),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${checkin.sleep.toStringAsFixed(1)} ${context.tr('hours_unit')}',
@@ -523,8 +544,13 @@ class EnergyMoodHistoryPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ],

@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../group_management_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_provider.dart';
@@ -45,9 +45,12 @@ class GroupMembersTab extends ConsumerWidget {
         final approved = members.where((m) => m.isApproved).toList();
         final pending = members.where((m) => m.isPending).toList();
 
-        final currentUserMember =
-            members.where((m) => m.uid == currentUid).firstOrNull;
+        final currentUserMember = members
+            .where((m) => m.uid == currentUid)
+            .firstOrNull;
         final isCurrentUserAdmin = currentUserMember?.isAdmin == true;
+        final canApprove =
+            isCurrentUserAdmin || currentUserMember?.role == 'moderator';
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -55,10 +58,24 @@ class GroupMembersTab extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ListTile(
+                leading: const Icon(Icons.admin_panel_settings_outlined),
+                title: Text(
+                  Localizations.localeOf(context).languageCode == 'ar'
+                      ? 'إدارة الأدوار والدعوة وسجل القرارات'
+                      : 'Roles, invitation & audit log',
+                ),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => GroupManagementPage(groupId: groupId),
+                  ),
+                ),
+              ),
               // ---------------------------------------------------------------
               // 1. ADMIN-ONLY PENDING REQUESTS SECTION
               // ---------------------------------------------------------------
-              if (isCurrentUserAdmin && pending.isNotEmpty) ...[
+              if (canApprove && pending.isNotEmpty) ...[
                 Row(
                   children: [
                     Container(
@@ -155,7 +172,7 @@ class GroupMembersTab extends ConsumerWidget {
               // ---------------------------------------------------------------
               // 3. ACTIONS (Leave Group / Delete Group)
               // ---------------------------------------------------------------
-              if (!isCurrentUserAdmin) ...[
+              if (group.createdBy != currentUid) ...[
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -308,7 +325,9 @@ class GroupMembersTab extends ConsumerWidget {
             decoration: BoxDecoration(
               color: isSelf
                   ? brandPrimary
-                  : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                  : (isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFE2E8F0)),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -398,29 +417,7 @@ class GroupMembersTab extends ConsumerWidget {
     GroupMemberModel member,
   ) async {
     try {
-      final firestore = FirebaseFirestore.instance;
-      final groupRef = firestore.collection('groups').doc(groupId);
-      final memberRef = groupRef.collection('members').doc(member.uid);
-      final userRef = firestore.collection('users').doc(member.uid);
-
-      await firestore.runTransaction((transaction) async {
-        final groupSnap = await transaction.get(groupRef);
-        final currentCount =
-            (groupSnap.data()?['memberCount'] as num?)?.toInt() ?? 1;
-
-        transaction.update(memberRef, {
-          'status': 'approved',
-          'joinedAt': Timestamp.now(),
-        });
-        transaction.update(groupRef, {'memberCount': currentCount + 1});
-        transaction.set(
-          userRef,
-          {
-            'groupIds': FieldValue.arrayUnion([groupId]),
-          },
-          SetOptions(merge: true),
-        );
-      });
+      await GroupService().approveMember(groupId, member.uid);
     } catch (e) {
       debugPrint('Error approving member: $e');
     }
@@ -442,7 +439,9 @@ class GroupMembersTab extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.tr('remove_member_title')),
-        content: Text('${context.tr('remove_member_confirm')} "${member.name}"?'),
+        content: Text(
+          '${context.tr('remove_member_confirm')} "${member.name}"?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),

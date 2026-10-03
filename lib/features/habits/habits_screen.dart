@@ -39,7 +39,10 @@ class HabitsScreen extends ConsumerWidget {
                 // 1. HEADER TITLE & SUBTITLE
                 // -------------------------------------------------------------
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 8.0,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -70,7 +73,9 @@ class HabitsScreen extends ConsumerWidget {
                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF0F1B4C)
+                              : Colors.white,
                           border: Border.all(
                             color: isDark
                                 ? Colors.white.withValues(alpha: 0.1)
@@ -78,7 +83,11 @@ class HabitsScreen extends ConsumerWidget {
                           ),
                         ),
                         child: IconButton(
-                          icon: Icon(Icons.add_rounded, color: brandPrimary, size: 22),
+                          icon: Icon(
+                            Icons.add_rounded,
+                            color: brandPrimary,
+                            size: 22,
+                          ),
                           tooltip: context.tr('add_habit'),
                           onPressed: () {
                             showModalBottomSheet(
@@ -98,7 +107,10 @@ class HabitsScreen extends ConsumerWidget {
                 // 2. HEADER STAT SUMMARY CHIPS
                 // -------------------------------------------------------------
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 8.0,
+                  ),
                   child: Row(
                     children: [
                       // Total Habits Stat Card
@@ -165,9 +177,8 @@ class HabitsScreen extends ConsumerWidget {
                         },
                       );
                     },
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, stack) => _buildEmptyState(context, isDark),
                   ),
                 ),
@@ -354,12 +365,18 @@ class HabitsScreen extends ConsumerWidget {
               icon: const Icon(Icons.add_rounded, size: 20),
               label: Text(
                 context.tr('add_habit'),
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: brandPrimary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -388,10 +405,7 @@ class HabitsScreen extends ConsumerWidget {
           child: Container(
             width: 340,
             height: 340,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: amberGlow,
-            ),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: amberGlow),
           ),
         ),
         Positioned(
@@ -400,10 +414,7 @@ class HabitsScreen extends ConsumerWidget {
           child: Container(
             width: 300,
             height: 300,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: cyanGlow,
-            ),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: cyanGlow),
           ),
         ),
       ],

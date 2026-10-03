@@ -1,3 +1,4 @@
+import '../../../core/data/calendar_clock.dart';
 import '../../energy_mood/models/checkin_model.dart';
 import '../../goals/models/goal_model.dart';
 import '../../habits/models/habit_model.dart';
@@ -18,8 +19,9 @@ class LifeScoreCalculator {
   /// Returns the Sunday 00:00:00 start of the week for any given date.
   static DateTime getWeekStart(DateTime date) {
     final startOfDate = DateTime(date.year, date.month, date.day);
-    final weekdayOffset = date.weekday % 7; // Sunday is 0
-    return startOfDate.subtract(Duration(days: weekdayOffset));
+    final weekdayOffset =
+        (date.weekday - DateTime.saturday + 7) % 7; // Sunday is 0
+    return calendarDay(startOfDate, -weekdayOffset);
   }
 
   /// Returns the Saturday 23:59:59 end of the week for any given weekStart.
@@ -45,7 +47,11 @@ class LifeScoreCalculator {
   }
 
   /// Checks if a date falls within [weekStart, weekEnd] inclusive.
-  static bool isDateInWeek(DateTime target, DateTime weekStart, DateTime weekEnd) {
+  static bool isDateInWeek(
+    DateTime target,
+    DateTime weekStart,
+    DateTime weekEnd,
+  ) {
     return (target.isAfter(weekStart) || target.isAtSameMomentAs(weekStart)) &&
         (target.isBefore(weekEnd) || target.isAtSameMomentAs(weekEnd));
   }
@@ -81,15 +87,21 @@ class LifeScoreCalculator {
 
     final tasksCompletedInWeek = tasks.where((t) {
       if (!t.done) return false;
-      final completionDate = t.doneAt ?? t.date;
+      if (t.doneAt == null) return false;
+      final completionDate = t.doneAt!;
       return isDateInWeek(completionDate, weekStart, weekEnd);
     }).toList();
 
+    final denominator = {
+      ...tasksCreatedOrDatedInWeek.map((task) => task.id),
+      ...tasksCompletedInWeek.map((task) => task.id),
+    }.length;
     double tasksScore = 0.0;
     if (tasksCreatedOrDatedInWeek.isNotEmpty) {
-      tasksScore = (tasksCompletedInWeek.length / tasksCreatedOrDatedInWeek.length) * 100.0;
+      tasksScore = (tasksCompletedInWeek.length / denominator) * 100.0;
     } else if (tasksCompletedInWeek.isNotEmpty) {
-      tasksScore = 100.0; // Edge case: completed tasks exist with 0 created in week
+      tasksScore =
+          100.0; // Edge case: completed tasks exist with 0 created in week
     } else {
       tasksScore = 0.0;
     }
@@ -123,7 +135,9 @@ class LifeScoreCalculator {
     final weekCheckins = checkins.where((c) {
       final parsedDate = DateTime.tryParse(c.date);
       if (parsedDate == null) return false;
-      return isDateInWeek(parsedDate, weekStart, weekEnd);
+      return c.energy >= 1 &&
+          c.energy <= 5 &&
+          isDateInWeek(parsedDate, weekStart, weekEnd);
     }).toList();
 
     double energyScore = 0.0;
@@ -146,14 +160,20 @@ class LifeScoreCalculator {
       return isDateInWeek(finishDate, weekStart, weekEnd);
     }).toList();
 
-    double learningScore = (booksFinishedInWeek.length * 25.0).clamp(0.0, 100.0);
+    double learningScore = (booksFinishedInWeek.length * 25.0).clamp(
+      0.0,
+      100.0,
+    );
 
     // =========================================================================
     // 5. DAILY CHECK-INS (10% Weight)
     // =========================================================================
     // (number of distinct days that week with a logged Energy & Mood check-in ÷ 7) * 100
     final distinctCheckinDates = weekCheckins.map((c) => c.date).toSet();
-    double checkinsScore = ((distinctCheckinDates.length / 7.0) * 100.0).clamp(0.0, 100.0);
+    double checkinsScore = ((distinctCheckinDates.length / 7.0) * 100.0).clamp(
+      0.0,
+      100.0,
+    );
 
     // =========================================================================
     // 6. GOALS PROGRESS (10% Weight)
@@ -162,7 +182,10 @@ class LifeScoreCalculator {
     final activeGoals = goals.where((g) => g.isActive).toList();
     double goalsScore = 0.0;
     if (activeGoals.isNotEmpty) {
-      final totalProgress = activeGoals.fold<int>(0, (sum, g) => sum + g.effectiveProgress);
+      final totalProgress = activeGoals.fold<int>(
+        0,
+        (sum, g) => sum + g.effectiveProgress,
+      );
       goalsScore = (totalProgress / activeGoals.length).toDouble();
     } else {
       goalsScore = 0.0;
@@ -172,7 +195,8 @@ class LifeScoreCalculator {
     // =========================================================================
     // TOTAL WEIGHTED SUM (0 - 100)
     // =========================================================================
-    final double rawWeightedTotal = (tasksScore * 0.30) +
+    final double rawWeightedTotal =
+        (tasksScore * 0.30) +
         (habitsScore * 0.25) +
         (energyScore * 0.15) +
         (learningScore * 0.10) +

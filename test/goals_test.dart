@@ -28,9 +28,7 @@ Widget createGoalsTestWidget({
     child: MaterialApp(
       locale: locale,
       supportedLocales: const [Locale('en'), Locale('ar')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate],
       theme: AppTheme.lightTheme,
       home: Scaffold(body: child),
     ),
@@ -39,33 +37,36 @@ Widget createGoalsTestWidget({
 
 void main() {
   group('Life Map (Goals) Pure Calculations & Model Tests', () {
-    test('calculateMilestoneProgress correctly handles manual progress and milestone ratios', () {
-      // 1. Empty milestones -> preserves manual progress (0-100)
-      expect(calculateMilestoneProgress([], 45), equals(45));
-      expect(calculateMilestoneProgress([], 120), equals(100)); // clamped
-      expect(calculateMilestoneProgress([], -10), equals(0)); // clamped
+    test(
+      'calculateMilestoneProgress correctly handles manual progress and milestone ratios',
+      () {
+        // 1. Empty milestones -> preserves manual progress (0-100)
+        expect(calculateMilestoneProgress([], 45), equals(45));
+        expect(calculateMilestoneProgress([], 120), equals(100)); // clamped
+        expect(calculateMilestoneProgress([], -10), equals(0)); // clamped
 
-      // 2. Non-empty milestones -> overrides manual value with exact percentage
-      final m1 = [
-        const GoalMilestone(title: 'Step 1', done: true),
-        const GoalMilestone(title: 'Step 2', done: false),
-        const GoalMilestone(title: 'Step 3', done: false),
-        const GoalMilestone(title: 'Step 4', done: false),
-      ];
-      expect(calculateMilestoneProgress(m1, 90), equals(25)); // 1/4 = 25%
+        // 2. Non-empty milestones -> overrides manual value with exact percentage
+        final m1 = [
+          const GoalMilestone(title: 'Step 1', done: true),
+          const GoalMilestone(title: 'Step 2', done: false),
+          const GoalMilestone(title: 'Step 3', done: false),
+          const GoalMilestone(title: 'Step 4', done: false),
+        ];
+        expect(calculateMilestoneProgress(m1, 90), equals(25)); // 1/4 = 25%
 
-      final m2 = [
-        const GoalMilestone(title: 'Step 1', done: true),
-        const GoalMilestone(title: 'Step 2', done: true),
-      ];
-      expect(calculateMilestoneProgress(m2, 0), equals(100)); // 2/2 = 100%
+        final m2 = [
+          const GoalMilestone(title: 'Step 1', done: true),
+          const GoalMilestone(title: 'Step 2', done: true),
+        ];
+        expect(calculateMilestoneProgress(m2, 0), equals(100)); // 2/2 = 100%
 
-      final m3 = [
-        const GoalMilestone(title: 'Step 1', done: false),
-        const GoalMilestone(title: 'Step 2', done: false),
-      ];
-      expect(calculateMilestoneProgress(m3, 50), equals(0)); // 0/2 = 0%
-    });
+        final m3 = [
+          const GoalMilestone(title: 'Step 1', done: false),
+          const GoalMilestone(title: 'Step 2', done: false),
+        ];
+        expect(calculateMilestoneProgress(m3, 50), equals(0)); // 0/2 = 0%
+      },
+    );
 
     test('daysUntilDate calculates calendar days remaining accurately', () {
       final now = DateTime(2026, 8, 23, 10, 0);
@@ -124,64 +125,72 @@ void main() {
   });
 
   group('Life Map Providers Tests', () {
-    test('goalsByTimeframeProvider filters by timeframe and respects showCompleted toggle', () {
-      final now = DateTime.now();
-      final g1 = GoalModel(
-        id: '1',
-        title: 'Finish Book',
-        timeframe: '1month',
-        status: 'active',
-        createdAt: now,
-        updatedAt: now,
-      );
-      final g2 = GoalModel(
-        id: '2',
-        title: 'Learn Dart',
-        timeframe: '1month',
-        status: 'done',
-        createdAt: now,
-        updatedAt: now,
-      );
-      final g3 = GoalModel(
-        id: '3',
-        title: 'Buy House',
-        timeframe: '5years',
-        status: 'active',
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'goalsByTimeframeProvider filters by timeframe and respects showCompleted toggle',
+      () {
+        final now = DateTime.now();
+        final g1 = GoalModel(
+          id: '1',
+          title: 'Finish Book',
+          timeframe: '1month',
+          status: 'active',
+          createdAt: now,
+          updatedAt: now,
+        );
+        final g2 = GoalModel(
+          id: '2',
+          title: 'Learn Dart',
+          timeframe: '1month',
+          status: 'done',
+          createdAt: now,
+          updatedAt: now,
+        );
+        final g3 = GoalModel(
+          id: '3',
+          title: 'Buy House',
+          timeframe: '5years',
+          status: 'active',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final container = ProviderContainer(
-        overrides: [
-          goalsStreamProvider.overrideWithValue(AsyncData([g1, g2, g3])),
-        ],
-      );
-      addTearDown(container.dispose);
+        final container = ProviderContainer(
+          overrides: [
+            goalsStreamProvider.overrideWithValue(AsyncData([g1, g2, g3])),
+          ],
+        );
+        addTearDown(container.dispose);
 
-      // By default, showCompleted is true
-      final monthGoals = container.read(goalsByTimeframeProvider('1month'));
-      expect(monthGoals.length, equals(2));
+        // By default, showCompleted is true
+        final monthGoals = container.read(goalsByTimeframeProvider('1month'));
+        expect(monthGoals.length, equals(2));
 
-      final fiveYearGoals = container.read(goalsByTimeframeProvider('5years'));
-      expect(fiveYearGoals.length, equals(1));
+        final fiveYearGoals = container.read(
+          goalsByTimeframeProvider('5years'),
+        );
+        expect(fiveYearGoals.length, equals(1));
 
-      // Toggle showCompleted to false
-      container.read(showCompletedGoalsProvider.notifier).setShowCompleted(false);
+        // Toggle showCompleted to false
+        container
+            .read(showCompletedGoalsProvider.notifier)
+            .setShowCompleted(false);
 
-      final monthGoalsActiveOnly = container.read(goalsByTimeframeProvider('1month'));
-      expect(monthGoalsActiveOnly.length, equals(1));
-      expect(monthGoalsActiveOnly.first.title, equals('Finish Book'));
-    });
+        final monthGoalsActiveOnly = container.read(
+          goalsByTimeframeProvider('1month'),
+        );
+        expect(monthGoalsActiveOnly.length, equals(1));
+        expect(monthGoalsActiveOnly.first.title, equals('Finish Book'));
+      },
+    );
   });
 
   group('Life Map UI & Widget Tests', () {
-    testWidgets('CircularProgressRing renders arc and percentage text', (tester) async {
+    testWidgets('CircularProgressRing renders arc and percentage text', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createGoalsTestWidget(
-          child: const CircularProgressRing(
-            size: 60,
-            progress: 75,
-          ),
+          child: const CircularProgressRing(size: 60, progress: 75),
         ),
       );
       await tester.pumpAndSettle();
@@ -189,7 +198,9 @@ void main() {
       expect(find.text('75%'), findsOneWidget);
     });
 
-    testWidgets('GoalCard renders title, icon, area badge and progress ring', (tester) async {
+    testWidgets('GoalCard renders title, icon, area badge and progress ring', (
+      tester,
+    ) async {
       final now = DateTime.now();
       final goal = GoalModel(
         id: 'g1',
@@ -234,7 +245,9 @@ void main() {
       expect(find.text('3/4 milestones'), findsOneWidget);
     });
 
-    testWidgets('LifeMapPage renders timeframe tabs and column goals', (tester) async {
+    testWidgets('LifeMapPage renders timeframe tabs and column goals', (
+      tester,
+    ) async {
       final now = DateTime.now();
       final goals = [
         GoalModel(
@@ -266,65 +279,71 @@ void main() {
       expect(find.text('Read 2 Books'), findsOneWidget);
     });
 
-    testWidgets('GoalFormModal validates required title and allows adding milestones', (tester) async {
-      await tester.pumpWidget(
-        createGoalsTestWidget(
-          child: const GoalFormModal(),
-          overrides: [
-            paraAreasStreamProvider.overrideWithValue(const AsyncData([])),
+    testWidgets(
+      'GoalFormModal validates required title and allows adding milestones',
+      (tester) async {
+        await tester.pumpWidget(
+          createGoalsTestWidget(
+            child: const GoalFormModal(),
+            overrides: [
+              paraAreasStreamProvider.overrideWithValue(const AsyncData([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Add Goal'), findsOneWidget);
+        expect(find.text('Goal Title'), findsOneWidget);
+
+        final saveButton = find.text('Save Goal');
+        expect(saveButton, findsOneWidget);
+        await tester.ensureVisible(saveButton);
+        await tester.pumpAndSettle();
+
+        // Tap save without entering title
+        await tester.tap(saveButton);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Please enter a goal title'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'GoalDetailPage renders header and interactive milestones checklist',
+      (tester) async {
+        final now = DateTime.now();
+        final goal = GoalModel(
+          id: 'detail_g1',
+          title: 'Master Flutter Animations',
+          icon: '🎨',
+          color: '#7C3AED',
+          timeframe: '3months',
+          milestones: const [
+            GoalMilestone(title: 'Explicit Animations', done: true),
+            GoalMilestone(title: 'Custom Painter Canvas', done: false),
           ],
-        ),
-      );
-      await tester.pumpAndSettle();
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      expect(find.text('Add Goal'), findsOneWidget);
-      expect(find.text('Goal Title'), findsOneWidget);
+        await tester.pumpWidget(
+          createGoalsTestWidget(
+            child: GoalDetailPage(goalId: 'detail_g1', initialGoal: goal),
+            overrides: [
+              goalsStreamProvider.overrideWithValue(AsyncData([goal])),
+              paraAreasStreamProvider.overrideWithValue(const AsyncData([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final saveButton = find.text('Save Goal');
-      expect(saveButton, findsOneWidget);
-      await tester.ensureVisible(saveButton);
-      await tester.pumpAndSettle();
-
-      // Tap save without entering title
-      await tester.tap(saveButton);
-      await tester.pumpAndSettle();
-
-      expect(find.text('Please enter a goal title'), findsOneWidget);
-    });
-
-    testWidgets('GoalDetailPage renders header and interactive milestones checklist', (tester) async {
-      final now = DateTime.now();
-      final goal = GoalModel(
-        id: 'detail_g1',
-        title: 'Master Flutter Animations',
-        icon: '🎨',
-        color: '#7C3AED',
-        timeframe: '3months',
-        milestones: const [
-          GoalMilestone(title: 'Explicit Animations', done: true),
-          GoalMilestone(title: 'Custom Painter Canvas', done: false),
-        ],
-        createdAt: now,
-        updatedAt: now,
-      );
-
-      await tester.pumpWidget(
-        createGoalsTestWidget(
-          child: GoalDetailPage(goalId: 'detail_g1', initialGoal: goal),
-          overrides: [
-            goalsStreamProvider.overrideWithValue(AsyncData([goal])),
-            paraAreasStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Goal Details'), findsOneWidget);
-      expect(find.text('Master Flutter Animations'), findsOneWidget);
-      expect(find.text('Milestones Checklist'), findsOneWidget);
-      expect(find.text('Explicit Animations'), findsOneWidget);
-      expect(find.text('Custom Painter Canvas'), findsOneWidget);
-      expect(find.text('1/2'), findsOneWidget);
-    });
+        expect(find.text('Goal Details'), findsOneWidget);
+        expect(find.text('Master Flutter Animations'), findsOneWidget);
+        expect(find.text('Milestones Checklist'), findsOneWidget);
+        expect(find.text('Explicit Animations'), findsOneWidget);
+        expect(find.text('Custom Painter Canvas'), findsOneWidget);
+        expect(find.text('1/2'), findsOneWidget);
+      },
+    );
   });
 }

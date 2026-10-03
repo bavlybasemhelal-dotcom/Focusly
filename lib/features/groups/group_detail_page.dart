@@ -24,7 +24,8 @@ class GroupDetailPage extends ConsumerStatefulWidget {
 }
 
 class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
-  int _selectedTab = 0; // 0: Feed, 1: Leaderboard, 2: Challenges, 3: Assignments, 4: Members
+  int _selectedTab =
+      0; // 0: Feed, 1: Leaderboard, 2: Challenges, 3: Assignments, 4: Members
 
   @override
   void initState() {

@@ -1,3 +1,5 @@
+import 'dart:io';
+import '../windows_schedule.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:local_notifier/local_notifier.dart';
@@ -65,6 +67,17 @@ class DesktopNotificationSender implements PlatformNotificationSender {
   }) async {
     await initialize();
 
+    if (Platform.isWindows) {
+      await WindowsSchedule.request({
+        'action': 'schedule',
+        'id': id,
+        'title': title,
+        'body': body,
+        'date': scheduledDate.toIso8601String(),
+        'payload': payload,
+      });
+      return;
+    }
     // Cancel existing timer for this ID if scheduled previously
     await cancelNotification(id);
 
@@ -72,7 +85,9 @@ class DesktopNotificationSender implements PlatformNotificationSender {
     final durationUntilTrigger = scheduledDate.difference(now);
 
     if (durationUntilTrigger.isNegative) {
-      debugPrint('Warning: Scheduled desktop date $scheduledDate has already passed. Skipping.');
+      debugPrint(
+        'Warning: Scheduled desktop date $scheduledDate has already passed. Skipping.',
+      );
       return;
     }
 
@@ -108,9 +123,7 @@ class DesktopNotificationSender implements PlatformNotificationSender {
         identifier: id.toString(),
         title: title,
         body: body,
-        actions: [
-          LocalNotificationAction(text: 'Open Focusly'),
-        ],
+        actions: [LocalNotificationAction(text: 'Open Focusly')],
       );
 
       notification.onShow = () {
@@ -129,12 +142,18 @@ class DesktopNotificationSender implements PlatformNotificationSender {
 
   @override
   Future<void> cancelNotification(int id) async {
+    if (Platform.isWindows) {
+      await WindowsSchedule.request({'action': 'cancel', 'id': id});
+    }
     _activeTimers[id]?.cancel();
     _activeTimers.remove(id);
   }
 
   @override
   Future<void> cancelAllNotifications() async {
+    if (Platform.isWindows) {
+      await WindowsSchedule.request({'action': 'cancelAll'});
+    }
     for (final timer in _activeTimers.values) {
       timer.cancel();
     }

@@ -29,8 +29,18 @@ class BucketItemModel {
   String? get formattedTargetDate {
     if (targetDate == null) return null;
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[targetDate!.month - 1]} ${targetDate!.day}, ${targetDate!.year}';
   }
@@ -66,14 +76,16 @@ class BucketItemModel {
     if (map['createdAt'] is Timestamp) {
       parsedCreatedAt = (map['createdAt'] as Timestamp).toDate();
     } else if (map['createdAt'] is String) {
-      parsedCreatedAt = DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now();
+      parsedCreatedAt =
+          DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now();
     }
 
     DateTime parsedUpdatedAt = DateTime.now();
     if (map['updatedAt'] is Timestamp) {
       parsedUpdatedAt = (map['updatedAt'] as Timestamp).toDate();
     } else if (map['updatedAt'] is String) {
-      parsedUpdatedAt = DateTime.tryParse(map['updatedAt'] as String) ?? DateTime.now();
+      parsedUpdatedAt =
+          DateTime.tryParse(map['updatedAt'] as String) ?? DateTime.now();
     }
 
     return BucketItemModel(

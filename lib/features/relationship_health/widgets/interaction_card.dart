@@ -13,10 +13,7 @@ import 'interaction_form_modal.dart';
 class InteractionCard extends ConsumerWidget {
   final RelationshipLogModel log;
 
-  const InteractionCard({
-    super.key,
-    required this.log,
-  });
+  const InteractionCard({super.key, required this.log});
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     HapticFeedback.heavyImpact();
@@ -30,7 +27,11 @@ class InteractionCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -60,7 +61,9 @@ class InteractionCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -81,7 +84,9 @@ class InteractionCard extends ConsumerWidget {
               content: Text(context.tr('interaction_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -101,14 +106,16 @@ class InteractionCard extends ConsumerWidget {
     // Resolve linked contact name
     final contacts = ref.watch(contactsStreamProvider).value ?? [];
     final contact = contacts.cast<dynamic>().firstWhere(
-          (c) => c.id == log.contactId,
-          orElse: () => null,
-        );
+      (c) => c.id == log.contactId,
+      orElse: () => null,
+    );
 
     final contactName = contact != null
         ? contact.name as String
         : context.tr('unknown_contact_fallback');
-    final contactEmoji = contact != null ? (contact.emoji as String? ?? '👤') : '👤';
+    final contactEmoji = contact != null
+        ? (contact.emoji as String? ?? '👤')
+        : '👤';
 
     final dateStr =
         '${log.date.year}-${log.date.month.toString().padLeft(2, '0')}-${log.date.day.toString().padLeft(2, '0')}';
@@ -138,10 +145,7 @@ class InteractionCard extends ConsumerWidget {
             Row(
               children: [
                 // Contact Emoji Avatar
-                Text(
-                  contactEmoji,
-                  style: const TextStyle(fontSize: 18),
-                ),
+                Text(contactEmoji, style: const TextStyle(fontSize: 18)),
                 const SizedBox(width: 8),
 
                 // Contact Name & Date
@@ -178,7 +182,9 @@ class InteractionCard extends ConsumerWidget {
                   children: List.generate(5, (index) {
                     final isFilled = index < log.rating;
                     return Icon(
-                      isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                      isFilled
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
                       size: 16,
                       color: isFilled
                           ? const Color(0xFFF59E0B) // Amber Gold
@@ -219,7 +225,10 @@ class InteractionCard extends ConsumerWidget {
               const SizedBox(height: 10),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: notesBg,
                   borderRadius: BorderRadius.circular(10),

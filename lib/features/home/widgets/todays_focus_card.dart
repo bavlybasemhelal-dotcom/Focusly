@@ -14,10 +14,7 @@ import '../../tasks/providers/tasks_provider.dart';
 class TodaysFocusCard extends ConsumerWidget {
   final VoidCallback onViewAll;
 
-  const TodaysFocusCard({
-    super.key,
-    required this.onViewAll,
-  });
+  const TodaysFocusCard({super.key, required this.onViewAll});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,8 +36,7 @@ class TodaysFocusCard extends ConsumerWidget {
     // Filter tasks that are incomplete and scheduled for today (or earlier / overdue)
     final todayIncompleteTasks = allTasks.where((t) {
       if (t.done) return false;
-      if (t.date == null) return false;
-      final taskDate = DateTime(t.date!.year, t.date!.month, t.date!.day);
+      final taskDate = DateTime(t.date.year, t.date.month, t.date.day);
       return taskDate.isBefore(today.add(const Duration(days: 1)));
     }).toList();
 
@@ -113,7 +109,10 @@ class TodaysFocusCard extends ConsumerWidget {
 
               // Task Count Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppColors.cyanElectric.withValues(alpha: 0.15)
@@ -127,11 +126,16 @@ class TodaysFocusCard extends ConsumerWidget {
                   ),
                 ),
                 child: Text(
-                  context.tr('tasks_left_today_badge', args: {'count': todayIncompleteTasks.length.toString()}),
+                  context.tr(
+                    'tasks_left_today_badge',
+                    args: {'count': todayIncompleteTasks.length.toString()},
+                  ),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: isDark ? AppColors.cyanElectric : const Color(0xFF1D4ED8),
+                    color: isDark
+                        ? AppColors.cyanElectric
+                        : const Color(0xFF1D4ED8),
                   ),
                 ),
               ),
@@ -145,7 +149,10 @@ class TodaysFocusCard extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.04)
@@ -164,7 +171,9 @@ class TodaysFocusCard extends ConsumerWidget {
                     InkWell(
                       onTap: () {
                         HapticFeedback.mediumImpact();
-                        ref.read(tasksControllerProvider).toggleTaskDone(task, context);
+                        ref
+                            .read(tasksControllerProvider)
+                            .toggleTaskDone(task, context);
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
@@ -172,10 +181,7 @@ class TodaysFocusCard extends ConsumerWidget {
                         height: 24,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: priorityColor,
-                            width: 2,
-                          ),
+                          border: Border.all(color: priorityColor, width: 2),
                         ),
                         child: const Icon(
                           Icons.circle,
@@ -229,7 +235,10 @@ class TodaysFocusCard extends ConsumerWidget {
 
                     // Priority Pill
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: priorityColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(6),

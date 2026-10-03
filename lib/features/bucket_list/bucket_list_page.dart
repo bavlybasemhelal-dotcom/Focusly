@@ -23,7 +23,9 @@ class BucketListPage extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final allItemsAsync = ref.watch(bucketListStreamProvider);
     final allItems = allItemsAsync.value ?? <BucketItemModel>[];
@@ -68,88 +70,93 @@ class BucketListPage extends ConsumerWidget {
               child: CircularProgressIndicator(color: Color(0xFF6366F1)),
             )
           : allItems.isEmpty
-              ? _buildOverallEmptyState(context, isDark, primaryTextColor, secondaryTextColor)
-              : ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    // =========================================================
-                    // 1. DREAMS TO ACHIEVE SECTION (PENDING)
-                    // =========================================================
-                    _buildSectionHeader(
-                      context: context,
-                      title: context.tr(
-                        'dreams_to_achieve_section',
-                        args: {'count': '${pendingItems.length}'},
-                      ),
-                      count: pendingItems.length,
-                      color: const Color(0xFF6366F1),
-                      isDark: isDark,
-                      primaryTextColor: primaryTextColor,
-                    ),
-                    const SizedBox(height: 12),
-
-                    if (pendingItems.isEmpty)
-                      _buildSectionEmptyState(
-                        context: context,
-                        text: context.tr('no_pending_dreams'),
-                        cardBg: cardBg,
-                        borderColor: borderColor,
-                        secondaryTextColor: secondaryTextColor,
-                      )
-                    else
-                      ...pendingItems.map((item) {
-                        return _buildPendingDreamCard(
-                          context: context,
-                          ref: ref,
-                          item: item,
-                          isDark: isDark,
-                          cardBg: cardBg,
-                          borderColor: borderColor,
-                          primaryTextColor: primaryTextColor,
-                          secondaryTextColor: secondaryTextColor,
-                        );
-                      }),
-
-                    const SizedBox(height: 28),
-
-                    // =========================================================
-                    // 2. ACHIEVED MEMORIES SECTION (COMPLETED)
-                    // =========================================================
-                    _buildSectionHeader(
-                      context: context,
-                      title: context.tr(
-                        'achieved_memories_section',
-                        args: {'count': '${completedItems.length}'},
-                      ),
-                      count: completedItems.length,
-                      color: const Color(0xFF10B981),
-                      isDark: isDark,
-                      primaryTextColor: primaryTextColor,
-                    ),
-                    const SizedBox(height: 12),
-
-                    if (completedItems.isEmpty)
-                      _buildSectionEmptyState(
-                        context: context,
-                        text: context.tr('no_achieved_memories'),
-                        cardBg: cardBg,
-                        borderColor: borderColor,
-                        secondaryTextColor: secondaryTextColor,
-                      )
-                    else
-                      ...completedItems.map((item) {
-                        return _buildAchievedMemoryCard(
-                          context: context,
-                          ref: ref,
-                          item: item,
-                          isDark: isDark,
-                          primaryTextColor: primaryTextColor,
-                          secondaryTextColor: secondaryTextColor,
-                        );
-                      }),
-                  ],
+          ? _buildOverallEmptyState(
+              context,
+              isDark,
+              primaryTextColor,
+              secondaryTextColor,
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
+              physics: const BouncingScrollPhysics(),
+              children: [
+                // =========================================================
+                // 1. DREAMS TO ACHIEVE SECTION (PENDING)
+                // =========================================================
+                _buildSectionHeader(
+                  context: context,
+                  title: context.tr(
+                    'dreams_to_achieve_section',
+                    args: {'count': '${pendingItems.length}'},
+                  ),
+                  count: pendingItems.length,
+                  color: const Color(0xFF6366F1),
+                  isDark: isDark,
+                  primaryTextColor: primaryTextColor,
                 ),
+                const SizedBox(height: 12),
+
+                if (pendingItems.isEmpty)
+                  _buildSectionEmptyState(
+                    context: context,
+                    text: context.tr('no_pending_dreams'),
+                    cardBg: cardBg,
+                    borderColor: borderColor,
+                    secondaryTextColor: secondaryTextColor,
+                  )
+                else
+                  ...pendingItems.map((item) {
+                    return _buildPendingDreamCard(
+                      context: context,
+                      ref: ref,
+                      item: item,
+                      isDark: isDark,
+                      cardBg: cardBg,
+                      borderColor: borderColor,
+                      primaryTextColor: primaryTextColor,
+                      secondaryTextColor: secondaryTextColor,
+                    );
+                  }),
+
+                const SizedBox(height: 28),
+
+                // =========================================================
+                // 2. ACHIEVED MEMORIES SECTION (COMPLETED)
+                // =========================================================
+                _buildSectionHeader(
+                  context: context,
+                  title: context.tr(
+                    'achieved_memories_section',
+                    args: {'count': '${completedItems.length}'},
+                  ),
+                  count: completedItems.length,
+                  color: const Color(0xFF10B981),
+                  isDark: isDark,
+                  primaryTextColor: primaryTextColor,
+                ),
+                const SizedBox(height: 12),
+
+                if (completedItems.isEmpty)
+                  _buildSectionEmptyState(
+                    context: context,
+                    text: context.tr('no_achieved_memories'),
+                    cardBg: cardBg,
+                    borderColor: borderColor,
+                    secondaryTextColor: secondaryTextColor,
+                  )
+                else
+                  ...completedItems.map((item) {
+                    return _buildAchievedMemoryCard(
+                      context: context,
+                      ref: ref,
+                      item: item,
+                      isDark: isDark,
+                      primaryTextColor: primaryTextColor,
+                      secondaryTextColor: secondaryTextColor,
+                    );
+                  }),
+              ],
+            ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF6366F1),
         foregroundColor: Colors.white,
@@ -249,7 +256,9 @@ class BucketListPage extends ConsumerWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.1),
+                color: const Color(
+                  0xFF6366F1,
+                ).withValues(alpha: isDark ? 0.2 : 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -282,7 +291,10 @@ class BucketListPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -351,8 +363,11 @@ class BucketListPage extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today_rounded,
-                              size: 13, color: secondaryTextColor),
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 13,
+                            color: secondaryTextColor,
+                          ),
                           const SizedBox(width: 5),
                           Text(
                             context.tr(
@@ -397,10 +412,15 @@ class BucketListPage extends ConsumerWidget {
             alignment: Alignment.centerRight,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981).withValues(alpha: isDark ? 0.25 : 0.12),
+                backgroundColor: const Color(
+                  0xFF10B981,
+                ).withValues(alpha: isDark ? 0.25 : 0.12),
                 foregroundColor: const Color(0xFF10B981),
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: const BorderSide(color: Color(0xFF10B981), width: 1.2),
@@ -435,7 +455,10 @@ class BucketListPage extends ConsumerWidget {
                     );
 
                     // 3. Automatically open edit modal for reflective memory logging
-                    BucketItemFormModal.show(context, itemToEdit: completedItem);
+                    BucketItemFormModal.show(
+                      context,
+                      itemToEdit: completedItem,
+                    );
                   }
                 }
               },
@@ -537,9 +560,7 @@ class BucketListPage extends ConsumerWidget {
                     ? Colors.black.withValues(alpha: 0.25)
                     : Colors.white.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: accentGreen.withValues(alpha: 0.2),
-                ),
+                border: Border.all(color: accentGreen.withValues(alpha: 0.2)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -567,7 +588,11 @@ class BucketListPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, BucketItemModel item) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    BucketItemModel item,
+  ) async {
     HapticFeedback.mediumImpact();
     final confirmed = await showDialog<bool>(
       context: context,
@@ -594,7 +619,9 @@ class BucketListPage extends ConsumerWidget {
     if (confirmed == true) {
       final uid = ref.read(currentUserIdProvider);
       if (uid != null && uid.isNotEmpty) {
-        await ref.read(bucketListServiceProvider).deleteBucketItem(uid, item.id);
+        await ref
+            .read(bucketListServiceProvider)
+            .deleteBucketItem(uid, item.id);
       }
     }
   }

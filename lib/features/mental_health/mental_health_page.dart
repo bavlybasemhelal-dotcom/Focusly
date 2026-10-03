@@ -55,13 +55,14 @@ class MentalHealthPage extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final allLogsAsync = ref.watch(mentalLogsStreamProvider);
     final selectedDate = ref.watch(mentalSelectedDateProvider);
     final viewMode = ref.watch(mentalViewModeProvider);
     final selectedDayLog = ref.watch(selectedDayMentalLogProvider);
-    final weeklyAvgLog = ref.watch(selectedWeekAverageLogProvider);
     final activeLog = ref.watch(activeDisplayMentalLogProvider);
     final personalizedTip = ref.watch(personalizedTipProvider);
     final todayVsYesterday = ref.watch(todayVsYesterdayComparisonProvider);
@@ -103,7 +104,10 @@ class MentalHealthPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF6366F1)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF6366F1),
+            ),
             tooltip: context.tr('rate_today_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -154,7 +158,10 @@ class MentalHealthPage extends ConsumerWidget {
             return Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -163,17 +170,16 @@ class MentalHealthPage extends ConsumerWidget {
                       height: 90,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.15 : 0.1),
+                        color: const Color(
+                          0xFF6366F1,
+                        ).withValues(alpha: isDark ? 0.15 : 0.1),
                         border: Border.all(
                           color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                           width: 2,
                         ),
                       ),
                       child: const Center(
-                        child: Text(
-                          '🧘',
-                          style: TextStyle(fontSize: 44),
-                        ),
+                        child: Text('🧘', style: TextStyle(fontSize: 44)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -204,7 +210,10 @@ class MentalHealthPage extends ConsumerWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6366F1),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -213,7 +222,10 @@ class MentalHealthPage extends ConsumerWidget {
                       icon: const Icon(Icons.add_rounded, size: 20),
                       label: Text(
                         context.tr('rate_today_btn'),
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
                       ),
                       onPressed: () {
                         HapticFeedback.selectionClick();
@@ -246,7 +258,10 @@ class MentalHealthPage extends ConsumerWidget {
                       onTap: () => _pickDate(context, ref),
                       borderRadius: BorderRadius.circular(14),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: cardBg,
                           borderRadius: BorderRadius.circular(14),
@@ -290,7 +305,9 @@ class MentalHealthPage extends ConsumerWidget {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF08123A) : const Color(0xFFEEF2F6),
+                        color: isDark
+                            ? const Color(0xFF08123A)
+                            : const Color(0xFFEEF2F6),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Row(
@@ -300,22 +317,30 @@ class MentalHealthPage extends ConsumerWidget {
                             child: InkWell(
                               onTap: () {
                                 HapticFeedback.selectionClick();
-                                ref.read(mentalViewModeProvider.notifier).setMode(
-                                      MentalViewMode.daily,
-                                    );
+                                ref
+                                    .read(mentalViewModeProvider.notifier)
+                                    .setMode(MentalViewMode.daily);
                               },
                               borderRadius: BorderRadius.circular(10),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 7),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 7,
+                                ),
                                 decoration: BoxDecoration(
                                   color: viewMode == MentalViewMode.daily
-                                      ? (isDark ? const Color(0xFF1E2958) : Colors.white)
+                                      ? (isDark
+                                            ? const Color(0xFF1E2958)
+                                            : Colors.white)
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(10),
-                                  boxShadow: viewMode == MentalViewMode.daily && !isDark
+                                  boxShadow:
+                                      viewMode == MentalViewMode.daily &&
+                                          !isDark
                                       ? [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.05),
+                                            color: Colors.black.withValues(
+                                              alpha: 0.05,
+                                            ),
                                             blurRadius: 4,
                                           ),
                                         ]
@@ -329,7 +354,9 @@ class MentalHealthPage extends ConsumerWidget {
                                         ? FontWeight.w800
                                         : FontWeight.w600,
                                     color: viewMode == MentalViewMode.daily
-                                        ? (isDark ? const Color(0xFF00E5FF) : const Color(0xFF4F46E5))
+                                        ? (isDark
+                                              ? const Color(0xFF00E5FF)
+                                              : const Color(0xFF4F46E5))
                                         : secondaryTextColor,
                                   ),
                                   textAlign: TextAlign.center,
@@ -343,22 +370,30 @@ class MentalHealthPage extends ConsumerWidget {
                             child: InkWell(
                               onTap: () {
                                 HapticFeedback.selectionClick();
-                                ref.read(mentalViewModeProvider.notifier).setMode(
-                                      MentalViewMode.weekly,
-                                    );
+                                ref
+                                    .read(mentalViewModeProvider.notifier)
+                                    .setMode(MentalViewMode.weekly);
                               },
                               borderRadius: BorderRadius.circular(10),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 7),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 7,
+                                ),
                                 decoration: BoxDecoration(
                                   color: viewMode == MentalViewMode.weekly
-                                      ? (isDark ? const Color(0xFF1E2958) : Colors.white)
+                                      ? (isDark
+                                            ? const Color(0xFF1E2958)
+                                            : Colors.white)
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(10),
-                                  boxShadow: viewMode == MentalViewMode.weekly && !isDark
+                                  boxShadow:
+                                      viewMode == MentalViewMode.weekly &&
+                                          !isDark
                                       ? [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.05),
+                                            color: Colors.black.withValues(
+                                              alpha: 0.05,
+                                            ),
                                             blurRadius: 4,
                                           ),
                                         ]
@@ -368,11 +403,14 @@ class MentalHealthPage extends ConsumerWidget {
                                   context.tr('view_mode_weekly'),
                                   style: TextStyle(
                                     fontSize: 12,
-                                    fontWeight: viewMode == MentalViewMode.weekly
+                                    fontWeight:
+                                        viewMode == MentalViewMode.weekly
                                         ? FontWeight.w800
                                         : FontWeight.w600,
                                     color: viewMode == MentalViewMode.weekly
-                                        ? (isDark ? const Color(0xFF00E5FF) : const Color(0xFF4F46E5))
+                                        ? (isDark
+                                              ? const Color(0xFF00E5FF)
+                                              : const Color(0xFF4F46E5))
                                         : secondaryTextColor,
                                   ),
                                   textAlign: TextAlign.center,
@@ -417,7 +455,9 @@ class MentalHealthPage extends ConsumerWidget {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.12),
+                            color: const Color(
+                              0xFF6366F1,
+                            ).withValues(alpha: isDark ? 0.2 : 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Center(
@@ -432,11 +472,19 @@ class MentalHealthPage extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             viewMode == MentalViewMode.daily
-                                ? context.tr('daily_chart_title', args: {'date': dateStr})
-                                : context.tr('weekly_chart_title', args: {
-                                    'startDate': weekBoundaries.formattedStartDate,
-                                    'endDate': weekBoundaries.formattedEndDate,
-                                  }),
+                                ? context.tr(
+                                    'daily_chart_title',
+                                    args: {'date': dateStr},
+                                  )
+                                : context.tr(
+                                    'weekly_chart_title',
+                                    args: {
+                                      'startDate':
+                                          weekBoundaries.formattedStartDate,
+                                      'endDate':
+                                          weekBoundaries.formattedEndDate,
+                                    },
+                                  ),
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
@@ -454,10 +502,15 @@ class MentalHealthPage extends ConsumerWidget {
                     else
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 36,
+                          horizontal: 16,
+                        ),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFF8FAFC),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.03)
+                              : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -485,7 +538,10 @@ class MentalHealthPage extends ConsumerWidget {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF6366F1),
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 10,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -494,7 +550,10 @@ class MentalHealthPage extends ConsumerWidget {
                                 icon: const Icon(Icons.add_rounded, size: 16),
                                 label: Text(
                                   context.tr('rate_this_day_btn'),
-                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13,
+                                  ),
                                 ),
                                 onPressed: () {
                                   HapticFeedback.selectionClick();
@@ -520,7 +579,9 @@ class MentalHealthPage extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF141F48) : const Color(0xFFF5F3FF),
+                    color: isDark
+                        ? const Color(0xFF141F48)
+                        : const Color(0xFFF5F3FF),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isDark
@@ -549,9 +610,14 @@ class MentalHealthPage extends ConsumerWidget {
                             ],
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                              color: const Color(
+                                0xFF6366F1,
+                              ).withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -571,7 +637,9 @@ class MentalHealthPage extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFFE0E7FF) : const Color(0xFF3730A3),
+                          color: isDark
+                              ? const Color(0xFFE0E7FF)
+                              : const Color(0xFF3730A3),
                           height: 1.4,
                         ),
                       ),
@@ -584,7 +652,9 @@ class MentalHealthPage extends ConsumerWidget {
               // =========================================================
               // TODAY VS YESTERDAY COMPARISON CARD (Daily mode only)
               // =========================================================
-              if (viewMode == MentalViewMode.daily && selectedDayLog != null && todayVsYesterday != null) ...[
+              if (viewMode == MentalViewMode.daily &&
+                  selectedDayLog != null &&
+                  todayVsYesterday != null) ...[
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
@@ -601,7 +671,9 @@ class MentalHealthPage extends ConsumerWidget {
                             width: 30,
                             height: 30,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.2 : 0.12),
+                              color: const Color(
+                                0xFF10B981,
+                              ).withValues(alpha: isDark ? 0.2 : 0.12),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Center(
@@ -645,7 +717,9 @@ class MentalHealthPage extends ConsumerWidget {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: todayVsYesterday.comparisons.length,
                           separatorBuilder: (context, index) => Divider(
-                            color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9),
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.05)
+                                : const Color(0xFFF1F5F9),
                             height: 14,
                           ),
                           itemBuilder: (context, index) {
@@ -659,17 +733,23 @@ class MentalHealthPage extends ConsumerWidget {
                               case ComparisonDirection.improved:
                                 badgeText = context.tr('cmp_improved');
                                 badgeColor = const Color(0xFF10B981);
-                                badgeBg = const Color(0xFF10B981).withValues(alpha: isDark ? 0.2 : 0.12);
+                                badgeBg = const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: isDark ? 0.2 : 0.12);
                                 break;
                               case ComparisonDirection.declined:
                                 badgeText = context.tr('cmp_declined');
                                 badgeColor = const Color(0xFFEF4444);
-                                badgeBg = const Color(0xFFEF4444).withValues(alpha: isDark ? 0.2 : 0.12);
+                                badgeBg = const Color(
+                                  0xFFEF4444,
+                                ).withValues(alpha: isDark ? 0.2 : 0.12);
                                 break;
                               case ComparisonDirection.same:
                                 badgeText = context.tr('cmp_same');
                                 badgeColor = secondaryTextColor;
-                                badgeBg = secondaryTextColor.withValues(alpha: 0.12);
+                                badgeBg = secondaryTextColor.withValues(
+                                  alpha: 0.12,
+                                );
                                 break;
                               case ComparisonDirection.noYesterday:
                                 badgeText = context.tr('cmp_no_yesterday');
@@ -701,7 +781,10 @@ class MentalHealthPage extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 10),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: badgeBg,
                                         borderRadius: BorderRadius.circular(6),

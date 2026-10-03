@@ -36,7 +36,11 @@ class StreakLogic {
   }) {
     final dayIndex = getWeekDayIndex(date, weekStartDay: weekStartDay);
     final normalized = DateTime(date.year, date.month, date.day);
-    return normalized.subtract(Duration(days: dayIndex));
+    return DateTime(
+      normalized.year,
+      normalized.month,
+      normalized.day - dayIndex,
+    );
   }
 
   /// Returns localized short 2-3 letter labels for all 7 days of the week
@@ -89,7 +93,8 @@ class StreakLogic {
     }
 
     // Number of elapsed weeks
-    final weeksPassed = currentWeekStart.difference(lastResetWeekStart).inDays ~/ 7;
+    final weeksPassed =
+        currentWeekStart.difference(lastResetWeekStart).inDays ~/ 7;
 
     int newBaseStreak = habit.baseStreak;
     int newStreak = habit.streak;
@@ -168,23 +173,14 @@ class StreakLogic {
         lastResetDate: effectiveNow,
       );
 
-      return HabitToggleResult(
-        habit: rolledHabit,
-        wasEarlyWeekReset: true,
-      );
+      return HabitToggleResult(habit: rolledHabit, wasEarlyWeekReset: true);
     }
 
     // Normal day toggle (or full week completed with autoReset disabled)
     final int newStreak = habit.baseStreak + completedCount;
-    final updatedHabit = habit.copyWith(
-      days: updatedDays,
-      streak: newStreak,
-    );
+    final updatedHabit = habit.copyWith(days: updatedDays, streak: newStreak);
 
-    return HabitToggleResult(
-      habit: updatedHabit,
-      wasEarlyWeekReset: false,
-    );
+    return HabitToggleResult(habit: updatedHabit, wasEarlyWeekReset: false);
   }
 
   /// Toggles a day's completion state (0..6) and returns the updated [HabitModel].

@@ -25,9 +25,7 @@ Widget createEnergyMoodTestWidget({
     child: MaterialApp(
       locale: locale,
       supportedLocales: const [Locale('en'), Locale('ar')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate],
       theme: AppTheme.lightTheme,
       home: Scaffold(body: child),
     ),
@@ -36,35 +34,38 @@ Widget createEnergyMoodTestWidget({
 
 void main() {
   group('Energy & Mood Pure Calculation & Model Tests', () {
-    test('computeSleepDurationFromTime correctly calculates standard and overnight sleep durations', () {
-      // 1. Overnight sleep: 23:00 to 07:00 = 8.0 hours
-      final overnight = computeSleepDurationFromTime(
-        const TimeOfDay(hour: 23, minute: 0),
-        const TimeOfDay(hour: 7, minute: 0),
-      );
-      expect(overnight, equals(8.0));
+    test(
+      'computeSleepDurationFromTime correctly calculates standard and overnight sleep durations',
+      () {
+        // 1. Overnight sleep: 23:00 to 07:00 = 8.0 hours
+        final overnight = computeSleepDurationFromTime(
+          const TimeOfDay(hour: 23, minute: 0),
+          const TimeOfDay(hour: 7, minute: 0),
+        );
+        expect(overnight, equals(8.0));
 
-      // 2. Early morning bedtime: 01:30 to 09:00 = 7.5 hours
-      final earlyMorning = computeSleepDurationFromTime(
-        const TimeOfDay(hour: 1, minute: 30),
-        const TimeOfDay(hour: 9, minute: 0),
-      );
-      expect(earlyMorning, equals(7.5));
+        // 2. Early morning bedtime: 01:30 to 09:00 = 7.5 hours
+        final earlyMorning = computeSleepDurationFromTime(
+          const TimeOfDay(hour: 1, minute: 30),
+          const TimeOfDay(hour: 9, minute: 0),
+        );
+        expect(earlyMorning, equals(7.5));
 
-      // 3. Afternoon nap: 14:00 to 16:30 = 2.5 hours
-      final nap = computeSleepDurationFromTime(
-        const TimeOfDay(hour: 14, minute: 0),
-        const TimeOfDay(hour: 16, minute: 30),
-      );
-      expect(nap, equals(2.5));
+        // 3. Afternoon nap: 14:00 to 16:30 = 2.5 hours
+        final nap = computeSleepDurationFromTime(
+          const TimeOfDay(hour: 14, minute: 0),
+          const TimeOfDay(hour: 16, minute: 30),
+        );
+        expect(nap, equals(2.5));
 
-      // 4. Exact 24h wrap or same time = 0.0 hours
-      final zero = computeSleepDurationFromTime(
-        const TimeOfDay(hour: 8, minute: 0),
-        const TimeOfDay(hour: 8, minute: 0),
-      );
-      expect(zero, equals(0.0));
-    });
+        // 4. Exact 24h wrap or same time = 0.0 hours
+        final zero = computeSleepDurationFromTime(
+          const TimeOfDay(hour: 8, minute: 0),
+          const TimeOfDay(hour: 8, minute: 0),
+        );
+        expect(zero, equals(0.0));
+      },
+    );
 
     test('CheckinModel serializes and deserializes correctly', () {
       final now = DateTime(2026, 8, 23, 10, 0);
@@ -117,10 +118,14 @@ void main() {
       await container.read(dailyWaterTargetProvider.notifier).setTarget(10);
       expect(container.read(dailyWaterTargetProvider), equals(10));
 
-      await container.read(dailyWaterTargetProvider.notifier).setTarget(0); // Clamped to min 1
+      await container
+          .read(dailyWaterTargetProvider.notifier)
+          .setTarget(0); // Clamped to min 1
       expect(container.read(dailyWaterTargetProvider), equals(1));
 
-      await container.read(dailyWaterTargetProvider.notifier).setTarget(50); // Clamped to max 30
+      await container
+          .read(dailyWaterTargetProvider.notifier)
+          .setTarget(50); // Clamped to max 30
       expect(container.read(dailyWaterTargetProvider), equals(30));
     });
 
@@ -130,41 +135,47 @@ void main() {
 
       expect(container.read(dailyCheckinReminderProvider), isTrue);
 
-      await container.read(dailyCheckinReminderProvider.notifier).setEnabled(false);
+      await container
+          .read(dailyCheckinReminderProvider.notifier)
+          .setEnabled(false);
       expect(container.read(dailyCheckinReminderProvider), isFalse);
 
-      await container.read(dailyCheckinReminderProvider.notifier).setEnabled(true);
+      await container
+          .read(dailyCheckinReminderProvider.notifier)
+          .setEnabled(true);
       expect(container.read(dailyCheckinReminderProvider), isTrue);
     });
   });
 
   group('Energy & Mood UI & Widget Tests', () {
-    testWidgets('WaterTrackerWidget displays glasses, counter and responds to taps', (tester) async {
-      final checkin = CheckinModel(
-        date: '2026-08-23',
-        energy: 4,
-        mood: '😊',
-        water: 5,
-        sleep: 8.0,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+    testWidgets(
+      'WaterTrackerWidget displays glasses, counter and responds to taps',
+      (tester) async {
+        final checkin = CheckinModel(
+          date: '2026-08-23',
+          energy: 4,
+          mood: '😊',
+          water: 5,
+          sleep: 8.0,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
 
-      await tester.pumpWidget(
-        createEnergyMoodTestWidget(
-          child: WaterTrackerWidget(
-            dateStr: '2026-08-23',
-            checkin: checkin,
+        await tester.pumpWidget(
+          createEnergyMoodTestWidget(
+            child: WaterTrackerWidget(dateStr: '2026-08-23', checkin: checkin),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Water Intake'), findsOneWidget);
-      expect(find.text('5 / 8 glasses'), findsOneWidget);
-    });
+        expect(find.text('Water Intake'), findsOneWidget);
+        expect(find.text('5 / 8 glasses'), findsOneWidget);
+      },
+    );
 
-    testWidgets('SleepTrackerWidget renders bedtime and wake-up times', (tester) async {
+    testWidgets('SleepTrackerWidget renders bedtime and wake-up times', (
+      tester,
+    ) async {
       final checkin = CheckinModel(
         date: '2026-08-23',
         energy: 4,
@@ -179,10 +190,7 @@ void main() {
 
       await tester.pumpWidget(
         createEnergyMoodTestWidget(
-          child: SleepTrackerWidget(
-            dateStr: '2026-08-23',
-            checkin: checkin,
-          ),
+          child: SleepTrackerWidget(dateStr: '2026-08-23', checkin: checkin),
         ),
       );
       await tester.pumpAndSettle();
@@ -193,98 +201,121 @@ void main() {
       expect(find.text('07:00'), findsOneWidget);
     });
 
-    testWidgets('HomeEnergyMoodWidget renders prompt banner when today is not checked in', (tester) async {
-      await tester.pumpWidget(
-        createEnergyMoodTestWidget(
-          child: const HomeEnergyMoodWidget(),
-          overrides: [
-            todayCheckinStreamProvider.overrideWith((ref) => Stream.value(null)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'HomeEnergyMoodWidget renders prompt banner when today is not checked in',
+      (tester) async {
+        await tester.pumpWidget(
+          createEnergyMoodTestWidget(
+            child: const HomeEnergyMoodWidget(),
+            overrides: [
+              todayCheckinStreamProvider.overrideWith(
+                (ref) => Stream.value(null),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('How are you feeling today?'), findsOneWidget);
-      expect(find.text('Tap to log your daily energy & mood'), findsOneWidget);
-      expect(find.text('Check In'), findsOneWidget);
-    });
+        expect(find.text('How are you feeling today?'), findsOneWidget);
+        expect(
+          find.text('Tap to log your daily energy & mood'),
+          findsOneWidget,
+        );
+        expect(find.text('Check In'), findsOneWidget);
+      },
+    );
 
-    testWidgets('HomeEnergyMoodWidget renders compact summary card when checked in', (tester) async {
-      final todayCheckin = CheckinModel(
-        date: '2026-08-23',
-        energy: 5,
-        mood: '🤩',
-        note: 'Super excited for today!',
-        water: 6,
-        sleep: 8.0,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      await tester.pumpWidget(
-        createEnergyMoodTestWidget(
-          child: const HomeEnergyMoodWidget(),
-          overrides: [
-            todayCheckinStreamProvider.overrideWith((ref) => Stream.value(todayCheckin)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('🤩'), findsOneWidget);
-      expect(find.text('Energy: Excellent'), findsOneWidget);
-      expect(find.text('Super excited for today!'), findsOneWidget);
-      expect(find.text('6/8 glasses'), findsOneWidget);
-      expect(find.text('8.0 hrs'), findsOneWidget);
-    });
-
-    testWidgets('CheckinSheet renders energy options, mood options, and note field', (tester) async {
-      await tester.pumpWidget(
-        createEnergyMoodTestWidget(
-          child: const CheckinSheet(),
-          overrides: [
-            checkinForDateStreamProvider('2026-08-23').overrideWith((ref) => Stream.value(null)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Daily Check-in'), findsOneWidget);
-      expect(find.text('Energy Level'), findsOneWidget);
-      expect(find.text('Mood'), findsOneWidget);
-      expect(find.text('Save Check-in'), findsOneWidget);
-      expect(find.text('🤩'), findsOneWidget);
-    });
-
-    testWidgets('EnergyMoodHistoryPage renders trend card, history list and entries', (tester) async {
-      final list = [
-        CheckinModel(
+    testWidgets(
+      'HomeEnergyMoodWidget renders compact summary card when checked in',
+      (tester) async {
+        final todayCheckin = CheckinModel(
           date: '2026-08-23',
-          energy: 4,
-          mood: '😊',
-          note: 'Great productive day',
-          water: 8,
-          sleep: 7.5,
+          energy: 5,
+          mood: '🤩',
+          note: 'Super excited for today!',
+          water: 6,
+          sleep: 8.0,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
-        ),
-      ];
+        );
 
-      await tester.pumpWidget(
-        createEnergyMoodTestWidget(
-          child: const EnergyMoodHistoryPage(),
-          overrides: [
-            checkinsHistoryStreamProvider.overrideWith((ref) => Stream.value(list)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createEnergyMoodTestWidget(
+            child: const HomeEnergyMoodWidget(),
+            overrides: [
+              todayCheckinStreamProvider.overrideWith(
+                (ref) => Stream.value(todayCheckin),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Energy & Mood History'), findsOneWidget);
-      expect(find.text('Energy Trends'), findsOneWidget);
-      expect(find.text('Past Check-ins'), findsOneWidget);
-      expect(find.textContaining('Great productive day'), findsOneWidget);
-      expect(find.text('8 glasses'), findsOneWidget);
-    });
+        expect(find.text('🤩'), findsOneWidget);
+        expect(find.text('Energy: Excellent'), findsOneWidget);
+        expect(find.text('Super excited for today!'), findsOneWidget);
+        expect(find.text('6/8 glasses'), findsOneWidget);
+        expect(find.text('8.0 hrs'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'CheckinSheet renders energy options, mood options, and note field',
+      (tester) async {
+        await tester.pumpWidget(
+          createEnergyMoodTestWidget(
+            child: const CheckinSheet(),
+            overrides: [
+              checkinForDateStreamProvider(
+                '2026-08-23',
+              ).overrideWith((ref) => Stream.value(null)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Daily Check-in'), findsOneWidget);
+        expect(find.text('Energy Level'), findsOneWidget);
+        expect(find.text('Mood'), findsOneWidget);
+        expect(find.text('Save Check-in'), findsOneWidget);
+        expect(find.text('🤩'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'EnergyMoodHistoryPage renders trend card, history list and entries',
+      (tester) async {
+        final list = [
+          CheckinModel(
+            date: '2026-08-23',
+            energy: 4,
+            mood: '😊',
+            note: 'Great productive day',
+            water: 8,
+            sleep: 7.5,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        ];
+
+        await tester.pumpWidget(
+          createEnergyMoodTestWidget(
+            child: const EnergyMoodHistoryPage(),
+            overrides: [
+              checkinsHistoryStreamProvider.overrideWith(
+                (ref) => Stream.value(list),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Energy & Mood History'), findsOneWidget);
+        expect(find.text('Energy Trends'), findsOneWidget);
+        expect(find.text('Past Check-ins'), findsOneWidget);
+        expect(find.textContaining('Great productive day'), findsOneWidget);
+        expect(find.text('8 glasses'), findsOneWidget);
+      },
+    );
   });
 }

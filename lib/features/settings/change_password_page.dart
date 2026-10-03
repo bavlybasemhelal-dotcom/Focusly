@@ -56,8 +56,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         throw Exception('User session not found.');
       }
 
-      final currentPass = _currentPasswordController.text.trim();
-      final newPass = _newPasswordController.text.trim();
+      final currentPass = _currentPasswordController.text;
+      final newPass = _newPasswordController.text;
 
       // 1. Re-authenticate user with current password
       final credential = EmailAuthProvider.credential(
@@ -151,14 +151,20 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           // Form Content
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 20.0,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. Current Password
-                    _buildFieldLabel(context.tr('current_password'), primaryTextColor),
+                    _buildFieldLabel(
+                      context.tr('current_password'),
+                      primaryTextColor,
+                    ),
                     const SizedBox(height: 8),
                     _buildPasswordField(
                       controller: _currentPasswordController,
@@ -185,7 +191,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     const SizedBox(height: 18),
 
                     // 2. New Password
-                    _buildFieldLabel(context.tr('new_password'), primaryTextColor),
+                    _buildFieldLabel(
+                      context.tr('new_password'),
+                      primaryTextColor,
+                    ),
                     const SizedBox(height: 8),
                     _buildPasswordField(
                       controller: _newPasswordController,
@@ -308,7 +317,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           BoxShadow(
                             color: isDark
                                 ? AppColors.cyanElectric.withValues(alpha: 0.35)
-                                : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                                : const Color(
+                                    0xFF2563EB,
+                                  ).withValues(alpha: 0.35),
                             blurRadius: 18,
                             offset: const Offset(0, 6),
                           ),
@@ -319,8 +330,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          foregroundColor:
-                              isDark ? const Color(0xFF060B24) : Colors.white,
+                          foregroundColor: isDark
+                              ? const Color(0xFF060B24)
+                              : Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -341,7 +353,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,
-                                  color: isDark ? const Color(0xFF060B24) : Colors.white,
+                                  color: isDark
+                                      ? const Color(0xFF060B24)
+                                      : Colors.white,
                                   letterSpacing: 0.2,
                                 ),
                               ),
@@ -360,11 +374,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget _buildFieldLabel(String text, Color color) {
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        color: color,
-      ),
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: color),
     );
   }
 
@@ -462,9 +472,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),

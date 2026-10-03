@@ -5,7 +5,8 @@ class ShutdownData {
   final bool completed;
   final String gratitudeText;
   final List<String> tomorrowTasks;
-  final String? lesson; // TODO: Future "Lessons Learned" log/history view will build on this.
+  final String?
+  lesson; // TODO: Future "Lessons Learned" log/history view will build on this.
   final DateTime? completedAt;
 
   const ShutdownData({
@@ -22,7 +23,9 @@ class ShutdownData {
       'gratitudeText': gratitudeText,
       'tomorrowTasks': tomorrowTasks,
       'lesson': lesson,
-      'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
+      'completedAt': completedAt != null
+          ? Timestamp.fromDate(completedAt!)
+          : null,
     };
   }
 
@@ -118,7 +121,9 @@ class RitualModel {
 
     ShutdownData? parsedShutdown;
     if (map['shutdown'] is Map<String, dynamic>) {
-      parsedShutdown = ShutdownData.fromMap(map['shutdown'] as Map<String, dynamic>);
+      parsedShutdown = ShutdownData.fromMap(
+        map['shutdown'] as Map<String, dynamic>,
+      );
     }
 
     return RitualModel(

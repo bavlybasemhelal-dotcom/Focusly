@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -14,18 +15,65 @@ class LearningPathsService {
   final FirebaseFirestore _firestore;
 
   LearningPathsService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _pathsCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('learningPaths');
   }
 
+  /// Merge changes to independent days; reject edits to a day changed elsewhere.
+  Future<void> _saveProgress(
+    String uid,
+    LearningPathModel before,
+    LearningPathModel after,
+  ) async {
+    final document = _pathsCollection(uid).doc(before.id);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(document);
+      if (!snapshot.exists) throw StateError('Learning path no longer exists');
+      final fresh = LearningPathModel.fromMap(snapshot.data()!, before.id);
+      final changed = <int, PathStepModel>{};
+      for (final step in after.steps) {
+        final old = before.steps
+            .where((item) => item.day == step.day)
+            .firstOrNull;
+        if (old == null ||
+            jsonEncode(old.toMap()) != jsonEncode(step.toMap())) {
+          final current = fresh.steps
+              .where((item) => item.day == step.day)
+              .firstOrNull;
+          if (old != null &&
+              current != null &&
+              jsonEncode(current.toMap()) != jsonEncode(old.toMap())) {
+            if (jsonEncode(current.toMap()) == jsonEncode(step.toMap())) {
+              continue;
+            }
+            throw StateError(
+              'This day changed on another device. Refresh and retry.',
+            );
+          }
+          changed[step.day] = step;
+        }
+      }
+      final merged = LearningPathHelpers.syncPathProgress(
+        fresh.copyWith(
+          steps: [for (final step in fresh.steps) changed[step.day] ?? step],
+          updatedAt: DateTime.now(),
+        ),
+      );
+      transaction.update(document, {
+        'steps': merged.steps.map((step) => step.toMap()).toList(),
+        'progressDay': merged.progressDay,
+        'updatedAt': Timestamp.fromDate(merged.updatedAt),
+      });
+    });
+  }
+
   /// Streams all learning paths for [uid] ordered by updatedAt descending.
   Stream<List<LearningPathModel>> streamPaths(String uid) {
-    return _pathsCollection(uid)
-        .orderBy('updatedAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _pathsCollection(
+      uid,
+    ).orderBy('updatedAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => LearningPathModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -77,24 +125,49 @@ class LearningPathsService {
     List<PathStepModel>? updatedSteps,
   }) async {
     try {
-      final now = DateTime.now();
-      final baseSteps = updatedSteps ?? currentPath.steps;
-
-      final resizedSteps = LearningPathHelpers.resizeSteps(
-        baseSteps,
-        newTotalDays,
-      );
-
-      final updatedPath = LearningPathHelpers.syncPathProgress(
-        currentPath.copyWith(
-          title: newTitle.trim(),
-          totalDays: newTotalDays,
-          steps: resizedSteps,
-          updatedAt: now,
-        ),
-      );
-
-      await _pathsCollection(uid).doc(updatedPath.id).update(updatedPath.toMap());
+      if (newTitle.trim().isEmpty || newTotalDays < 1 || newTotalDays > 365) {
+        throw ArgumentError('Invalid learning path');
+      }
+      final target = _pathsCollection(uid).doc(currentPath.id);
+      await _firestore.runTransaction((tx) async {
+        final snapshot = await tx.get(target);
+        if (!snapshot.exists) throw StateError('Path no longer exists');
+        final current = LearningPathModel.fromMap(
+          snapshot.data()!,
+          snapshot.id,
+        );
+        final proposed = updatedSteps ?? currentPath.steps;
+        final merged = LearningPathHelpers.resizeSteps(
+          current.steps,
+          newTotalDays,
+        );
+        for (var i = 0; i < proposed.length && i < merged.length; i++) {
+          if (i >= currentPath.steps.length ||
+              proposed[i].toMap().toString() !=
+                  currentPath.steps[i].toMap().toString()) {
+            if (i < current.steps.length &&
+                i < currentPath.steps.length &&
+                current.steps[i].toMap().toString() !=
+                    currentPath.steps[i].toMap().toString()) {
+              throw StateError(
+                'This step changed elsewhere. Reload before editing.',
+              );
+            }
+            merged[i] = proposed[i];
+          }
+        }
+        if (newTotalDays < current.steps.length &&
+            current.steps.skip(newTotalDays).any((step) => step.completed)) {
+          throw StateError('Cannot remove completed steps');
+        }
+        tx.update(target, {
+          'title': newTitle.trim(),
+          'totalDays': newTotalDays,
+          'steps': merged.map((step) => step.toMap()).toList(),
+          'progressDay': merged.where((step) => step.completed).length,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      });
       return true;
     } catch (e) {
       debugPrint('Error updating learning path: $e');
@@ -103,10 +176,7 @@ class LearningPathsService {
   }
 
   /// Deletes a learning path.
-  Future<bool> deletePath({
-    required String uid,
-    required String pathId,
-  }) async {
+  Future<bool> deletePath({required String uid, required String pathId}) async {
     try {
       await _pathsCollection(uid).doc(pathId).delete();
       return true;
@@ -139,11 +209,17 @@ class LearningPathsService {
         path.copyWith(steps: updatedSteps, updatedAt: DateTime.now()),
       );
 
-      await _pathsCollection(uid).doc(path.id).update(updatedPath.toMap());
+      await _saveProgress(uid, path, updatedPath);
 
       // XP hook & celebration on day completion
       if (!wasCompleted && newCompleted) {
-        _triggerDayCompletionCelebration(day, context, ref);
+        _triggerDayCompletionCelebration(
+          uid,
+          path.id,
+          day,
+          context != null && context.mounted ? context : null,
+          ref,
+        );
       }
 
       return true;
@@ -190,11 +266,17 @@ class LearningPathsService {
         path.copyWith(steps: updatedSteps, updatedAt: DateTime.now()),
       );
 
-      await _pathsCollection(uid).doc(path.id).update(updatedPath.toMap());
+      await _saveProgress(uid, path, updatedPath);
 
       // XP hook: if all sub-steps completed, completing the day
       if (!wasDayCompleted && updatedStep.completed) {
-        _triggerDayCompletionCelebration(day, context, ref);
+        _triggerDayCompletionCelebration(
+          uid,
+          path.id,
+          day,
+          context != null && context.mounted ? context : null,
+          ref,
+        );
       }
 
       return true;
@@ -240,7 +322,7 @@ class LearningPathsService {
         path.copyWith(steps: updatedSteps, updatedAt: DateTime.now()),
       );
 
-      await _pathsCollection(uid).doc(path.id).update(updatedPath.toMap());
+      await _saveProgress(uid, path, updatedPath);
       return true;
     } catch (e) {
       debugPrint('Error adding sub-step: $e');
@@ -264,7 +346,9 @@ class LearningPathsService {
       final step = path.steps[stepIndex];
       final wasDayCompleted = step.completed;
 
-      final updatedSubSteps = step.subSteps.where((s) => s.id != subStepId).toList();
+      final updatedSubSteps = step.subSteps
+          .where((s) => s.id != subStepId)
+          .toList();
       final isDayComplete = LearningPathHelpers.evaluateDayCompletion(
         step.copyWith(subSteps: updatedSubSteps),
       );
@@ -281,11 +365,19 @@ class LearningPathsService {
         path.copyWith(steps: updatedSteps, updatedAt: DateTime.now()),
       );
 
-      await _pathsCollection(uid).doc(path.id).update(updatedPath.toMap());
+      await _saveProgress(uid, path, updatedPath);
 
       // If deleting an incomplete sub-step made all remaining sub-steps complete:
-      if (!wasDayCompleted && updatedStep.completed && updatedSubSteps.isNotEmpty) {
-        _triggerDayCompletionCelebration(day, context, ref);
+      if (!wasDayCompleted &&
+          updatedStep.completed &&
+          updatedSubSteps.isNotEmpty) {
+        _triggerDayCompletionCelebration(
+          uid,
+          path.id,
+          day,
+          context != null && context.mounted ? context : null,
+          ref,
+        );
       }
 
       return true;
@@ -317,7 +409,7 @@ class LearningPathsService {
         updatedAt: DateTime.now(),
       );
 
-      await _pathsCollection(uid).doc(path.id).update(updatedPath.toMap());
+      await _saveProgress(uid, path, updatedPath);
       return true;
     } catch (e) {
       debugPrint('Error updating day title: $e');
@@ -351,10 +443,16 @@ class LearningPathsService {
         updatedAt: DateTime.now(),
       );
 
-      await _pathsCollection(uid).doc(path.id).update(updatedPath.toMap());
+      await _saveProgress(uid, path, updatedPath);
 
       if (!wasCompleted && completed) {
-        _triggerDayCompletionCelebration(day, context, ref);
+        _triggerDayCompletionCelebration(
+          uid,
+          path.id,
+          day,
+          context != null && context.mounted ? context : null,
+          ref,
+        );
       }
 
       return true;
@@ -365,6 +463,8 @@ class LearningPathsService {
   }
 
   void _triggerDayCompletionCelebration(
+    String uid,
+    String pathId,
     int day,
     BuildContext? context,
     WidgetRef? ref,
@@ -374,6 +474,9 @@ class LearningPathsService {
       XpConstants.learningPathDay,
       source: 'Learning Path day completed: Day $day',
       sourceType: 'learning_path',
+      uid: uid,
+      sourceId: pathId,
+      eventId: 'learning_path_${pathId}_$day',
       context: context,
       ref: ref,
     );
@@ -382,12 +485,17 @@ class LearningPathsService {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            context.tr('day_completed_celebration', args: {'day': day.toString()}),
+            context.tr(
+              'day_completed_celebration',
+              args: {'day': day.toString()},
+            ),
             style: const TextStyle(fontWeight: FontWeight.w800),
           ),
           backgroundColor: const Color(0xFF10B981),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       );
     }

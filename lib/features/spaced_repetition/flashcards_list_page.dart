@@ -29,7 +29,11 @@ class FlashcardsListPage extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -59,7 +63,9 @@ class FlashcardsListPage extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -80,7 +86,9 @@ class FlashcardsListPage extends ConsumerWidget {
               content: Text(context.tr('flashcard_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -88,20 +96,30 @@ class FlashcardsListPage extends ConsumerWidget {
     }
   }
 
-  Widget _buildDueBadge(BuildContext context, FlashcardModel card, bool isDark) {
+  Widget _buildDueBadge(
+    BuildContext context,
+    FlashcardModel card,
+    bool isDark,
+  ) {
     final remaining = card.dueDaysRemaining;
     Color badgeColor;
     String label;
 
     if (remaining < 0) {
       badgeColor = const Color(0xFFEF4444); // Red overdue
-      label = context.tr('due_overdue_badge', args: {'days': (-remaining).toString()});
+      label = context.tr(
+        'due_overdue_badge',
+        args: {'days': (-remaining).toString()},
+      );
     } else if (remaining == 0) {
       badgeColor = const Color(0xFF10B981); // Green due today
       label = context.tr('due_today_badge');
     } else {
       badgeColor = const Color(0xFF64748B); // Slate future
-      label = context.tr('due_in_days_badge', args: {'days': remaining.toString()});
+      label = context.tr(
+        'due_in_days_badge',
+        args: {'days': remaining.toString()},
+      );
     }
 
     return Container(
@@ -168,7 +186,10 @@ class FlashcardsListPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF2E6FF2)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF2E6FF2),
+            ),
             tooltip: context.tr('add_flashcard_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -207,7 +228,11 @@ class FlashcardsListPage extends ConsumerWidget {
         ),
         data: (cards) {
           if (cards.isEmpty) {
-            return _buildEmptyState(context, primaryTextColor, secondaryTextColor);
+            return _buildEmptyState(
+              context,
+              primaryTextColor,
+              secondaryTextColor,
+            );
           }
 
           return Column(
@@ -266,7 +291,10 @@ class FlashcardsListPage extends ConsumerWidget {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           foregroundColor: const Color(0xFF2E6FF2),
-                          side: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
+                          side: const BorderSide(
+                            color: Color(0xFF2E6FF2),
+                            width: 1.5,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -302,7 +330,10 @@ class FlashcardsListPage extends ConsumerWidget {
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: cardBg,
                         borderRadius: BorderRadius.circular(16),
@@ -323,7 +354,9 @@ class FlashcardsListPage extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
+                              color: const Color(
+                                0xFF2E6FF2,
+                              ).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -365,14 +398,20 @@ class FlashcardsListPage extends ConsumerWidget {
                             padding: const EdgeInsets.all(4),
                             onPressed: () {
                               HapticFeedback.selectionClick();
-                              FlashcardFormModal.show(context, cardToEdit: card);
+                              FlashcardFormModal.show(
+                                context,
+                                cardToEdit: card,
+                              );
                             },
                           ),
                           const SizedBox(width: 4),
 
                           // Delete Action
                           IconButton(
-                            icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 18,
+                            ),
                             color: const Color(0xFFEF4444),
                             tooltip: context.tr('delete'),
                             constraints: const BoxConstraints(),
@@ -443,7 +482,10 @@ class FlashcardsListPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),

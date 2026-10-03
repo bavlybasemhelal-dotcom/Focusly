@@ -183,7 +183,9 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
               content: Text(context.tr('decision_saved_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -213,7 +215,9 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
               content: Text(context.tr('decision_updated_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -233,7 +237,11 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -266,7 +274,9 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -291,7 +301,9 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
               content: Text(context.tr('decision_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -397,7 +409,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -454,7 +469,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -465,7 +483,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -485,7 +506,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: inputBg,
                   borderRadius: BorderRadius.circular(14),
@@ -532,10 +556,7 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
             TextField(
               controller: _rationaleController,
               maxLines: 3,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('rationale_hint'),
                 hintStyle: TextStyle(
@@ -544,7 +565,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -555,7 +579,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -574,10 +601,7 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
             TextField(
               controller: _expectedController,
               maxLines: 3,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('expected_outcome_hint'),
                 hintStyle: TextStyle(
@@ -586,7 +610,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -597,7 +624,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -616,7 +646,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF10B981).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
@@ -642,10 +675,7 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                   setState(() => _reviewed = true);
                 }
               },
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('actual_outcome_hint'),
                 hintStyle: TextStyle(
@@ -656,7 +686,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 fillColor: isDark
                     ? const Color(0xFF0F1B4C)
                     : const Color(0xFFF0FDF4),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(
@@ -671,7 +704,10 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF10B981),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -711,7 +747,7 @@ class _DecisionFormModalState extends ConsumerState<DecisionFormModal> {
                   ),
                   Switch(
                     value: _reviewed,
-                    activeColor: const Color(0xFF10B981),
+                    activeThumbColor: const Color(0xFF10B981),
                     onChanged: (val) {
                       HapticFeedback.selectionClick();
                       setState(() => _reviewed = val);

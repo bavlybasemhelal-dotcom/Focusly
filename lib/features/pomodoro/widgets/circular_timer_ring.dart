@@ -82,21 +82,30 @@ class CircularTimerRing extends StatelessWidget {
             children: [
               // Phase Icon Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: isWork
-                      ? const Color(0xFF2563EB).withValues(alpha: isDark ? 0.25 : 0.12)
-                      : const Color(0xFF10B981).withValues(alpha: isDark ? 0.25 : 0.12),
+                      ? const Color(
+                          0xFF2563EB,
+                        ).withValues(alpha: isDark ? 0.25 : 0.12)
+                      : const Color(
+                          0xFF10B981,
+                        ).withValues(alpha: isDark ? 0.25 : 0.12),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: glowColor.withValues(alpha: 0.3),
-                  ),
+                  border: Border.all(color: glowColor.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      isWork ? '⚡' : (timerState.phase == PomodoroPhase.longBreak ? '🏖️' : '☕'),
+                      isWork
+                          ? '⚡'
+                          : (timerState.phase == PomodoroPhase.longBreak
+                                ? '🏖️'
+                                : '☕'),
                       style: const TextStyle(fontSize: 13),
                     ),
                     const SizedBox(width: 4),
@@ -131,31 +140,30 @@ class CircularTimerRing extends StatelessWidget {
               // Cycle Progress Dots (e.g. ●●○○)
               Row(
                 mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                  timerState.config.longBreakInterval,
-                  (index) {
-                    final isFilled = index < timerState.completedSessionsInCycle;
-                    return Container(
-                      width: 8,
-                      height: 8,
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isFilled
-                            ? glowColor
-                            : (isDark ? Colors.white24 : Colors.black12),
-                        boxShadow: isFilled
-                            ? [
-                                BoxShadow(
-                                  color: glowColor.withValues(alpha: 0.5),
-                                  blurRadius: 4,
-                                ),
-                              ]
-                            : null,
-                      ),
-                    );
-                  },
-                ),
+                children: List.generate(timerState.config.longBreakInterval, (
+                  index,
+                ) {
+                  final isFilled = index < timerState.completedSessionsInCycle;
+                  return Container(
+                    width: 8,
+                    height: 8,
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isFilled
+                          ? glowColor
+                          : (isDark ? Colors.white24 : Colors.black12),
+                      boxShadow: isFilled
+                          ? [
+                              BoxShadow(
+                                color: glowColor.withValues(alpha: 0.5),
+                                blurRadius: 4,
+                              ),
+                            ]
+                          : null,
+                    ),
+                  );
+                }),
               ),
 
               if (timerState.selectedTaskTitle != null &&

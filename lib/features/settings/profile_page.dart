@@ -7,6 +7,7 @@ import '../../core/theme/app_colors.dart';
 class ProfilePage extends StatefulWidget {
   /// Whether to render the top AppBar (true when pushed as a standalone route, false when embedded as a bottom nav tab).
   final bool showAppBar;
+
   /// Whether to render the back button in the AppBar.
   final bool showBackButton;
 
@@ -122,19 +123,16 @@ class _ProfilePageState extends State<ProfilePage> {
         await user.updateDisplayName(newName);
 
         // 2. Update Firestore profile document
-        try {
-          await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
-            {
-              'name': newName,
-              'email': user.email,
-              'phone': newPhone,
-              'jobTitle': newJobTitle,
-              'bio': newBio,
-              'updatedAt': FieldValue.serverTimestamp(),
-            },
-            SetOptions(merge: true),
-          );
-        } catch (_) {}
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': newName,
+          'email': user.email,
+          'phone': newPhone,
+          'jobTitle': newJobTitle,
+          'bio': newBio,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } else {
+        throw StateError('No active session');
       }
 
       if (!mounted) return;
@@ -173,8 +171,12 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (_nameController.text.trim().isNotEmpty) {
-        initialLetter = _nameController.text.trim().substring(0, 1).toUpperCase();
-      } else if (user?.displayName != null && user!.displayName!.trim().isNotEmpty) {
+        initialLetter = _nameController.text
+            .trim()
+            .substring(0, 1)
+            .toUpperCase();
+      } else if (user?.displayName != null &&
+          user!.displayName!.trim().isNotEmpty) {
         initialLetter = user.displayName!.substring(0, 1).toUpperCase();
       }
     } catch (_) {}
@@ -211,7 +213,10 @@ class _ProfilePageState extends State<ProfilePage> {
           // Main Form Content
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 16.0,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -231,15 +236,16 @@ class _ProfilePageState extends State<ProfilePage> {
                               color: isDark
                                   ? const Color(0xFF0F1B4C)
                                   : Colors.white,
-                              border: Border.all(
-                                color: brandPrimary,
-                                width: 3,
-                              ),
+                              border: Border.all(color: brandPrimary, width: 3),
                               boxShadow: [
                                 BoxShadow(
                                   color: isDark
-                                      ? AppColors.cyanElectric.withValues(alpha: 0.4)
-                                      : const Color(0xFF2563EB).withValues(alpha: 0.22),
+                                      ? AppColors.cyanElectric.withValues(
+                                          alpha: 0.4,
+                                        )
+                                      : const Color(
+                                          0xFF2563EB,
+                                        ).withValues(alpha: 0.22),
                                   blurRadius: 28,
                                   spreadRadius: 2,
                                 ),
@@ -265,7 +271,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               onTap: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(context.tr('avatar_coming_soon')),
+                                    content: Text(
+                                      context.tr('avatar_coming_soon'),
+                                    ),
                                   ),
                                 );
                               },
@@ -281,7 +289,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                                      color: const Color(
+                                        0xFF2563EB,
+                                      ).withValues(alpha: 0.3),
                                       blurRadius: 8,
                                     ),
                                   ],
@@ -289,7 +299,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: Icon(
                                   Icons.camera_alt_rounded,
                                   size: 17,
-                                  color: isDark ? const Color(0xFF060B24) : Colors.white,
+                                  color: isDark
+                                      ? const Color(0xFF060B24)
+                                      : Colors.white,
                                 ),
                               ),
                             ),
@@ -309,12 +321,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     Container(
                       padding: const EdgeInsets.all(18),
-                      decoration: _buildCardDecoration(cardBg, borderColor, isDark),
+                      decoration: _buildCardDecoration(
+                        cardBg,
+                        borderColor,
+                        isDark,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Full Name Field
-                          _buildFieldLabel(context.tr('full_name'), primaryTextColor),
+                          _buildFieldLabel(
+                            context.tr('full_name'),
+                            primaryTextColor,
+                          ),
                           const SizedBox(height: 8),
                           _buildTextInput(
                             controller: _nameController,
@@ -336,7 +355,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SizedBox(height: 16),
 
                           // Job Title / Profession Field
-                          _buildFieldLabel(context.tr('job_title'), primaryTextColor),
+                          _buildFieldLabel(
+                            context.tr('job_title'),
+                            primaryTextColor,
+                          ),
                           const SizedBox(height: 8),
                           _buildTextInput(
                             controller: _jobTitleController,
@@ -381,12 +403,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     Container(
                       padding: const EdgeInsets.all(18),
-                      decoration: _buildCardDecoration(cardBg, borderColor, isDark),
+                      decoration: _buildCardDecoration(
+                        cardBg,
+                        borderColor,
+                        isDark,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Email Field (Read-Only)
-                          _buildFieldLabel(context.tr('email'), primaryTextColor),
+                          _buildFieldLabel(
+                            context.tr('email'),
+                            primaryTextColor,
+                          ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _emailController,
@@ -416,18 +445,27 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
-                                borderSide: BorderSide(color: borderColor, width: 1.2),
+                                borderSide: BorderSide(
+                                  color: borderColor,
+                                  width: 1.2,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
-                                borderSide: BorderSide(color: borderColor, width: 1.2),
+                                borderSide: BorderSide(
+                                  color: borderColor,
+                                  width: 1.2,
+                                ),
                               ),
                             ),
                           ),
                           const SizedBox(height: 16),
 
                           // Phone Number Field
-                          _buildFieldLabel(context.tr('phone_number'), primaryTextColor),
+                          _buildFieldLabel(
+                            context.tr('phone_number'),
+                            primaryTextColor,
+                          ),
                           const SizedBox(height: 8),
                           _buildTextInput(
                             controller: _phoneController,
@@ -509,7 +547,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           BoxShadow(
                             color: isDark
                                 ? AppColors.cyanElectric.withValues(alpha: 0.35)
-                                : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                                : const Color(
+                                    0xFF2563EB,
+                                  ).withValues(alpha: 0.35),
                             blurRadius: 18,
                             offset: const Offset(0, 6),
                           ),
@@ -520,8 +560,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          foregroundColor:
-                              isDark ? const Color(0xFF060B24) : Colors.white,
+                          foregroundColor: isDark
+                              ? const Color(0xFF060B24)
+                              : Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -542,7 +583,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,
-                                  color: isDark ? const Color(0xFF060B24) : Colors.white,
+                                  color: isDark
+                                      ? const Color(0xFF060B24)
+                                      : Colors.white,
                                   letterSpacing: 0.2,
                                 ),
                               ),
@@ -587,7 +630,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  BoxDecoration _buildCardDecoration(Color cardBg, Color borderColor, bool isDark) {
+  BoxDecoration _buildCardDecoration(
+    Color cardBg,
+    Color borderColor,
+    bool isDark,
+  ) {
     return BoxDecoration(
       color: cardBg,
       borderRadius: BorderRadius.circular(20),
@@ -618,11 +665,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildFieldLabel(String text, Color color) {
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
-        color: color,
-      ),
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color),
     );
   }
 
@@ -653,11 +696,7 @@ class _ProfilePageState extends State<ProfilePage> {
           fontSize: 14,
           fontWeight: FontWeight.normal,
         ),
-        prefixIcon: Icon(
-          icon,
-          color: brandPrimary,
-          size: 20,
-        ),
+        prefixIcon: Icon(icon, color: brandPrimary, size: 20),
         filled: true,
         fillColor: isDark ? cardBg : const Color(0xFFFAFCFF),
         contentPadding: const EdgeInsets.symmetric(
@@ -699,9 +738,7 @@ class _ProfilePageState extends State<ProfilePage> {
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),

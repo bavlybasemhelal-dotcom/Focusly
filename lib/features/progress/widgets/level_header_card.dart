@@ -16,7 +16,9 @@ class LevelHeaderCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isMax = levelInfo.level >= 20;
     final primaryTextColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final secondaryTextColor = isDark ? Colors.white70 : const Color(0xFF64748B);
+    final secondaryTextColor = isDark
+        ? Colors.white70
+        : const Color(0xFF64748B);
     final brandPrimary = AppColors.brandPrimary(context);
 
     return Container(
@@ -64,9 +66,7 @@ class LevelHeaderCard extends StatelessWidget {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF0B1238)
-                          : Colors.white,
+                      color: isDark ? const Color(0xFF0B1238) : Colors.white,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: const Color(0xFF38BDF8).withValues(alpha: 0.4),
@@ -139,14 +139,15 @@ class LevelHeaderCard extends StatelessWidget {
               InkWell(
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const XpHistoryPage(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const XpHistoryPage()),
                   );
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: brandPrimary.withValues(alpha: isDark ? 0.2 : 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -158,7 +159,11 @@ class LevelHeaderCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.history_rounded, size: 14, color: brandPrimary),
+                      Icon(
+                        Icons.history_rounded,
+                        size: 14,
+                        color: brandPrimary,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         context.tr('xp_breakdown_button'),

@@ -1,8 +1,9 @@
+import '../../platform/desktop_bridge.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'platform_notification_sender.dart';
 import 'web_notification_interop.dart'
-    if (dart.library.html) 'web_notification_interop_html.dart';
+    if (dart.library.js_interop) 'web_notification_interop_html.dart';
 
 /// Web implementation of [PlatformNotificationSender] using the browser's native HTML5 Notification API.
 ///
@@ -26,15 +27,16 @@ class WebNotificationSender implements PlatformNotificationSender {
   WebNotificationSender._internal();
 
   final Map<int, Timer> _activeTimers = {};
-  bool _initialized = false;
 
   @override
-  Future<void> initialize() async {
-    _initialized = true;
-  }
+  Future<void> initialize() async {}
 
   @override
   Future<bool> requestPermissions() async {
+    if (DesktopBridge.available) {
+      final status = await DesktopBridge.request('notificationStatus');
+      return status['setting'] == 'Enabled';
+    }
     return await WebNotificationInterop.requestPermission();
   }
 
@@ -48,17 +50,31 @@ class WebNotificationSender implements PlatformNotificationSender {
     String? channelId,
     String? channelName,
   }) async {
+    if (DesktopBridge.available) {
+      await DesktopBridge.request('schedule', {
+        'id': id,
+        'title': title,
+        'body': body,
+        'date': scheduledDate.toIso8601String(),
+        'payload': payload,
+      });
+      return;
+    }
     await cancelNotification(id);
 
     final now = DateTime.now();
     final duration = scheduledDate.difference(now);
 
     if (duration.isNegative) {
-      debugPrint('Warning: Web notification #$id scheduled date in the past ($scheduledDate). Skipping.');
+      debugPrint(
+        'Warning: Web notification #$id scheduled date in the past ($scheduledDate). Skipping.',
+      );
       return;
     }
 
-    debugPrint('Web notification #$id scheduled in ${duration.inSeconds}s (at $scheduledDate)');
+    debugPrint(
+      'Web notification #$id scheduled in ${duration.inSeconds}s (at $scheduledDate)',
+    );
 
     _activeTimers[id] = Timer(duration, () async {
       await showInstantNotification(
@@ -80,6 +96,15 @@ class WebNotificationSender implements PlatformNotificationSender {
     String? channelId,
     String? channelName,
   }) async {
+    if (DesktopBridge.available) {
+      await DesktopBridge.request('instant', {
+        'id': id,
+        'title': title,
+        'body': body,
+        'payload': payload,
+      });
+      return;
+    }
     WebNotificationInterop.showNotification(
       title: title,
       body: body,
@@ -89,12 +114,20 @@ class WebNotificationSender implements PlatformNotificationSender {
 
   @override
   Future<void> cancelNotification(int id) async {
+    if (DesktopBridge.available) {
+      await DesktopBridge.request('cancel', {'id': id});
+      return;
+    }
     _activeTimers[id]?.cancel();
     _activeTimers.remove(id);
   }
 
   @override
   Future<void> cancelAllNotifications() async {
+    if (DesktopBridge.available) {
+      await DesktopBridge.request('cancelAll');
+      return;
+    }
     for (final timer in _activeTimers.values) {
       timer.cancel();
     }

@@ -20,7 +20,8 @@ class TimeDistributionChart extends ConsumerWidget {
 
     final stats = ref.watch(combinedTimeAuditStatsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
-    final allCategories = categoriesAsync.value ?? TaskCategory.defaultCategories;
+    final allCategories =
+        categoriesAsync.value ?? TaskCategory.defaultCategories;
 
     final categoriesMap = {for (var c in allCategories) c.id: c};
 
@@ -55,7 +56,10 @@ class TimeDistributionChart extends ConsumerWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
@@ -122,7 +126,8 @@ class TimeDistributionChart extends ConsumerWidget {
             ...stats.sortedCategories.map((catId) {
               final hours = stats.categoryHours[catId] ?? 0.0;
               final percentage = stats.getPercentage(catId);
-              final category = categoriesMap[catId] ??
+              final category =
+                  categoriesMap[catId] ??
                   TaskCategory(
                     id: catId,
                     nameKey: catId,

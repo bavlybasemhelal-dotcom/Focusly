@@ -40,7 +40,9 @@ class WorkoutModel {
   factory WorkoutModel.fromMap(Map<String, dynamic> map, String docId) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 

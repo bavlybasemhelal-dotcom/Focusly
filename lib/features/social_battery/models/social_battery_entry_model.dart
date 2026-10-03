@@ -43,10 +43,15 @@ class SocialBatteryEntryModel {
     };
   }
 
-  factory SocialBatteryEntryModel.fromMap(Map<String, dynamic> map, String docId) {
+  factory SocialBatteryEntryModel.fromMap(
+    Map<String, dynamic> map,
+    String docId,
+  ) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 
@@ -55,7 +60,8 @@ class SocialBatteryEntryModel {
     final parsedCreatedAt = parseDate(map['createdAt'], now);
     final parsedUpdatedAt = parseDate(map['updatedAt'], parsedCreatedAt);
 
-    final rawType = (map['type'] as String?)?.toLowerCase().trim() ?? 'energizer';
+    final rawType =
+        (map['type'] as String?)?.toLowerCase().trim() ?? 'energizer';
     final type = (rawType == 'drainer') ? 'drainer' : 'energizer';
 
     final rawImpact = (map['impact'] as num?)?.toInt() ?? 3;

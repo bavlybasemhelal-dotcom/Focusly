@@ -19,8 +19,10 @@ final goalsStreamProvider = StreamProvider<List<GoalModel>>((ref) {
 });
 
 /// Provider for a specific timeframe column ('1month' | '3months' | '1year' | '5years').
-final goalsByTimeframeProvider =
-    Provider.family<List<GoalModel>, String>((ref, timeframe) {
+final goalsByTimeframeProvider = Provider.family<List<GoalModel>, String>((
+  ref,
+  timeframe,
+) {
   final goalsAsync = ref.watch(goalsStreamProvider);
   final showCompleted = ref.watch(showCompletedGoalsProvider);
   final goals = goalsAsync.value ?? [];
@@ -48,7 +50,8 @@ class ShowCompletedGoalsNotifier extends Notifier<bool> {
 
 final showCompletedGoalsProvider =
     NotifierProvider<ShowCompletedGoalsNotifier, bool>(
-        ShowCompletedGoalsNotifier.new);
+      ShowCompletedGoalsNotifier.new,
+    );
 
 /// Notifier for the currently active timeframe tab on mobile board view.
 class SelectedTimeframeTabNotifier extends Notifier<String> {
@@ -62,4 +65,5 @@ class SelectedTimeframeTabNotifier extends Notifier<String> {
 
 final selectedTimeframeTabProvider =
     NotifierProvider<SelectedTimeframeTabNotifier, String>(
-        SelectedTimeframeTabNotifier.new);
+      SelectedTimeframeTabNotifier.new,
+    );

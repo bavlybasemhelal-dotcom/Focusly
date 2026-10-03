@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../core/auth/google_auth_service.dart';
+import '../core/auth/auth_gate.dart';
+import '../core/auth/session_preferences.dart';
+import '../core/auth/user_profile_service.dart';
 import '../core/localization/app_localizations.dart';
 import '../core/theme/app_colors.dart';
-import 'home_screen.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -53,10 +55,14 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await SessionPreferences.setRemember(_rememberMe);
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        password: _passwordController.text,
       );
+      final user = credential.user;
+      if (user == null) throw StateError('Sign-in returned no user');
+      await UserProfileService().ensureUserProfileDocument(user: user);
 
       if (!mounted) return;
 
@@ -64,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              const HomeScreen(),
+              const AuthGate(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: CurvedAnimation(
@@ -105,6 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      await SessionPreferences.setRemember(_rememberMe);
       final googleAuthService = GoogleAuthService();
       final result = await googleAuthService.signInWithGoogle();
 
@@ -147,17 +154,17 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                const HomeScreen(),
+                const AuthGate(),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeInOut,
-                ),
-                child: child,
-              );
-            },
+                  return FadeTransition(
+                    opacity: CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOut,
+                    ),
+                    child: child,
+                  );
+                },
             transitionDuration: const Duration(milliseconds: 500),
           ),
         );
@@ -242,8 +249,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: isDark
-                                  ? AppColors.cyanElectric.withValues(alpha: 0.4)
-                                  : const Color(0xFF2563EB).withValues(alpha: 0.22),
+                                  ? AppColors.cyanElectric.withValues(
+                                      alpha: 0.4,
+                                    )
+                                  : const Color(
+                                      0xFF2563EB,
+                                    ).withValues(alpha: 0.22),
                               blurRadius: 32,
                               spreadRadius: 4,
                             ),
@@ -315,8 +326,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.trim().isEmpty) {
                             return context.tr('email_required');
                           }
-                          final emailRegex =
-                              RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                          final emailRegex = RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          );
                           if (!emailRegex.hasMatch(value.trim())) {
                             return context.tr('email_invalid');
                           }
@@ -375,7 +387,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   side: BorderSide(
-                                    color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                                    color: isDark
+                                        ? Colors.white24
+                                        : const Color(0xFFCBD5E1),
                                     width: 1.5,
                                   ),
                                 ),
@@ -472,8 +486,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               : [
                                   BoxShadow(
                                     color: isDark
-                                        ? AppColors.cyanElectric.withValues(alpha: 0.35)
-                                        : const Color(0xFF2563EB).withValues(alpha: 0.35),
+                                        ? AppColors.cyanElectric.withValues(
+                                            alpha: 0.35,
+                                          )
+                                        : const Color(
+                                            0xFF2563EB,
+                                          ).withValues(alpha: 0.35),
                                     blurRadius: 18,
                                     offset: const Offset(0, 6),
                                   ),
@@ -486,8 +504,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
-                            foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
-                            disabledForegroundColor: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                            foregroundColor: isDark
+                                ? const Color(0xFF060B24)
+                                : Colors.white,
+                            disabledForegroundColor: isDark
+                                ? Colors.white38
+                                : const Color(0xFF94A3B8),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -497,7 +519,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   width: 22,
                                   height: 22,
                                   child: CircularProgressIndicator(
-                                    color: isDark ? const Color(0xFF060B24) : Colors.white,
+                                    color: isDark
+                                        ? const Color(0xFF060B24)
+                                        : Colors.white,
                                     strokeWidth: 2.5,
                                   ),
                                 )
@@ -507,8 +531,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900,
                                     color: (_isLoading || _isGoogleLoading)
-                                        ? (isDark ? Colors.white38 : const Color(0xFF94A3B8))
-                                        : (isDark ? const Color(0xFF060B24) : Colors.white),
+                                        ? (isDark
+                                              ? Colors.white38
+                                              : const Color(0xFF94A3B8))
+                                        : (isDark
+                                              ? const Color(0xFF060B24)
+                                              : Colors.white),
                                     letterSpacing: 0.3,
                                   ),
                                 ),
@@ -523,7 +551,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Divider(color: borderColor, height: 1),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14.0,
+                            ),
                             child: Text(
                               context.tr('or'),
                               style: TextStyle(
@@ -552,7 +582,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? null
                               : [
                                   BoxShadow(
-                                    color: const Color(0xFF2E6FF2).withValues(alpha: 0.05),
+                                    color: const Color(
+                                      0xFF2E6FF2,
+                                    ).withValues(alpha: 0.05),
                                     blurRadius: 10,
                                     offset: const Offset(0, 3),
                                   ),
@@ -675,9 +707,7 @@ class _LoginScreenState extends State<LoginScreen> {
             height: 360,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -689,9 +719,7 @@ class _LoginScreenState extends State<LoginScreen> {
             height: 340,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [greenGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [greenGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -746,7 +774,10 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: controller,
             obscureText: isPassword && isObscured,
             keyboardType: keyboardType,
-            style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: primaryTextColor,
+              fontWeight: FontWeight.w600,
+            ),
             validator: validator,
             decoration: InputDecoration(
               hintText: hint,
@@ -755,11 +786,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
               ),
-              prefixIcon: Icon(
-                icon,
-                color: brandPrimary,
-                size: 20,
-              ),
+              prefixIcon: Icon(icon, color: brandPrimary, size: 20),
               suffixIcon: isPassword
                   ? IconButton(
                       icon: Icon(
@@ -788,11 +815,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.errorRed, width: 1.2),
+                borderSide: const BorderSide(
+                  color: AppColors.errorRed,
+                  width: 1.2,
+                ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.errorRed, width: 1.8),
+                borderSide: const BorderSide(
+                  color: AppColors.errorRed,
+                  width: 1.8,
+                ),
               ),
             ),
           ),

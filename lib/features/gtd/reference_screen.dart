@@ -42,9 +42,14 @@ class ReferenceScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(Icons.arrow_back_rounded, color: primaryTextColor),
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          color: primaryTextColor,
+                        ),
                         style: IconButton.styleFrom(
-                          backgroundColor: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                          backgroundColor: isDark
+                              ? Colors.white10
+                              : const Color(0xFFF1F5F9),
                           padding: const EdgeInsets.all(8),
                         ),
                       ),
@@ -80,7 +85,9 @@ class ReferenceScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF38BDF8).withValues(alpha: 0.35),
+                              color: const Color(
+                                0xFF38BDF8,
+                              ).withValues(alpha: 0.35),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -88,7 +95,11 @@ class ReferenceScreen extends ConsumerWidget {
                         ),
                         child: IconButton(
                           onPressed: () => AddReferenceSheet.show(context),
-                          icon: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                          icon: const Icon(
+                            Icons.add_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                           tooltip: context.tr('add_reference_title'),
                         ),
                       ),
@@ -101,7 +112,8 @@ class ReferenceScreen extends ConsumerWidget {
                 // -------------------------------------------------------------
                 Expanded(
                   child: referenceTasksAsync.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, _) => Center(
                       child: Text(
                         context.tr('tasks_load_error'),
@@ -110,17 +122,29 @@ class ReferenceScreen extends ConsumerWidget {
                     ),
                     data: (tasks) {
                       if (tasks.isEmpty) {
-                        return _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor);
+                        return _buildEmptyState(
+                          context,
+                          isDark,
+                          primaryTextColor,
+                          secondaryTextColor,
+                        );
                       }
 
                       return ListView.separated(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.fromLTRB(20, 8, 20, 90),
                         itemCount: tasks.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 10),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 10),
                         itemBuilder: (context, index) {
                           final task = tasks[index];
-                          return _buildReferenceCard(context, task, isDark, primaryTextColor, secondaryTextColor);
+                          return _buildReferenceCard(
+                            context,
+                            task,
+                            isDark,
+                            primaryTextColor,
+                            secondaryTextColor,
+                          );
                         },
                       );
                     },
@@ -151,7 +175,9 @@ class ReferenceScreen extends ConsumerWidget {
         border: Border.all(color: borderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : const Color(0xFF38BDF8).withValues(alpha: 0.04),
+            color: isDark
+                ? Colors.black26
+                : const Color(0xFF38BDF8).withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -171,7 +197,11 @@ class ReferenceScreen extends ConsumerWidget {
                   color: const Color(0xFF38BDF8).withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.bookmark_outline_rounded, color: Color(0xFF38BDF8), size: 16),
+                child: const Icon(
+                  Icons.bookmark_outline_rounded,
+                  color: Color(0xFF38BDF8),
+                  size: 16,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -203,7 +233,11 @@ class ReferenceScreen extends ConsumerWidget {
               ),
               IconButton(
                 onPressed: () => GTDService().deleteTask(task.id),
-                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  size: 18,
+                  color: Color(0xFFEF4444),
+                ),
                 tooltip: context.tr('delete'),
               ),
             ],
@@ -249,7 +283,11 @@ class ReferenceScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 color: const Color(0xFF38BDF8).withValues(alpha: 0.12),
               ),
-              child: const Icon(Icons.folder_open_rounded, size: 48, color: Color(0xFF38BDF8)),
+              child: const Icon(
+                Icons.folder_open_rounded,
+                size: 48,
+                color: Color(0xFF38BDF8),
+              ),
             ),
             const SizedBox(height: 18),
             Text(
@@ -280,8 +318,13 @@ class ReferenceScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF38BDF8),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
             ),
           ],

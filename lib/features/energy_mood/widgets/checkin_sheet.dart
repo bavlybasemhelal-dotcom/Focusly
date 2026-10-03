@@ -13,10 +13,7 @@ import 'water_sleep_widgets.dart';
 class CheckinSheet extends ConsumerStatefulWidget {
   final String? initialDateStr;
 
-  const CheckinSheet({
-    super.key,
-    this.initialDateStr,
-  });
+  const CheckinSheet({super.key, this.initialDateStr});
 
   static Future<void> show(BuildContext context, {String? dateStr}) {
     HapticFeedback.lightImpact();
@@ -79,7 +76,8 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
   void initState() {
     super.initState();
     if (widget.initialDateStr != null) {
-      _selectedDate = DateTime.tryParse(widget.initialDateStr!) ?? DateTime.now();
+      _selectedDate =
+          DateTime.tryParse(widget.initialDateStr!) ?? DateTime.now();
     } else {
       _selectedDate = DateTime.now();
     }
@@ -100,7 +98,9 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
       final uid = ref.read(currentUserIdProvider);
       if (uid == null) return;
 
-      final existing = await ref.read(energyMoodServiceProvider).getCheckin(uid, _dateString);
+      final existing = await ref
+          .read(energyMoodServiceProvider)
+          .getCheckin(uid, _dateString);
       if (existing != null && mounted) {
         setState(() {
           _selectedEnergy = existing.energy;
@@ -143,7 +143,9 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
 
     final noteText = _noteController.text.trim();
 
-    final success = await ref.read(energyMoodServiceProvider).saveCheckin(
+    final success = await ref
+        .read(energyMoodServiceProvider)
+        .saveCheckin(
           uid: uid,
           date: _dateString,
           energy: _selectedEnergy!,
@@ -165,14 +167,20 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Expanded(child: Text(context.tr('checkin_saved_toast'))),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       } else {
@@ -274,7 +282,8 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                         context: context,
                         initialDate: _selectedDate,
                         firstDate: DateTime(2024),
-                        lastDate: DateTime.now(), // Can't check in for future dates
+                        lastDate:
+                            DateTime.now(), // Can't check in for future dates
                       );
                       if (picked != null) {
                         _onDateChanged(picked);
@@ -282,16 +291,25 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF1F5F9),
+                        color: isDark
+                            ? const Color(0xFF0F1B4C)
+                            : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: borderColor),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.calendar_today_rounded, size: 14, color: const Color(0xFF2E6FF2)),
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 14,
+                            color: const Color(0xFF2E6FF2),
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             dateDisplay,
@@ -344,19 +362,27 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFF2E6FF2).withValues(alpha: 0.15)
-                                : (isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC)),
+                                ? const Color(
+                                    0xFF2E6FF2,
+                                  ).withValues(alpha: 0.15)
+                                : (isDark
+                                      ? const Color(0xFF08123A)
+                                      : const Color(0xFFF8FAFC)),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
                                   ? const Color(0xFF2E6FF2)
-                                  : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+                                  : (isDark
+                                        ? Colors.white12
+                                        : const Color(0xFFE2E8F0)),
                               width: isSelected ? 2.0 : 1.0,
                             ),
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
-                                      color: const Color(0xFF2E6FF2).withValues(alpha: 0.2),
+                                      color: const Color(
+                                        0xFF2E6FF2,
+                                      ).withValues(alpha: 0.2),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -367,7 +393,9 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                             children: [
                               Icon(
                                 icon,
-                                color: isSelected ? const Color(0xFF2E6FF2) : color,
+                                color: isSelected
+                                    ? const Color(0xFF2E6FF2)
+                                    : color,
                                 size: 22,
                               ),
                               const SizedBox(height: 4),
@@ -376,7 +404,9 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w900,
-                                  color: isSelected ? const Color(0xFF2E6FF2) : primaryTextColor,
+                                  color: isSelected
+                                      ? const Color(0xFF2E6FF2)
+                                      : primaryTextColor,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -384,8 +414,12 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                                 context.tr(labelKey),
                                 style: TextStyle(
                                   fontSize: 10,
-                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                  color: isSelected ? const Color(0xFF2E6FF2) : secondaryTextColor,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? const Color(0xFF2E6FF2)
+                                      : secondaryTextColor,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -425,32 +459,38 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                     borderRadius: BorderRadius.circular(16),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? const Color(0xFF2E6FF2).withValues(alpha: 0.15)
-                            : (isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC)),
+                            : (isDark
+                                  ? const Color(0xFF08123A)
+                                  : const Color(0xFFF8FAFC)),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected
                               ? const Color(0xFF2E6FF2)
-                              : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+                              : (isDark
+                                    ? Colors.white12
+                                    : const Color(0xFFE2E8F0)),
                           width: isSelected ? 2.0 : 1.0,
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFF2E6FF2).withValues(alpha: 0.2),
+                                  color: const Color(
+                                    0xFF2E6FF2,
+                                  ).withValues(alpha: 0.2),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
                               ]
                             : null,
                       ),
-                      child: Text(
-                        emoji,
-                        style: const TextStyle(fontSize: 26),
-                      ),
+                      child: Text(emoji, style: const TextStyle(fontSize: 26)),
                     ),
                   );
                 }).toList(),
@@ -470,10 +510,15 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
               TextFormField(
                 controller: _noteController,
                 maxLines: 2,
-                style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontWeight: FontWeight.w500,
+                ),
                 decoration: InputDecoration(
                   hintText: context.tr('checkin_note_hint'),
-                  hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: secondaryTextColor.withValues(alpha: 0.6),
+                  ),
                   filled: true,
                   fillColor: inputBg,
                   border: OutlineInputBorder(
@@ -486,7 +531,10 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF2E6FF2),
+                      width: 1.8,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.all(14),
                 ),
@@ -500,16 +548,16 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                 isCompact: true,
               ),
               const SizedBox(height: 12),
-              SleepTrackerWidget(
-                dateStr: _dateString,
-                checkin: liveCheckin,
-              ),
+              SleepTrackerWidget(dateStr: _dateString, checkin: liveCheckin),
               const SizedBox(height: 20),
 
               // Error Message Warning (if any)
               if (_errorMessage != null) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.errorRed.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
@@ -519,7 +567,11 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.warning_amber_rounded, color: AppColors.errorRed, size: 18),
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: AppColors.errorRed,
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -557,7 +609,9 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
-                    foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
+                    foregroundColor: isDark
+                        ? const Color(0xFF060B24)
+                        : Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -568,7 +622,9 @@ class _CheckinSheetState extends ConsumerState<CheckinSheet> {
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Row(

@@ -12,10 +12,7 @@ import 'entry_form_modal.dart';
 class KnowledgeEntryCard extends ConsumerWidget {
   final KnowledgeEntryModel entry;
 
-  const KnowledgeEntryCard({
-    super.key,
-    required this.entry,
-  });
+  const KnowledgeEntryCard({super.key, required this.entry});
 
   Color _getTypeColor(String type) {
     switch (type.toLowerCase()) {
@@ -77,7 +74,11 @@ class KnowledgeEntryCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -110,7 +111,9 @@ class KnowledgeEntryCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -131,7 +134,9 @@ class KnowledgeEntryCard extends ConsumerWidget {
               content: Text(context.tr('knowledge_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -192,7 +197,10 @@ class KnowledgeEntryCard extends ConsumerWidget {
                     children: [
                       // Type Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: typeColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
@@ -246,7 +254,10 @@ class KnowledgeEntryCard extends ConsumerWidget {
 
                       // Delete Action
                       IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                        ),
                         color: const Color(0xFFEF4444),
                         tooltip: context.tr('delete'),
                         constraints: const BoxConstraints(),
@@ -303,12 +314,17 @@ class KnowledgeEntryCard extends ConsumerWidget {
                       runSpacing: 6,
                       children: entry.tags.map((tag) {
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: tagBg,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+                              color: isDark
+                                  ? Colors.white10
+                                  : const Color(0xFFE2E8F0),
                             ),
                           ),
                           child: Text(

@@ -30,27 +30,47 @@ class AreasPage extends ConsumerWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: dialogBg,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
           title: Row(
             children: [
-              const Icon(Icons.warning_amber_rounded, color: Color(0xFFF59E0B), size: 28),
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: Color(0xFFF59E0B),
+                size: 28,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   context.tr('cannot_delete_area_title'),
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: primaryTextColor),
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: primaryTextColor,
+                  ),
                 ),
               ),
             ],
           ),
           content: Text(
-            context.tr('area_has_active_projects_msg', args: {'count': activeProjectsCount.toString()}),
-            style: TextStyle(fontSize: 14, color: secondaryTextColor, height: 1.4),
+            context.tr(
+              'area_has_active_projects_msg',
+              args: {'count': activeProjectsCount.toString()},
+            ),
+            style: TextStyle(
+              fontSize: 14,
+              color: secondaryTextColor,
+              height: 1.4,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(context.tr('close'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              child: Text(
+                context.tr('close'),
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
           ],
         ),
@@ -66,7 +86,10 @@ class AreasPage extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Text(
           context.tr('delete_area_confirm_title'),
-          style: TextStyle(fontWeight: FontWeight.w900, color: primaryTextColor),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: primaryTextColor,
+          ),
         ),
         content: Text(
           context.tr('delete_area_confirm_msg', args: {'title': area.title}),
@@ -82,7 +105,9 @@ class AreasPage extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.errorRed,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(context.tr('delete_group_btn')),
           ),
@@ -95,10 +120,14 @@ class AreasPage extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(success
-                ? context.tr('area_deleted_toast')
-                : context.tr('cannot_delete_area_title')),
-            backgroundColor: success ? const Color(0xFF10B981) : AppColors.errorRed,
+            content: Text(
+              success
+                  ? context.tr('area_deleted_toast')
+                  : context.tr('cannot_delete_area_title'),
+            ),
+            backgroundColor: success
+                ? const Color(0xFF10B981)
+                : AppColors.errorRed,
           ),
         );
       }
@@ -111,7 +140,9 @@ class AreasPage extends ConsumerWidget {
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
     final brandPrimary = AppColors.brandPrimary(context);
-    final scaffoldBg = isDark ? const Color(0xFF070D28) : const Color(0xFFF8FAFC);
+    final scaffoldBg = isDark
+        ? const Color(0xFF070D28)
+        : const Color(0xFFF8FAFC);
 
     final areasAsync = ref.watch(paraAreasStreamProvider);
 
@@ -141,8 +172,13 @@ class AreasPage extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: brandPrimary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -153,7 +189,12 @@ class AreasPage extends ConsumerWidget {
       body: areasAsync.when(
         data: (areas) {
           if (areas.isEmpty) {
-            return _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor);
+            return _buildEmptyState(
+              context,
+              isDark,
+              primaryTextColor,
+              secondaryTextColor,
+            );
           }
 
           return ListView(
@@ -185,7 +226,11 @@ class AreasPage extends ConsumerWidget {
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.domain_rounded, color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.domain_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -221,8 +266,9 @@ class AreasPage extends ConsumerWidget {
                 itemCount: areas.length,
                 itemBuilder: (context, index) {
                   final area = areas[index];
-                  final activeProjectsCount =
-                      ref.watch(areaActiveProjectsCountProvider(area.id));
+                  final activeProjectsCount = ref.watch(
+                    areaActiveProjectsCountProvider(area.id),
+                  );
 
                   return _buildAreaCard(
                     context,
@@ -313,14 +359,25 @@ class AreasPage extends ConsumerWidget {
                     ),
                   ),
                   PopupMenuButton<String>(
-                    icon: Icon(Icons.more_vert_rounded, color: secondaryTextColor, size: 20),
+                    icon: Icon(
+                      Icons.more_vert_rounded,
+                      color: secondaryTextColor,
+                      size: 20,
+                    ),
                     color: cardBg,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     onSelected: (val) {
                       if (val == 'edit') {
                         AddEditAreaSheet.show(context, area: area);
                       } else if (val == 'delete') {
-                        _handleDeleteArea(context, ref, area, activeProjectsCount);
+                        _handleDeleteArea(
+                          context,
+                          ref,
+                          area,
+                          activeProjectsCount,
+                        );
                       }
                     },
                     itemBuilder: (ctx) => [
@@ -328,7 +385,11 @@ class AreasPage extends ConsumerWidget {
                         value: 'edit',
                         child: Row(
                           children: [
-                            const Icon(Icons.edit_outlined, size: 18, color: Color(0xFF2E6FF2)),
+                            const Icon(
+                              Icons.edit_outlined,
+                              size: 18,
+                              color: Color(0xFF2E6FF2),
+                            ),
                             const SizedBox(width: 8),
                             Text(context.tr('edit_waiting_title')),
                           ],
@@ -338,9 +399,16 @@ class AreasPage extends ConsumerWidget {
                         value: 'delete',
                         child: Row(
                           children: [
-                            const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.errorRed),
+                            const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 18,
+                              color: AppColors.errorRed,
+                            ),
                             const SizedBox(width: 8),
-                            Text(context.tr('delete_group_btn'), style: const TextStyle(color: AppColors.errorRed)),
+                            Text(
+                              context.tr('delete_group_btn'),
+                              style: const TextStyle(color: AppColors.errorRed),
+                            ),
                           ],
                         ),
                       ),
@@ -363,7 +431,10 @@ class AreasPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: activeProjectsCount > 0
                           ? const Color(0xFF2E6FF2).withValues(alpha: 0.12)
@@ -371,7 +442,10 @@ class AreasPage extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      context.tr('active_projects_count', args: {'count': activeProjectsCount.toString()}),
+                      context.tr(
+                        'active_projects_count',
+                        args: {'count': activeProjectsCount.toString()},
+                      ),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -447,8 +521,13 @@ class AreasPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ],

@@ -28,8 +28,13 @@ bool isDateInPeriod(DateTime date, String period, [DateTime? now]) {
     // Current week starting Monday
     final currentDayStart = DateTime(current.year, current.month, current.day);
     final weekday = currentDayStart.weekday; // 1 = Mon, 7 = Sun
-    final mondayStart = currentDayStart.subtract(Duration(days: weekday - 1));
-    return !dateStart.isBefore(mondayStart) && !dateStart.isAfter(currentDayStart.add(const Duration(days: 1)));
+    final mondayStart = DateTime(
+      current.year,
+      current.month,
+      current.day - (weekday - DateTime.saturday + 7) % 7,
+    );
+    return !dateStart.isBefore(mondayStart) &&
+        !dateStart.isAfter(currentDayStart);
   }
 
   if (period == 'month') {
@@ -57,17 +62,6 @@ Map<String, double> computeCombinedCategoryHours({
     }
   }
 
-  // 2. Sum task-derived estimates for completed tasks within period
-  for (final task in completedTasks) {
-    if (task.done) {
-      if (isDateInPeriod(task.date, period, now)) {
-        final cat = task.categoryId.toLowerCase().trim();
-        final hours = estimateTaskHours(task.priority);
-        categoryHours[cat] = (categoryHours[cat] ?? 0.0) + hours;
-      }
-    }
-  }
-
   // Round all totals to 1 decimal place
   final Map<String, double> rounded = {};
   categoryHours.forEach((cat, hours) {
@@ -84,7 +78,8 @@ Map<String, double> computeCombinedCategoryHours({
 /// Stored in Firestore under: `users/{userId}/timeAuditLogs/{logId}`
 class TimeAuditLogModel {
   final String id;
-  final String category; // Task category ID e.g. 'work', 'study', 'health', 'personal'
+  final String
+  category; // Task category ID e.g. 'work', 'study', 'health', 'personal'
   final double hours; // Number of hours logged (> 0)
   final String description; // Short description
   final DateTime date; // Date of the activity

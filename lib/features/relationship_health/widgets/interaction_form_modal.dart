@@ -37,7 +37,8 @@ class InteractionFormModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<InteractionFormModal> createState() => _InteractionFormModalState();
+  ConsumerState<InteractionFormModal> createState() =>
+      _InteractionFormModalState();
 }
 
 class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
@@ -137,7 +138,9 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
               content: Text(context.tr('interaction_created_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -162,7 +165,9 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
               content: Text(context.tr('interaction_updated_toast')),
               backgroundColor: const Color(0xFF2E6FF2),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -182,7 +187,11 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -212,7 +221,9 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -234,7 +245,9 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
               content: Text(context.tr('interaction_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -342,7 +355,10 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -402,7 +418,9 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
                       fontSize: 14,
                     ),
                   ),
-                  dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                  dropdownColor: isDark
+                      ? const Color(0xFF0F1B4C)
+                      : Colors.white,
                   items: contacts.map((c) {
                     return DropdownMenuItem<String>(
                       value: c.id,
@@ -448,7 +466,10 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
                         onTap: _pickDate,
                         borderRadius: BorderRadius.circular(14),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: inputBg,
                             borderRadius: BorderRadius.circular(14),
@@ -456,8 +477,11 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.calendar_today_rounded,
-                                  size: 16, color: Color(0xFF2E6FF2)),
+                              const Icon(
+                                Icons.calendar_today_rounded,
+                                size: 16,
+                                color: Color(0xFF2E6FF2),
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 dateStr,
@@ -502,7 +526,9 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
                   final isSelected = starVal <= _rating;
                   return IconButton(
                     icon: Icon(
-                      isSelected ? Icons.star_rounded : Icons.star_outline_rounded,
+                      isSelected
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
                       size: 28,
                       color: isSelected
                           ? const Color(0xFFF59E0B) // Amber
@@ -540,7 +566,10 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -551,7 +580,10 @@ class _InteractionFormModalState extends ConsumerState<InteractionFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),

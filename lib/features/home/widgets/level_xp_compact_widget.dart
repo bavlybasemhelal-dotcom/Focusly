@@ -12,10 +12,7 @@ import '../../progress/providers/progress_provider.dart';
 class LevelXpCompactWidget extends ConsumerWidget {
   final VoidCallback onTap;
 
-  const LevelXpCompactWidget({
-    super.key,
-    required this.onTap,
-  });
+  const LevelXpCompactWidget({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,7 +68,9 @@ class LevelXpCompactWidget extends ConsumerWidget {
                         ),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: isDark ? AppColors.cyanElectric.withValues(alpha: 0.3) : const Color(0xFF93C5FD),
+                    color: isDark
+                        ? AppColors.cyanElectric.withValues(alpha: 0.3)
+                        : const Color(0xFF93C5FD),
                     width: 1,
                   ),
                 ),
@@ -109,7 +108,10 @@ class LevelXpCompactWidget extends ConsumerWidget {
 
                         // Level Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
@@ -147,7 +149,10 @@ class LevelXpCompactWidget extends ConsumerWidget {
                               height: 6,
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Color(0xFF2E6FF2), Color(0xFF00E5FF)],
+                                  colors: [
+                                    Color(0xFF2E6FF2),
+                                    Color(0xFF00E5FF),
+                                  ],
                                 ),
                               ),
                             ),

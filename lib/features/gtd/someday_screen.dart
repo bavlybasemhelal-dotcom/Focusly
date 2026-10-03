@@ -16,7 +16,10 @@ import 'widgets/add_someday_sheet.dart';
 class SomedayScreen extends ConsumerWidget {
   const SomedayScreen({super.key});
 
-  Future<void> _handlePromoteToTask(BuildContext context, TaskModel task) async {
+  Future<void> _handlePromoteToTask(
+    BuildContext context,
+    TaskModel task,
+  ) async {
     HapticFeedback.mediumImpact();
 
     final date = await showDatePicker(
@@ -38,7 +41,11 @@ class SomedayScreen extends ConsumerWidget {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.rocket_launch_rounded, color: Colors.white, size: 20),
+                const Icon(
+                  Icons.rocket_launch_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(context.tr('someday_promoted_toast')),
               ],
@@ -79,9 +86,14 @@ class SomedayScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(Icons.arrow_back_rounded, color: primaryTextColor),
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          color: primaryTextColor,
+                        ),
                         style: IconButton.styleFrom(
-                          backgroundColor: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                          backgroundColor: isDark
+                              ? Colors.white10
+                              : const Color(0xFFF1F5F9),
                           padding: const EdgeInsets.all(8),
                         ),
                       ),
@@ -117,7 +129,9 @@ class SomedayScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
+                              color: const Color(
+                                0xFF8B5CF6,
+                              ).withValues(alpha: 0.35),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -125,7 +139,11 @@ class SomedayScreen extends ConsumerWidget {
                         ),
                         child: IconButton(
                           onPressed: () => AddSomedaySheet.show(context),
-                          icon: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                          icon: const Icon(
+                            Icons.add_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                           tooltip: context.tr('add_someday_title'),
                         ),
                       ),
@@ -144,21 +162,35 @@ class SomedayScreen extends ConsumerWidget {
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                          color: const Color(
+                            0xFF8B5CF6,
+                          ).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
+                            color: const Color(
+                              0xFF8B5CF6,
+                            ).withValues(alpha: 0.25),
                           ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.auto_awesome_rounded, color: Color(0xFF8B5CF6), size: 18),
+                            const Icon(
+                              Icons.auto_awesome_rounded,
+                              color: Color(0xFF8B5CF6),
+                              size: 18,
+                            ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                context.tr('someday_review_nudge', args: {'count': tasks.length.toString()}),
+                                context.tr(
+                                  'someday_review_nudge',
+                                  args: {'count': tasks.length.toString()},
+                                ),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -179,7 +211,8 @@ class SomedayScreen extends ConsumerWidget {
                 // -------------------------------------------------------------
                 Expanded(
                   child: somedayTasksAsync.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, _) => Center(
                       child: Text(
                         context.tr('tasks_load_error'),
@@ -188,17 +221,29 @@ class SomedayScreen extends ConsumerWidget {
                     ),
                     data: (tasks) {
                       if (tasks.isEmpty) {
-                        return _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor);
+                        return _buildEmptyState(
+                          context,
+                          isDark,
+                          primaryTextColor,
+                          secondaryTextColor,
+                        );
                       }
 
                       return ListView.separated(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.fromLTRB(20, 4, 20, 90),
                         itemCount: tasks.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 10),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 10),
                         itemBuilder: (context, index) {
                           final task = tasks[index];
-                          return _buildSomedayCard(context, task, isDark, primaryTextColor, secondaryTextColor);
+                          return _buildSomedayCard(
+                            context,
+                            task,
+                            isDark,
+                            primaryTextColor,
+                            secondaryTextColor,
+                          );
                         },
                       );
                     },
@@ -229,7 +274,9 @@ class SomedayScreen extends ConsumerWidget {
         border: Border.all(color: borderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : const Color(0xFF8B5CF6).withValues(alpha: 0.05),
+            color: isDark
+                ? Colors.black26
+                : const Color(0xFF8B5CF6).withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -249,7 +296,11 @@ class SomedayScreen extends ConsumerWidget {
                   color: const Color(0xFF8B5CF6).withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.nightlight_round, color: Color(0xFF8B5CF6), size: 16),
+                child: const Icon(
+                  Icons.nightlight_round,
+                  color: Color(0xFF8B5CF6),
+                  size: 16,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -281,8 +332,14 @@ class SomedayScreen extends ConsumerWidget {
                 ),
               ),
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert_rounded, size: 18, color: secondaryTextColor),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                icon: Icon(
+                  Icons.more_vert_rounded,
+                  size: 18,
+                  color: secondaryTextColor,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 onSelected: (value) async {
                   if (value == 'promote') {
                     await _handlePromoteToTask(context, task);
@@ -295,7 +352,11 @@ class SomedayScreen extends ConsumerWidget {
                     value: 'promote',
                     child: Row(
                       children: [
-                        const Icon(Icons.rocket_launch_rounded, size: 18, color: Color(0xFF2E6FF2)),
+                        const Icon(
+                          Icons.rocket_launch_rounded,
+                          size: 18,
+                          color: Color(0xFF2E6FF2),
+                        ),
                         const SizedBox(width: 8),
                         Text(ctx.tr('promote_to_task')),
                       ],
@@ -305,9 +366,16 @@ class SomedayScreen extends ConsumerWidget {
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                        const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                          color: Color(0xFFEF4444),
+                        ),
                         const SizedBox(width: 8),
-                        Text(ctx.tr('delete'), style: const TextStyle(color: Color(0xFFEF4444))),
+                        Text(
+                          ctx.tr('delete'),
+                          style: const TextStyle(color: Color(0xFFEF4444)),
+                        ),
                       ],
                     ),
                   ),
@@ -322,7 +390,10 @@ class SomedayScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
@@ -339,9 +410,14 @@ class SomedayScreen extends ConsumerWidget {
               GestureDetector(
                 onTap: () => _handlePromoteToTask(context, task),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                    color: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isDark ? Colors.white12 : const Color(0xFFE2E8F5),
@@ -350,7 +426,11 @@ class SomedayScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.rocket_launch_rounded, size: 13, color: Color(0xFF2E6FF2)),
+                      const Icon(
+                        Icons.rocket_launch_rounded,
+                        size: 13,
+                        color: Color(0xFF2E6FF2),
+                      ),
                       const SizedBox(width: 5),
                       Text(
                         context.tr('promote_to_task'),
@@ -389,7 +469,11 @@ class SomedayScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
               ),
-              child: const Icon(Icons.nightlight_outlined, size: 48, color: Color(0xFF8B5CF6)),
+              child: const Icon(
+                Icons.nightlight_outlined,
+                size: 48,
+                color: Color(0xFF8B5CF6),
+              ),
             ),
             const SizedBox(height: 18),
             Text(
@@ -420,8 +504,13 @@ class SomedayScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF8B5CF6),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
             ),
           ],

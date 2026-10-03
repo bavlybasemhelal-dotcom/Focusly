@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/data/completion_ledger.dart';
+import '../../../core/data/firestore_paging.dart';
 import '../../habits/models/habit_model.dart';
 import '../../habits/providers/habits_provider.dart';
 import '../../pomodoro/models/pomodoro_log_model.dart';
@@ -25,27 +27,16 @@ import '../../focus_mode/services/notification_queue.dart';
 /// Easily called by Tasks, Habits, Pomodoro, and Schedule features.
 class ProgressService {
   static final ProgressService _instance = ProgressService._internal();
-  factory ProgressService() => _instance;
-  ProgressService._internal();
-
-  DocumentReference<Map<String, dynamic>>? get _progressDoc {
-    String? uid;
-    try {
-      uid = FirebaseAuth.instance.currentUser?.uid;
-    } catch (_) {}
-
-    if (uid == null || uid.isEmpty) return null;
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('stats')
-        .doc('progress');
-  }
+  factory ProgressService({FirebaseFirestore? firestore}) =>
+      firestore == null ? _instance : ProgressService._internal(firestore);
+  ProgressService._internal([this._injectedFirestore]);
+  final FirebaseFirestore? _injectedFirestore;
+  FirebaseFirestore get _firestore =>
+      _injectedFirestore ?? FirebaseFirestore.instance;
 
   /// Awards XP to the current user, writes to the transparent xpLog history,
   /// and triggers achievement checks.
-  Future<void> awardXp(
+  Future<bool> awardXp(
     int amount, {
     String? source,
     String? sourceType,
@@ -53,6 +44,8 @@ class ProgressService {
     WidgetRef? ref,
     Ref? containerRef,
     String? uid,
+    String? eventId,
+    String? sourceId,
   }) async {
     String? effectiveUid = uid;
     if (effectiveUid == null || effectiveUid.isEmpty) {
@@ -61,9 +54,14 @@ class ProgressService {
       } catch (_) {}
     }
 
+    if (amount > 0 &&
+        (eventId == null || sourceId == null || sourceType == null)) {
+      throw ArgumentError('XP awards need a stable event, source and account');
+    }
+    bool awarded = false;
     if (amount > 0 && effectiveUid != null && effectiveUid.isNotEmpty) {
       try {
-        final progressDocRef = FirebaseFirestore.instance
+        final progressDocRef = _firestore
             .collection('users')
             .doc(effectiveUid)
             .collection('stats')
@@ -71,52 +69,23 @@ class ProgressService {
 
         // Check previous level for level-up celebration
         final prevSnap = await progressDocRef.get();
-        final prevXp = (prevSnap.data()?['xp'] as int?) ?? 0;
+        final prevXp = (prevSnap.data()?['xp'] as num?)?.toInt() ?? 0;
         final prevLevel = LevelLogic.calculate(prevXp).level;
         final newLevel = LevelLogic.calculate(prevXp + amount).level;
 
-        // 1. Increment User XP in stats/progress
-        await progressDocRef.set({
-          'xp': FieldValue.increment(amount),
-          'lastUpdated': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-
-        // 2. Write transparent XP audit log entry
-        final logDocRef = FirebaseFirestore.instance
-            .collection('users')
-            .doc(effectiveUid)
-            .collection('xpLog')
-            .doc();
-
         final label = source ?? 'Productivity action';
-        await logDocRef.set({
-          'amount': amount,
-          'source': label,
-          'sourceType': sourceType,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-
-        // 3. Group weeklyXP update & Challenge progress sync
-        final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(effectiveUid)
-            .get();
-        final groupIds = List<String>.from(userDoc.data()?['groupIds'] ?? []);
-        if (groupIds.isNotEmpty) {
-          final batch = FirebaseFirestore.instance.batch();
-          for (final gId in groupIds) {
-            final memberRef = FirebaseFirestore.instance
-                .collection('groups')
-                .doc(gId)
-                .collection('members')
-                .doc(effectiveUid);
-            batch.update(memberRef, {'weeklyXP': FieldValue.increment(amount)});
-          }
-          await batch.commit();
-        }
-
-        // NOTE: ChallengeService().triggerProgressSync() is no longer called here
-        // because XP-based group challenges have been removed.
+        final ledger = CompletionLedger(_firestore);
+        awarded = await ledger.award(
+          uid: effectiveUid,
+          eventId: eventId!,
+          sourceId: sourceId!,
+          sourceType: sourceType!,
+          amount: amount,
+          label: label,
+        );
+        // Retrying an already committed award also repairs unfinished group copies.
+        await ledger.syncGroups(uid: effectiveUid, eventId: eventId);
+        if (!awarded) return false;
 
         // 4. Level-up celebration with source attribution
         if (newLevel > prevLevel && context != null && context.mounted) {
@@ -165,16 +134,18 @@ class ProgressService {
         }
       } catch (e) {
         debugPrint('Error in awardXp Firestore write: $e');
+        return false;
       }
     }
 
     // Always run achievement check and unlock routine
     await checkAndUnlockAchievements(
-      context: context,
+      context: context != null && context.mounted ? context : null,
       widgetRef: ref,
       ref: containerRef,
       uid: effectiveUid,
     );
+    return awarded;
   }
 
   /// Evaluates all achievements against current user data and unlocks new badges in Firestore.
@@ -217,6 +188,17 @@ class ProgressService {
 
       // 1. Try reading live provider values if available
       if (ref != null) {
+        if ([
+          ref.read(tasksStreamProvider),
+          ref.read(habitsStreamProvider),
+          ref.read(pomodoroLogsStreamProvider),
+          ref.read(eventsStreamProvider),
+          ref.read(categoriesProvider),
+          ref.read(userXpStreamProvider),
+          ref.read(unlockedAchievementsStreamProvider),
+        ].any((value) => !value.hasValue || value.isLoading || value.hasError)) {
+          return [];
+        }
         tasks = ref.read(tasksStreamProvider).value ?? [];
         habits = ref.read(habitsStreamProvider).value ?? [];
         pomodoroLogs = ref.read(pomodoroLogsStreamProvider).value ?? [];
@@ -225,6 +207,17 @@ class ProgressService {
         totalXp = ref.read(userXpStreamProvider).value ?? 0;
         unlockedMap = ref.read(unlockedAchievementsStreamProvider).value ?? {};
       } else if (widgetRef != null) {
+        if ([
+          widgetRef.read(tasksStreamProvider),
+          widgetRef.read(habitsStreamProvider),
+          widgetRef.read(pomodoroLogsStreamProvider),
+          widgetRef.read(eventsStreamProvider),
+          widgetRef.read(categoriesProvider),
+          widgetRef.read(userXpStreamProvider),
+          widgetRef.read(unlockedAchievementsStreamProvider),
+        ].any((value) => !value.hasValue || value.isLoading || value.hasError)) {
+          return [];
+        }
         tasks = widgetRef.read(tasksStreamProvider).value ?? [];
         habits = widgetRef.read(habitsStreamProvider).value ?? [];
         pomodoroLogs = widgetRef.read(pomodoroLogsStreamProvider).value ?? [];
@@ -236,32 +229,32 @@ class ProgressService {
       }
 
       // 2. If provider data is empty or no ref provided, fetch from Firestore directly
-      if (tasks.isEmpty ||
-          habits.isEmpty ||
-          events.isEmpty ||
-          pomodoroLogs.isEmpty ||
-          totalXp == 0 ||
-          unlockedMap.isEmpty) {
-        final firestore = FirebaseFirestore.instance;
+      if (ref == null && widgetRef == null) {
+        final firestore = _firestore;
         final userDoc = firestore.collection('users').doc(effectiveUid);
 
         try {
           final results = await Future.wait([
             userDoc.collection('stats').doc('progress').get(),
-            userDoc.collection('tasks').get(),
-            userDoc.collection('habits').get(),
-            userDoc.collection('pomodoroLogs').get(),
-            userDoc.collection('events').get(),
-            userDoc.collection('categories').get(),
+            readFirestorePages(userDoc.collection('tasks')),
+            readFirestorePages(userDoc.collection('habits')),
+            readFirestorePages(userDoc.collection('pomodoroLogs')),
+            readFirestorePages(userDoc.collection('events')),
+            readFirestorePages(userDoc.collection('categories')),
           ]);
 
           final statsSnap =
               results[0] as DocumentSnapshot<Map<String, dynamic>>;
-          final tasksSnap = results[1] as QuerySnapshot<Map<String, dynamic>>;
-          final habitsSnap = results[2] as QuerySnapshot<Map<String, dynamic>>;
-          final pomosSnap = results[3] as QuerySnapshot<Map<String, dynamic>>;
-          final eventsSnap = results[4] as QuerySnapshot<Map<String, dynamic>>;
-          final catsSnap = results[5] as QuerySnapshot<Map<String, dynamic>>;
+          final tasksSnap =
+              results[1] as List<QueryDocumentSnapshot<Map<String, dynamic>>>;
+          final habitsSnap =
+              results[2] as List<QueryDocumentSnapshot<Map<String, dynamic>>>;
+          final pomosSnap =
+              results[3] as List<QueryDocumentSnapshot<Map<String, dynamic>>>;
+          final eventsSnap =
+              results[4] as List<QueryDocumentSnapshot<Map<String, dynamic>>>;
+          final catsSnap =
+              results[5] as List<QueryDocumentSnapshot<Map<String, dynamic>>>;
 
           if (statsSnap.exists && statsSnap.data() != null) {
             totalXp = statsSnap.data()?['xp'] as int? ?? totalXp;
@@ -295,32 +288,34 @@ class ProgressService {
             unlockedMap = {...unlockedMap, ...directUnlocked};
           }
 
-          if (tasksSnap.docs.isNotEmpty) {
-            tasks = tasksSnap.docs
+          if (tasksSnap.isNotEmpty) {
+            tasks = tasksSnap
                 .map((d) => TaskModel.fromMap(d.data(), d.id))
                 .toList();
           }
-          if (habitsSnap.docs.isNotEmpty) {
-            habits = habitsSnap.docs
+          if (habitsSnap.isNotEmpty) {
+            habits = habitsSnap
                 .map((d) => HabitModel.fromFirestore(d))
                 .toList();
           }
-          if (pomosSnap.docs.isNotEmpty) {
-            pomodoroLogs = pomosSnap.docs
+          if (pomosSnap.isNotEmpty) {
+            pomodoroLogs = pomosSnap
                 .map((d) => PomodoroLogModel.fromFirestore(d))
                 .toList();
           }
-          if (eventsSnap.docs.isNotEmpty) {
-            events = eventsSnap.docs
+          if (eventsSnap.isNotEmpty) {
+            events = eventsSnap
                 .map((d) => EventModel.fromMap(d.data(), d.id))
                 .toList();
           }
-          if (catsSnap.docs.isNotEmpty) {
-            categories = catsSnap.docs
+          if (catsSnap.isNotEmpty) {
+            categories = catsSnap
                 .map((d) => TaskCategory.fromMap(d.data(), d.id))
                 .toList();
           }
-        } catch (_) {}
+        } catch (_) {
+          return [];
+        }
       }
 
       final levelInfo = LevelLogic.calculate(totalXp);
@@ -347,7 +342,7 @@ class ProgressService {
       if (newlyUnlocked.isEmpty) return [];
 
       // Persist to Firestore: write nested map 'unlockedAchievements'
-      final doc = FirebaseFirestore.instance
+      final doc = _firestore
           .collection('users')
           .doc(effectiveUid)
           .collection('stats')

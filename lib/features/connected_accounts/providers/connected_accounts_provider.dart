@@ -30,14 +30,14 @@ class AccountLinkingLoadingNotifier extends Notifier<bool> {
 
 final isAccountLinkingLoadingProvider =
     NotifierProvider<AccountLinkingLoadingNotifier, bool>(
-  AccountLinkingLoadingNotifier.new,
-);
+      AccountLinkingLoadingNotifier.new,
+    );
 
 /// Controller managing connect and disconnect operations with friendly UI feedback.
 final connectedAccountsControllerProvider =
     Provider<ConnectedAccountsController>((ref) {
-  return ConnectedAccountsController(ref);
-});
+      return ConnectedAccountsController(ref);
+    });
 
 class ConnectedAccountsController {
   final Ref ref;
@@ -122,7 +122,11 @@ class ConnectedAccountsController {
     }
   }
 
-  void _showToast(BuildContext context, String message, {required bool isError}) {
+  void _showToast(
+    BuildContext context,
+    String message, {
+    required bool isError,
+  }) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -133,12 +137,11 @@ class ConnectedAccountsController {
             fontWeight: FontWeight.w700,
           ),
         ),
-        backgroundColor:
-            isError ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+        backgroundColor: isError
+            ? const Color(0xFFEF4444)
+            : const Color(0xFF10B981),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         duration: const Duration(seconds: 3),
       ),

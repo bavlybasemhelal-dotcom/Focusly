@@ -60,7 +60,10 @@ class BooksShelvesPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF2E6FF2)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF2E6FF2),
+            ),
             tooltip: context.tr('add_book_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();

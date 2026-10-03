@@ -21,7 +21,9 @@ class LifeAreasPage extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final assessmentsAsync = ref.watch(lifeAreasStreamProvider);
     final assessments = assessmentsAsync.value ?? <LifeAreaAssessmentModel>[];
@@ -67,129 +69,139 @@ class LifeAreasPage extends ConsumerWidget {
               child: CircularProgressIndicator(color: Color(0xFF6366F1)),
             )
           : assessments.isEmpty
-              ? _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor)
-              : ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    // =========================================================
-                    // 1. MAIN RADAR CHART CARD (WITH COMPARISON SELECTORS)
-                    // =========================================================
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: cardBg,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: borderColor),
-                        boxShadow: isDark
-                            ? null
-                            : [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 14,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Dropdown Selectors: Primary and Compare With
-                          _buildDropdownSelectors(
-                            context: context,
-                            ref: ref,
-                            assessments: assessments,
-                            primaryAssessment: primaryAssessment,
-                            compareAssessment: compareAssessment,
-                            isDark: isDark,
-                            borderColor: borderColor,
-                            primaryTextColor: primaryTextColor,
-                          ),
-                          const SizedBox(height: 16),
-
-                          // 8-Axis Radar Chart
-                          if (primaryAssessment != null)
-                            WheelOfLifeRadarChart(
-                              primary: primaryAssessment,
-                              comparison: compareAssessment,
-                              height: 300,
+          ? _buildEmptyState(
+              context,
+              isDark,
+              primaryTextColor,
+              secondaryTextColor,
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
+              physics: const BouncingScrollPhysics(),
+              children: [
+                // =========================================================
+                // 1. MAIN RADAR CHART CARD (WITH COMPARISON SELECTORS)
+                // =========================================================
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: borderColor),
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 14,
+                              offset: const Offset(0, 4),
                             ),
-
-                          const SizedBox(height: 16),
-
-                          // Legend and Comparison Summary Banner
-                          _buildLegendAndSummary(
-                            context: context,
-                            primary: primaryAssessment,
-                            comparison: compareAssessment,
-                            isDark: isDark,
-                            secondaryTextColor: secondaryTextColor,
-                          ),
-                        ],
+                          ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Dropdown Selectors: Primary and Compare With
+                      _buildDropdownSelectors(
+                        context: context,
+                        ref: ref,
+                        assessments: assessments,
+                        primaryAssessment: primaryAssessment,
+                        compareAssessment: compareAssessment,
+                        isDark: isDark,
+                        borderColor: borderColor,
+                        primaryTextColor: primaryTextColor,
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
-                    // =========================================================
-                    // 2. ASSESSMENT HISTORY CARD
-                    // =========================================================
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: cardBg,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: borderColor),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                context.tr('assessment_history_title'),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                  color: primaryTextColor,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.25 : 0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '${assessments.length}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF6366F1),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
+                      // 8-Axis Radar Chart
+                      if (primaryAssessment != null)
+                        WheelOfLifeRadarChart(
+                          primary: primaryAssessment,
+                          comparison: compareAssessment,
+                          height: 300,
+                        ),
 
-                          // Assessment Rows
-                          ...assessments.map((assessment) {
-                            return _buildHistoryRow(
-                              context: context,
-                              ref: ref,
-                              assessment: assessment,
-                              isDark: isDark,
-                              borderColor: borderColor,
-                              primaryTextColor: primaryTextColor,
-                              secondaryTextColor: secondaryTextColor,
-                            );
-                          }),
-                        ],
+                      const SizedBox(height: 16),
+
+                      // Legend and Comparison Summary Banner
+                      _buildLegendAndSummary(
+                        context: context,
+                        primary: primaryAssessment,
+                        comparison: compareAssessment,
+                        isDark: isDark,
+                        secondaryTextColor: secondaryTextColor,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(height: 20),
+
+                // =========================================================
+                // 2. ASSESSMENT HISTORY CARD
+                // =========================================================
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: borderColor),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            context.tr('assessment_history_title'),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: primaryTextColor,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xFF6366F1,
+                              ).withValues(alpha: isDark ? 0.25 : 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${assessments.length}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF6366F1),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Assessment Rows
+                      ...assessments.map((assessment) {
+                        return _buildHistoryRow(
+                          context: context,
+                          ref: ref,
+                          assessment: assessment,
+                          isDark: isDark,
+                          borderColor: borderColor,
+                          primaryTextColor: primaryTextColor,
+                          secondaryTextColor: secondaryTextColor,
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF6366F1),
         foregroundColor: Colors.white,
@@ -223,7 +235,9 @@ class LifeAreasPage extends ConsumerWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.1),
+                color: const Color(
+                  0xFF6366F1,
+                ).withValues(alpha: isDark ? 0.2 : 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -256,7 +270,10 @@ class LifeAreasPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -291,7 +308,8 @@ class LifeAreasPage extends ConsumerWidget {
     required Color borderColor,
     required Color primaryTextColor,
   }) {
-    final selectedPrimaryId = ref.watch(selectedPrimaryAssessmentIdProvider) ??
+    final selectedPrimaryId =
+        ref.watch(selectedPrimaryAssessmentIdProvider) ??
         (assessments.isNotEmpty ? assessments.first.id : null);
     final selectedCompareId = ref.watch(selectedCompareAssessmentIdProvider);
 
@@ -326,7 +344,9 @@ class LifeAreasPage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                color: isDark
+                    ? const Color(0xFF1E293B)
+                    : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: borderColor),
               ),
@@ -334,7 +354,9 @@ class LifeAreasPage extends ConsumerWidget {
                 child: DropdownButton<String>(
                   value: selectedPrimaryId,
                   isExpanded: true,
-                  dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  dropdownColor: isDark
+                      ? const Color(0xFF1E293B)
+                      : Colors.white,
                   icon: const Icon(Icons.arrow_drop_down_rounded),
                   items: assessments.map((a) {
                     final isLatest = a.id == assessments.first.id;
@@ -356,10 +378,14 @@ class LifeAreasPage extends ConsumerWidget {
                   onChanged: (newId) {
                     if (newId != null) {
                       HapticFeedback.selectionClick();
-                      ref.read(selectedPrimaryAssessmentIdProvider.notifier).select(newId);
+                      ref
+                          .read(selectedPrimaryAssessmentIdProvider.notifier)
+                          .select(newId);
                       // If compare assessment was set to this newly selected primary, reset comparison
                       if (selectedCompareId == newId) {
-                        ref.read(selectedCompareAssessmentIdProvider.notifier).select(null);
+                        ref
+                            .read(selectedCompareAssessmentIdProvider.notifier)
+                            .select(null);
                       }
                     }
                   },
@@ -399,7 +425,9 @@ class LifeAreasPage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                color: isDark
+                    ? const Color(0xFF1E293B)
+                    : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: borderColor),
               ),
@@ -407,7 +435,9 @@ class LifeAreasPage extends ConsumerWidget {
                 child: DropdownButton<String?>(
                   value: selectedCompareId,
                   isExpanded: true,
-                  dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  dropdownColor: isDark
+                      ? const Color(0xFF1E293B)
+                      : Colors.white,
                   icon: const Icon(Icons.arrow_drop_down_rounded),
                   items: [
                     DropdownMenuItem<String?>(
@@ -421,9 +451,9 @@ class LifeAreasPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    ...assessments
-                        .where((a) => a.id != selectedPrimaryId)
-                        .map((a) {
+                    ...assessments.where((a) => a.id != selectedPrimaryId).map((
+                      a,
+                    ) {
                       return DropdownMenuItem<String?>(
                         value: a.id,
                         child: Text(
@@ -439,7 +469,9 @@ class LifeAreasPage extends ConsumerWidget {
                   ],
                   onChanged: (newId) {
                     HapticFeedback.selectionClick();
-                    ref.read(selectedCompareAssessmentIdProvider.notifier).select(newId);
+                    ref
+                        .read(selectedCompareAssessmentIdProvider.notifier)
+                        .select(newId);
                   },
                 ),
               ),
@@ -530,10 +562,7 @@ class LifeAreasPage extends ConsumerWidget {
           Container(
             width: 8,
             height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
           Text(
@@ -581,7 +610,9 @@ class LifeAreasPage extends ConsumerWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.25 : 0.12),
+              color: const Color(
+                0xFF6366F1,
+              ).withValues(alpha: isDark ? 0.25 : 0.12),
               shape: BoxShape.circle,
             ),
             child: const Center(
@@ -666,7 +697,9 @@ class LifeAreasPage extends ConsumerWidget {
               if (confirmed == true) {
                 final uid = ref.read(currentUserIdProvider);
                 if (uid != null && uid.isNotEmpty) {
-                  await ref.read(lifeAreasServiceProvider).deleteAssessment(uid, assessment.id);
+                  await ref
+                      .read(lifeAreasServiceProvider)
+                      .deleteAssessment(uid, assessment.id);
                 }
               }
             },

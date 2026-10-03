@@ -18,6 +18,13 @@ class AppLocalizations {
 
   static final Map<String, Map<String, String>> _localizedValues = {
     'en': {
+      'task_save_error':
+          'Could not save the task. Check your connection and try again.',
+      'event_save_error':
+          'Could not save the event. Check your connection and try again.',
+      'tasks_load_error':
+          'Could not load your tasks. Check your connection and retry.',
+      'retry': 'Retry',
       // App General
       'app_name': 'Focusly',
       'cancel': 'Cancel',
@@ -105,7 +112,6 @@ class AppLocalizations {
       'habits': 'Habits',
       'profile': 'Profile',
       'settings': 'Settings',
-      'focus_workspace_ready': '✨ Workspace Ready • Deep Focus Flow',
 
       // Tasks Feature
       'all_tasks': 'All',
@@ -260,6 +266,14 @@ class AppLocalizations {
       'habit_updated_success': 'Habit updated successfully!',
       'habit_deleted_success': 'Habit deleted successfully!',
       'habit_error_saving': 'Error saving habit. Please try again.',
+      'save_failed': 'Could not save. Your input is kept; please try again.',
+      'habit_retrospective_title': 'Record an entry for a past date?',
+      'confirm': 'Confirm',
+      'increase_progress': 'Increase progress',
+      'decrease_progress': 'Decrease progress',
+      'approve_challenge_results': 'Approve ended challenge results',
+      'challenge_result_policy':
+          'Results use dated completion events. Winners must reach the goal; equal top scores share the result. An administrator approves the final result.',
       'habit_error_deleting': 'Error deleting habit. Please try again.',
       'habit_early_week_complete_toast':
           '🎉 Full week completed! Starting a new week 🔥',
@@ -310,7 +324,6 @@ class AppLocalizations {
       'total_xp': 'total XP',
       'xp_to_next_level': 'XP to next level',
       'max_level_reached': 'Max Level Reached 🔱',
-      'stat_tasks_completed': 'Tasks Completed',
       'focus_sessions': 'Pomodoro Sessions',
       'total_focus_time': 'Total Focus Time',
       'weekly_productivity_score': 'Weekly Productivity Score',
@@ -509,7 +522,8 @@ class AppLocalizations {
       'assign_btn': 'Assign',
       'group_assignments_title': 'Group Assignments',
       'no_assignments_title': 'No Group Assignments Yet',
-      'no_assignments_subtitle': 'Group admins can assign locked tasks and habits directly to members.',
+      'no_assignments_subtitle':
+          'Group admins can assign locked tasks and habits directly to members.',
       'assignment_type_label': 'Assignment Type',
       'assignment_type_task': 'Task',
       'assignment_type_habit': 'Habit',
@@ -525,13 +539,15 @@ class AppLocalizations {
       'deselect_all': 'Deselect All',
       'select_at_least_one_member': 'Please select at least one member',
       'assign_now_btn': 'Assign to Members',
-      'assignment_created_success': 'Assignment created and distributed to members!',
+      'assignment_created_success':
+          'Assignment created and distributed to members!',
       'assignment_progress_title': 'Assignment Progress',
       'member_progress_title': 'Member Progress',
       'assigned_by': 'Assigned by',
       'assigned_by_badge': 'Assigned by',
       'group_assigned_badge': '👥 Group Assigned',
-      'locked_field_tooltip': 'Assigned by admin — title and deadline are locked',
+      'locked_field_tooltip':
+          'Assigned by admin — title and deadline are locked',
       'locked_field_label': 'Locked',
       'pending_status': 'Pending',
       'completion_progress': 'Overall Completion',
@@ -539,9 +555,7 @@ class AppLocalizations {
       'target_progress': 'Target Progress',
       'log_habit_btn': 'Log +1',
       'decrement_count': 'Decrease count',
-      'start_date_label': 'Start Date',
       'start_label': 'Start',
-      'due_label': 'Due',
       'deadline_label': 'Deadline',
 
       // Feed Tab
@@ -666,8 +680,6 @@ class AppLocalizations {
       'reauth_password_hint': 'Enter your password',
       'reauth_verify_btn': 'Verify & Delete',
       'reauth_google_btn': 'Continue with Google',
-      'reauth_failed':
-          'Authentication failed. Please verify your credentials and try again.',
 
       // Legal Texts (Terms & Privacy)
       'legal_last_updated': 'Last updated: August 2026',
@@ -1030,7 +1042,6 @@ class AppLocalizations {
       'remind_days_label': 'Remind After',
       'remind_days_helper':
           "You'll see a reminder if you haven't logged contact within this many days",
-      'days_unit': 'days',
       'contact_notes_label': 'Notes / Thoughts (Optional)',
       'contact_notes_hint': 'Any context, topic to bring up, or notes...',
       'delete_contact_confirm_title': 'Delete Contact',
@@ -1219,7 +1230,6 @@ class AppLocalizations {
       'no_rituals_history_sub':
           'Your completed morning intentions and shutdown reviews will appear here.',
       'status_set': 'Set',
-      'status_pending': 'Pending',
       'morning_intention_prompt_setting': 'Morning Intention Prompt',
       'morning_intention_prompt_setting_desc':
           'Show intention prompt automatically on Home load',
@@ -2208,6 +2218,10 @@ class AppLocalizations {
           'Are you sure you want to delete this notification record?',
     },
     'ar': {
+      'task_save_error': 'تعذر حفظ المهمة. تحقق من اتصالك وحاول مرة أخرى.',
+      'event_save_error': 'تعذر حفظ الموعد. تحقق من اتصالك وحاول مرة أخرى.',
+      'tasks_load_error': 'تعذر تحميل مهامك. تحقق من اتصالك وحاول مرة أخرى.',
+      'retry': 'إعادة المحاولة',
       // App General
       'app_name': 'فوكسلي (Focusly)',
       'cancel': 'إلغاء',
@@ -2295,7 +2309,6 @@ class AppLocalizations {
       'habits': 'العادات',
       'profile': 'الملف الشخصي',
       'settings': 'الإعدادات',
-      'focus_workspace_ready': '✨ مساحة العمل جاهزة • وضع التركيز العميق',
 
       // Tasks Feature
       'all_tasks': 'الكل',
@@ -2448,6 +2461,14 @@ class AppLocalizations {
       'habit_updated_success': 'تم تحديث العادة بنجاح!',
       'habit_deleted_success': 'تم حذف العادة بنجاح!',
       'habit_error_saving': 'حدث خطأ أثناء حفظ العادة. يرجى المحاولة مرة أخرى.',
+      'save_failed': 'تعذر الحفظ. بياناتك محفوظة في النموذج؛ حاول مرة أخرى.',
+      'habit_retrospective_title': 'تسجيل إنجاز بتاريخ سابق؟',
+      'confirm': 'تأكيد',
+      'increase_progress': 'زيادة التقدم',
+      'decrease_progress': 'تقليل التقدم',
+      'approve_challenge_results': 'اعتماد نتائج التحديات المنتهية',
+      'challenge_result_policy':
+          'النتائج من سجلات الإنجاز المؤرخة. الفوز يتطلب بلوغ الهدف، والتعادل في أعلى درجة يمنح نتيجة مشتركة. يعتمد الأدمن النتيجة النهائية.',
       'habit_error_deleting':
           'حدث خطأ أثناء حذف العادة. يرجى المحاولة مرة أخرى.',
       'habit_early_week_complete_toast':
@@ -2499,7 +2520,6 @@ class AppLocalizations {
       'total_xp': 'مجموع نقاط XP',
       'xp_to_next_level': 'نقطة للوصول للمستوى التالي',
       'max_level_reached': 'وصلت لأعلى مستوى 🔱',
-      'stat_tasks_completed': 'المهام المكتملة',
       'focus_sessions': 'جلسات التركيز',
       'total_focus_time': 'إجمالي وقت التركيز',
       'weekly_productivity_score': 'معدل الإنتاجية الأسبوعي',
@@ -2698,7 +2718,8 @@ class AppLocalizations {
       'assign_btn': 'إسناد',
       'group_assignments_title': 'تكليفات المجموعة',
       'no_assignments_title': 'لا توجد تكليفات للمجموعة بعد',
-      'no_assignments_subtitle': 'يمكن لمشرفي المجموعة إسناد مهام وعادات مقفلة مباشرة إلى الأعضاء.',
+      'no_assignments_subtitle':
+          'يمكن لمشرفي المجموعة إسناد مهام وعادات مقفلة مباشرة إلى الأعضاء.',
       'assignment_type_label': 'نوع التكليف',
       'assignment_type_task': 'مهمة',
       'assignment_type_habit': 'نشاط / عادة',
@@ -2728,9 +2749,7 @@ class AppLocalizations {
       'target_progress': 'التقدم نحو الهدف',
       'log_habit_btn': 'تسجيل +1',
       'decrement_count': 'إنقاص العدد',
-      'start_date_label': 'تاريخ البدء',
       'start_label': 'البدء',
-      'due_label': 'الاستحقاق',
       'deadline_label': 'الموعد النهائي',
 
       // Feed Tab
@@ -2852,8 +2871,6 @@ class AppLocalizations {
       'reauth_password_hint': 'أدخل كلمة المرور الحالية',
       'reauth_verify_btn': 'تأكيد والحذف',
       'reauth_google_btn': 'المتابعة باستخدام Google',
-      'reauth_failed':
-          'فشل تأكيد الهوية. يرجى التأكد من البيانات والمحاولة مجدداً.',
 
       // Legal Texts (Terms & Privacy)
       'legal_last_updated': 'آخر تحديث: أغسطس ٢٠٢٦',
@@ -3215,7 +3232,6 @@ class AppLocalizations {
       'remind_days_label': 'تذكير كل',
       'remind_days_helper':
           'ستظهر لك إشارة تذكير إذا لم تسجل تواصلاً خلال هذه المدة',
-      'days_unit': 'أيام',
       'contact_notes_label': 'ملاحظات (اختياري)',
       'contact_notes_hint': 'أي موضوع تود الحديث عنه، أو ملاحظات هامة...',
       'delete_contact_confirm_title': 'حذف جهة الاتصال',
@@ -3398,7 +3414,6 @@ class AppLocalizations {
       'no_rituals_history_sub':
           'ستظهر نوايا الصباح ومراجعات إغلاق اليوم المكتملة هنا.',
       'status_set': 'مكتمل',
-      'status_pending': 'معلق',
       'morning_intention_prompt_setting': 'منبه نية الصباح',
       'morning_intention_prompt_setting_desc':
           'إظهار نافذة نية الصباح تلقائياً عند فتح التطبيق',

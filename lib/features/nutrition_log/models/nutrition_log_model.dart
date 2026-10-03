@@ -6,7 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Each user records one nutrition quality rating per day (rating 1 to 5).
 class NutritionLogModel {
   final String id;
-  final int rating; // 1 to 5 (1=Very Bad, 2=Unhealthy, 3=Average, 4=Very Good, 5=Excellent)
+  final int
+  rating; // 1 to 5 (1=Very Bad, 2=Unhealthy, 3=Average, 4=Very Good, 5=Excellent)
   final DateTime date; // Calendar date of the log
   final String? note; // Optional multiline notes (e.g. what was eaten)
   final DateTime createdAt;
@@ -80,7 +81,9 @@ class NutritionLogModel {
   factory NutritionLogModel.fromMap(Map<String, dynamic> map, String docId) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 

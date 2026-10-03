@@ -12,12 +12,12 @@ final budgetServiceProvider = Provider<BudgetService>((ref) {
 /// Stream provider for all budget transactions belonging to the current user.
 final budgetTransactionsStreamProvider =
     StreamProvider<List<BudgetTransactionModel>>((ref) {
-  final uid = ref.watch(currentUserIdProvider);
-  if (uid == null || uid.isEmpty) return const Stream.empty();
+      final uid = ref.watch(currentUserIdProvider);
+      if (uid == null || uid.isEmpty) return const Stream.empty();
 
-  final service = ref.watch(budgetServiceProvider);
-  return service.streamTransactions(uid);
-});
+      final service = ref.watch(budgetServiceProvider);
+      return service.streamTransactions(uid);
+    });
 
 /// Stream provider for the user's budget spending limits configuration.
 final budgetConfigStreamProvider = StreamProvider<BudgetConfigModel>((ref) {
@@ -29,8 +29,9 @@ final budgetConfigStreamProvider = StreamProvider<BudgetConfigModel>((ref) {
 });
 
 /// Derived provider: Transactions occurring in the current calendar month.
-final thisMonthTransactionsProvider =
-    Provider<List<BudgetTransactionModel>>((ref) {
+final thisMonthTransactionsProvider = Provider<List<BudgetTransactionModel>>((
+  ref,
+) {
   final allTx = ref.watch(budgetTransactionsStreamProvider).value ?? [];
   return BudgetHelpers.filterThisMonthTransactions(allTx, DateTime.now());
 });
@@ -42,15 +43,15 @@ final thisMonthSummaryProvider = Provider<MonthSummary>((ref) {
 });
 
 /// Derived provider: Total spending per expense category for this month.
-final thisMonthCategorySpendingProvider =
-    Provider<Map<String, double>>((ref) {
+final thisMonthCategorySpendingProvider = Provider<Map<String, double>>((ref) {
   final thisMonthTx = ref.watch(thisMonthTransactionsProvider);
   return BudgetHelpers.computeCategorySpending(thisMonthTx);
 });
 
 /// Derived provider: 10 most recent transactions reverse-chronologically across all time.
-final recentTransactionsProvider =
-    Provider<List<BudgetTransactionModel>>((ref) {
+final recentTransactionsProvider = Provider<List<BudgetTransactionModel>>((
+  ref,
+) {
   final allTx = ref.watch(budgetTransactionsStreamProvider).value ?? [];
   final sorted = List<BudgetTransactionModel>.from(allTx)
     ..sort((a, b) => b.date.compareTo(a.date));
@@ -58,12 +59,15 @@ final recentTransactionsProvider =
 });
 
 /// Derived provider: Progress and limits list for relevant expense categories.
-final categoryLimitProgressListProvider =
-    Provider<List<CategoryLimitProgress>>((ref) {
-  final spending = ref.watch(thisMonthCategorySpendingProvider);
-  final config = ref.watch(budgetConfigStreamProvider).value ?? const BudgetConfigModel();
-  return BudgetHelpers.getRelevantExpenseCategories(
-    spending: spending,
-    limits: config.limits,
-  );
-});
+final categoryLimitProgressListProvider = Provider<List<CategoryLimitProgress>>(
+  (ref) {
+    final spending = ref.watch(thisMonthCategorySpendingProvider);
+    final config =
+        ref.watch(budgetConfigStreamProvider).value ??
+        const BudgetConfigModel();
+    return BudgetHelpers.getRelevantExpenseCategories(
+      spending: spending,
+      limits: config.limits,
+    );
+  },
+);

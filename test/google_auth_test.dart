@@ -22,20 +22,23 @@ void main() {
       expect(result.errorMessage, isNotNull);
     });
 
-    test('accountExistsWithDifferentCredential has correct status and message', () {
-      final result = GoogleAuthResult.accountExistsWithDifferentCredential(
-        message: 'Account already registered with email and password.',
-      );
-      expect(
-        result.status,
-        GoogleAuthStatus.accountExistsWithDifferentCredential,
-      );
-      expect(
-        result.errorMessage,
-        'Account already registered with email and password.',
-      );
-      expect(result.isCancelled, isFalse);
-    });
+    test(
+      'accountExistsWithDifferentCredential has correct status and message',
+      () {
+        final result = GoogleAuthResult.accountExistsWithDifferentCredential(
+          message: 'Account already registered with email and password.',
+        );
+        expect(
+          result.status,
+          GoogleAuthStatus.accountExistsWithDifferentCredential,
+        );
+        expect(
+          result.errorMessage,
+          'Account already registered with email and password.',
+        );
+        expect(result.isCancelled, isFalse);
+      },
+    );
 
     test('error result has correct status and message', () {
       final result = GoogleAuthResult.error('Something went wrong');

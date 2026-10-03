@@ -26,8 +26,18 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
   String? _errorMessage;
 
   static const List<String> _emojiOptions = [
-    '🚀', '🎯', '⚡', '🔥', '🌟', '🏆',
-    '💎', '🦉', '🌱', '💻', '🎨', '👑',
+    '🚀',
+    '🎯',
+    '⚡',
+    '🔥',
+    '🌟',
+    '🏆',
+    '💎',
+    '🦉',
+    '🌱',
+    '💻',
+    '🎨',
+    '👑',
   ];
 
   @override
@@ -39,9 +49,9 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
 
   String _generateInviteCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    final random = Random();
+    final random = Random.secure();
     final buffer = StringBuffer('GRP-');
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 12; i++) {
       buffer.write(chars[random.nextInt(chars.length)]);
     }
     return buffer.toString();
@@ -65,8 +75,9 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
       final firestore = FirebaseFirestore.instance;
       final userDocRef = firestore.collection('users').doc(user.uid);
       final userDoc = await userDocRef.get();
-      final currentGroupIds =
-          List<String>.from(userDoc.data()?['groupIds'] ?? []);
+      final currentGroupIds = List<String>.from(
+        userDoc.data()?['groupIds'] ?? [],
+      );
 
       // Check max groups per user cap
       if (currentGroupIds.length >= GroupModel.maxGroupsPerUser) {
@@ -83,11 +94,10 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
       int retries = 0;
       while (!isUnique && retries < 5) {
         final existing = await firestore
-            .collection('groups')
-            .where('inviteCode', isEqualTo: inviteCode)
-            .limit(1)
+            .collection('invites')
+            .doc(inviteCode)
             .get();
-        if (existing.docs.isEmpty) {
+        if (!existing.exists) {
           isUnique = true;
         } else {
           inviteCode = _generateInviteCode();
@@ -95,9 +105,15 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
         }
       }
 
+      if (!isUnique) {
+        throw StateError('Could not reserve an invite code; please retry.');
+      }
       final now = DateTime.now();
-      final currentWeekStart =
-          DateTime(now.year, now.month, now.day - (now.weekday % 7));
+      final currentWeekStart = DateTime(
+        now.year,
+        now.month,
+        now.day - (now.weekday % 7),
+      );
 
       final groupRef = firestore.collection('groups').doc();
       final group = GroupModel(
@@ -128,21 +144,34 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
         weeklyXP: 0,
       );
 
-      final batch = firestore.batch();
-      batch.set(groupRef, group.toMap());
-      batch.set(
-        groupRef.collection('members').doc(user.uid),
-        member.toMap(),
-      );
-      batch.set(
-        userDocRef,
-        {
+      await firestore.runTransaction((batch) async {
+        final current = await batch.get(userDocRef);
+        final invitation = await batch.get(
+          firestore.collection('invites').doc(inviteCode),
+        );
+        if (invitation.exists) {
+          throw StateError('Invite collision; please retry.');
+        }
+        if ((current.data()?['groupIds'] as List? ?? []).length >=
+            GroupModel.maxGroupsPerUser) {
+          throw StateError('Group limit reached');
+        }
+        batch.set(groupRef, group.toMap());
+        batch.set(firestore.collection('invites').doc(inviteCode), {
+          'groupId': groupRef.id,
+          'name': group.name,
+          'icon': group.icon,
+          'maxMembers': group.maxMembers,
+          'memberCount': 1,
+        });
+        batch.set(
+          groupRef.collection('members').doc(member.uid),
+          member.toMap(),
+        );
+        batch.set(userDocRef, {
           'groupIds': FieldValue.arrayUnion([groupRef.id]),
-        },
-        SetOptions(merge: true),
-      );
-
-      await batch.commit();
+        }, SetOptions(merge: true));
+      });
 
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -254,13 +283,13 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
                       height: 46,
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? brandPrimary.withValues(alpha: isDark ? 0.25 : 0.15)
+                            ? brandPrimary.withValues(
+                                alpha: isDark ? 0.25 : 0.15,
+                              )
                             : cardBg,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected
-                              ? brandPrimary
-                              : borderColor,
+                          color: isSelected ? brandPrimary : borderColor,
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -289,10 +318,15 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
               const SizedBox(height: 6),
               TextFormField(
                 controller: _nameController,
-                style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontWeight: FontWeight.w700,
+                ),
                 decoration: InputDecoration(
                   hintText: context.tr('group_name_hint'),
-                  hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: secondaryTextColor.withValues(alpha: 0.6),
+                  ),
                   filled: true,
                   fillColor: inputBg,
                   border: OutlineInputBorder(
@@ -334,7 +368,9 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
                 style: TextStyle(color: primaryTextColor),
                 decoration: InputDecoration(
                   hintText: context.tr('group_desc_hint'),
-                  hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: secondaryTextColor.withValues(alpha: 0.6),
+                  ),
                   filled: true,
                   fillColor: inputBg,
                   border: OutlineInputBorder(
@@ -386,7 +422,9 @@ class _CreateGroupSheetState extends State<CreateGroupSheet> {
                           height: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Text(

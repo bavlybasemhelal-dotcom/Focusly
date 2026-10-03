@@ -5,6 +5,8 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../habits/models/habit_model.dart';
 import '../../habits/providers/habits_provider.dart';
+import '../../habits/helpers/streak_logic.dart';
+import '../../../core/data/calendar_clock.dart';
 
 /// Horizontal scroll row of today's habits for the Home Feed.
 ///
@@ -31,7 +33,7 @@ class TodaysHabitsRow extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final todayDayIndex = DateTime.now().weekday - 1; // 0 = Monday, 6 = Sunday
+    final now = ref.watch(calendarClockProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,10 +42,7 @@ class TodaysHabitsRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             children: [
-              const Text(
-                '🔥',
-                style: TextStyle(fontSize: 16),
-              ),
+              const Text('🔥', style: TextStyle(fontSize: 16)),
               const SizedBox(width: 6),
               Text(
                 context.tr('todays_habits_title'),
@@ -64,24 +63,33 @@ class TodaysHabitsRow extends ConsumerWidget {
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             itemCount: habits.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
               final habit = habits[index];
+              final todayDayIndex = StreakLogic.getWeekDayIndex(
+                now,
+                weekStartDay: habit.resetDay,
+              );
               final isCompletedToday = habit.isDayCompleted(todayDayIndex);
 
               return Container(
                 width: 170,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: isCompletedToday
                       ? (isDark
-                          ? const Color(0xFF064E3B).withValues(alpha: 0.4)
-                          : const Color(0xFFECFDF5))
+                            ? const Color(0xFF064E3B).withValues(alpha: 0.4)
+                            : const Color(0xFFECFDF5))
                       : cardBg,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: isCompletedToday
-                        ? (isDark ? const Color(0xFF10B981) : const Color(0xFF6EE7B7))
+                        ? (isDark
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF6EE7B7))
                         : borderColor,
                     width: isCompletedToday ? 1.4 : 1.2,
                   ),
@@ -89,7 +97,9 @@ class TodaysHabitsRow extends ConsumerWidget {
                       ? null
                       : [
                           BoxShadow(
-                            color: const Color(0xFF2E6FF2).withValues(alpha: 0.05),
+                            color: const Color(
+                              0xFF2E6FF2,
+                            ).withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
@@ -114,12 +124,14 @@ class TodaysHabitsRow extends ConsumerWidget {
                           color: isCompletedToday
                               ? const Color(0xFF10B981)
                               : (isDark
-                                  ? Colors.white.withValues(alpha: 0.08)
-                                  : const Color(0xFFF1F5F9)),
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : const Color(0xFFF1F5F9)),
                           border: Border.all(
                             color: isCompletedToday
                                 ? const Color(0xFF10B981)
-                                : (isDark ? Colors.white24 : const Color(0xFFCBD5E1)),
+                                : (isDark
+                                      ? Colors.white24
+                                      : const Color(0xFFCBD5E1)),
                             width: 1.5,
                           ),
                         ),
@@ -146,9 +158,13 @@ class TodaysHabitsRow extends ConsumerWidget {
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: isCompletedToday
-                                  ? (isDark ? Colors.white : const Color(0xFF065F46))
+                                  ? (isDark
+                                        ? Colors.white
+                                        : const Color(0xFF065F46))
                                   : primaryTextColor,
-                              decoration: isCompletedToday ? TextDecoration.lineThrough : null,
+                              decoration: isCompletedToday
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

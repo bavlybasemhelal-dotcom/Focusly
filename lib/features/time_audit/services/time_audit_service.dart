@@ -10,7 +10,7 @@ class TimeAuditService {
   final FirebaseFirestore _firestore;
 
   TimeAuditService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _logsCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('timeAuditLogs');
@@ -18,10 +18,9 @@ class TimeAuditService {
 
   /// Streams all manual time audit logs for [uid] ordered by date descending.
   Stream<List<TimeAuditLogModel>> streamLogs(String uid) {
-    return _logsCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _logsCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => TimeAuditLogModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -37,6 +36,13 @@ class TimeAuditService {
     DateTime? date,
   }) async {
     try {
+      if (uid.isEmpty ||
+          category.trim().isEmpty ||
+          !hours.isFinite ||
+          hours <= 0 ||
+          hours > 24) {
+        throw ArgumentError('Invalid time log');
+      }
       final docRef = _logsCollection(uid).doc();
       final now = DateTime.now();
       final entryDate = date ?? now;
@@ -59,10 +65,7 @@ class TimeAuditService {
   }
 
   /// Deletes a specific time audit log entry.
-  Future<bool> deleteLog({
-    required String uid,
-    required String logId,
-  }) async {
+  Future<bool> deleteLog({required String uid, required String logId}) async {
     try {
       await _logsCollection(uid).doc(logId).delete();
       return true;
@@ -75,12 +78,15 @@ class TimeAuditService {
   /// Clears all manual time audit logs for the user.
   Future<bool> clearAllLogs(String uid) async {
     try {
-      final snapshot = await _logsCollection(uid).get();
-      final batch = _firestore.batch();
-      for (final doc in snapshot.docs) {
-        batch.delete(doc.reference);
+      while (true) {
+        final snapshot = await _logsCollection(uid).limit(200).get();
+        if (snapshot.docs.isEmpty) break;
+        final batch = _firestore.batch();
+        for (final doc in snapshot.docs) {
+          batch.delete(doc.reference);
+        }
+        await batch.commit();
       }
-      await batch.commit();
       return true;
     } catch (e) {
       debugPrint('Error clearing all time audit logs: $e');

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../core/data/completion_ledger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../gtd/models/inbox_item_model.dart';
@@ -14,7 +15,7 @@ class WeeklyReviewService {
   final FirebaseFirestore _firestore;
 
   WeeklyReviewService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _reviewsCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('weeklyReviews');
@@ -48,10 +49,9 @@ class WeeklyReviewService {
 
   /// Streams all past weekly reviews ordered by createdAt descending.
   Stream<List<WeeklyReviewModel>> streamWeeklyReviews(String uid) {
-    return _reviewsCollection(uid)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _reviewsCollection(
+      uid,
+    ).orderBy('createdAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => WeeklyReviewModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -79,40 +79,49 @@ class WeeklyReviewService {
           .where((p) => p.isNotEmpty)
           .toList();
 
-      // 1. Save Weekly Review document
-      final reviewDocRef = _reviewsCollection(uid).doc();
+      if (validPriorities.length > 3) return false;
+      final reviewDocRef = _reviewsCollection(
+        uid,
+      ).doc(CompletionLedger.weekKey(now));
       final review = WeeklyReviewModel(
         id: reviewDocRef.id,
         date: now,
         priorities: validPriorities,
         createdAt: now,
       );
-      await reviewDocRef.set(review.toMap());
-
-      // 2. Dual-Write: Create GTD Inbox items for each priority
-      for (final priority in validPriorities) {
-        final inboxDocRef = _inboxCollection(uid).doc();
-        final inboxItem = InboxItemModel(
-          id: inboxDocRef.id,
-          text: '$priorityPrefix $priority'.trim(),
-          processed: false,
-          createdAt: now,
-        );
-        await inboxDocRef.set(inboxItem.toMap());
-      }
-
-      // 3. Update last review date in user metadata
-      await _metaReviewDoc(uid).set({
-        'lastReviewDate': Timestamp.fromDate(now),
-        'updatedAt': Timestamp.fromDate(now),
-      }, SetOptions(merge: true));
+      await _firestore.runTransaction((transaction) async {
+        final existing = await transaction.get(reviewDocRef);
+        if (existing.exists) return;
+        transaction.set(reviewDocRef, review.toMap());
+        for (var index = 0; index < validPriorities.length; index++) {
+          final document = _inboxCollection(
+            uid,
+          ).doc('review_${reviewDocRef.id}_$index');
+          transaction.set(
+            document,
+            InboxItemModel(
+              id: document.id,
+              text: '$priorityPrefix ${validPriorities[index]}'.trim(),
+              processed: false,
+              createdAt: now,
+            ).toMap(),
+          );
+        }
+        transaction.set(_metaReviewDoc(uid), {
+          'lastReviewDate': Timestamp.fromDate(now),
+          'updatedAt': Timestamp.fromDate(now),
+        }, SetOptions(merge: true));
+      });
 
       // 4. Award XP for completing Weekly Review
-      if (ref != null) {
-        await ProgressService().awardXp(
+      {
+        await ProgressService(firestore: _firestore).awardXp(
           XpConstants.weeklyReview,
           source: 'Weekly review completed',
           sourceType: 'weekly_review',
+          uid: uid,
+          sourceId: reviewDocRef.id,
+          eventId: 'weekly_review_${reviewDocRef.id}',
           ref: ref,
         );
       }

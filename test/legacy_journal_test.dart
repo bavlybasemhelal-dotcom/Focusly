@@ -53,7 +53,8 @@ void main() {
     title: 'Letter to My 35-Year-Old Self',
     date: DateTime(2026, 8, 25),
     type: 'letter',
-    content: 'Remember why you started. Keep your calm and stay focused on what truly matters.',
+    content:
+        'Remember why you started. Keep your calm and stay focused on what truly matters.',
     createdAt: DateTime(2026, 8, 25),
     updatedAt: DateTime(2026, 8, 25),
   );
@@ -63,7 +64,8 @@ void main() {
     title: 'Relentless Curiosity & Empathy',
     date: DateTime(2026, 8, 20),
     type: 'value',
-    content: 'Never assume you know everything. Listen deeply before offering solutions.',
+    content:
+        'Never assume you know everything. Listen deeply before offering solutions.',
     createdAt: DateTime(2026, 8, 20),
     updatedAt: DateTime(2026, 8, 20),
   );
@@ -73,7 +75,8 @@ void main() {
     title: 'Wisdom on Integrity & Family',
     date: DateTime(2026, 8, 15),
     type: 'will',
-    content: 'Always choose long-term integrity over short-term gain. Family is the anchor.',
+    content:
+        'Always choose long-term integrity over short-term gain. Family is the anchor.',
     createdAt: DateTime(2026, 8, 15),
     updatedAt: DateTime(2026, 8, 15),
   );
@@ -109,7 +112,9 @@ void main() {
   });
 
   group('LegacyJournalPage UI & Widget Tests', () {
-    testWidgets('Renders empty state when 0 legacy entries exist', (tester) async {
+    testWidgets('Renders empty state when 0 legacy entries exist', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createLegacyJournalTestWidget(
           child: const LegacyJournalPage(),
@@ -125,7 +130,9 @@ void main() {
       expect(find.text('New Entry'), findsWidgets);
     });
 
-    testWidgets('Renders all 3 sections when entries exist for all types', (tester) async {
+    testWidgets('Renders all 3 sections when entries exist for all types', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createLegacyJournalTestWidget(
           child: const LegacyJournalPage(),
@@ -153,7 +160,9 @@ void main() {
       expect(find.text('Wisdom on Integrity & Family'), findsOneWidget);
     });
 
-    testWidgets('Skips rendering sections that have zero entries', (tester) async {
+    testWidgets('Skips rendering sections that have zero entries', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createLegacyJournalTestWidget(
           child: const LegacyJournalPage(),
@@ -171,27 +180,34 @@ void main() {
       expect(find.text('📜 Will & Philosophy Guidelines'), findsNothing);
     });
 
-    testWidgets('Navigation Drawer includes Legacy Journal in Analytics section', (tester) async {
-      await tester.pumpWidget(
-        createLegacyJournalTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            legacyJournalStreamProvider.overrideWith((ref) => Stream.value([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer includes Legacy Journal in Analytics section',
+      (tester) async {
+        await tester.pumpWidget(
+          createLegacyJournalTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              legacyJournalStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      expect(find.text('ANALYTICS'), findsOneWidget);
-      expect(find.text('Legacy Journal'), findsOneWidget);
-    });
+        expect(find.text('ANALYTICS'), findsOneWidget);
+        expect(find.text('Legacy Journal'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Arabic localization renders all Legacy Journal texts', (tester) async {
+    testWidgets('Arabic localization renders all Legacy Journal texts', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createLegacyJournalTestWidget(
           locale: const Locale('ar'),
@@ -215,9 +231,7 @@ void main() {
     testWidgets('Validates required title and content fields', (tester) async {
       await tester.pumpWidget(
         createLegacyJournalTestWidget(
-          child: const Scaffold(
-            body: LegacyEntryFormModal(),
-          ),
+          child: const Scaffold(body: LegacyEntryFormModal()),
         ),
       );
       await tester.pumpAndSettle();
@@ -225,7 +239,10 @@ void main() {
       expect(find.text('New Legacy Entry'), findsOneWidget);
 
       // Scroll to save button and tap
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -400));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -400),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Save Entry'));
@@ -234,27 +251,28 @@ void main() {
       expect(find.text('Title and content are required'), findsWidgets);
     });
 
-    testWidgets('Renders pre-filled fields in edit mode and shows delete button', (tester) async {
-      await tester.pumpWidget(
-        createLegacyJournalTestWidget(
-          child: Scaffold(
-            body: LegacyEntryFormModal(
-              entryToEdit: letterEntry,
+    testWidgets(
+      'Renders pre-filled fields in edit mode and shows delete button',
+      (tester) async {
+        await tester.pumpWidget(
+          createLegacyJournalTestWidget(
+            child: Scaffold(
+              body: LegacyEntryFormModal(entryToEdit: letterEntry),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Edit Legacy Entry'), findsOneWidget);
-      expect(find.text('Letter to My 35-Year-Old Self'), findsOneWidget);
+        expect(find.text('Edit Legacy Entry'), findsOneWidget);
+        expect(find.text('Letter to My 35-Year-Old Self'), findsOneWidget);
 
-      final deleteButton = find.byType(TextButton);
-      await tester.ensureVisible(deleteButton);
-      await tester.pumpAndSettle();
+        final deleteButton = find.byType(TextButton);
+        await tester.ensureVisible(deleteButton);
+        await tester.pumpAndSettle();
 
-      expect(find.text('Save Entry'), findsOneWidget);
-      expect(find.text('Delete Entry'), findsOneWidget);
-    });
+        expect(find.text('Save Entry'), findsOneWidget);
+        expect(find.text('Delete Entry'), findsOneWidget);
+      },
+    );
   });
 }

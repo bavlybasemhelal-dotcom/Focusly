@@ -6,7 +6,7 @@ class BucketListService {
   final FirebaseFirestore _firestore;
 
   BucketListService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _collection(String uid) {
     return _firestore.collection('users').doc(uid).collection('bucketList');
@@ -16,14 +16,13 @@ class BucketListService {
   Stream<List<BucketItemModel>> getBucketItemsStream(String uid) {
     if (uid.isEmpty) return Stream.value([]);
 
-    return _collection(uid)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _collection(
+      uid,
+    ).orderBy('createdAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => BucketItemModel.fromFirestore(doc))
           .toList();
-    }).handleError((_) => <BucketItemModel>[]);
+    });
   }
 
   /// Adds a new bucket list item and returns generated document ID
@@ -43,7 +42,10 @@ class BucketListService {
   }
 
   /// Quickly marks a pending dream as completed
-  Future<BucketItemModel> markItemCompleted(String uid, BucketItemModel item) async {
+  Future<BucketItemModel> markItemCompleted(
+    String uid,
+    BucketItemModel item,
+  ) async {
     final updated = item.copyWith(
       status: 'completed',
       updatedAt: DateTime.now(),

@@ -5,10 +5,7 @@ import '../models/mental_log_model.dart';
 import '../services/mental_health_service.dart';
 
 /// Active radar chart view mode: Daily single-day check-in vs Weekly calendar average.
-enum MentalViewMode {
-  daily,
-  weekly,
-}
+enum MentalViewMode { daily, weekly }
 
 /// Notifier controller for selected date (defaults to today).
 class MentalSelectedDateNotifier extends Notifier<DateTime> {
@@ -25,8 +22,8 @@ class MentalSelectedDateNotifier extends Notifier<DateTime> {
 /// Provider for selected date in Mental Health feature.
 final mentalSelectedDateProvider =
     NotifierProvider<MentalSelectedDateNotifier, DateTime>(
-  MentalSelectedDateNotifier.new,
-);
+      MentalSelectedDateNotifier.new,
+    );
 
 /// Notifier controller for MentalViewMode (Daily vs Weekly).
 class MentalViewModeNotifier extends Notifier<MentalViewMode> {
@@ -43,8 +40,8 @@ class MentalViewModeNotifier extends Notifier<MentalViewMode> {
 /// Provider for view mode in Mental Health feature.
 final mentalViewModeProvider =
     NotifierProvider<MentalViewModeNotifier, MentalViewMode>(
-  MentalViewModeNotifier.new,
-);
+      MentalViewModeNotifier.new,
+    );
 
 /// Service singleton provider.
 final mentalHealthServiceProvider = Provider<MentalHealthService>((ref) {
@@ -116,13 +113,14 @@ final personalizedTipProvider = Provider<LowestDimensionTip?>((ref) {
 });
 
 /// Derived provider: Today vs Yesterday comparison (only applicable when daily log exists).
-final todayVsYesterdayComparisonProvider = Provider<TodayVsYesterdayComparison?>((ref) {
-  final todayLog = ref.watch(selectedDayMentalLogProvider);
-  if (todayLog == null) return null;
+final todayVsYesterdayComparisonProvider =
+    Provider<TodayVsYesterdayComparison?>((ref) {
+      final todayLog = ref.watch(selectedDayMentalLogProvider);
+      if (todayLog == null) return null;
 
-  final yesterdayLog = ref.watch(yesterdayMentalLogProvider);
-  return MentalHealthHelpers.compareTodayVsYesterday(
-    todayLog: todayLog,
-    yesterdayLog: yesterdayLog,
-  );
-});
+      final yesterdayLog = ref.watch(yesterdayMentalLogProvider);
+      return MentalHealthHelpers.compareTodayVsYesterday(
+        todayLog: todayLog,
+        yesterdayLog: yesterdayLog,
+      );
+    });

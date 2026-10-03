@@ -1,3 +1,5 @@
+import 'deletion_checkpoint.dart';
+import '../data/pending_operations.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -52,14 +54,15 @@ class AccountDeletionService {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
   final GroupService _groupService;
+  String? _deletionUid;
 
   AccountDeletionService({
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
     GroupService? groupService,
-  })  : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance,
-        _groupService = groupService ?? GroupService(firestore: firestore);
+  }) : _auth = auth ?? FirebaseAuth.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance,
+       _groupService = groupService ?? GroupService(firestore: firestore);
 
   /// Executes the complete account deletion process for the current authenticated user.
   ///
@@ -74,16 +77,51 @@ class AccountDeletionService {
     }
 
     final uid = user.uid;
-    debugPrint('[AccountDeletion] >>> Starting complete account deletion for UID: $uid <<<');
+    if (_deletionUid != null && _deletionUid != uid) {
+      throw StateError(
+        'The signed-in account changed during deletion. Sign in to the original account and retry.',
+      );
+    }
+    _deletionUid = uid;
+    // Prompt before deleting data: cancelling reauthentication must keep the account intact.
+    final lastSignIn = user.metadata.lastSignInTime;
+    if (lastSignIn == null ||
+        DateTime.now().difference(lastSignIn) > const Duration(minutes: 5)) {
+      throw ReauthenticationRequiredException(
+        providerIds: user.providerData.map((info) => info.providerId).toList(),
+        email: user.email,
+      );
+    }
+    await DeletionCheckpoint.set(uid, true);
+    // A minimal UID-only deletion barrier survives root removal and prevents
+    // profile recreation from a second device if Auth deletion needs a retry.
+    await _firestore.collection('accountDeletions').doc(uid).set({
+      'pending': true,
+    }, SetOptions(merge: true));
+    await _firestore.collection('users').doc(uid).set({
+      'deletionPending': true,
+      'deletionStartedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+    debugPrint(
+      '[AccountDeletion] >>> Starting complete account deletion for UID: $uid <<<',
+    );
 
     // -------------------------------------------------------------------------
     // PHASE 1: GROUP CLEANUP & CASCADE
     // -------------------------------------------------------------------------
     try {
       onProgress?.call('Cleaning up group memberships and created groups...');
-      debugPrint('[AccountDeletion] [Phase 1/4] Processing group memberships and cascade deletion...');
+      debugPrint(
+        '[AccountDeletion] [Phase 1/4] Processing group memberships and cascade deletion...',
+      );
       await _handleGroupDeletion(uid);
-      debugPrint('[AccountDeletion] [Phase 1/4] Groups processed successfully.');
+      await _eraseFormerSharedRecords(uid);
+      await _firestore.collection('users').doc(uid).set({
+        'deletionPhase': 'personalData',
+      }, SetOptions(merge: true));
+      debugPrint(
+        '[AccountDeletion] [Phase 1/4] Groups processed successfully.',
+      );
     } catch (e, stack) {
       debugPrint('[AccountDeletion] ERROR in Phase 1 (Groups): $e\n$stack');
       // Log failure point for team diagnosis
@@ -95,15 +133,20 @@ class AccountDeletionService {
     // -------------------------------------------------------------------------
     try {
       onProgress?.call('Erasing personal data and activity records...');
-      debugPrint('[AccountDeletion] [Phase 2/4] Deleting all 43 per-user Firestore subcollections...');
+      debugPrint(
+        '[AccountDeletion] [Phase 2/4] Deleting all 43 per-user Firestore subcollections...',
+      );
       await _deleteUserSubcollections(uid, onProgress: onProgress);
-      debugPrint('[AccountDeletion] [Phase 2/4] All subcollections cleared successfully.');
+      await _firestore.collection('users').doc(uid).set({
+        'deletionPhase': 'authentication',
+      }, SetOptions(merge: true));
+      debugPrint(
+        '[AccountDeletion] [Phase 2/4] All subcollections cleared successfully.',
+      );
     } catch (e, stack) {
-      debugPrint('[AccountDeletion] ERROR in Phase 2 (Subcollections): $e\n$stack');
-      // TODO: In a future release, implement an idempotent "resume partial deletion"
-      // mechanism (e.g. saving an in-progress deletion marker document under users/{uid}/_deletionState)
-      // to cleanly resume if interrupted mid-stream. The ordered batched architecture
-      // used here minimizes inconsistent states in the meantime.
+      debugPrint(
+        '[AccountDeletion] ERROR in Phase 2 (Subcollections): $e\n$stack',
+      );
       rethrow;
     }
 
@@ -112,11 +155,15 @@ class AccountDeletionService {
     // -------------------------------------------------------------------------
     try {
       onProgress?.call('Removing user profile...');
-      debugPrint('[AccountDeletion] [Phase 3/4] Deleting root users/$uid document...');
+      debugPrint(
+        '[AccountDeletion] [Phase 3/4] Deleting root users/$uid document...',
+      );
       await _firestore.collection('users').doc(uid).delete();
       debugPrint('[AccountDeletion] [Phase 3/4] Root user document deleted.');
     } catch (e, stack) {
-      debugPrint('[AccountDeletion] ERROR in Phase 3 (Root user doc): $e\n$stack');
+      debugPrint(
+        '[AccountDeletion] ERROR in Phase 3 (Root user doc): $e\n$stack',
+      );
       rethrow;
     }
 
@@ -125,39 +172,59 @@ class AccountDeletionService {
     // -------------------------------------------------------------------------
     try {
       onProgress?.call('Finalizing account removal with Firebase Auth...');
-      debugPrint('[AccountDeletion] [Phase 4/4] Deleting Firebase Auth user...');
+      debugPrint(
+        '[AccountDeletion] [Phase 4/4] Deleting Firebase Auth user...',
+      );
       await user.delete().timeout(const Duration(seconds: 15));
-      debugPrint('[AccountDeletion] [Phase 4/4] Firebase Auth user deleted successfully!');
+      await PendingOperations.clearAccount(uid);
+      debugPrint(
+        '[AccountDeletion] [Phase 4/4] Firebase Auth user deleted successfully!',
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
-        debugPrint('[AccountDeletion] Auth requires recent login for UID: $uid');
-        final providerIds =
-            user.providerData.map((info) => info.providerId).toList();
+        debugPrint(
+          '[AccountDeletion] Auth requires recent login for UID: $uid',
+        );
+        final providerIds = user.providerData
+            .map((info) => info.providerId)
+            .toList();
         throw ReauthenticationRequiredException(
           providerIds: providerIds,
           email: user.email,
         );
       }
-      debugPrint('[AccountDeletion] ERROR in Phase 4 (FirebaseAuthException): [${e.code}] ${e.message}');
+      debugPrint(
+        '[AccountDeletion] ERROR in Phase 4 (FirebaseAuthException): [${e.code}] ${e.message}',
+      );
       rethrow;
     } catch (e, stack) {
-      debugPrint('[AccountDeletion] ERROR in Phase 4 (Auth user deletion): $e\n$stack');
+      debugPrint(
+        '[AccountDeletion] ERROR in Phase 4 (Auth user deletion): $e\n$stack',
+      );
       rethrow;
     }
 
-    debugPrint('[AccountDeletion] >>> Complete account deletion finished successfully for UID: $uid <<<');
+    await DeletionCheckpoint.set(uid, false);
+    debugPrint(
+      '[AccountDeletion] >>> Complete account deletion finished successfully for UID: $uid <<<',
+    );
   }
 
-  /// Retries deleting ONLY the Firebase Auth user after a successful re-authentication.
-  /// (Used when all Firestore data has already been cleared in Phases 1-3).
+  /// Retries the complete deletion after a successful reauthentication.
   Future<void> finalizeAuthDeletionAfterReauth() async {
     final user = _auth.currentUser;
     if (user == null) {
-      throw Exception('No active user session to delete after re-authentication.');
+      throw Exception(
+        'No active user session to delete after re-authentication.',
+      );
     }
-    debugPrint('[AccountDeletion] Retrying user.delete() post re-authentication...');
-    await user.delete().timeout(const Duration(seconds: 15));
-    debugPrint('[AccountDeletion] User account successfully deleted post re-authentication.');
+    debugPrint(
+      '[AccountDeletion] Retrying complete cleanup post re-authentication...',
+    );
+    await deleteCurrentAccount();
+    debugPrint(
+      '[AccountDeletion] User account successfully deleted post re-authentication.',
+    );
   }
 
   /// Queries all groups the user participates in or has requested to join,
@@ -189,18 +256,23 @@ class AccountDeletionService {
         }
       }
     } catch (e) {
-      debugPrint('[AccountDeletion] collectionGroup query fallback (using activeGroupIds): $e');
+      debugPrint('[AccountDeletion] Could not discover all memberships: $e');
+      rethrow;
     }
 
-    debugPrint('[AccountDeletion] Inspecting ${allGroupIdsToInspect.length} groups for user $uid');
+    debugPrint(
+      '[AccountDeletion] Inspecting ${allGroupIdsToInspect.length} groups for user $uid',
+    );
 
     for (final groupId in allGroupIdsToInspect) {
       if (processedGroupIds.contains(groupId)) continue;
       processedGroupIds.add(groupId);
 
       try {
-        final groupDoc =
-            await _firestore.collection('groups').doc(groupId).get();
+        final groupDoc = await _firestore
+            .collection('groups')
+            .doc(groupId)
+            .get();
         if (!groupDoc.exists) continue;
 
         final groupData = groupDoc.data() ?? {};
@@ -214,33 +286,137 @@ class AccountDeletionService {
             .doc(uid)
             .get();
 
-        String role = 'member';
         String status = 'approved';
 
         if (memberDoc.exists) {
           final member = GroupMemberModel.fromMap(memberDoc.data()!, uid);
-          role = member.role;
           status = member.status;
         }
 
-        final bool isAdmin = (createdBy == uid) || (role == 'admin');
+        final bool isAdmin = createdBy == uid;
 
         if (isAdmin) {
           // ADMIN: Cascade delete the ENTIRE group (removing it for all members)
-          debugPrint('[AccountDeletion] User is ADMIN of group $groupId. Triggering full cascade deletion.');
+          debugPrint(
+            '[AccountDeletion] User is ADMIN of group $groupId. Triggering full cascade deletion.',
+          );
           await _groupService.deleteGroup(groupId);
         } else if (status == 'pending') {
           // PENDING: Remove the pending application doc
-          debugPrint('[AccountDeletion] User has PENDING request in group $groupId. Cancelling request.');
+          debugPrint(
+            '[AccountDeletion] User has PENDING request in group $groupId. Cancelling request.',
+          );
           await _groupService.cancelPendingRequest(groupId, uid);
         } else {
           // MEMBER: Leave group normally (removes member doc and decrements memberCount)
-          debugPrint('[AccountDeletion] User is MEMBER of group $groupId. Leaving group.');
+          debugPrint(
+            '[AccountDeletion] User is MEMBER of group $groupId. Leaving group.',
+          );
+          await _groupService.eraseMemberActivity(groupId, uid);
           await _groupService.leaveGroup(groupId, uid);
         }
       } catch (e) {
         debugPrint('[AccountDeletion] Error processing group $groupId: $e');
-        // Continue to next group to ensure maximum data is cleared
+        rethrow;
+      }
+    }
+  }
+
+  /// Finds own records even after an old membership document was removed.
+  Future<void> _eraseFormerSharedRecords(String uid) async {
+    // These indexed queries also find activity left behind by an old membership.
+    for (final field in ['createdBy', 'approvedBy', 'winnerUids']) {
+      while (true) {
+        final query = field == 'winnerUids'
+            ? _firestore
+                  .collectionGroup('challenges')
+                  .where(field, arrayContains: uid)
+            : _firestore
+                  .collectionGroup('challenges')
+                  .where(field, isEqualTo: uid);
+        final page = await query.limit(100).get();
+        if (page.docs.isEmpty) break;
+        for (final doc in page.docs) {
+          final patch = field == 'winnerUids'
+              ? <String, dynamic>{
+                  'winnerUids': FieldValue.arrayRemove([uid]),
+                  'winnerUid': null,
+                  'winnerName': null,
+                }
+              : <String, dynamic>{field: null};
+          await doc.reference.update(patch);
+        }
+      }
+    }
+    while (true) {
+      final page = await _firestore
+          .collectionGroup('audit')
+          .where('actorUid', isEqualTo: uid)
+          .limit(100)
+          .get();
+      if (page.docs.isEmpty) break;
+      for (final doc in page.docs) {
+        await doc.reference.delete();
+      }
+    }
+    while (true) {
+      final page = await _firestore
+          .collectionGroup('feed')
+          .where('reactionUids', arrayContains: uid)
+          .limit(100)
+          .get();
+      if (page.docs.isEmpty) break;
+      for (final doc in page.docs) {
+        await _firestore.runTransaction((transaction) async {
+          final fresh = await transaction.get(doc.reference);
+          if (!fresh.exists) return;
+          final reactions = Map<String, dynamic>.from(
+            fresh.data()?['reactions'] as Map? ?? {},
+          );
+          final reactedBy = Map<String, dynamic>.from(
+            fresh.data()?['reactedBy'] as Map? ?? {},
+          );
+          final previous = reactedBy.remove(uid);
+          if (previous != null) {
+            reactions[previous] =
+                ((reactions[previous] as num?)?.toInt() ?? 1) - 1;
+          }
+          transaction.update(doc.reference, {
+            'reactions': reactions,
+            'reactedBy': reactedBy,
+            'reactionUids': reactedBy.keys.toList(),
+          });
+        });
+      }
+    }
+    for (final name in [
+      'feed',
+      'xpEvents',
+      'weeklyScores',
+      'scoreEvents',
+      'completions',
+      'participants',
+    ]) {
+      while (true) {
+        final page = await _firestore
+            .collectionGroup(name)
+            .where('uid', isEqualTo: uid)
+            .limit(100)
+            .get();
+        final shared = page.docs
+            .where((doc) => doc.reference.path.startsWith('groups/'))
+            .toList();
+        if (shared.isEmpty) break;
+        for (final doc in shared) {
+          if (name == 'participants') {
+            await _groupService.removeChallengeParticipant(
+              doc.reference.parent.parent!,
+              uid,
+            );
+          } else {
+            await doc.reference.delete();
+          }
+        }
       }
     }
   }
@@ -251,27 +427,37 @@ class AccountDeletionService {
     String uid, {
     void Function(String stepDescription)? onProgress,
   }) async {
-    const int batchLimit = 400; // Comfortable margin below Firestore's 500 limit
+    const int batchLimit =
+        400; // Comfortable margin below Firestore's 500 limit
     final userRef = _firestore.collection('users').doc(uid);
+    await userRef.collection('stats').doc('progress').delete();
 
     int deletedCollectionsCount = 0;
 
     for (final collectionName in kUserDataSubcollections) {
       try {
         final subcollectionRef = userRef.collection(collectionName);
-        final snapshot = await subcollectionRef.get();
-
-        if (snapshot.docs.isEmpty) continue;
-
-        final docs = snapshot.docs;
-        debugPrint('[AccountDeletion] Deleting ${docs.length} documents from $collectionName...');
-
-        for (var i = 0; i < docs.length; i += batchLimit) {
+        while (true) {
+          final snapshot = await subcollectionRef.limit(batchLimit).get();
+          if (snapshot.docs.isEmpty) break;
           final batch = _firestore.batch();
-          final end = (i + batchLimit < docs.length) ? i + batchLimit : docs.length;
-          final chunk = docs.sublist(i, end);
-
-          for (final doc in chunk) {
+          for (final doc in snapshot.docs) {
+            if (collectionName == 'skills') {
+              for (final name in ['taskClaims', 'dailyProgress']) {
+                while (true) {
+                  final children = await doc.reference
+                      .collection(name)
+                      .limit(200)
+                      .get();
+                  if (children.docs.isEmpty) break;
+                  final childBatch = _firestore.batch();
+                  for (final child in children.docs) {
+                    childBatch.delete(child.reference);
+                  }
+                  await childBatch.commit();
+                }
+              }
+            }
             batch.delete(doc.reference);
           }
 
@@ -280,11 +466,15 @@ class AccountDeletionService {
 
         deletedCollectionsCount++;
       } catch (e) {
-        debugPrint('[AccountDeletion] Error clearing subcollection $collectionName: $e');
-        // Continue with remaining collections to ensure maximal deletion
+        debugPrint(
+          '[AccountDeletion] Error clearing subcollection $collectionName: $e',
+        );
+        rethrow;
       }
     }
 
-    debugPrint('[AccountDeletion] Processed all ${kUserDataSubcollections.length} subcollections (cleared $deletedCollectionsCount active ones).');
+    debugPrint(
+      '[AccountDeletion] Cleared $deletedCollectionsCount registered subcollections.',
+    );
   }
 }

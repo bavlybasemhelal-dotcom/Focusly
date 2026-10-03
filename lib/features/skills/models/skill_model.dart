@@ -12,7 +12,8 @@ import 'package:flutter/foundation.dart';
 class SkillModel {
   final String id;
   final String name;
-  final String category; // Matches TaskCategory ID (e.g. 'work', 'study', 'health', etc.)
+  final String
+  category; // Matches TaskCategory ID (e.g. 'work', 'study', 'health', etc.)
   final int level;
   final int xp; // 0..99
   final int color; // Hex color integer (e.g. 0xFF2E6FF2)
@@ -54,7 +55,9 @@ class SkillModel {
   factory SkillModel.fromMap(Map<String, dynamic> map, String docId) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 

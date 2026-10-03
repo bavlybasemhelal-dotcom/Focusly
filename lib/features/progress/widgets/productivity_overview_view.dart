@@ -119,7 +119,9 @@ class ProductivityOverviewView extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: brandPrimary.withValues(alpha: isDark ? 0.2 : 0.12),
+                      color: brandPrimary.withValues(
+                        alpha: isDark ? 0.2 : 0.12,
+                      ),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -173,8 +175,8 @@ class ProductivityOverviewView extends ConsumerWidget {
                                 : null,
                             color: score == 0
                                 ? (isDark
-                                    ? Colors.white10
-                                    : const Color(0xFFF1F5F9))
+                                      ? Colors.white10
+                                      : const Color(0xFFF1F5F9))
                                 : null,
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -227,7 +229,9 @@ class ProductivityOverviewView extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.2 : 0.12),
+                        color: const Color(
+                          0xFF10B981,
+                        ).withValues(alpha: isDark ? 0.2 : 0.12),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -304,7 +308,9 @@ class ProductivityOverviewView extends ConsumerWidget {
                               backgroundColor: isDark
                                   ? Colors.white10
                                   : const Color(0xFFE2E8F0),
-                              valueColor: AlwaysStoppedAnimation<Color>(catColor),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                catColor,
+                              ),
                             ),
                           ),
                         ),

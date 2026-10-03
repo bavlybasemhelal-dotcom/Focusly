@@ -1,3 +1,4 @@
+import '../notifications/managed_notification_sender.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -13,10 +14,10 @@ import '../../features/notifications/services/notification_logger.dart';
 /// - Web: Native Browser Notification API + active tab timer queue.
 /// - Desktop (Windows/macOS/Linux): local_notifier + process timer queue.
 class NotificationInitService {
-  static final PlatformNotificationSender _platformSender =
-      PlatformNotificationSender.create();
+  static final ManagedNotificationSender _platformSender =
+      ManagedNotificationSender(PlatformNotificationSender.create());
 
-  static PlatformNotificationSender get platformSender => _platformSender;
+  static ManagedNotificationSender get platformSender => _platformSender;
 
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -40,7 +41,9 @@ class NotificationInitService {
           tz.setLocalLocation(tz.getLocation(timeZoneName));
           debugPrint('Focusly Timezone initialized: $timeZoneName');
         } catch (e) {
-          debugPrint('Warning: Could not get device timezone ($e), fallback to UTC/local offset.');
+          debugPrint(
+            'Warning: Could not get device timezone ($e), fallback to UTC/local offset.',
+          );
         }
       }
 
@@ -64,7 +67,8 @@ class NotificationInitService {
 
     const testId = 777778;
     const title = '🔔 Focusly Instant Notification';
-    const body = 'Your notification channel and heads-up banner are active and working!';
+    const body =
+        'Your notification channel and heads-up banner are active and working!';
 
     await _platformSender.showInstantNotification(
       id: testId,

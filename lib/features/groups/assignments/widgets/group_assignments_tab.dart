@@ -34,8 +34,9 @@ class GroupAssignmentsTab extends ConsumerWidget {
 
     final currentUid = ref.watch(currentUserIdProvider) ?? '';
     final membersAsync = ref.watch(groupMembersStreamProvider(groupId));
-    final currentUserMember =
-        membersAsync.value?.where((m) => m.uid == currentUid).firstOrNull;
+    final currentUserMember = membersAsync.value
+        ?.where((m) => m.uid == currentUid)
+        .firstOrNull;
     final isAdmin =
         currentUserMember?.isAdmin == true || group.createdBy == currentUid;
 

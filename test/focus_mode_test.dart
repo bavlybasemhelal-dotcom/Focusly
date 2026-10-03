@@ -62,26 +62,29 @@ class MockPomodoroTimerNotifier extends PomodoroTimerNotifier {
 
 void main() {
   group('NotificationQueue & FocusModeProvider Unit Tests', () {
-    test('NotificationQueue queues, reports count, and flushes callbacks', () async {
-      final queue = NotificationQueue();
-      queue.clear();
-      expect(queue.hasQueuedItems, isFalse);
-      expect(queue.queuedCount, equals(0));
+    test(
+      'NotificationQueue queues, reports count, and flushes callbacks',
+      () async {
+        final queue = NotificationQueue();
+        queue.clear();
+        expect(queue.hasQueuedItems, isFalse);
+        expect(queue.queuedCount, equals(0));
 
-      bool callback1Executed = false;
-      bool callback2Executed = false;
+        bool callback1Executed = false;
+        bool callback2Executed = false;
 
-      queue.queueCelebration((ctx) => callback1Executed = true);
-      queue.queueCelebration((ctx) => callback2Executed = true);
+        queue.queueCelebration((ctx) => callback1Executed = true);
+        queue.queueCelebration((ctx) => callback2Executed = true);
 
-      expect(queue.hasQueuedItems, isTrue);
-      expect(queue.queuedCount, equals(2));
+        expect(queue.hasQueuedItems, isTrue);
+        expect(queue.queuedCount, equals(2));
 
-      queue.clear();
-      expect(queue.hasQueuedItems, isFalse);
-      expect(callback1Executed, isFalse);
-      expect(callback2Executed, isFalse);
-    });
+        queue.clear();
+        expect(queue.hasQueuedItems, isFalse);
+        expect(callback1Executed, isFalse);
+        expect(callback2Executed, isFalse);
+      },
+    );
 
     test('FocusModeActiveNotifier enters, exits, and toggles state', () {
       final container = ProviderContainer();
@@ -101,134 +104,154 @@ void main() {
   });
 
   group('FocusModePage UI & Subtasks Checklist Tests', () {
-    testWidgets('FocusModePage renders header, task selector, timer ring, and controls', (tester) async {
-      final now = DateTime.now();
-      final task1 = TaskModel(
-        id: 't1',
-        title: 'Draft Project Specs',
-        categoryId: 'work',
-        priority: TaskPriority.high,
-        done: false,
-        date: now,
-        createdAt: now,
-        subtasks: const [
-          SubtaskModel(id: 's1', title: 'Write outline', done: false),
-          SubtaskModel(id: 's2', title: 'Add diagrams', done: true),
-        ],
-      );
-
-      await tester.pumpWidget(
-        createFocusModeTestWidget(
-          child: const FocusModePage(),
-          overrides: [
-            tasksStreamProvider.overrideWithValue(AsyncData([task1])),
+    testWidgets(
+      'FocusModePage renders header, task selector, timer ring, and controls',
+      (tester) async {
+        final now = DateTime.now();
+        final task1 = TaskModel(
+          id: 't1',
+          title: 'Draft Project Specs',
+          categoryId: 'work',
+          priority: TaskPriority.high,
+          done: false,
+          date: now,
+          createdAt: now,
+          subtasks: const [
+            SubtaskModel(id: 's1', title: 'Write outline', done: false),
+            SubtaskModel(id: 's2', title: 'Add diagrams', done: true),
           ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
 
-      // Header verification
-      expect(find.text('Focus Mode'), findsOneWidget);
-      expect(find.text('Distraction-free'), findsOneWidget);
+        await tester.pumpWidget(
+          createFocusModeTestWidget(
+            child: const FocusModePage(),
+            overrides: [
+              tasksStreamProvider.overrideWithValue(AsyncData([task1])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Task selector verification
-      expect(find.text('Select Task to Focus On'), findsOneWidget);
-      expect(find.text('Draft Project Specs'), findsOneWidget);
-      expect(find.text('1/2'), findsOneWidget); // Subtasks indicator
+        // Header verification
+        expect(find.text('Focus Mode'), findsOneWidget);
+        expect(find.text('Distraction-free'), findsOneWidget);
 
-      // Timer ring MM:SS and play control icon
-      expect(find.text('25:00'), findsOneWidget);
-      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
-    });
+        // Task selector verification
+        expect(find.text('Select Task to Focus On'), findsOneWidget);
+        expect(find.text('Draft Project Specs'), findsOneWidget);
+        expect(find.text('1/2'), findsOneWidget); // Subtasks indicator
 
-    testWidgets('FocusModePage renders active task card and live subtasks checklist when task is linked', (tester) async {
-      final now = DateTime.now();
-      final task1 = TaskModel(
-        id: 't_active',
-        title: 'Build Authentication Flow',
-        categoryId: 'work',
-        priority: TaskPriority.high,
-        done: false,
-        date: now,
-        createdAt: now,
-        subtasks: const [
-          SubtaskModel(id: 'sub_1', title: 'Setup Firebase Auth', done: true),
-          SubtaskModel(id: 'sub_2', title: 'Design Login UI', done: false),
-        ],
-      );
+        // Timer ring MM:SS and play control icon
+        expect(find.text('25:00'), findsOneWidget);
+        expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
+      },
+    );
 
-      final initialTimerState = PomodoroTimerState.initial(const PomodoroConfig()).copyWith(
-        selectedTaskId: 't_active',
-        selectedTaskTitle: 'Build Authentication Flow',
-      );
-
-      await tester.pumpWidget(
-        createFocusModeTestWidget(
-          child: const FocusModePage(),
-          overrides: [
-            pomodoroTimerProvider.overrideWith(() => MockPomodoroTimerNotifier(initialTimerState)),
-            tasksStreamProvider.overrideWithValue(AsyncData([task1])),
+    testWidgets(
+      'FocusModePage renders active task card and live subtasks checklist when task is linked',
+      (tester) async {
+        final now = DateTime.now();
+        final task1 = TaskModel(
+          id: 't_active',
+          title: 'Build Authentication Flow',
+          categoryId: 'work',
+          priority: TaskPriority.high,
+          done: false,
+          date: now,
+          createdAt: now,
+          subtasks: const [
+            SubtaskModel(id: 'sub_1', title: 'Setup Firebase Auth', done: true),
+            SubtaskModel(id: 'sub_2', title: 'Design Login UI', done: false),
           ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
 
-      // Active task card verification
-      expect(find.text('Build Authentication Flow'), findsAtLeastNWidgets(1));
-      expect(find.text('HIGH'), findsOneWidget);
-      expect(find.text('Switch Task'), findsOneWidget);
+        final initialTimerState =
+            PomodoroTimerState.initial(const PomodoroConfig()).copyWith(
+              selectedTaskId: 't_active',
+              selectedTaskTitle: 'Build Authentication Flow',
+            );
 
-      // Subtasks checklist verification
-      expect(find.text('Subtasks Checklist'), findsOneWidget);
-      expect(find.text('1/2'), findsOneWidget);
-      expect(find.text('Setup Firebase Auth'), findsOneWidget);
-      expect(find.text('Design Login UI'), findsOneWidget);
-    });
+        await tester.pumpWidget(
+          createFocusModeTestWidget(
+            child: const FocusModePage(),
+            overrides: [
+              pomodoroTimerProvider.overrideWith(
+                () => MockPomodoroTimerNotifier(initialTimerState),
+              ),
+              tasksStreamProvider.overrideWithValue(AsyncData([task1])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-    testWidgets('FocusModePage displays empty state when linked task has no subtasks', (tester) async {
-      final now = DateTime.now();
-      final taskWithoutSubtasks = TaskModel(
-        id: 't_simple',
-        title: 'Review PR #42',
-        categoryId: 'work',
-        done: false,
-        date: now,
-        createdAt: now,
-        subtasks: const [],
-      );
+        // Active task card verification
+        expect(find.text('Build Authentication Flow'), findsAtLeastNWidgets(1));
+        expect(find.text('HIGH'), findsOneWidget);
+        expect(find.text('Switch Task'), findsOneWidget);
 
-      final initialTimerState = PomodoroTimerState.initial(const PomodoroConfig()).copyWith(
-        selectedTaskId: 't_simple',
-        selectedTaskTitle: 'Review PR #42',
-      );
+        // Subtasks checklist verification
+        expect(find.text('Subtasks Checklist'), findsOneWidget);
+        expect(find.text('1/2'), findsOneWidget);
+        expect(find.text('Setup Firebase Auth'), findsOneWidget);
+        expect(find.text('Design Login UI'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'FocusModePage displays empty state when linked task has no subtasks',
+      (tester) async {
+        final now = DateTime.now();
+        final taskWithoutSubtasks = TaskModel(
+          id: 't_simple',
+          title: 'Review PR #42',
+          categoryId: 'work',
+          done: false,
+          date: now,
+          createdAt: now,
+          subtasks: const [],
+        );
+
+        final initialTimerState =
+            PomodoroTimerState.initial(const PomodoroConfig()).copyWith(
+              selectedTaskId: 't_simple',
+              selectedTaskTitle: 'Review PR #42',
+            );
+
+        await tester.pumpWidget(
+          createFocusModeTestWidget(
+            child: const FocusModePage(),
+            overrides: [
+              pomodoroTimerProvider.overrideWith(
+                () => MockPomodoroTimerNotifier(initialTimerState),
+              ),
+              tasksStreamProvider.overrideWithValue(
+                AsyncData([taskWithoutSubtasks]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Review PR #42'), findsAtLeastNWidgets(1));
+        expect(find.text('No subtasks yet'), findsOneWidget);
+        expect(find.text('Add Subtask'), findsOneWidget);
+      },
+    );
+
+    testWidgets('Exit commitment guard blocks exit when work timer is running', (
+      tester,
+    ) async {
+      final runningWorkState = PomodoroTimerState.initial(
+        const PomodoroConfig(),
+      ).copyWith(isRunning: true, phase: PomodoroPhase.work);
 
       await tester.pumpWidget(
         createFocusModeTestWidget(
           child: const FocusModePage(),
           overrides: [
-            pomodoroTimerProvider.overrideWith(() => MockPomodoroTimerNotifier(initialTimerState)),
-            tasksStreamProvider.overrideWithValue(AsyncData([taskWithoutSubtasks])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Review PR #42'), findsAtLeastNWidgets(1));
-      expect(find.text('No subtasks yet'), findsOneWidget);
-      expect(find.text('Add Subtask'), findsOneWidget);
-    });
-
-    testWidgets('Exit commitment guard blocks exit when work timer is running', (tester) async {
-      final runningWorkState = PomodoroTimerState.initial(const PomodoroConfig()).copyWith(
-        isRunning: true,
-        phase: PomodoroPhase.work,
-      );
-
-      await tester.pumpWidget(
-        createFocusModeTestWidget(
-          child: const FocusModePage(),
-          overrides: [
-            pomodoroTimerProvider.overrideWith(() => MockPomodoroTimerNotifier(runningWorkState)),
+            pomodoroTimerProvider.overrideWith(
+              () => MockPomodoroTimerNotifier(runningWorkState),
+            ),
           ],
         ),
       );
@@ -243,18 +266,20 @@ void main() {
 
       // Guarded toast should be displayed
       expect(
-        find.text("🔒 Can't exit Focus Mode until the session ends or you pause/reset it"),
+        find.text(
+          "🔒 Can't exit Focus Mode until the session ends or you pause/reset it",
+        ),
         findsOneWidget,
       );
     });
   });
 
   group('Focus Mode Entry Points Tests', () {
-    testWidgets('PomodoroScreen includes Enter Focus Mode button', (tester) async {
+    testWidgets('PomodoroScreen includes Enter Focus Mode button', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        createFocusModeTestWidget(
-          child: const PomodoroScreen(),
-        ),
+        createFocusModeTestWidget(child: const PomodoroScreen()),
       );
       await tester.pumpAndSettle();
 
@@ -266,7 +291,9 @@ void main() {
         createFocusModeTestWidget(
           child: const HomeScreen(),
           overrides: [
-            morningIntentionDismissedProvider.overrideWith(MockDismissedNotifier.new),
+            morningIntentionDismissedProvider.overrideWith(
+              MockDismissedNotifier.new,
+            ),
           ],
         ),
       );

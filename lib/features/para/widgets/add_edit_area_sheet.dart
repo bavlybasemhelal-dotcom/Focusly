@@ -32,7 +32,21 @@ class _AddEditAreaSheetState extends ConsumerState<AddEditAreaSheet> {
   bool _isLoading = false;
 
   final List<String> _emojiPresets = [
-    '🎯', '💼', '💰', '🏥', '📚', '🏡', '🎨', '🚀', '🏃', '🧘', '✈️', '💻', '👨‍👩‍👧', '🌱', '⚙️'
+    '🎯',
+    '💼',
+    '💰',
+    '🏥',
+    '📚',
+    '🏡',
+    '🎨',
+    '🚀',
+    '🏃',
+    '🧘',
+    '✈️',
+    '💻',
+    '👨‍👩‍👧',
+    '🌱',
+    '⚙️',
   ];
 
   @override
@@ -58,7 +72,9 @@ class _AddEditAreaSheetState extends ConsumerState<AddEditAreaSheet> {
     try {
       final service = ref.read(paraServiceProvider);
       final title = _titleController.text.trim();
-      final emoji = _emojiController.text.trim().isEmpty ? '🎯' : _emojiController.text.trim();
+      final emoji = _emojiController.text.trim().isEmpty
+          ? '🎯'
+          : _emojiController.text.trim();
 
       if (widget.area == null) {
         await service.addArea(title: title, emoji: emoji);
@@ -206,7 +222,8 @@ class _AddEditAreaSheetState extends ConsumerState<AddEditAreaSheet> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: _emojiPresets.length,
-                        separatorBuilder: (context, index) => const SizedBox(width: 6),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 6),
                         itemBuilder: (context, index) {
                           final emoji = _emojiPresets[index];
                           final isSelected = _emojiController.text == emoji;
@@ -222,7 +239,9 @@ class _AddEditAreaSheetState extends ConsumerState<AddEditAreaSheet> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFF2E6FF2).withValues(alpha: 0.2)
+                                    ? const Color(
+                                        0xFF2E6FF2,
+                                      ).withValues(alpha: 0.2)
                                     : inputBg,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
@@ -260,10 +279,15 @@ class _AddEditAreaSheetState extends ConsumerState<AddEditAreaSheet> {
                 controller: _titleController,
                 autofocus: !isEdit,
                 textCapitalization: TextCapitalization.words,
-                style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
                   hintText: context.tr('area_name_hint'),
-                  hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: secondaryTextColor.withValues(alpha: 0.6),
+                  ),
                   filled: true,
                   fillColor: inputBg,
                   border: OutlineInputBorder(
@@ -276,9 +300,15 @@ class _AddEditAreaSheetState extends ConsumerState<AddEditAreaSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF2E6FF2),
+                      width: 1.8,
+                    ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -309,7 +339,9 @@ class _AddEditAreaSheetState extends ConsumerState<AddEditAreaSheet> {
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Text(

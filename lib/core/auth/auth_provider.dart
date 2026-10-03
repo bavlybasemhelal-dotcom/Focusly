@@ -17,6 +17,10 @@ import '../../features/tasks/providers/tasks_provider.dart';
 import '../../features/time_audit/providers/time_audit_provider.dart';
 import '../../features/weekly_review/providers/weekly_review_provider.dart';
 import '../../features/focus_mode/providers/focus_mode_provider.dart';
+import '../../features/focus_mode/services/notification_queue.dart';
+import '../services/notification_init_service.dart';
+import '../../features/notifications/providers/notifications_provider.dart';
+import '../../features/spaced_repetition/controllers/review_session_controller.dart';
 
 /// Stream provider for Firebase Auth state changes.
 ///
@@ -79,6 +83,14 @@ Future<void> logoutAndClearSession(WidgetRef ref) async {
     await FirebaseAuth.instance.signOut();
   } catch (e) {
     debugPrint('Error signing out from FirebaseAuth: $e');
+    rethrow;
+  }
+
+  NotificationQueue().clear();
+  try {
+    await NotificationInitService.platformSender.cancelAllNotifications();
+  } catch (e) {
+    debugPrint('Could not cancel session notifications: $e');
   }
 
   // 2. Explicitly invalidate and reset all user-scoped providers to clear in-memory caches
@@ -104,9 +116,11 @@ Future<void> logoutAndClearSession(WidgetRef ref) async {
   ref.invalidate(lastReviewDateStreamProvider);
   ref.invalidate(weeklyReviewsStreamProvider);
   ref.invalidate(focusModeActiveProvider);
+  ref.invalidate(notificationLogsStreamProvider);
+  ref.invalidate(reviewSessionControllerProvider);
 
   // 3. Reset Pomodoro active timer state if running
   try {
-    ref.read(pomodoroTimerProvider.notifier).reset();
+    ref.invalidate(pomodoroTimerProvider);
   } catch (_) {}
 }

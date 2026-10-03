@@ -81,11 +81,26 @@ void main() {
         createdAt: DateTime(2026, 8, 1),
       );
 
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 3)), isTrue); // Mon
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 10)), isTrue); // Next Mon
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 17)), isTrue); // Next Mon
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 4)), isFalse); // Tue
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 9)), isFalse); // Sun
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 3)),
+        isTrue,
+      ); // Mon
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 10)),
+        isTrue,
+      ); // Next Mon
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 17)),
+        isTrue,
+      ); // Next Mon
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 4)),
+        isFalse,
+      ); // Tue
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 9)),
+        isFalse,
+      ); // Sun
     });
 
     test('Monthly event occurs on the same day-of-month', () {
@@ -99,10 +114,22 @@ void main() {
         createdAt: DateTime(2026, 8, 1),
       );
 
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 15)), isTrue);
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 9, 15)), isTrue);
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 10, 15)), isTrue);
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 16)), isFalse);
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 15)),
+        isTrue,
+      );
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 9, 15)),
+        isTrue,
+      );
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 10, 15)),
+        isTrue,
+      );
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 16)),
+        isFalse,
+      );
     });
 
     test('Weekdays-only event occurs on Mon-Fri and skips Sat-Sun', () {
@@ -116,13 +143,34 @@ void main() {
         createdAt: DateTime(2026, 8, 1),
       );
 
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 3)), isTrue); // Mon
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 4)), isTrue); // Tue
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 5)), isTrue); // Wed
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 6)), isTrue); // Thu
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 7)), isTrue); // Fri
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 8)), isFalse); // Sat
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 9)), isFalse); // Sun
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 3)),
+        isTrue,
+      ); // Mon
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 4)),
+        isTrue,
+      ); // Tue
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 5)),
+        isTrue,
+      ); // Wed
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 6)),
+        isTrue,
+      ); // Thu
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 7)),
+        isTrue,
+      ); // Fri
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 8)),
+        isFalse,
+      ); // Sat
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 9)),
+        isFalse,
+      ); // Sun
     });
 
     test('Recurrence end date strictly halts occurrences', () {
@@ -137,10 +185,22 @@ void main() {
         createdAt: DateTime(2026, 8, 1),
       );
 
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 5)), isTrue);
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 10)), isTrue);
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 11)), isFalse);
-      expect(RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 20)), isFalse);
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 5)),
+        isTrue,
+      );
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 10)),
+        isTrue,
+      );
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 11)),
+        isFalse,
+      );
+      expect(
+        RecurrenceHelper.doesEventOccurOn(event, DateTime(2026, 8, 20)),
+        isFalse,
+      );
     });
 
     test('expandEventsForDateRange expands occurrences chronologically', () {

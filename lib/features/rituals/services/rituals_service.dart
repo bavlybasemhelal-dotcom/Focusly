@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../energy_mood/models/checkin_model.dart';
 import '../../progress/constants/xp_constants.dart';
 import '../../progress/services/progress_service.dart';
 import '../../tasks/models/task_model.dart';
@@ -79,15 +78,12 @@ class RitualsService {
       final col = _ritualsCollection(uid);
       if (col == null) return;
       final docRef = col.doc(dateStr);
-      await docRef.set(
-        {
-          'date': dateStr,
-          'promptShown': true,
-          'lastPromptDate': dateStr,
-          'updatedAt': Timestamp.fromDate(DateTime.now()),
-        },
-        SetOptions(merge: true),
-      );
+      await docRef.set({
+        'date': dateStr,
+        'promptShown': true,
+        'lastPromptDate': dateStr,
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+      }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Error recording prompt shown in Firestore: $e');
     }
@@ -97,10 +93,7 @@ class RitualsService {
   Stream<List<RitualModel>> streamRituals(String uid) {
     final col = _ritualsCollection(uid);
     if (col == null) return const Stream.empty();
-    return col
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return col.orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => RitualModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -119,14 +112,11 @@ class RitualsService {
       final docRef = col.doc(dateStr);
       final now = DateTime.now();
 
-      await docRef.set(
-        {
-          'date': dateStr,
-          'intention': intention.trim(),
-          'updatedAt': Timestamp.fromDate(now),
-        },
-        SetOptions(merge: true),
-      );
+      await docRef.set({
+        'date': dateStr,
+        'intention': intention.trim(),
+        'updatedAt': Timestamp.fromDate(now),
+      }, SetOptions(merge: true));
       return true;
     } catch (e) {
       debugPrint('Error saving morning intention: $e');
@@ -148,15 +138,15 @@ class RitualsService {
       final tomorrow = DateTime(now.year, now.month, now.day + 1);
 
       // Filter: unfinished, standard tasks (not GTD special lists)
-      final tasksToMove = tasks.where((t) => !t.done && t.listType == null).toList();
+      final tasksToMove = tasks
+          .where((t) => !t.done && t.listType == null)
+          .toList();
       if (tasksToMove.isEmpty) return 0;
 
       final batch = db.batch();
       for (final task in tasksToMove) {
         final docRef = taskCol.doc(task.id);
-        batch.update(docRef, {
-          'date': Timestamp.fromDate(tomorrow),
-        });
+        batch.update(docRef, {'date': Timestamp.fromDate(tomorrow)});
       }
 
       await batch.commit();
@@ -187,110 +177,98 @@ class RitualsService {
     required List<String> tomorrowTaskTitles,
     WidgetRef? ref,
   }) async {
+    if (uid.isEmpty ||
+        DateTime.tryParse(dateStr) == null ||
+        energyLevel < 1 ||
+        energyLevel > 5 ||
+        tomorrowTaskTitles.length > 3) {
+      return false;
+    }
     try {
-      final gratCol = _gratitudeCollection(uid);
-      final checkinCol = _checkinsCollection(uid);
-      final taskCol = _tasksCollection(uid);
-      final ritualCol = _ritualsCollection(uid);
-      if (gratCol == null || checkinCol == null || taskCol == null || ritualCol == null) {
+      final database = _db;
+      final rituals = _ritualsCollection(uid);
+      final tasks = _tasksCollection(uid);
+      final gratitude = _gratitudeCollection(uid);
+      final checkins = _checkinsCollection(uid);
+      if (database == null ||
+          rituals == null ||
+          tasks == null ||
+          gratitude == null ||
+          checkins == null) {
         return false;
       }
-
       final now = DateTime.now();
-      final tomorrow = DateTime(now.year, now.month, now.day + 1);
-      final combinedGratitude = '$gratitude1 • $gratitude2 • $gratitude3';
-
-      // 1. Gratitude Log Upsert
-      // TODO: Future Gratitude Log feature builds directly on this collection.
-      final gratitudeDoc = GratitudeModel(
-        id: dateStr,
-        date: now,
-        item1: gratitude1.trim(),
-        item2: gratitude2.trim(),
-        item3: gratitude3.trim(),
-        createdAt: now,
-        updatedAt: now,
-      );
-      await gratCol.doc(dateStr).set(
-            gratitudeDoc.toMap(),
-            SetOptions(merge: true),
-          );
-
-      // 2. Energy & Mood Check-in Merge (Preserving existing water/sleep)
-      final checkinDocRef = checkinCol.doc(dateStr);
-      final existingCheckinDoc = await checkinDocRef.get();
-      CheckinModel? existingCheckin;
-      if (existingCheckinDoc.exists && existingCheckinDoc.data() != null) {
-        existingCheckin = CheckinModel.fromMap(existingCheckinDoc.data()!, dateStr);
-      }
-
-      final mergedCheckin = CheckinModel(
-        date: dateStr,
-        energy: energyLevel,
-        mood: mood,
-        water: existingCheckin?.water ?? 0,
-        sleep: existingCheckin?.sleep ?? 0.0,
-        sleepTime: existingCheckin?.sleepTime,
-        wakeTime: existingCheckin?.wakeTime,
-        sleepXpAwarded: existingCheckin?.sleepXpAwarded ?? false,
-        waterXpGlassesAwarded: existingCheckin?.waterXpGlassesAwarded ?? 0,
-        note: combinedGratitude,
-        createdAt: existingCheckin?.createdAt ?? now,
-        updatedAt: now,
-      );
-      await checkinDocRef.set(mergedCheckin.toMap(), SetOptions(merge: true));
-
-      // 3. Create Tomorrow's Tasks
-      final validTomorrowTasks = tomorrowTaskTitles
-          .map((t) => t.trim())
-          .where((t) => t.isNotEmpty)
+      final day = DateTime.parse(dateStr);
+      final tomorrow = DateTime(day.year, day.month, day.day + 1);
+      final titles = tomorrowTaskTitles
+          .map((title) => title.trim())
+          .where((title) => title.isNotEmpty)
           .toList();
-
-      for (final title in validTomorrowTasks) {
-        final taskDocRef = taskCol.doc();
-        final newTask = TaskModel(
-          id: taskDocRef.id,
-          title: title,
-          categoryId: 'work',
-          priority: TaskPriority.medium,
-          date: tomorrow,
-          done: false,
-          createdAt: now,
+      final combined = '$gratitude1 • $gratitude2 • $gratitude3';
+      await database.runTransaction((transaction) async {
+        final existing = await transaction.get(rituals.doc(dateStr));
+        if ((existing.data()?['shutdown'] as Map?)?['completed'] == true) {
+          return;
+        }
+        transaction.set(
+          gratitude.doc(dateStr),
+          GratitudeModel(
+            id: dateStr,
+            date: day,
+            item1: gratitude1.trim(),
+            item2: gratitude2.trim(),
+            item3: gratitude3.trim(),
+            createdAt: now,
+            updatedAt: now,
+          ).toMap(),
         );
-        await taskDocRef.set(newTask.toMap());
-      }
-
-      // 4. Save Shutdown Data on Ritual document
-      final shutdownData = ShutdownData(
-        completed: true,
-        gratitudeText: combinedGratitude,
-        tomorrowTasks: validTomorrowTasks,
-        lesson: (lesson != null && lesson.trim().isNotEmpty) ? lesson.trim() : null,
-        completedAt: now,
-      );
-
-      await ritualCol.doc(dateStr).set(
-        {
+        transaction.set(checkins.doc(dateStr), {
           'date': dateStr,
-          'shutdown': shutdownData.toMap(),
+          'energy': energyLevel,
+          'mood': mood,
+          'note': combined,
           'updatedAt': Timestamp.fromDate(now),
-        },
-        SetOptions(merge: true),
-      );
-
-      // 5. XP hook: Award +30 XP for completing evening shutdown ritual
-      if (ref != null) {
-        await ProgressService().awardXp(
-          XpConstants.eveningShutdown,
-          source: 'Evening shutdown ritual completed',
-          sourceType: 'rituals',
-          ref: ref,
+        }, SetOptions(merge: true));
+        for (var index = 0; index < titles.length; index++) {
+          final document = tasks.doc('ritual_${dateStr}_$index');
+          transaction.set(
+            document,
+            TaskModel(
+              id: document.id,
+              title: titles[index],
+              categoryId: 'work',
+              priority: TaskPriority.medium,
+              date: tomorrow,
+              done: false,
+              createdAt: now,
+            ).toMap(),
+          );
+        }
+        final shutdown = ShutdownData(
+          completed: true,
+          gratitudeText: combined,
+          tomorrowTasks: titles,
+          lesson: lesson?.trim(),
+          completedAt: now,
         );
-      }
-
+        transaction.set(rituals.doc(dateStr), {
+          'date': dateStr,
+          'shutdown': shutdown.toMap(),
+          'updatedAt': Timestamp.fromDate(now),
+        }, SetOptions(merge: true));
+      });
+      await ProgressService(firestore: database).awardXp(
+        XpConstants.eveningShutdown,
+        uid: uid,
+        sourceId: dateStr,
+        eventId: 'rituals_$dateStr',
+        source: 'Evening shutdown ritual completed',
+        sourceType: 'rituals',
+        ref: ref,
+      );
       return true;
-    } catch (e) {
-      debugPrint('Error finishing shutdown ritual: $e');
+    } catch (error) {
+      debugPrint('Shutdown ritual save failed: $error');
       return false;
     }
   }

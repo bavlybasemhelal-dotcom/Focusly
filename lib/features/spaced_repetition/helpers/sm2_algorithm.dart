@@ -42,6 +42,15 @@ class Sm2Algorithm {
     required int quality, // 1: Forgot, 2: Hard, 3: Good, 4: Easy
     DateTime? currentDate,
   }) {
+    if (quality < 1 || quality > 4) {
+      throw RangeError.range(quality, 1, 4, 'quality');
+    }
+    if (currentInterval < 0 ||
+        currentRepetitions < 0 ||
+        !currentEaseFactor.isFinite ||
+        currentEaseFactor < 1.3) {
+      throw ArgumentError('Invalid review scheduling parameters');
+    }
     final now = currentDate ?? DateTime.now();
     int newInterval;
     int newRepetitions;
@@ -66,7 +75,8 @@ class Sm2Algorithm {
         }
         newEaseFactor = max(
           1.3,
-          currentEaseFactor + (0.1 - (4 - quality) * (0.08 + (4 - quality) * 0.02)),
+          currentEaseFactor +
+              (0.1 - (4 - quality) * (0.08 + (4 - quality) * 0.02)),
         );
         newRepetitions = currentRepetitions + 1;
         break;
@@ -82,13 +92,13 @@ class Sm2Algorithm {
         }
         newEaseFactor = max(
           1.3,
-          currentEaseFactor + (0.1 - (4 - quality) * (0.08 + (4 - quality) * 0.02)),
+          currentEaseFactor +
+              (0.1 - (4 - quality) * (0.08 + (4 - quality) * 0.02)),
         );
         newRepetitions = currentRepetitions + 1;
         break;
 
       case 4: // Easy
-      default:
         points = 10;
         if (currentRepetitions == 0) {
           newInterval = 1;
@@ -99,13 +109,16 @@ class Sm2Algorithm {
         }
         newEaseFactor = max(
           1.3,
-          currentEaseFactor + (0.1 - (4 - quality) * (0.08 + (4 - quality) * 0.02)),
+          currentEaseFactor +
+              (0.1 - (4 - quality) * (0.08 + (4 - quality) * 0.02)),
         );
         newRepetitions = currentRepetitions + 1;
         break;
+      default:
+        throw ArgumentError.value(quality, 'quality');
     }
 
-    final targetDate = now.add(Duration(days: newInterval));
+    final targetDate = DateTime(now.year, now.month, now.day + newInterval);
     final dueDateStr =
         '${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
 

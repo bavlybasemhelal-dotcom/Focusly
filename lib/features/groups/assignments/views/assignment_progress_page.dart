@@ -1,3 +1,4 @@
+import '../widgets/assignment_decision_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +43,7 @@ class AssignmentProgressPage extends ConsumerWidget {
     // Watch group members for up-to-date member names
     final membersAsync = ref.watch(groupMembersStreamProvider(groupId));
     final membersMap = {
-      for (final m in (membersAsync.value ?? <GroupMemberModel>[])) m.uid: m
+      for (final m in (membersAsync.value ?? <GroupMemberModel>[])) m.uid: m,
     };
 
     return Scaffold(
@@ -85,6 +86,10 @@ class AssignmentProgressPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                AssignmentDecisionPanel(
+                  groupId: groupId,
+                  assignmentId: assignment.id,
+                ),
                 // -------------------------------------------------------------
                 // 1. ASSIGNMENT SUMMARY CARD
                 // -------------------------------------------------------------
@@ -116,10 +121,12 @@ class AssignmentProgressPage extends ConsumerWidget {
                             height: 42,
                             decoration: BoxDecoration(
                               color: assignment.isTask
-                                  ? const Color(0xFF38BDF8)
-                                      .withValues(alpha: isDark ? 0.2 : 0.12)
-                                  : const Color(0xFF10B981)
-                                      .withValues(alpha: isDark ? 0.2 : 0.12),
+                                  ? const Color(
+                                      0xFF38BDF8,
+                                    ).withValues(alpha: isDark ? 0.2 : 0.12)
+                                  : const Color(
+                                      0xFF10B981,
+                                    ).withValues(alpha: isDark ? 0.2 : 0.12),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Center(
@@ -212,9 +219,9 @@ class AssignmentProgressPage extends ConsumerWidget {
                           // Deadline / Start Date
                           if (assignment.deadline != null)
                             _buildMetaChip(
-                              label: DateFormat.yMMMd()
-                                  .add_jm()
-                                  .format(assignment.deadline!),
+                              label: DateFormat.yMMMd().add_jm().format(
+                                assignment.deadline!,
+                              ),
                               icon: Icons.calendar_today_rounded,
                               color: const Color(0xFFF59E0B),
                               isDark: isDark,
@@ -293,9 +300,8 @@ class AssignmentProgressPage extends ConsumerWidget {
                         .firstOrNull;
 
                     final isDone = completion?.isDone == true;
-                    final memberName = member?.name ??
-                        completion?.memberName ??
-                        'Member';
+                    final memberName =
+                        member?.name ?? completion?.memberName ?? 'Member';
 
                     return Container(
                       padding: const EdgeInsets.symmetric(
@@ -340,7 +346,7 @@ class AssignmentProgressPage extends ConsumerWidget {
                           // Member Name
                           Expanded(
                             child: Text(
-                              memberName,
+                              '$memberName${completion?.decision == 'rejected' ? ' • ${context.tr('rejected')}' : ''}${completion?.delayReason.isNotEmpty == true ? '\n${completion!.delayReason}' : ''}',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
@@ -416,7 +422,9 @@ class AssignmentProgressPage extends ConsumerWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.22 : 0.12),
+          color: const Color(
+            0xFF10B981,
+          ).withValues(alpha: isDark ? 0.22 : 0.12),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: const Color(0xFF10B981).withValues(alpha: 0.4),

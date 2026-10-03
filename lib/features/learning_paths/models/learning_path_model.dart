@@ -14,11 +14,7 @@ class PathSubStepModel {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'completed': completed,
-    };
+    return {'id': id, 'title': title, 'completed': completed};
   }
 
   factory PathSubStepModel.fromMap(Map<String, dynamic> map) {
@@ -29,11 +25,7 @@ class PathSubStepModel {
     );
   }
 
-  PathSubStepModel copyWith({
-    String? id,
-    String? title,
-    bool? completed,
-  }) {
+  PathSubStepModel copyWith({String? id, String? title, bool? completed}) {
     return PathSubStepModel(
       id: id ?? this.id,
       title: title ?? this.title,
@@ -84,7 +76,9 @@ class PathStepModel {
     List<PathSubStepModel> subs = [];
     if (map['subSteps'] is List) {
       subs = (map['subSteps'] as List)
-          .map((item) => PathSubStepModel.fromMap(Map<String, dynamic>.from(item)))
+          .map(
+            (item) => PathSubStepModel.fromMap(Map<String, dynamic>.from(item)),
+          )
           .toList();
     }
 
@@ -175,7 +169,9 @@ class LearningPathModel {
   factory LearningPathModel.fromMap(Map<String, dynamic> map, String docId) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 
@@ -196,7 +192,8 @@ class LearningPathModel {
     // Sort steps ascending by day
     parsedSteps.sort((a, b) => a.day.compareTo(b.day));
 
-    final rawProgress = (map['progressDay'] as num?)?.toInt() ??
+    final rawProgress =
+        (map['progressDay'] as num?)?.toInt() ??
         parsedSteps.where((s) => s.completed).length;
 
     return LearningPathModel(

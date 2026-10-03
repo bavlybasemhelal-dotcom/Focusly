@@ -93,22 +93,25 @@ void main() {
       expect(finishedChallenge.typeEmoji, '⚡');
     });
 
-    test('ChallengeParticipantModel score calculation relative to baseline', () {
-      final participant = ChallengeParticipantModel(
-        uid: 'u1',
-        name: 'Alex',
-        joinedAt: DateTime.now(),
-        score: 0,
-        baseline: 15, // User had 15 completed tasks when joining
-      );
+    test(
+      'ChallengeParticipantModel score calculation relative to baseline',
+      () {
+        final participant = ChallengeParticipantModel(
+          uid: 'u1',
+          name: 'Alex',
+          joinedAt: DateTime.now(),
+          score: 0,
+          baseline: 15, // User had 15 completed tasks when joining
+        );
 
-      // Stat increases to 25 completed tasks
-      final currentTasks = 25;
-      final newScore = (currentTasks - participant.baseline).clamp(0, 9999);
-      final updated = participant.copyWith(score: newScore);
+        // Stat increases to 25 completed tasks
+        final currentTasks = 25;
+        final newScore = (currentTasks - participant.baseline).clamp(0, 9999);
+        final updated = participant.copyWith(score: newScore);
 
-      expect(updated.score, 10);
-    });
+        expect(updated.score, 10);
+      },
+    );
 
     test('GroupFeedModel reaction counts and user reaction tracking', () {
       final feed = GroupFeedModel(

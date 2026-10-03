@@ -11,10 +11,7 @@ import '../providers/reading_provider.dart';
 class QuickUpdateDialog extends ConsumerStatefulWidget {
   final BookModel book;
 
-  const QuickUpdateDialog({
-    super.key,
-    required this.book,
-  });
+  const QuickUpdateDialog({super.key, required this.book});
 
   /// Helper static method to open the dialog.
   static Future<void> show(BuildContext context, BookModel book) {
@@ -209,7 +206,10 @@ class _QuickUpdateDialogState extends ConsumerState<QuickUpdateDialog> {
               ),
               filled: true,
               fillColor: inputBg,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(color: borderColor),
@@ -220,7 +220,10 @@ class _QuickUpdateDialogState extends ConsumerState<QuickUpdateDialog> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                borderSide: const BorderSide(
+                  color: Color(0xFF2E6FF2),
+                  width: 1.8,
+                ),
               ),
             ),
             onSubmitted: (_) => _submit(),
@@ -251,7 +254,9 @@ class _QuickUpdateDialogState extends ConsumerState<QuickUpdateDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF2E6FF2),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           onPressed: _isLoading ? null : _submit,
           child: _isLoading

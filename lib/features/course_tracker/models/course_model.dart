@@ -56,7 +56,9 @@ class CourseModel {
   factory CourseModel.fromMap(Map<String, dynamic> map, String docId) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 
@@ -76,7 +78,9 @@ class CourseModel {
       platform: (map['platform'] as String?)?.trim(),
       totalLessons: total,
       completedLessons: completed,
-      status: (map['status'] as String?)?.trim() ?? (completed >= total ? 'completed' : 'active'),
+      status:
+          (map['status'] as String?)?.trim() ??
+          (completed >= total ? 'completed' : 'active'),
       certificate: map['certificate'] ?? false,
       note: (map['note'] as String?)?.trim(),
       createdAt: parsedCreatedAt,

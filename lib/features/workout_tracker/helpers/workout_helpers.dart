@@ -35,10 +35,15 @@ class HeatmapDayInfo {
 /// Pure helper functions for Workout Tracker calculations and heatmap generation.
 class WorkoutHelpers {
   /// Computes this week's (last 7 calendar days) total minutes and calories.
-  static WorkoutStats calculateStats(List<WorkoutModel> workouts, [DateTime? now]) {
+  static WorkoutStats calculateStats(
+    List<WorkoutModel> workouts, [
+    DateTime? now,
+  ]) {
     final current = now ?? DateTime.now();
     final todayStart = DateTime(current.year, current.month, current.day);
-    final weekStart = todayStart.subtract(const Duration(days: 6)); // 7 days total including today
+    final weekStart = todayStart.subtract(
+      const Duration(days: 6),
+    ); // 7 days total including today
 
     int weekMinutes = 0;
     int weekCalories = 0;

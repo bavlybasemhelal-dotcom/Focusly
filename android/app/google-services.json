@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "1069563055495-e14nseb0dv7v800sfqvmlav2q2pv7nsd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.focusly.focusly",
+            "certificate_hash": "10221c1bc2b1ad17f86f671599ed2a8693a6ef8a"
+          }
+        },
+        {
+          "client_id": "1069563055495-et47a2u4hirj0u0d4iri8kbs925u7q2r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.focusly.focusly",
+            "certificate_hash": "5cb38363c4819e1e57a32bbfce2f0f0511788a53"
+          }
+        },
+        {
           "client_id": "1069563055495-7vtqi7v2k094gqlvu2ugifvpo14kii9l.apps.googleusercontent.com",
           "client_type": 3
         }

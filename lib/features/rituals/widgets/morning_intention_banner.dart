@@ -40,20 +40,22 @@ class MorningIntentionBanner extends ConsumerWidget {
                     const Color(0xFF78350F).withValues(alpha: 0.5),
                     const Color(0xFFB45309).withValues(alpha: 0.3),
                   ]
-                : [
-                    const Color(0xFFFEF3C7),
-                    const Color(0xFFFDE68A),
-                  ],
+                : [const Color(0xFFFEF3C7), const Color(0xFFFDE68A)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.35 : 0.5),
+            color: const Color(
+              0xFFF59E0B,
+            ).withValues(alpha: isDark ? 0.35 : 0.5),
           ),
         ),
         child: InkWell(
-          onTap: () => MorningIntentionModal.show(context, initialIntention: intentionText),
+          onTap: () => MorningIntentionModal.show(
+            context,
+            initialIntention: intentionText,
+          ),
           borderRadius: BorderRadius.circular(18),
           child: Row(
             children: [
@@ -68,7 +70,9 @@ class MorningIntentionBanner extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+                        color: isDark
+                            ? const Color(0xFFFDE68A)
+                            : const Color(0xFF92400E),
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -90,11 +94,16 @@ class MorningIntentionBanner extends ConsumerWidget {
                 icon: Icon(
                   Icons.edit_outlined,
                   size: 18,
-                  color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+                  color: isDark
+                      ? const Color(0xFFFDE68A)
+                      : const Color(0xFF92400E),
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                onPressed: () => MorningIntentionModal.show(context, initialIntention: intentionText),
+                onPressed: () => MorningIntentionModal.show(
+                  context,
+                  initialIntention: intentionText,
+                ),
               ),
               const SizedBox(width: 8),
               IconButton(
@@ -107,7 +116,9 @@ class MorningIntentionBanner extends ConsumerWidget {
                 constraints: const BoxConstraints(),
                 onPressed: () {
                   HapticFeedback.selectionClick();
-                  ref.read(morningIntentionDismissedProvider.notifier).dismiss();
+                  ref
+                      .read(morningIntentionDismissedProvider.notifier)
+                      .dismiss();
                 },
               ),
             ],
@@ -123,7 +134,9 @@ class MorningIntentionBanner extends ConsumerWidget {
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard.withValues(alpha: 0.6) : const Color(0xFFF8FAFC),
+          color: isDark
+              ? AppColors.darkCard.withValues(alpha: 0.6)
+              : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
@@ -151,14 +164,18 @@ class MorningIntentionBanner extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+                  color: isDark
+                      ? const Color(0xFFFBBF24)
+                      : const Color(0xFFD97706),
                 ),
               ),
               const SizedBox(width: 4),
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 11,
-                color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+                color: isDark
+                    ? const Color(0xFFFBBF24)
+                    : const Color(0xFFD97706),
               ),
             ],
           ),
@@ -221,7 +238,9 @@ class MorningIntentionBanner extends ConsumerWidget {
               backgroundColor: const Color(0xFFF59E0B),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(
               context.tr('set_btn'),

@@ -1,3 +1,5 @@
+import '../../productivity/services/trash_service.dart';
+import '../../../core/data/inbox_conversion_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../tasks/models/task_model.dart';
@@ -9,13 +11,15 @@ import '../models/inbox_item_model.dart';
 /// DATA ISOLATION GUARANTEE:
 /// Strictly writes under `users/{uid}/inbox` and `users/{uid}/tasks`.
 class GTDService {
-  static final GTDService _instance = GTDService._internal();
-  factory GTDService() => _instance;
-  GTDService._internal();
+  GTDService({FirebaseFirestore? firestore, String? uid})
+    : _injected = firestore,
+      _uid = uid;
+  final FirebaseFirestore? _injected;
+  final String? _uid;
 
   FirebaseFirestore? get _firestore {
     try {
-      return FirebaseFirestore.instance;
+      return _injected ?? FirebaseFirestore.instance;
     } catch (_) {
       return null;
     }
@@ -23,7 +27,7 @@ class GTDService {
 
   String? get _currentUid {
     try {
-      return FirebaseAuth.instance.currentUser?.uid;
+      return _uid ?? FirebaseAuth.instance.currentUser?.uid;
     } catch (_) {
       return null;
     }
@@ -68,7 +72,10 @@ class GTDService {
   }
 
   /// Updates the processed status of an inbox item
-  Future<void> markInboxProcessed(String itemId, {bool processed = true}) async {
+  Future<void> markInboxProcessed(
+    String itemId, {
+    bool processed = true,
+  }) async {
     final col = _inboxCollection;
     if (col == null) return;
     await col.doc(itemId).update({'processed': processed});
@@ -78,7 +85,7 @@ class GTDService {
   Future<void> deleteInboxItem(String itemId) async {
     final col = _inboxCollection;
     if (col == null) return;
-    await col.doc(itemId).delete();
+    await TrashService(col.firestore).move(col.parent!.id, 'inbox', itemId);
   }
 
   // ===========================================================================
@@ -110,12 +117,15 @@ class GTDService {
       listType: 'someday',
     );
 
-    await docRef.set(task.toMap());
-
     if (originalInboxItemId != null && originalInboxItemId.isNotEmpty) {
-      await markInboxProcessed(originalInboxItemId, processed: true);
+      return InboxConversionService(col.firestore).convert(
+        uid: col.parent!.id,
+        inboxId: originalInboxItemId,
+        collection: 'tasks',
+        data: task.toMap(),
+      );
     }
-
+    await docRef.set(task.toMap());
     return docRef.id;
   }
 
@@ -149,12 +159,15 @@ class GTDService {
       waitingSince: waitingSince ?? DateTime.now(),
     );
 
-    await docRef.set(task.toMap());
-
     if (originalInboxItemId != null && originalInboxItemId.isNotEmpty) {
-      await markInboxProcessed(originalInboxItemId, processed: true);
+      return InboxConversionService(col.firestore).convert(
+        uid: col.parent!.id,
+        inboxId: originalInboxItemId,
+        collection: 'tasks',
+        data: task.toMap(),
+      );
     }
-
+    await docRef.set(task.toMap());
     return docRef.id;
   }
 
@@ -183,12 +196,15 @@ class GTDService {
       listType: 'reference',
     );
 
-    await docRef.set(task.toMap());
-
     if (originalInboxItemId != null && originalInboxItemId.isNotEmpty) {
-      await markInboxProcessed(originalInboxItemId, processed: true);
+      return InboxConversionService(col.firestore).convert(
+        uid: col.parent!.id,
+        inboxId: originalInboxItemId,
+        collection: 'tasks',
+        data: task.toMap(),
+      );
     }
-
+    await docRef.set(task.toMap());
     return docRef.id;
   }
 
@@ -214,9 +230,7 @@ class GTDService {
     if (col == null) return;
 
     if (markDone) {
-      await col.doc(taskId).update({
-        'done': true,
-      });
+      await col.doc(taskId).update({'done': true});
     } else {
       await col.doc(taskId).update({
         'listType': FieldValue.delete(),

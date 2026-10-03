@@ -84,7 +84,10 @@ void main() {
 
       final map = model.toMap();
       expect(map['id'], equals('rev_1'));
-      expect(map['priorities'], equals(['Ship v1.0', 'Write unit tests', 'Hire designer']));
+      expect(
+        map['priorities'],
+        equals(['Ship v1.0', 'Write unit tests', 'Hire designer']),
+      );
 
       final reconstructed = WeeklyReviewModel.fromMap(map, 'rev_1');
       expect(reconstructed.priorities.length, equals(3));
@@ -93,11 +96,11 @@ void main() {
   });
 
   group('Weekly Review Wizard UI Tests', () {
-    testWidgets('Step 1 Mind Sweep renders and moves to step 2', (tester) async {
+    testWidgets('Step 1 Mind Sweep renders and moves to step 2', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        createWeeklyReviewTestWidget(
-          child: const WeeklyReviewWizard(),
-        ),
+        createWeeklyReviewTestWidget(child: const WeeklyReviewWizard()),
       );
       await tester.pumpAndSettle();
 
@@ -121,21 +124,59 @@ void main() {
       expect(find.text('2 / 6'), findsOneWidget);
     });
 
-    testWidgets('Step 2 to 4 render counts for Inbox, Projects, and Tasks', (tester) async {
+    testWidgets('Step 2 to 4 render counts for Inbox, Projects, and Tasks', (
+      tester,
+    ) async {
       final now = DateTime.now();
       final inboxItems = [
-        InboxItemModel(id: 'i1', text: 'Clean desk', processed: false, createdAt: now),
-        InboxItemModel(id: 'i2', text: 'Read book', processed: false, createdAt: now),
+        InboxItemModel(
+          id: 'i1',
+          text: 'Clean desk',
+          processed: false,
+          createdAt: now,
+        ),
+        InboxItemModel(
+          id: 'i2',
+          text: 'Read book',
+          processed: false,
+          createdAt: now,
+        ),
       ];
 
       final projects = [
-        ParaProjectModel(id: 'p1', title: 'Mobile App', areaId: 'a1', createdAt: now),
+        ParaProjectModel(
+          id: 'p1',
+          title: 'Mobile App',
+          areaId: 'a1',
+          createdAt: now,
+        ),
       ];
 
       final tasks = [
-        TaskModel(id: 't1', title: 'Task 1', categoryId: 'work', done: false, date: now, createdAt: now),
-        TaskModel(id: 't2', title: 'Task 2', categoryId: 'work', done: false, date: now, createdAt: now),
-        TaskModel(id: 't3', title: 'Task 3', categoryId: 'work', done: true, date: now, createdAt: now),
+        TaskModel(
+          id: 't1',
+          title: 'Task 1',
+          categoryId: 'work',
+          done: false,
+          date: now,
+          createdAt: now,
+        ),
+        TaskModel(
+          id: 't2',
+          title: 'Task 2',
+          categoryId: 'work',
+          done: false,
+          date: now,
+          createdAt: now,
+        ),
+        TaskModel(
+          id: 't3',
+          title: 'Task 3',
+          categoryId: 'work',
+          done: true,
+          date: now,
+          createdAt: now,
+        ),
       ];
 
       await tester.pumpWidget(
@@ -171,70 +212,78 @@ void main() {
       expect(find.text('2'), findsOneWidget); // 2 active uncompleted tasks
     });
 
-    testWidgets('Step 5 Someday/Maybe displays items and allows step advance to Step 6', (tester) async {
-      final now = DateTime.now();
-      final somedayTask = TaskModel(
-        id: 's1',
-        title: 'Learn Rust Language',
-        categoryId: 'work',
-        listType: 'someday',
-        done: false,
-        date: now,
-        createdAt: now,
-      );
+    testWidgets(
+      'Step 5 Someday/Maybe displays items and allows step advance to Step 6',
+      (tester) async {
+        final now = DateTime.now();
+        final somedayTask = TaskModel(
+          id: 's1',
+          title: 'Learn Rust Language',
+          categoryId: 'work',
+          listType: 'someday',
+          done: false,
+          date: now,
+          createdAt: now,
+        );
 
-      final tasks = [somedayTask];
+        final tasks = [somedayTask];
 
-      await tester.pumpWidget(
-        createWeeklyReviewTestWidget(
-          child: const WeeklyReviewWizard(),
-          overrides: [
-            tasksStreamProvider.overrideWithValue(AsyncData(tasks)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createWeeklyReviewTestWidget(
+            child: const WeeklyReviewWizard(),
+            overrides: [
+              tasksStreamProvider.overrideWithValue(AsyncData(tasks)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Advance through Steps 1 -> 2 -> 3 -> 4 -> 5
-      for (int i = 0; i < 4; i++) {
+        // Advance through Steps 1 -> 2 -> 3 -> 4 -> 5
+        for (int i = 0; i < 4; i++) {
+          await tester.tap(find.text('Continue'));
+          await tester.pumpAndSettle();
+        }
+
+        // Step 5: Someday / Maybe
+        expect(find.text('Someday / Maybe'), findsOneWidget);
+        expect(find.text('Learn Rust Language'), findsOneWidget);
+        expect(find.text('Activate'), findsOneWidget);
+
+        // Advance to Step 6: Get Creative
         await tester.tap(find.text('Continue'));
         await tester.pumpAndSettle();
-      }
 
-      // Step 5: Someday / Maybe
-      expect(find.text('Someday / Maybe'), findsOneWidget);
-      expect(find.text('Learn Rust Language'), findsOneWidget);
-      expect(find.text('Activate'), findsOneWidget);
-
-      // Advance to Step 6: Get Creative
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Get Creative'), findsOneWidget);
-      expect(find.text('6 / 6'), findsOneWidget);
-      expect(find.text('Finish Review (+40 XP)'), findsOneWidget);
-    });
+        expect(find.text('Get Creative'), findsOneWidget);
+        expect(find.text('6 / 6'), findsOneWidget);
+        expect(find.text('Finish Review (+40 XP)'), findsOneWidget);
+      },
+    );
   });
 
   group('Navigation Drawer Weekly Review Due Badge Tests', () {
-    testWidgets('Drawer displays Review due badge when isWeeklyReviewDueProvider is true', (tester) async {
-      await tester.pumpWidget(
-        createWeeklyReviewTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            isWeeklyReviewDueProvider.overrideWithValue(true),
-            morningIntentionDismissedProvider.overrideWith(MockDismissedNotifier.new),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Drawer displays Review due badge when isWeeklyReviewDueProvider is true',
+      (tester) async {
+        await tester.pumpWidget(
+          createWeeklyReviewTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              isWeeklyReviewDueProvider.overrideWithValue(true),
+              morningIntentionDismissedProvider.overrideWith(
+                MockDismissedNotifier.new,
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Open Navigation Drawer
-      await tester.tap(find.byTooltip('Open navigation menu'));
-      await tester.pumpAndSettle();
+        // Open Navigation Drawer
+        await tester.tap(find.byTooltip('Open navigation menu'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Weekly Review'), findsOneWidget);
-      expect(find.text('Review due'), findsOneWidget);
-    });
+        expect(find.text('Weekly Review'), findsOneWidget);
+        expect(find.text('Review due'), findsOneWidget);
+      },
+    );
   });
 }

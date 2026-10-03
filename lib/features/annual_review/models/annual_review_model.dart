@@ -55,14 +55,16 @@ class AnnualReviewModel {
     if (map['createdAt'] is Timestamp) {
       parsedCreatedAt = (map['createdAt'] as Timestamp).toDate();
     } else if (map['createdAt'] is String) {
-      parsedCreatedAt = DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now();
+      parsedCreatedAt =
+          DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now();
     }
 
     DateTime parsedUpdatedAt = DateTime.now();
     if (map['updatedAt'] is Timestamp) {
       parsedUpdatedAt = (map['updatedAt'] as Timestamp).toDate();
     } else if (map['updatedAt'] is String) {
-      parsedUpdatedAt = DateTime.tryParse(map['updatedAt'] as String) ?? DateTime.now();
+      parsedUpdatedAt =
+          DateTime.tryParse(map['updatedAt'] as String) ?? DateTime.now();
     }
 
     return AnnualReviewModel(

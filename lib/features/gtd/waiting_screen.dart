@@ -1,3 +1,4 @@
+import '../tasks/providers/tasks_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,7 +6,6 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../tasks/models/task_model.dart';
 import 'providers/gtd_provider.dart';
-import 'services/gtd_service.dart';
 import 'widgets/add_waiting_sheet.dart';
 
 /// GTD "Waiting For" screen.
@@ -57,9 +57,14 @@ class WaitingScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(Icons.arrow_back_rounded, color: primaryTextColor),
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          color: primaryTextColor,
+                        ),
                         style: IconButton.styleFrom(
-                          backgroundColor: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                          backgroundColor: isDark
+                              ? Colors.white10
+                              : const Color(0xFFF1F5F9),
                           padding: const EdgeInsets.all(8),
                         ),
                       ),
@@ -95,7 +100,9 @@ class WaitingScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+                              color: const Color(
+                                0xFFF59E0B,
+                              ).withValues(alpha: 0.35),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -103,7 +110,11 @@ class WaitingScreen extends ConsumerWidget {
                         ),
                         child: IconButton(
                           onPressed: () => AddWaitingSheet.show(context),
-                          icon: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                          icon: const Icon(
+                            Icons.add_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                           tooltip: context.tr('add_waiting_title'),
                         ),
                       ),
@@ -116,7 +127,8 @@ class WaitingScreen extends ConsumerWidget {
                 // -------------------------------------------------------------
                 Expanded(
                   child: waitingTasksAsync.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, _) => Center(
                       child: Text(
                         context.tr('tasks_load_error'),
@@ -125,17 +137,30 @@ class WaitingScreen extends ConsumerWidget {
                     ),
                     data: (tasks) {
                       if (tasks.isEmpty) {
-                        return _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor);
+                        return _buildEmptyState(
+                          context,
+                          isDark,
+                          primaryTextColor,
+                          secondaryTextColor,
+                        );
                       }
 
                       return ListView.separated(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.fromLTRB(20, 8, 20, 90),
                         itemCount: tasks.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 10),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 10),
                         itemBuilder: (context, index) {
                           final task = tasks[index];
-                          return _buildWaitingCard(context, task, isDark, primaryTextColor, secondaryTextColor);
+                          return _buildWaitingCard(
+                            context,
+                            ref,
+                            task,
+                            isDark,
+                            primaryTextColor,
+                            secondaryTextColor,
+                          );
                         },
                       );
                     },
@@ -151,6 +176,7 @@ class WaitingScreen extends ConsumerWidget {
 
   Widget _buildWaitingCard(
     BuildContext context,
+    WidgetRef ref,
     TaskModel task,
     bool isDark,
     Color primaryTextColor,
@@ -166,7 +192,9 @@ class WaitingScreen extends ConsumerWidget {
         border: Border.all(color: borderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : const Color(0xFFF59E0B).withValues(alpha: 0.05),
+            color: isDark
+                ? Colors.black26
+                : const Color(0xFFF59E0B).withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -186,7 +214,11 @@ class WaitingScreen extends ConsumerWidget {
                   color: const Color(0xFFF59E0B).withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.hourglass_top_rounded, color: Color(0xFFF59E0B), size: 16),
+                child: const Icon(
+                  Icons.hourglass_top_rounded,
+                  color: Color(0xFFF59E0B),
+                  size: 16,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -218,12 +250,20 @@ class WaitingScreen extends ConsumerWidget {
                 ),
               ),
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert_rounded, size: 18, color: secondaryTextColor),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                icon: Icon(
+                  Icons.more_vert_rounded,
+                  size: 18,
+                  color: secondaryTextColor,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 onSelected: (value) async {
                   if (value == 'resolve') {
                     HapticFeedback.mediumImpact();
-                    await GTDService().resolveWaitingTask(task.id, markDone: true);
+                    await ref
+                        .read(tasksControllerProvider)
+                        .toggleTaskDone(task, context);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -235,7 +275,7 @@ class WaitingScreen extends ConsumerWidget {
                   } else if (value == 'edit') {
                     AddWaitingSheet.show(context, taskToEdit: task);
                   } else if (value == 'delete') {
-                    await GTDService().deleteTask(task.id);
+                    await ref.read(tasksControllerProvider).deleteTask(task.id);
                   }
                 },
                 itemBuilder: (ctx) => [
@@ -243,7 +283,11 @@ class WaitingScreen extends ConsumerWidget {
                     value: 'resolve',
                     child: Row(
                       children: [
-                        const Icon(Icons.check_circle_rounded, size: 18, color: Color(0xFF10B981)),
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          size: 18,
+                          color: Color(0xFF10B981),
+                        ),
                         const SizedBox(width: 8),
                         Text(ctx.tr('mark_resolved')),
                       ],
@@ -253,7 +297,11 @@ class WaitingScreen extends ConsumerWidget {
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit_rounded, size: 18, color: primaryTextColor),
+                        Icon(
+                          Icons.edit_rounded,
+                          size: 18,
+                          color: primaryTextColor,
+                        ),
                         const SizedBox(width: 8),
                         Text(ctx.tr('edit')),
                       ],
@@ -263,9 +311,16 @@ class WaitingScreen extends ConsumerWidget {
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                        const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                          color: Color(0xFFEF4444),
+                        ),
                         const SizedBox(width: 8),
-                        Text(ctx.tr('delete'), style: const TextStyle(color: Color(0xFFEF4444))),
+                        Text(
+                          ctx.tr('delete'),
+                          style: const TextStyle(color: Color(0xFFEF4444)),
+                        ),
                       ],
                     ),
                   ),
@@ -280,7 +335,10 @@ class WaitingScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
@@ -291,7 +349,11 @@ class WaitingScreen extends ConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.person_outline_rounded, size: 13, color: Color(0xFFF59E0B)),
+                    const Icon(
+                      Icons.person_outline_rounded,
+                      size: 13,
+                      color: Color(0xFFF59E0B),
+                    ),
                     const SizedBox(width: 5),
                     Text(
                       '${context.tr('waiting_for_prefix')}: ${task.waitingFor ?? ''}',
@@ -307,7 +369,11 @@ class WaitingScreen extends ConsumerWidget {
               if (task.waitingSince != null)
                 Row(
                   children: [
-                    Icon(Icons.history_rounded, size: 13, color: secondaryTextColor),
+                    Icon(
+                      Icons.history_rounded,
+                      size: 13,
+                      color: secondaryTextColor,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       _formatDaysElapsed(task.waitingSince, context),
@@ -344,7 +410,11 @@ class WaitingScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
               ),
-              child: const Icon(Icons.hourglass_empty_rounded, size: 48, color: Color(0xFFF59E0B)),
+              child: const Icon(
+                Icons.hourglass_empty_rounded,
+                size: 48,
+                color: Color(0xFFF59E0B),
+              ),
             ),
             const SizedBox(height: 18),
             Text(
@@ -375,8 +445,13 @@ class WaitingScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF59E0B),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
             ),
           ],

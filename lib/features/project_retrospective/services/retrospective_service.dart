@@ -10,7 +10,7 @@ class RetrospectiveService {
   final FirebaseFirestore _firestore;
 
   RetrospectiveService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _retrosCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('retrospectives');
@@ -18,10 +18,9 @@ class RetrospectiveService {
 
   /// Streams all retrospectives for the specified user [uid], ordered by date descending.
   Stream<List<RetrospectiveModel>> streamRetrospectives(String uid) {
-    return _retrosCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _retrosCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => RetrospectiveModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -68,7 +67,9 @@ class RetrospectiveService {
     try {
       final now = DateTime.now();
       final updated = retrospective.copyWith(updatedAt: now);
-      await _retrosCollection(uid).doc(retrospective.id).update(updated.toMap());
+      await _retrosCollection(
+        uid,
+      ).doc(retrospective.id).update(updated.toMap());
       return true;
     } catch (e) {
       debugPrint('Error updating project retrospective: $e');

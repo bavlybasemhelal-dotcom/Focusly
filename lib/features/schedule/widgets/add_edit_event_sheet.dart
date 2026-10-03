@@ -16,6 +16,7 @@ class AddEditEventSheet extends ConsumerStatefulWidget {
   final DateTime? initialDate;
   final TimeOfDay? initialTime;
   final String? initialTitle;
+  final String? originalInboxItemId;
   final String? initialBlockType;
   final int? initialDurationMinutes;
 
@@ -25,6 +26,7 @@ class AddEditEventSheet extends ConsumerStatefulWidget {
     this.initialDate,
     this.initialTime,
     this.initialTitle,
+    this.originalInboxItemId,
     this.initialBlockType,
     this.initialDurationMinutes,
   });
@@ -47,23 +49,30 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
   late int _selectedDurationMinutes;
 
   bool _isSaving = false;
+  List<int> _workingDays = [1, 2, 3, 4, 5];
 
   @override
   void initState() {
     super.initState();
     final event = widget.eventToEdit;
 
-    _titleController =
-        TextEditingController(text: event?.title ?? (widget.initialTitle ?? ''));
+    _titleController = TextEditingController(
+      text: event?.title ?? (widget.initialTitle ?? ''),
+    );
     _noteController = TextEditingController(text: event?.note ?? '');
     _selectedDate = event?.date ?? (widget.initialDate ?? DateTime.now());
-    _selectedTime = event?.time ?? (widget.initialTime ?? const TimeOfDay(hour: 10, minute: 0));
+    _selectedTime =
+        event?.time ??
+        (widget.initialTime ?? const TimeOfDay(hour: 10, minute: 0));
     _selectedTypeId = event?.typeId ?? 'work_meeting';
     _selectedRecurrence = event?.recurrence ?? EventRecurrence.none;
     _selectedRecurrenceEnd = event?.recurrenceEnd;
-    _selectedBlockType = event?.blockType ?? (widget.initialBlockType ?? 'general');
+    _workingDays = List.from(event?.weekdays ?? const [1, 2, 3, 4, 5]);
+    _selectedBlockType =
+        event?.blockType ?? (widget.initialBlockType ?? 'general');
     _selectedDurationMinutes =
-        event?.effectiveDurationMinutes ?? (widget.initialDurationMinutes ?? 60);
+        event?.effectiveDurationMinutes ??
+        (widget.initialDurationMinutes ?? 60);
   }
 
   @override
@@ -74,7 +83,7 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
   }
 
   Future<void> _handleSave() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_isSaving || !_formKey.currentState!.validate()) return;
 
     // If editing a recurring event, ask user preference
     if (widget.eventToEdit != null && widget.eventToEdit!.isRecurring) {
@@ -91,47 +100,70 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
         ? _noteController.text.trim()
         : null;
 
-    final controller = ref.read(scheduleControllerProvider);
+    try {
+      final controller = ref.read(scheduleControllerProvider);
 
-    if (widget.eventToEdit != null) {
-      final updated = widget.eventToEdit!.copyWith(
-        title: title,
-        note: note,
-        date: _selectedDate,
-        time: _selectedTime,
-        typeId: _selectedTypeId,
-        recurrence: _selectedRecurrence,
-        recurrenceEnd: _selectedRecurrence != EventRecurrence.none
-            ? _selectedRecurrenceEnd
-            : null,
-        clearRecurrenceEnd: _selectedRecurrence == EventRecurrence.none,
-        blockType: _selectedBlockType ?? 'general',
-        durationMinutes: _selectedDurationMinutes,
-      );
-      if (!mounted) return;
-      await controller.updateEvent(updated, context);
-    } else {
-      final newEvent = EventModel(
-        id: '',
-        title: title,
-        note: note,
-        date: _selectedDate,
-        time: _selectedTime,
-        typeId: _selectedTypeId,
-        recurrence: _selectedRecurrence,
-        recurrenceEnd: _selectedRecurrence != EventRecurrence.none
-            ? _selectedRecurrenceEnd
-            : null,
-        createdAt: DateTime.now(),
-        blockType: _selectedBlockType ?? 'general',
-        durationMinutes: _selectedDurationMinutes,
-      );
-      if (!mounted) return;
-      await controller.addEvent(newEvent, context);
-    }
+      if (widget.eventToEdit != null) {
+        final updated = widget.eventToEdit!.copyWith(
+          title: title,
+          note: note,
+          clearNote: note == null,
+          date: _selectedDate,
+          time: _selectedTime,
+          typeId: _selectedTypeId,
+          recurrence: _selectedRecurrence,
+          weekdays: _workingDays,
+          recurrenceEnd: _selectedRecurrence != EventRecurrence.none
+              ? _selectedRecurrenceEnd
+              : null,
+          clearRecurrenceEnd:
+              _selectedRecurrence == EventRecurrence.none ||
+              _selectedRecurrenceEnd == null,
+          blockType: _selectedBlockType ?? 'general',
+          durationMinutes: _selectedDurationMinutes,
+        );
+        if (!mounted) return;
+        if (!await controller.updateEvent(updated, context)) {
+          throw StateError('Save failed');
+        }
+      } else {
+        final newEvent = EventModel(
+          id: '',
+          title: title,
+          note: note,
+          date: _selectedDate,
+          time: _selectedTime,
+          typeId: _selectedTypeId,
+          recurrence: _selectedRecurrence,
+          weekdays: _workingDays,
+          recurrenceEnd: _selectedRecurrence != EventRecurrence.none
+              ? _selectedRecurrenceEnd
+              : null,
+          createdAt: DateTime.now(),
+          blockType: _selectedBlockType ?? 'general',
+          durationMinutes: _selectedDurationMinutes,
+        );
+        if (!mounted) return;
+        if (!await controller.addEvent(
+          newEvent,
+          context,
+          inboxId: widget.originalInboxItemId,
+        )) {
+          throw StateError('Save failed');
+        }
+      }
 
-    if (mounted) {
-      Navigator.of(context).pop(true);
+      if (mounted) {
+        Navigator.of(context).pop(true);
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.tr('event_save_error'))));
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -209,7 +241,10 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
               ),
               title: Text(
                 context.tr('add_event_type_title'),
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -221,7 +256,9 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                     decoration: InputDecoration(
                       hintText: context.tr('event_type_name_hint'),
                       filled: true,
-                      fillColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                      fillColor: isDark
+                          ? const Color(0xFF08123A)
+                          : const Color(0xFFF1F5F9),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -231,7 +268,10 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                   const SizedBox(height: 16),
                   Text(
                     context.tr('select_color'),
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -257,14 +297,20 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
-                                      color: Color(colorVal).withValues(alpha: 0.5),
+                                      color: Color(
+                                        colorVal,
+                                      ).withValues(alpha: 0.5),
                                       blurRadius: 8,
                                     ),
                                   ]
                                 : null,
                           ),
                           child: isSelected
-                              ? const Icon(Icons.check, size: 18, color: Colors.white)
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 18,
+                                  color: Colors.white,
+                                )
                               : null,
                         ),
                       );
@@ -393,8 +439,13 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                       fontSize: 15,
                     ),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                    fillColor: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 15,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor, width: 1.2),
@@ -489,14 +540,20 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                             label: Text(typeName),
                             labelStyle: TextStyle(
                               fontSize: 13,
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              fontWeight: isSelected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
                               color: isSelected
                                   ? Colors.white
-                                  : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
+                                  : (isDark
+                                        ? Colors.white70
+                                        : AppColors.lightTextPrimary),
                             ),
                             selected: isSelected,
                             selectedColor: type.color,
-                            backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                            backgroundColor: isDark
+                                ? const Color(0xFF08123A)
+                                : const Color(0xFFF1F5F9),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
@@ -533,7 +590,10 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                 const SizedBox(height: 20),
 
                 // 3.5. Time Block Type (Optional / Time Blocker Mode)
-                _buildFieldLabel(context.tr('block_type_label'), primaryTextColor),
+                _buildFieldLabel(
+                  context.tr('block_type_label'),
+                  primaryTextColor,
+                ),
                 const SizedBox(height: 8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -545,18 +605,27 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                         return Padding(
                           padding: const EdgeInsetsDirectional.only(end: 8.0),
                           child: ChoiceChip(
-                            avatar: Text(block.emoji, style: const TextStyle(fontSize: 13)),
+                            avatar: Text(
+                              block.emoji,
+                              style: const TextStyle(fontSize: 13),
+                            ),
                             label: Text(context.tr(block.labelKey)),
                             labelStyle: TextStyle(
                               fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              fontWeight: isSelected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
                               color: isSelected
                                   ? Colors.white
-                                  : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
+                                  : (isDark
+                                        ? Colors.white70
+                                        : AppColors.lightTextPrimary),
                             ),
                             selected: isSelected,
                             selectedColor: block.color,
-                            backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                            backgroundColor: isDark
+                                ? const Color(0xFF08123A)
+                                : const Color(0xFFF1F5F9),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
@@ -581,23 +650,37 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildFieldLabel(context.tr('duration_label'), primaryTextColor),
+                    _buildFieldLabel(
+                      context.tr('duration_label'),
+                      primaryTextColor,
+                    ),
                     // Live Computed Time Range Display
-                    Builder(builder: (_) {
-                      final startM = _selectedTime.hour * 60 + _selectedTime.minute;
-                      final endTot = startM + _selectedDurationMinutes;
-                      final computedEnd = TimeOfDay(hour: (endTot ~/ 60) % 24, minute: endTot % 60);
-                      final rangeStr = TimeBlockerHelper.formatTimeRange(_selectedTime, computedEnd);
-                      final durStr = TimeBlockerHelper.formatDuration(_selectedDurationMinutes);
-                      return Text(
-                        '$rangeStr ($durStr)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: brandPrimary,
-                        ),
-                      );
-                    }),
+                    Builder(
+                      builder: (_) {
+                        final startM =
+                            _selectedTime.hour * 60 + _selectedTime.minute;
+                        final endTot = startM + _selectedDurationMinutes;
+                        final computedEnd = TimeOfDay(
+                          hour: (endTot ~/ 60) % 24,
+                          minute: endTot % 60,
+                        );
+                        final rangeStr = TimeBlockerHelper.formatTimeRange(
+                          _selectedTime,
+                          computedEnd,
+                        );
+                        final durStr = TimeBlockerHelper.formatDuration(
+                          _selectedDurationMinutes,
+                        );
+                        return Text(
+                          '$rangeStr ($durStr)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: brandPrimary,
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -613,14 +696,20 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                           label: Text(durLabel),
                           labelStyle: TextStyle(
                             fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            fontWeight: isSelected
+                                ? FontWeight.w800
+                                : FontWeight.w600,
                             color: isSelected
                                 ? Colors.white
-                                : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
+                                : (isDark
+                                      ? Colors.white70
+                                      : AppColors.lightTextPrimary),
                           ),
                           selected: isSelected,
                           selectedColor: brandPrimary,
-                          backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                          backgroundColor: isDark
+                              ? const Color(0xFF08123A)
+                              : const Color(0xFFF1F5F9),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
@@ -641,6 +730,46 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                 const SizedBox(height: 20),
 
                 // 4. Recurrence Selector
+                if (_selectedRecurrence == EventRecurrence.weekdays)
+                  Wrap(
+                    spacing: 4,
+                    children: [
+                      for (var day = 1; day <= 7; day++)
+                        FilterChip(
+                          label: Text(
+                            Localizations.localeOf(context).languageCode == 'ar'
+                                ? [
+                                    'اثنين',
+                                    'ثلاثاء',
+                                    'أربعاء',
+                                    'خميس',
+                                    'جمعة',
+                                    'سبت',
+                                    'أحد',
+                                  ][day - 1]
+                                : [
+                                    'Mon',
+                                    'Tue',
+                                    'Wed',
+                                    'Thu',
+                                    'Fri',
+                                    'Sat',
+                                    'Sun',
+                                  ][day - 1],
+                          ),
+                          selected: _workingDays.contains(day),
+                          onSelected: _isSaving
+                              ? null
+                              : (selected) => setState(() {
+                                  if (selected) {
+                                    _workingDays.add(day);
+                                  } else if (_workingDays.length > 1) {
+                                    _workingDays.remove(day);
+                                  }
+                                }),
+                        ),
+                    ],
+                  ),
                 _buildFieldLabel(context.tr('recurrence'), primaryTextColor),
                 const SizedBox(height: 8),
                 SingleChildScrollView(
@@ -654,14 +783,20 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                           label: Text(context.tr(rec.titleKey)),
                           labelStyle: TextStyle(
                             fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            fontWeight: isSelected
+                                ? FontWeight.w800
+                                : FontWeight.w600,
                             color: isSelected
                                 ? Colors.white
-                                : (isDark ? Colors.white70 : AppColors.lightTextPrimary),
+                                : (isDark
+                                      ? Colors.white70
+                                      : AppColors.lightTextPrimary),
                           ),
                           selected: isSelected,
                           selectedColor: brandPrimary,
-                          backgroundColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                          backgroundColor: isDark
+                              ? const Color(0xFF08123A)
+                              : const Color(0xFFF1F5F9),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
@@ -703,7 +838,8 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
-                        initialDate: _selectedRecurrenceEnd ??
+                        initialDate:
+                            _selectedRecurrenceEnd ??
                             _selectedDate.add(const Duration(days: 30)),
                         firstDate: _selectedDate,
                         lastDate: DateTime(2035),
@@ -730,8 +866,13 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                       fontSize: 13,
                     ),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    fillColor: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor, width: 1.2),
@@ -766,7 +907,9 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
+                      foregroundColor: isDark
+                          ? const Color(0xFF060B24)
+                          : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -776,7 +919,9 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                             width: 22,
                             height: 22,
                             child: CircularProgressIndicator(
-                              color: isDark ? const Color(0xFF060B24) : Colors.white,
+                              color: isDark
+                                  ? const Color(0xFF060B24)
+                                  : Colors.white,
                               strokeWidth: 2.5,
                             ),
                           )
@@ -803,11 +948,7 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
   Widget _buildFieldLabel(String text, Color color) {
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        color: color,
-      ),
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: color),
     );
   }
 
@@ -865,7 +1006,11 @@ class _AddEditEventSheetState extends ConsumerState<AddEditEventSheet> {
                 onTap: onClear,
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: Icon(Icons.clear_rounded, size: 16, color: Colors.grey.shade500),
+                  child: Icon(
+                    Icons.clear_rounded,
+                    size: 16,
+                    color: Colors.grey.shade500,
+                  ),
                 ),
               ),
           ],

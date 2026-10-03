@@ -11,12 +11,12 @@ import '../providers/legacy_journal_provider.dart';
 class LegacyEntryFormModal extends ConsumerStatefulWidget {
   final LegacyEntryModel? entryToEdit;
 
-  const LegacyEntryFormModal({
-    super.key,
-    this.entryToEdit,
-  });
+  const LegacyEntryFormModal({super.key, this.entryToEdit});
 
-  static Future<void> show(BuildContext context, {LegacyEntryModel? entryToEdit}) {
+  static Future<void> show(
+    BuildContext context, {
+    LegacyEntryModel? entryToEdit,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -26,7 +26,8 @@ class LegacyEntryFormModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<LegacyEntryFormModal> createState() => _LegacyEntryFormModalState();
+  ConsumerState<LegacyEntryFormModal> createState() =>
+      _LegacyEntryFormModalState();
 }
 
 class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
@@ -182,12 +183,24 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
     final secondaryTextColor = AppColors.textSecondary(context);
     final modalBg = isDark ? const Color(0xFF0F172A) : Colors.white;
     final inputBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final isEdit = widget.entryToEdit != null;
 
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final formattedDate =
         '${months[_selectedDate.month - 1]} ${_selectedDate.day}, ${_selectedDate.year}';
@@ -234,7 +247,9 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                           const SizedBox(width: 10),
                           Text(
                             context.tr(
-                              isEdit ? 'edit_legacy_entry_title' : 'add_legacy_entry_title',
+                              isEdit
+                                  ? 'edit_legacy_entry_title'
+                                  : 'add_legacy_entry_title',
                             ),
                             style: TextStyle(
                               fontSize: 18,
@@ -273,10 +288,16 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                         style: TextStyle(color: primaryTextColor, fontSize: 14),
                         decoration: InputDecoration(
                           hintText: context.tr('legacy_entry_title_hint'),
-                          hintStyle: TextStyle(color: secondaryTextColor, fontSize: 13),
+                          hintStyle: TextStyle(
+                            color: secondaryTextColor,
+                            fontSize: 13,
+                          ),
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(color: borderColor),
@@ -287,7 +308,10 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6366F1),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                         validator: (value) {
@@ -323,7 +347,10 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                           borderRadius: BorderRadius.circular(16),
                           onTap: _pickDate,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             decoration: BoxDecoration(
                               color: inputBg,
                               borderRadius: BorderRadius.circular(16),
@@ -331,8 +358,11 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.calendar_today_rounded,
-                                    size: 18, color: Color(0xFF6366F1)),
+                                const Icon(
+                                  Icons.calendar_today_rounded,
+                                  size: 18,
+                                  color: Color(0xFF6366F1),
+                                ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
@@ -344,8 +374,11 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                                     ),
                                   ),
                                 ),
-                                Icon(Icons.chevron_right_rounded,
-                                    size: 18, color: secondaryTextColor),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  size: 18,
+                                  color: secondaryTextColor,
+                                ),
                               ],
                             ),
                           ),
@@ -389,7 +422,10 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                                 value: 'letter',
                                 child: Row(
                                   children: [
-                                    const Text('✉️', style: TextStyle(fontSize: 15)),
+                                    const Text(
+                                      '✉️',
+                                      style: TextStyle(fontSize: 15),
+                                    ),
                                     const SizedBox(width: 10),
                                     Text(
                                       context.tr('legacy_type_letter'),
@@ -406,7 +442,10 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                                 value: 'value',
                                 child: Row(
                                   children: [
-                                    const Text('💎', style: TextStyle(fontSize: 15)),
+                                    const Text(
+                                      '💎',
+                                      style: TextStyle(fontSize: 15),
+                                    ),
                                     const SizedBox(width: 10),
                                     Text(
                                       context.tr('legacy_type_value'),
@@ -423,7 +462,10 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                                 value: 'will',
                                 child: Row(
                                   children: [
-                                    const Text('📜', style: TextStyle(fontSize: 15)),
+                                    const Text(
+                                      '📜',
+                                      style: TextStyle(fontSize: 15),
+                                    ),
                                     const SizedBox(width: 10),
                                     Text(
                                       context.tr('legacy_type_will'),
@@ -480,7 +522,10 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                         ),
                         decoration: InputDecoration(
                           hintText: context.tr('legacy_entry_content_hint'),
-                          hintStyle: TextStyle(color: secondaryTextColor, fontSize: 13),
+                          hintStyle: TextStyle(
+                            color: secondaryTextColor,
+                            fontSize: 13,
+                          ),
                           filled: true,
                           fillColor: inputBg,
                           contentPadding: const EdgeInsets.all(16),
@@ -494,7 +539,10 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6366F1),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                         validator: (value) {
@@ -532,7 +580,9 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : Text(
@@ -550,7 +600,10 @@ class _LegacyEntryFormModalState extends ConsumerState<LegacyEntryFormModal> {
                             foregroundColor: const Color(0xFFEF4444),
                             minimumSize: const Size(double.infinity, 44),
                           ),
-                          icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            size: 18,
+                          ),
                           label: Text(
                             context.tr('delete_legacy_entry_btn'),
                             style: const TextStyle(fontWeight: FontWeight.w700),

@@ -16,7 +16,9 @@ class LifeScoreWidget extends ConsumerWidget {
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final score = ref.watch(currentLiveLifeScoreProvider);
     final tierColor = score.tierColor;
@@ -29,9 +31,7 @@ class LifeScoreWidget extends ConsumerWidget {
           HapticFeedback.selectionClick();
           ref.read(selectedWeekStartProvider.notifier).resetToCurrentWeek();
           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const LifeScoreDetailPage(),
-            ),
+            MaterialPageRoute(builder: (_) => const LifeScoreDetailPage()),
           );
         },
         child: Container(
@@ -62,7 +62,9 @@ class LifeScoreWidget extends ConsumerWidget {
                     child: CircularProgressIndicator(
                       value: score.total / 100.0,
                       strokeWidth: 6,
-                      backgroundColor: tierColor.withValues(alpha: isDark ? 0.2 : 0.12),
+                      backgroundColor: tierColor.withValues(
+                        alpha: isDark ? 0.2 : 0.12,
+                      ),
                       valueColor: AlwaysStoppedAnimation<Color>(tierColor),
                       strokeCap: StrokeCap.round,
                     ),
@@ -110,12 +112,19 @@ class LifeScoreWidget extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: tierColor.withValues(alpha: isDark ? 0.2 : 0.12),
+                            color: tierColor.withValues(
+                              alpha: isDark ? 0.2 : 0.12,
+                            ),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: tierColor.withValues(alpha: isDark ? 0.35 : 0.25),
+                              color: tierColor.withValues(
+                                alpha: isDark ? 0.35 : 0.25,
+                              ),
                             ),
                           ),
                           child: Text(

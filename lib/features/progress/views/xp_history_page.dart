@@ -30,7 +30,11 @@ class XpHistoryPage extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: primaryTextColor, size: 20),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: primaryTextColor,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -59,7 +63,12 @@ class XpHistoryPage extends ConsumerWidget {
             // -----------------------------------------------------------------
             // 2. HOW TO EARN XP GUIDE CARD (Single-source-of-truth from XpConstants)
             // -----------------------------------------------------------------
-            _buildHowToEarnCard(context, isDark, primaryTextColor, secondaryTextColor),
+            _buildHowToEarnCard(
+              context,
+              isDark,
+              primaryTextColor,
+              secondaryTextColor,
+            ),
 
             const SizedBox(height: 24),
 
@@ -97,7 +106,7 @@ class XpHistoryPage extends ConsumerWidget {
                   child: CircularProgressIndicator(),
                 ),
               ),
-              error: (_, __) => _buildEmptyState(context, secondaryTextColor),
+              error: (_, _) => _buildEmptyState(context, secondaryTextColor),
               data: (logs) {
                 if (logs.isEmpty) {
                   return _buildEmptyState(context, secondaryTextColor);
@@ -107,10 +116,16 @@ class XpHistoryPage extends ConsumerWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: logs.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final log = logs[index];
-                    return _buildLogItemRow(context, log, isDark, primaryTextColor, secondaryTextColor);
+                    return _buildLogItemRow(
+                      context,
+                      log,
+                      isDark,
+                      primaryTextColor,
+                      secondaryTextColor,
+                    );
                   },
                 );
               },
@@ -129,7 +144,9 @@ class XpHistoryPage extends ConsumerWidget {
   ) {
     final isMax = levelInfo.level >= 20;
     final primaryTextColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final secondaryTextColor = isDark ? Colors.white70 : const Color(0xFF64748B);
+    final secondaryTextColor = isDark
+        ? Colors.white70
+        : const Color(0xFF64748B);
 
     return Container(
       width: double.infinity,
@@ -148,7 +165,9 @@ class XpHistoryPage extends ConsumerWidget {
               ),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: isDark ? const Color(0xFF38BDF8).withValues(alpha: 0.25) : const Color(0xFFBFDBFE),
+          color: isDark
+              ? const Color(0xFF38BDF8).withValues(alpha: 0.25)
+              : const Color(0xFFBFDBFE),
           width: 1.2,
         ),
         boxShadow: [
@@ -178,7 +197,10 @@ class XpHistoryPage extends ConsumerWidget {
                   ),
                 ),
                 child: Center(
-                  child: Text(levelInfo.emoji, style: const TextStyle(fontSize: 24)),
+                  child: Text(
+                    levelInfo.emoji,
+                    style: const TextStyle(fontSize: 24),
+                  ),
                 ),
               ),
               const SizedBox(width: 14),
@@ -218,7 +240,9 @@ class XpHistoryPage extends ConsumerWidget {
               height: 10,
               child: LinearProgressIndicator(
                 value: levelInfo.percentToNextLevel,
-                backgroundColor: isDark ? Colors.white12 : const Color(0xFFCBD5E1),
+                backgroundColor: isDark
+                    ? Colors.white12
+                    : const Color(0xFFCBD5E1),
                 valueColor: AlwaysStoppedAnimation<Color>(
                   isDark ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
                 ),
@@ -262,18 +286,66 @@ class XpHistoryPage extends ConsumerWidget {
     final borderColor = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
 
     final List<Map<String, dynamic>> rules = [
-      {'emoji': '🎯', 'titleKey': 'xp_rule_task', 'xp': '+${XpConstants.taskCompletion} XP'},
-      {'emoji': '🔥', 'titleKey': 'xp_rule_habit', 'xp': '+${XpConstants.habitDayCompletion} XP'},
-      {'emoji': '🍅', 'titleKey': 'xp_rule_pomodoro', 'xp': '+${XpConstants.pomodoroFullSession} XP'},
-      {'emoji': '⚡', 'titleKey': 'xp_rule_checkin', 'xp': '+${XpConstants.dailyCheckin} XP'},
-      {'emoji': '💧', 'titleKey': 'xp_rule_water', 'xp': '+${XpConstants.waterPerGlass} XP'},
-      {'emoji': '🌙', 'titleKey': 'xp_rule_sleep', 'xp': '+${XpConstants.sleepLogged} XP'},
-      {'emoji': '📚', 'titleKey': 'xp_rule_reading_progress', 'xp': '+${XpConstants.readingProgress} XP'},
-      {'emoji': '📖', 'titleKey': 'xp_rule_reading_finish', 'xp': '+${XpConstants.readingBookFinished} XP'},
-      {'emoji': '🗺️', 'titleKey': 'xp_rule_learning', 'xp': '+${XpConstants.learningPathDay} XP'},
-      {'emoji': '🗂️', 'titleKey': 'xp_rule_flashcards', 'xp': '+${XpConstants.flashcardReviewPerCard} XP'},
-      {'emoji': '🌅', 'titleKey': 'xp_rule_rituals', 'xp': '+${XpConstants.eveningShutdown} XP'},
-      {'emoji': '📊', 'titleKey': 'xp_rule_weekly_review', 'xp': '+${XpConstants.weeklyReview} XP'},
+      {
+        'emoji': '🎯',
+        'titleKey': 'xp_rule_task',
+        'xp': '+${XpConstants.taskCompletion} XP',
+      },
+      {
+        'emoji': '🔥',
+        'titleKey': 'xp_rule_habit',
+        'xp': '+${XpConstants.habitDayCompletion} XP',
+      },
+      {
+        'emoji': '🍅',
+        'titleKey': 'xp_rule_pomodoro',
+        'xp': '+${XpConstants.pomodoroFullSession} XP',
+      },
+      {
+        'emoji': '⚡',
+        'titleKey': 'xp_rule_checkin',
+        'xp': '+${XpConstants.dailyCheckin} XP',
+      },
+      {
+        'emoji': '💧',
+        'titleKey': 'xp_rule_water',
+        'xp': '+${XpConstants.waterPerGlass} XP',
+      },
+      {
+        'emoji': '🌙',
+        'titleKey': 'xp_rule_sleep',
+        'xp': '+${XpConstants.sleepLogged} XP',
+      },
+      {
+        'emoji': '📚',
+        'titleKey': 'xp_rule_reading_progress',
+        'xp': '+${XpConstants.readingProgress} XP',
+      },
+      {
+        'emoji': '📖',
+        'titleKey': 'xp_rule_reading_finish',
+        'xp': '+${XpConstants.readingBookFinished} XP',
+      },
+      {
+        'emoji': '🗺️',
+        'titleKey': 'xp_rule_learning',
+        'xp': '+${XpConstants.learningPathDay} XP',
+      },
+      {
+        'emoji': '🗂️',
+        'titleKey': 'xp_rule_flashcards',
+        'xp': '+${XpConstants.flashcardReviewPerCard} XP',
+      },
+      {
+        'emoji': '🌅',
+        'titleKey': 'xp_rule_rituals',
+        'xp': '+${XpConstants.eveningShutdown} XP',
+      },
+      {
+        'emoji': '📊',
+        'titleKey': 'xp_rule_weekly_review',
+        'xp': '+${XpConstants.weeklyReview} XP',
+      },
     ];
 
     return Container(
@@ -323,9 +395,14 @@ class XpHistoryPage extends ConsumerWidget {
             runSpacing: 8,
             children: rules.map((r) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                  color: isDark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
@@ -334,7 +411,10 @@ class XpHistoryPage extends ConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(r['emoji'] as String, style: const TextStyle(fontSize: 13)),
+                    Text(
+                      r['emoji'] as String,
+                      style: const TextStyle(fontSize: 13),
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       context.tr(r['titleKey'] as String),
@@ -346,7 +426,10 @@ class XpHistoryPage extends ConsumerWidget {
                     ),
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
@@ -397,7 +480,10 @@ class XpHistoryPage extends ConsumerWidget {
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Text(log.sourceEmoji, style: const TextStyle(fontSize: 18)),
+              child: Text(
+                log.sourceEmoji,
+                style: const TextStyle(fontSize: 18),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -482,7 +568,9 @@ class XpHistoryPage extends ConsumerWidget {
       return '${diff.inMinutes}m ago';
     } else if (diff.inHours < 24 && dt.day == now.day) {
       return '${diff.inHours}h ago';
-    } else if (diff.inDays == 1 || (diff.inHours < 48 && dt.day == now.subtract(const Duration(days: 1)).day)) {
+    } else if (diff.inDays == 1 ||
+        (diff.inHours < 48 &&
+            dt.day == now.subtract(const Duration(days: 1)).day)) {
       return 'Yesterday';
     } else {
       return '${dt.day}/${dt.month}/${dt.year}';

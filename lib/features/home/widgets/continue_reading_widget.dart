@@ -139,10 +139,7 @@ class ContinueReadingWidget extends ConsumerWidget {
 
                     // Author & Page progress
                     Text(
-                      '${book.author} • ${context.tr('pages_read_progress', args: {
-                            'current': book.currentPage.toString(),
-                            'total': book.totalPages.toString(),
-                          })}',
+                      '${book.author} • ${context.tr('pages_read_progress', args: {'current': book.currentPage.toString(), 'total': book.totalPages.toString()})}',
                       style: TextStyle(
                         fontSize: 11,
                         color: secondaryTextColor,

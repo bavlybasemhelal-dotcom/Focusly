@@ -69,7 +69,9 @@ class _QuickCaptureSheetState extends State<QuickCaptureSheet> {
             ),
             backgroundColor: const Color(0xFF1E293B),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -98,7 +100,9 @@ class _QuickCaptureSheetState extends State<QuickCaptureSheet> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black54 : const Color(0xFF2E6FF2).withValues(alpha: 0.12),
+            color: isDark
+                ? Colors.black54
+                : const Color(0xFF2E6FF2).withValues(alpha: 0.12),
             blurRadius: 30,
             offset: const Offset(0, -6),
           ),
@@ -137,7 +141,11 @@ class _QuickCaptureSheetState extends State<QuickCaptureSheet> {
                     color: brandPrimary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.bolt_rounded, color: brandPrimary, size: 20),
+                  child: Icon(
+                    Icons.bolt_rounded,
+                    color: brandPrimary,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -174,7 +182,9 @@ class _QuickCaptureSheetState extends State<QuickCaptureSheet> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                      color: isDark
+                          ? const Color(0xFF08123A)
+                          : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: borderColor, width: 1.2),
                     ),
@@ -232,10 +242,16 @@ class _QuickCaptureSheetState extends State<QuickCaptureSheet> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.2,
-                                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
-                            : const Icon(Icons.arrow_upward_rounded, color: Colors.white, size: 22),
+                            : const Icon(
+                                Icons.arrow_upward_rounded,
+                                color: Colors.white,
+                                size: 22,
+                              ),
                       ),
                     ),
                   ),

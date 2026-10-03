@@ -299,16 +299,8 @@ class _TrendChartPainter extends CustomPainter {
 
         if (isLast) {
           // Highlight final (latest) point
-          canvas.drawCircle(
-            pt,
-            5.0,
-            Paint()..color = series.color,
-          );
-          canvas.drawCircle(
-            pt,
-            2.2,
-            Paint()..color = Colors.white,
-          );
+          canvas.drawCircle(pt, 5.0, Paint()..color = series.color);
+          canvas.drawCircle(pt, 2.2, Paint()..color = Colors.white);
         } else {
           canvas.drawCircle(
             pt,

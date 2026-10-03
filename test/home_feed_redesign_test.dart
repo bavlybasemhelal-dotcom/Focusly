@@ -8,8 +8,6 @@ import 'package:focusly/core/theme/app_theme.dart';
 import 'package:focusly/features/habits/models/habit_model.dart';
 import 'package:focusly/features/habits/providers/habits_provider.dart';
 import 'package:focusly/features/home/widgets/continue_reading_widget.dart';
-import 'package:focusly/features/home/widgets/groups_preview_widget.dart';
-import 'package:focusly/features/home/widgets/home_life_score_widget.dart';
 import 'package:focusly/features/home/widgets/home_weekly_review_due_banner.dart';
 import 'package:focusly/features/home/widgets/level_xp_compact_widget.dart';
 import 'package:focusly/features/home/widgets/quick_actions_row.dart';

@@ -25,10 +25,7 @@ import 'providers/notifications_provider.dart';
 class NotificationDetailPage extends ConsumerWidget {
   final NotificationLogModel notification;
 
-  const NotificationDetailPage({
-    super.key,
-    required this.notification,
-  });
+  const NotificationDetailPage({super.key, required this.notification});
 
   void _showDeleteConfirmation(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -192,7 +189,8 @@ class NotificationDetailPage extends ConsumerWidget {
         : const Color(0xFFE2E8F5);
 
     final typeConfig = _getTypeConfig(notification.type, context);
-    final hasRelatedItem = notification.relatedId != null &&
+    final hasRelatedItem =
+        notification.relatedId != null &&
         notification.relatedId!.trim().isNotEmpty;
 
     return Scaffold(
@@ -230,7 +228,10 @@ class NotificationDetailPage extends ConsumerWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -263,10 +264,14 @@ class NotificationDetailPage extends ConsumerWidget {
                                 width: 52,
                                 height: 52,
                                 decoration: BoxDecoration(
-                                  color: typeConfig.color.withValues(alpha: 0.15),
+                                  color: typeConfig.color.withValues(
+                                    alpha: 0.15,
+                                  ),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: typeConfig.color.withValues(alpha: 0.3),
+                                    color: typeConfig.color.withValues(
+                                      alpha: 0.3,
+                                    ),
                                     width: 1.5,
                                   ),
                                 ),
@@ -290,8 +295,9 @@ class NotificationDetailPage extends ConsumerWidget {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: typeConfig.color
-                                            .withValues(alpha: 0.12),
+                                        color: typeConfig.color.withValues(
+                                          alpha: 0.12,
+                                        ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
@@ -314,7 +320,9 @@ class NotificationDetailPage extends ConsumerWidget {
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          context.tr('notification_status_read'),
+                                          context.tr(
+                                            'notification_status_read',
+                                          ),
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w700,
@@ -391,8 +399,9 @@ class NotificationDetailPage extends ConsumerWidget {
                             const SizedBox(height: 14),
                             _buildMetaRow(
                               icon: Icons.schedule_rounded,
-                              label:
-                                  context.tr('notification_scheduled_time_label'),
+                              label: context.tr(
+                                'notification_scheduled_time_label',
+                              ),
                               value: _formatFullDateTime(
                                 notification.scheduledFor!,
                                 context,
@@ -416,9 +425,7 @@ class NotificationDetailPage extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                 decoration: BoxDecoration(
                   color: cardBg,
-                  border: Border(
-                    top: BorderSide(color: borderColor, width: 1),
-                  ),
+                  border: Border(top: BorderSide(color: borderColor, width: 1)),
                 ),
                 child: SizedBox(
                   width: double.infinity,
@@ -469,9 +476,7 @@ class NotificationDetailPage extends ConsumerWidget {
             color: brandPrimary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Center(
-            child: Icon(icon, color: brandPrimary, size: 18),
-          ),
+          child: Center(child: Icon(icon, color: brandPrimary, size: 18)),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -506,18 +511,42 @@ class NotificationDetailPage extends ConsumerWidget {
   String _formatFullDateTime(DateTime dt, BuildContext context) {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     const monthsEn = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     const monthsAr = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر',
     ];
 
-    final monthName = isArabic ? monthsAr[dt.month - 1] : monthsEn[dt.month - 1];
+    final monthName = isArabic
+        ? monthsAr[dt.month - 1]
+        : monthsEn[dt.month - 1];
     final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
     final minute = dt.minute.toString().padLeft(2, '0');
-    final period = dt.hour >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
+    final period = dt.hour >= 12
+        ? (isArabic ? 'م' : 'PM')
+        : (isArabic ? 'ص' : 'AM');
     return '${dt.day} $monthName ${dt.year}, $hour:$minute $period';
   }
 
@@ -642,4 +671,3 @@ class _NotificationDestinationWrapper extends StatelessWidget {
     );
   }
 }
-

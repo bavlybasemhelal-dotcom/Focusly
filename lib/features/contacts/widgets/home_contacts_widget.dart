@@ -39,7 +39,9 @@ class HomeContactsWidget extends ConsumerWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFEF4444).withValues(alpha: isDark ? 0.12 : 0.05),
+            color: const Color(
+              0xFFEF4444,
+            ).withValues(alpha: isDark ? 0.12 : 0.05),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -50,9 +52,9 @@ class HomeContactsWidget extends ConsumerWidget {
         child: InkWell(
           onTap: () {
             HapticFeedback.lightImpact();
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ContactsPage()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ContactsPage()));
           },
           borderRadius: BorderRadius.circular(20),
           child: Padding(
@@ -69,7 +71,9 @@ class HomeContactsWidget extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                            color: const Color(
+                              0xFFEF4444,
+                            ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -116,17 +120,27 @@ class HomeContactsWidget extends ConsumerWidget {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                        color: isDark
+                            ? const Color(0xFF08123A)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+                          color: isDark
+                              ? Colors.white10
+                              : const Color(0xFFE2E8F0),
                         ),
                       ),
                       child: Row(
                         children: [
-                          Text(contact.emoji, style: const TextStyle(fontSize: 20)),
+                          Text(
+                            contact.emoji,
+                            style: const TextStyle(fontSize: 20),
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(
@@ -153,9 +167,14 @@ class HomeContactsWidget extends ConsumerWidget {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                              color: const Color(
+                                0xFFEF4444,
+                              ).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(

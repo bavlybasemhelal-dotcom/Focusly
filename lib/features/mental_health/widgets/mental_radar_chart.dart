@@ -28,11 +28,7 @@ class MentalRadarChart extends StatelessWidget {
   final MentalLogModel log;
   final double height;
 
-  const MentalRadarChart({
-    super.key,
-    required this.log,
-    this.height = 250,
-  });
+  const MentalRadarChart({super.key, required this.log, this.height = 250});
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +206,10 @@ class _MentalRadarPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout(maxWidth: 90);
 
-      final offset = Offset(x - textPainter.width / 2, y - textPainter.height / 2);
+      final offset = Offset(
+        x - textPainter.width / 2,
+        y - textPainter.height / 2,
+      );
       textPainter.paint(canvas, offset);
     }
   }

@@ -12,7 +12,10 @@ class AddEditResourceSheet extends ConsumerStatefulWidget {
 
   const AddEditResourceSheet({super.key, this.resource});
 
-  static Future<bool?> show(BuildContext context, {ParaResourceModel? resource}) {
+  static Future<bool?> show(
+    BuildContext context, {
+    ParaResourceModel? resource,
+  }) {
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -36,12 +39,15 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
   @override
   void initState() {
     super.initState();
-    _titleController =
-        TextEditingController(text: widget.resource?.title ?? '');
-    _notesController =
-        TextEditingController(text: widget.resource?.notes ?? '');
-    _tagsController =
-        TextEditingController(text: widget.resource?.tags.join(', ') ?? '');
+    _titleController = TextEditingController(
+      text: widget.resource?.title ?? '',
+    );
+    _notesController = TextEditingController(
+      text: widget.resource?.notes ?? '',
+    );
+    _tagsController = TextEditingController(
+      text: widget.resource?.tags.join(', ') ?? '',
+    );
   }
 
   @override
@@ -71,11 +77,7 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
           .toList();
 
       if (widget.resource == null) {
-        await service.addResource(
-          title: title,
-          notes: notes,
-          tags: tags,
-        );
+        await service.addResource(title: title, notes: notes, tags: tags);
       } else {
         await service.updateResource(
           resourceId: widget.resource!.id,
@@ -197,10 +199,15 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
                 controller: _titleController,
                 autofocus: !isEdit,
                 textCapitalization: TextCapitalization.sentences,
-                style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
                   hintText: context.tr('resource_title_hint'),
-                  hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: secondaryTextColor.withValues(alpha: 0.6),
+                  ),
                   filled: true,
                   fillColor: inputBg,
                   border: OutlineInputBorder(
@@ -213,9 +220,15 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF2E6FF2),
+                      width: 1.8,
+                    ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -238,13 +251,22 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _tagsController,
-                style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
                   hintText: context.tr('resource_tags_hint'),
-                  hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: secondaryTextColor.withValues(alpha: 0.6),
+                  ),
                   filled: true,
                   fillColor: inputBg,
-                  prefixIcon: Icon(Icons.tag_rounded, color: secondaryTextColor, size: 20),
+                  prefixIcon: Icon(
+                    Icons.tag_rounded,
+                    color: secondaryTextColor,
+                    size: 20,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(color: borderColor),
@@ -255,9 +277,15 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF2E6FF2),
+                      width: 1.8,
+                    ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
               ),
               const SizedBox(height: 18),
@@ -275,10 +303,15 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
               TextFormField(
                 controller: _notesController,
                 maxLines: 4,
-                style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontWeight: FontWeight.w500,
+                ),
                 decoration: InputDecoration(
                   hintText: context.tr('resource_notes_hint'),
-                  hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: secondaryTextColor.withValues(alpha: 0.6),
+                  ),
                   filled: true,
                   fillColor: inputBg,
                   border: OutlineInputBorder(
@@ -291,7 +324,10 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF2E6FF2),
+                      width: 1.8,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.all(16),
                 ),
@@ -318,7 +354,9 @@ class _AddEditResourceSheetState extends ConsumerState<AddEditResourceSheet> {
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Text(

@@ -11,17 +11,18 @@ final bucketListServiceProvider = Provider<BucketListService>((ref) {
 /// Real-time stream of all bucket list items for the active authenticated user
 final bucketListStreamProvider =
     StreamProvider.autoDispose<List<BucketItemModel>>((ref) {
-  final uid = ref.watch(currentUserIdProvider);
-  if (uid == null || uid.isEmpty) {
-    return Stream.value(<BucketItemModel>[]);
-  }
-  final service = ref.watch(bucketListServiceProvider);
-  return service.getBucketItemsStream(uid);
-});
+      final uid = ref.watch(currentUserIdProvider);
+      if (uid == null || uid.isEmpty) {
+        return Stream.value(<BucketItemModel>[]);
+      }
+      final service = ref.watch(bucketListServiceProvider);
+      return service.getBucketItemsStream(uid);
+    });
 
 /// Filtered provider for pending dreams to achieve
-final pendingBucketItemsProvider =
-    Provider.autoDispose<List<BucketItemModel>>((ref) {
+final pendingBucketItemsProvider = Provider.autoDispose<List<BucketItemModel>>((
+  ref,
+) {
   final allItems = ref.watch(bucketListStreamProvider).value ?? [];
   return allItems.where((i) => i.isPending).toList();
 });
@@ -29,6 +30,6 @@ final pendingBucketItemsProvider =
 /// Filtered provider for achieved dreams with memories
 final completedBucketItemsProvider =
     Provider.autoDispose<List<BucketItemModel>>((ref) {
-  final allItems = ref.watch(bucketListStreamProvider).value ?? [];
-  return allItems.where((i) => i.isCompleted).toList();
-});
+      final allItems = ref.watch(bucketListStreamProvider).value ?? [];
+      return allItems.where((i) => i.isCompleted).toList();
+    });

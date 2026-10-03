@@ -14,10 +14,7 @@ import 'goal_card.dart';
 class GoalFormModal extends ConsumerStatefulWidget {
   final GoalModel? goal;
 
-  const GoalFormModal({
-    super.key,
-    this.goal,
-  });
+  const GoalFormModal({super.key, this.goal});
 
   static Future<void> show(BuildContext context, {GoalModel? goal}) {
     HapticFeedback.lightImpact();
@@ -36,7 +33,8 @@ class GoalFormModal extends ConsumerStatefulWidget {
 class _GoalFormModalState extends ConsumerState<GoalFormModal> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
-  final TextEditingController _milestoneInputController = TextEditingController();
+  final TextEditingController _milestoneInputController =
+      TextEditingController();
 
   late String _selectedIcon;
   late String _selectedColor;
@@ -48,7 +46,18 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
   bool _isSaving = false;
 
   static const List<String> _iconPresets = [
-    '🎯', '🚀', '💼', '💡', '🏆', '📚', '💰', '🏋️', '🧘', '🌍', '🏠', '🎨'
+    '🎯',
+    '🚀',
+    '💼',
+    '💡',
+    '🏆',
+    '📚',
+    '💰',
+    '🏋️',
+    '🧘',
+    '🌍',
+    '🏠',
+    '🎨',
   ];
 
   static const List<String> _colorPresets = [
@@ -113,7 +122,10 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
     });
 
     final title = _titleController.text.trim();
-    final effectiveProgress = calculateMilestoneProgress(_milestones, _manualProgress);
+    final effectiveProgress = calculateMilestoneProgress(
+      _milestones,
+      _manualProgress,
+    );
 
     bool success;
     if (_isEditMode) {
@@ -129,12 +141,13 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
         progress: effectiveProgress,
         milestones: _milestones,
       );
-      success = await ref.read(goalsServiceProvider).updateGoal(
-            uid: uid,
-            goal: updated,
-          );
+      success = await ref
+          .read(goalsServiceProvider)
+          .updateGoal(uid: uid, goal: updated, original: widget.goal);
     } else {
-      final newId = await ref.read(goalsServiceProvider).addGoal(
+      final newId = await ref
+          .read(goalsServiceProvider)
+          .addGoal(
             uid: uid,
             title: title,
             icon: _selectedIcon,
@@ -165,7 +178,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
             ),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -252,7 +267,10 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close_rounded, color: secondaryTextColor),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: secondaryTextColor,
+                      ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -271,10 +289,15 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _titleController,
-                  style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: primaryTextColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                   decoration: InputDecoration(
                     hintText: context.tr('goal_title_hint'),
-                    hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                    hintStyle: TextStyle(
+                      color: secondaryTextColor.withValues(alpha: 0.6),
+                    ),
                     filled: true,
                     fillColor: inputBg,
                     border: OutlineInputBorder(
@@ -287,9 +310,15 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF2E6FF2),
+                        width: 1.8,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
@@ -330,7 +359,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                             height: 44,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF2E6FF2).withValues(alpha: 0.15)
+                                  ? const Color(
+                                      0xFF2E6FF2,
+                                    ).withValues(alpha: 0.15)
                                   : inputBg,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
@@ -341,7 +372,10 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                               ),
                             ),
                             child: Center(
-                              child: Text(emoji, style: const TextStyle(fontSize: 22)),
+                              child: Text(
+                                emoji,
+                                style: const TextStyle(fontSize: 22),
+                              ),
                             ),
                           ),
                         ),
@@ -366,7 +400,8 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                   child: Row(
                     children: _colorPresets.map((hex) {
                       final color = parseGoalColor(hex);
-                      final isSelected = _selectedColor.toUpperCase() == hex.toUpperCase();
+                      final isSelected =
+                          _selectedColor.toUpperCase() == hex.toUpperCase();
                       return Padding(
                         padding: const EdgeInsets.only(right: 10.0),
                         child: InkWell(
@@ -384,7 +419,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                               color: color,
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: isSelected ? Colors.white : Colors.transparent,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.transparent,
                                 width: 3,
                               ),
                               boxShadow: [
@@ -398,7 +435,11 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                             ),
                             child: isSelected
                                 ? const Center(
-                                    child: Icon(Icons.check, size: 18, color: Colors.white),
+                                    child: Icon(
+                                      Icons.check,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
                                   )
                                 : null,
                           ),
@@ -435,14 +476,19 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? const Color(0xFF2E6FF2).withValues(alpha: 0.15)
                               : inputBg,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF2E6FF2) : borderColor,
+                            color: isSelected
+                                ? const Color(0xFF2E6FF2)
+                                : borderColor,
                             width: isSelected ? 1.8 : 1.0,
                           ),
                         ),
@@ -450,8 +496,12 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                           label,
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                            color: isSelected ? const Color(0xFF2E6FF2) : primaryTextColor,
+                            fontWeight: isSelected
+                                ? FontWeight.w800
+                                : FontWeight.w600,
+                            color: isSelected
+                                ? const Color(0xFF2E6FF2)
+                                : primaryTextColor,
                           ),
                         ),
                       ),
@@ -481,7 +531,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                     child: DropdownButton<String?>(
                       value: _selectedAreaId,
                       isExpanded: true,
-                      dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                      dropdownColor: isDark
+                          ? const Color(0xFF0F1B4C)
+                          : Colors.white,
                       hint: Text(
                         context.tr('none_area_optional'),
                         style: TextStyle(color: secondaryTextColor),
@@ -499,7 +551,10 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                             value: area.id,
                             child: Row(
                               children: [
-                                Text(area.emoji, style: const TextStyle(fontSize: 16)),
+                                Text(
+                                  area.emoji,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
                                   area.title,
@@ -551,7 +606,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                   onTap: () async {
                     final picked = await showDatePicker(
                       context: context,
-                      initialDate: _selectedTargetDate ?? DateTime.now().add(const Duration(days: 30)),
+                      initialDate:
+                          _selectedTargetDate ??
+                          DateTime.now().add(const Duration(days: 30)),
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2050),
                     );
@@ -563,7 +620,10 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                   },
                   borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: inputBg,
                       borderRadius: BorderRadius.circular(14),
@@ -571,7 +631,11 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.event_rounded, color: Color(0xFF2E6FF2), size: 20),
+                        const Icon(
+                          Icons.event_rounded,
+                          color: Color(0xFF2E6FF2),
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Text(
                           targetDateDisplay,
@@ -657,7 +721,10 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                   final milestone = entry.value;
                   return Container(
                     margin: const EdgeInsets.only(bottom: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: inputBg,
                       borderRadius: BorderRadius.circular(12),
@@ -670,7 +737,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                               ? Icons.check_circle_rounded
                               : Icons.radio_button_unchecked_rounded,
                           size: 18,
-                          color: milestone.done ? const Color(0xFF10B981) : secondaryTextColor,
+                          color: milestone.done
+                              ? const Color(0xFF10B981)
+                              : secondaryTextColor,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -680,7 +749,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: primaryTextColor,
-                              decoration: milestone.done ? TextDecoration.lineThrough : null,
+                              decoration: milestone.done
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
                         ),
@@ -722,9 +793,15 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF2E6FF2),
+                              width: 1.5,
+                            ),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                         ),
                         onFieldSubmitted: (_) => _addMilestone(),
                       ),
@@ -736,7 +813,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                       style: IconButton.styleFrom(
                         backgroundColor: const Color(0xFF2E6FF2),
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ],
@@ -763,7 +842,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
+                      foregroundColor: isDark
+                          ? const Color(0xFF060B24)
+                          : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -774,7 +855,9 @@ class _GoalFormModalState extends ConsumerState<GoalFormModal> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : Text(

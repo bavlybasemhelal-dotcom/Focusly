@@ -24,24 +24,27 @@ void main() {
       expect(sender, isA<PlatformNotificationSender>());
     });
 
-    test('MobileNotificationSender initializes and handles schedule calls safely', () async {
-      final sender = MobileNotificationSender();
-      await sender.initialize();
-      final hasPermission = await sender.requestPermissions();
-      expect(hasPermission, isA<bool>());
+    test(
+      'MobileNotificationSender initializes and handles schedule calls safely',
+      () async {
+        final sender = MobileNotificationSender();
+        await sender.initialize();
+        final hasPermission = await sender.requestPermissions();
+        expect(hasPermission, isA<bool>());
 
-      // Attempt schedule in past (safely ignored)
-      await sender.scheduleNotification(
-        id: 101,
-        title: 'Past Alert',
-        body: 'Should not crash',
-        scheduledDate: DateTime.now().subtract(const Duration(hours: 1)),
-      );
+        // Attempt schedule in past (safely ignored)
+        await sender.scheduleNotification(
+          id: 101,
+          title: 'Past Alert',
+          body: 'Should not crash',
+          scheduledDate: DateTime.now().subtract(const Duration(hours: 1)),
+        );
 
-      // Cancel notification
-      await sender.cancelNotification(101);
-      await sender.cancelAllNotifications();
-    });
+        // Cancel notification
+        await sender.cancelNotification(101);
+        await sender.cancelAllNotifications();
+      },
+    );
 
     test('DesktopNotificationSender manages in-process timer queue', () async {
       final sender = DesktopNotificationSender();
@@ -87,36 +90,42 @@ void main() {
   group('Feature Notification Services Integration Tests', () {
     final localizations = AppLocalizations(const Locale('en'));
 
-    test('TaskNotificationService schedules without crashing across platforms', () async {
-      final service = TaskNotificationService();
-      final task = TaskModel(
-        id: 'task_test_1',
-        title: 'Complete System Architecture Review',
-        categoryId: 'work_cat',
-        date: DateTime.now().add(const Duration(days: 1)),
-        time: const TimeOfDay(hour: 14, minute: 30),
-        deadline: DateTime.now().add(const Duration(days: 2)),
-        createdAt: DateTime.now(),
-      );
+    test(
+      'TaskNotificationService schedules without crashing across platforms',
+      () async {
+        final service = TaskNotificationService();
+        final task = TaskModel(
+          id: 'task_test_1',
+          title: 'Complete System Architecture Review',
+          categoryId: 'work_cat',
+          date: DateTime.now().add(const Duration(days: 1)),
+          time: const TimeOfDay(hour: 14, minute: 30),
+          deadline: DateTime.now().add(const Duration(days: 2)),
+          createdAt: DateTime.now(),
+        );
 
-      await service.scheduleTaskNotifications(task, localizations);
-      await service.cancelTaskNotifications(task.id);
-    });
+        await service.scheduleTaskNotifications(task, localizations);
+        await service.cancelTaskNotifications(task.id);
+      },
+    );
 
-    test('EventNotificationService schedules recurring window without crashing', () async {
-      final service = EventNotificationService();
-      final event = EventModel(
-        id: 'event_test_1',
-        title: 'Weekly Team Sync',
-        date: DateTime.now().add(const Duration(days: 1)),
-        time: const TimeOfDay(hour: 10, minute: 0),
-        typeId: 'work',
-        createdAt: DateTime.now(),
-      );
+    test(
+      'EventNotificationService schedules recurring window without crashing',
+      () async {
+        final service = EventNotificationService();
+        final event = EventModel(
+          id: 'event_test_1',
+          title: 'Weekly Team Sync',
+          date: DateTime.now().add(const Duration(days: 1)),
+          time: const TimeOfDay(hour: 10, minute: 0),
+          typeId: 'work',
+          createdAt: DateTime.now(),
+        );
 
-      await service.scheduleEventNotifications(event, localizations);
-      await service.cancelEventNotifications(event);
-    });
+        await service.scheduleEventNotifications(event, localizations);
+        await service.cancelEventNotifications(event);
+      },
+    );
 
     test('HabitNotificationService schedules daily reminder', () async {
       final service = HabitNotificationService();
@@ -145,8 +154,11 @@ void main() {
       await service.cancelPendingNotification();
     });
 
-    test('NotificationInitService.scheduleTestNotification executes cleanly', () async {
-      await NotificationInitService.scheduleTestNotification(seconds: 10);
-    });
+    test(
+      'NotificationInitService.scheduleTestNotification executes cleanly',
+      () async {
+        await NotificationInitService.scheduleTestNotification(seconds: 10);
+      },
+    );
   });
 }

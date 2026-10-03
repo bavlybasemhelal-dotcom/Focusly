@@ -23,10 +23,7 @@ const List<int> _kCoverColors = [
 class BookFormModal extends ConsumerStatefulWidget {
   final BookModel? bookToEdit;
 
-  const BookFormModal({
-    super.key,
-    this.bookToEdit,
-  });
+  const BookFormModal({super.key, this.bookToEdit});
 
   /// Helper static method to open the modal bottom sheet.
   static Future<void> show(BuildContext context, {BookModel? bookToEdit}) {
@@ -65,15 +62,18 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
 
     _titleController = TextEditingController(text: edit?.title ?? '');
     _authorController = TextEditingController(text: edit?.author ?? '');
-    _totalPagesController =
-        TextEditingController(text: (edit?.totalPages ?? 200).toString());
-    _currentPageController =
-        TextEditingController(text: (edit?.currentPage ?? 0).toString());
+    _totalPagesController = TextEditingController(
+      text: (edit?.totalPages ?? 200).toString(),
+    );
+    _currentPageController = TextEditingController(
+      text: (edit?.currentPage ?? 0).toString(),
+    );
     _notesController = TextEditingController(text: edit?.notes ?? '');
 
     _status = edit?.status ?? 'reading';
     _coverColor = edit?.coverColor ?? _kCoverColors[0];
-    _startDate = edit?.startDate ?? (_status != 'wishlist' ? DateTime.now() : null);
+    _startDate =
+        edit?.startDate ?? (_status != 'wishlist' ? DateTime.now() : null);
     _finishDate = edit?.finishDate;
     _rating = edit?.rating;
   }
@@ -192,7 +192,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 ),
                 backgroundColor: const Color(0xFF10B981),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             );
           } else {
@@ -201,7 +203,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 content: Text(context.tr('book_saved_toast')),
                 backgroundColor: const Color(0xFF10B981),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             );
           }
@@ -246,7 +250,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 ),
                 backgroundColor: const Color(0xFF10B981),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             );
           } else {
@@ -255,7 +261,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 content: Text(context.tr('book_updated_toast')),
                 backgroundColor: const Color(0xFF2E6FF2),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             );
           }
@@ -276,7 +284,11 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -309,7 +321,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -331,7 +345,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
               content: Text(context.tr('book_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -436,7 +452,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -493,7 +512,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -504,7 +526,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -535,7 +560,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -546,7 +574,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -573,24 +604,41 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 child: DropdownButton<String>(
                   value: _status,
                   isExpanded: true,
-                  dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
-                  icon: Icon(Icons.keyboard_arrow_down_rounded, color: secondaryTextColor),
+                  dropdownColor: isDark
+                      ? const Color(0xFF0F1B4C)
+                      : Colors.white,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: secondaryTextColor,
+                  ),
                   items: [
                     DropdownMenuItem(
                       value: 'reading',
-                      child: Text(context.tr('status_reading'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('status_reading'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'paused',
-                      child: Text(context.tr('status_paused'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('status_paused'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'wishlist',
-                      child: Text(context.tr('status_wishlist'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('status_wishlist'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'done',
-                      child: Text(context.tr('status_done'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('status_done'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                   ],
                   onChanged: (val) {
@@ -608,12 +656,11 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                         // =========================================================================
                         if (_status == 'done') {
                           final totalPages =
-                              int.tryParse(_totalPagesController.text.trim()) ?? 200;
+                              int.tryParse(_totalPagesController.text.trim()) ??
+                              200;
                           final validTotal = totalPages > 0 ? totalPages : 200;
                           _currentPageController.text = validTotal.toString();
-                          if (_finishDate == null) {
-                            _finishDate = DateTime.now();
-                          }
+                          _finishDate ??= DateTime.now();
                         }
                         // Note: If the user changes Status AWAY from 'done' back to 'reading' or 'paused',
                         // we intentionally do NOT force Current Page down to an arbitrary value, leaving
@@ -645,7 +692,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                       TextField(
                         controller: _totalPagesController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -666,7 +715,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -677,7 +729,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF2E6FF2),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -701,7 +756,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                       TextField(
                         controller: _currentPageController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -710,7 +767,8 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                         onChanged: (val) {
                           final cur = int.tryParse(val.trim()) ?? 0;
                           final total =
-                              int.tryParse(_totalPagesController.text.trim()) ?? 200;
+                              int.tryParse(_totalPagesController.text.trim()) ??
+                              200;
                           // =========================================================================
                           // Current Page -> Status sync:
                           // If current page reaches or exceeds total pages, auto-flip Status to 'done' (Finished).
@@ -718,16 +776,17 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                           if (total > 0 && cur >= total && _status != 'done') {
                             setState(() {
                               _status = 'done';
-                              if (_finishDate == null) {
-                                _finishDate = DateTime.now();
-                              }
+                              _finishDate ??= DateTime.now();
                             });
                           }
                         },
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(color: borderColor),
@@ -738,7 +797,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF2E6FF2),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                       ),
@@ -791,7 +853,11 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                        ? const Icon(
+                            Icons.check_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          )
                         : null,
                   ),
                 );
@@ -815,7 +881,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 onTap: () => _pickDate(isFinishDate: false),
                 borderRadius: BorderRadius.circular(14),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: inputBg,
                     borderRadius: BorderRadius.circular(14),
@@ -823,15 +892,28 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_today_rounded, size: 18, color: Color(0xFF2E6FF2)),
+                      const Icon(
+                        Icons.calendar_today_rounded,
+                        size: 18,
+                        color: Color(0xFF2E6FF2),
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          _startDate != null ? loc.formatLocalizedDate(_startDate!) : 'Not set',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+                          _startDate != null
+                              ? loc.formatLocalizedDate(_startDate!)
+                              : 'Not set',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: primaryTextColor,
+                          ),
                         ),
                       ),
-                      Icon(Icons.keyboard_arrow_down_rounded, color: secondaryTextColor),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: secondaryTextColor,
+                      ),
                     ],
                   ),
                 ),
@@ -854,7 +936,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 onTap: () => _pickDate(isFinishDate: true),
                 borderRadius: BorderRadius.circular(14),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: inputBg,
                     borderRadius: BorderRadius.circular(14),
@@ -862,15 +947,28 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.event_available_rounded, size: 18, color: Color(0xFF10B981)),
+                      const Icon(
+                        Icons.event_available_rounded,
+                        size: 18,
+                        color: Color(0xFF10B981),
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          _finishDate != null ? loc.formatLocalizedDate(_finishDate!) : 'Today',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+                          _finishDate != null
+                              ? loc.formatLocalizedDate(_finishDate!)
+                              : 'Today',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: primaryTextColor,
+                          ),
                         ),
                       ),
-                      Icon(Icons.keyboard_arrow_down_rounded, color: secondaryTextColor),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: secondaryTextColor,
+                      ),
                     ],
                   ),
                 ),
@@ -896,7 +994,9 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                     constraints: const BoxConstraints(),
                     icon: Icon(
                       isFilled ? Icons.star_rounded : Icons.star_border_rounded,
-                      color: isFilled ? const Color(0xFFF59E0B) : secondaryTextColor,
+                      color: isFilled
+                          ? const Color(0xFFF59E0B)
+                          : secondaryTextColor,
                       size: 32,
                     ),
                     onPressed: () {
@@ -922,10 +1022,7 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
             TextField(
               controller: _notesController,
               maxLines: 3,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('notes_hint'),
                 hintStyle: TextStyle(
@@ -934,7 +1031,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -945,7 +1045,10 @@ class _BookFormModalState extends ConsumerState<BookFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),

@@ -11,7 +11,8 @@ class GroupAssignmentModel {
   final String groupId;
   final String type; // 'task' | 'habit'
   final String title; // Required, locked once created
-  final DateTime? deadline; // Due date for type='task'; start date for type='habit'
+  final DateTime?
+  deadline; // Due date for type='task'; start date for type='habit'
   final String completionMode; // 'simple' | 'count'
   final int? targetCount; // Required when completionMode='count'
   final List<String> assignedTo; // Array of member UIDs

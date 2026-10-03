@@ -11,10 +11,7 @@ import '../providers/social_battery_provider.dart';
 class SocialBatteryFormModal extends ConsumerStatefulWidget {
   final SocialBatteryEntryModel? entryToEdit;
 
-  const SocialBatteryFormModal({
-    super.key,
-    this.entryToEdit,
-  });
+  const SocialBatteryFormModal({super.key, this.entryToEdit});
 
   /// Static helper to open the modal bottom sheet.
   static Future<void> show(
@@ -30,10 +27,12 @@ class SocialBatteryFormModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<SocialBatteryFormModal> createState() => _SocialBatteryFormModalState();
+  ConsumerState<SocialBatteryFormModal> createState() =>
+      _SocialBatteryFormModalState();
 }
 
-class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal> {
+class _SocialBatteryFormModalState
+    extends ConsumerState<SocialBatteryFormModal> {
   late String _type;
   late TextEditingController _nameController;
   late int _impact;
@@ -135,7 +134,9 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
               content: Text(context.tr('social_entry_created_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -161,7 +162,9 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
               content: Text(context.tr('social_entry_updated_toast')),
               backgroundColor: const Color(0xFF2E6FF2),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -181,7 +184,11 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -211,7 +218,9 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -233,7 +242,9 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
               content: Text(context.tr('social_entry_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -339,7 +350,10 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -498,7 +512,10 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -509,7 +526,10 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -528,7 +548,10 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
                   ),
                 ),
                 Text(
-                  context.tr('social_impact_display', args: {'level': _impact.toString()}),
+                  context.tr(
+                    'social_impact_display',
+                    args: {'level': _impact.toString()},
+                  ),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -574,7 +597,9 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: isSelected ? Colors.white : primaryTextColor,
+                              color: isSelected
+                                  ? Colors.white
+                                  : primaryTextColor,
                             ),
                           ),
                         ),
@@ -600,7 +625,10 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: inputBg,
                   borderRadius: BorderRadius.circular(14),
@@ -608,8 +636,11 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today_rounded,
-                        size: 16, color: Color(0xFF2E6FF2)),
+                    const Icon(
+                      Icons.calendar_today_rounded,
+                      size: 16,
+                      color: Color(0xFF2E6FF2),
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       dateStr,
@@ -647,7 +678,10 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -658,7 +692,10 @@ class _SocialBatteryFormModalState extends ConsumerState<SocialBatteryFormModal>
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),

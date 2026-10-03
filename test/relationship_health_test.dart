@@ -122,69 +122,83 @@ void main() {
   });
 
   group('RelationshipLogModel Serialization Tests', () {
-    test('RelationshipLogModel serializes toMap and deserializes fromMap correctly', () {
-      final now = DateTime(2026, 8, 24, 11, 0);
-      final log = RelationshipLogModel(
-        id: 'log_99',
-        contactId: 'c_alex',
-        date: DateTime(2026, 8, 22),
-        rating: 5,
-        notes: 'Great coffee catchup discussing AI architecture.',
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'RelationshipLogModel serializes toMap and deserializes fromMap correctly',
+      () {
+        final now = DateTime(2026, 8, 24, 11, 0);
+        final log = RelationshipLogModel(
+          id: 'log_99',
+          contactId: 'c_alex',
+          date: DateTime(2026, 8, 22),
+          rating: 5,
+          notes: 'Great coffee catchup discussing AI architecture.',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final map = log.toMap();
-      expect(map['contactId'], equals('c_alex'));
-      expect(map['rating'], equals(5));
-      expect(map['notes'], equals('Great coffee catchup discussing AI architecture.'));
+        final map = log.toMap();
+        expect(map['contactId'], equals('c_alex'));
+        expect(map['rating'], equals(5));
+        expect(
+          map['notes'],
+          equals('Great coffee catchup discussing AI architecture.'),
+        );
 
-      final reconstructed = RelationshipLogModel.fromMap(map, 'log_99');
-      expect(reconstructed.id, equals('log_99'));
-      expect(reconstructed.contactId, equals('c_alex'));
-      expect(reconstructed.rating, equals(5));
-      expect(reconstructed.notes, contains('AI architecture'));
-    });
+        final reconstructed = RelationshipLogModel.fromMap(map, 'log_99');
+        expect(reconstructed.id, equals('log_99'));
+        expect(reconstructed.contactId, equals('c_alex'));
+        expect(reconstructed.rating, equals(5));
+        expect(reconstructed.notes, contains('AI architecture'));
+      },
+    );
   });
 
   group('Relationship Health UI & Widget Tests', () {
-    testWidgets('InteractionCard renders contact name, date, stars, and notes', (tester) async {
-      final now = DateTime.now();
-      final contact = ContactModel(
-        id: 'c1',
-        name: 'Elena Rostova',
-        emoji: '👩‍💼',
-        lastContact: now,
-        createdAt: now,
-        updatedAt: now,
-      );
+    testWidgets(
+      'InteractionCard renders contact name, date, stars, and notes',
+      (tester) async {
+        final now = DateTime.now();
+        final contact = ContactModel(
+          id: 'c1',
+          name: 'Elena Rostova',
+          emoji: '👩‍💼',
+          lastContact: now,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final log = RelationshipLogModel(
-        id: 'l1',
-        contactId: 'c1',
-        date: now,
-        rating: 4,
-        notes: 'Discussed project deadlines & quarterly roadmap.',
-        createdAt: now,
-        updatedAt: now,
-      );
+        final log = RelationshipLogModel(
+          id: 'l1',
+          contactId: 'c1',
+          date: now,
+          rating: 4,
+          notes: 'Discussed project deadlines & quarterly roadmap.',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        createRelationshipHealthTestWidget(
-          child: Scaffold(body: InteractionCard(log: log)),
-          overrides: [
-            contactsStreamProvider.overrideWithValue(AsyncData([contact])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createRelationshipHealthTestWidget(
+            child: Scaffold(body: InteractionCard(log: log)),
+            overrides: [
+              contactsStreamProvider.overrideWithValue(AsyncData([contact])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Elena Rostova'), findsOneWidget);
-      expect(find.text('Discussed project deadlines & quarterly roadmap.'), findsOneWidget);
-      expect(find.byIcon(Icons.star_rounded), findsNWidgets(4));
-    });
+        expect(find.text('Elena Rostova'), findsOneWidget);
+        expect(
+          find.text('Discussed project deadlines & quarterly roadmap.'),
+          findsOneWidget,
+        );
+        expect(find.byIcon(Icons.star_rounded), findsNWidgets(4));
+      },
+    );
 
-    testWidgets('KeepInTouchCard renders contact info and recency badge', (tester) async {
+    testWidgets('KeepInTouchCard renders contact info and recency badge', (
+      tester,
+    ) async {
       final now = DateTime.now();
       final contact = ContactModel(
         id: 'c1',
@@ -220,7 +234,9 @@ void main() {
       expect(find.text('Today'), findsOneWidget);
     });
 
-    testWidgets('InteractionFormModal validates required contact selection', (tester) async {
+    testWidgets('InteractionFormModal validates required contact selection', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createRelationshipHealthTestWidget(
           child: const Scaffold(body: InteractionFormModal()),
@@ -241,54 +257,67 @@ void main() {
       expect(find.text('Please select a contact'), findsOneWidget);
     });
 
-    testWidgets('RelationshipHealthPage renders both sections and empty states', (tester) async {
-      await tester.pumpWidget(
-        createRelationshipHealthTestWidget(
-          child: const RelationshipHealthPage(),
-          overrides: [
-            relationshipLogsStreamProvider.overrideWithValue(const AsyncData([])),
-            contactsStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'RelationshipHealthPage renders both sections and empty states',
+      (tester) async {
+        await tester.pumpWidget(
+          createRelationshipHealthTestWidget(
+            child: const RelationshipHealthPage(),
+            overrides: [
+              relationshipLogsStreamProvider.overrideWithValue(
+                const AsyncData([]),
+              ),
+              contactsStreamProvider.overrideWithValue(const AsyncData([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Relationship Health'), findsOneWidget);
-      expect(find.text('Recent Interactions'), findsOneWidget);
-      expect(find.text('Keep In Touch'), findsOneWidget);
-      expect(find.text('❤️ Log your first relationship interaction'), findsOneWidget);
-      expect(find.text('No contacts registered yet'), findsOneWidget);
-    });
+        expect(find.text('Relationship Health'), findsOneWidget);
+        expect(find.text('Recent Interactions'), findsOneWidget);
+        expect(find.text('Keep In Touch'), findsOneWidget);
+        expect(
+          find.text('❤️ Log your first relationship interaction'),
+          findsOneWidget,
+        );
+        expect(find.text('No contacts registered yet'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Navigation Drawer contains Relationship Health item in Relationships section', (tester) async {
-      await tester.pumpWidget(
-        createRelationshipHealthTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            relationshipLogsStreamProvider.overrideWithValue(const AsyncData([])),
-            contactsStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer contains Relationship Health item in Relationships section',
+      (tester) async {
+        await tester.pumpWidget(
+          createRelationshipHealthTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              relationshipLogsStreamProvider.overrideWithValue(
+                const AsyncData([]),
+              ),
+              contactsStreamProvider.overrideWithValue(const AsyncData([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Open Navigation Drawer
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        // Open Navigation Drawer
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      // Scroll inside drawer to find "Relationship Health"
-      final drawerScrollable = find.descendant(
-        of: find.byType(Drawer),
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(
-        find.text('Relationship Health'),
-        50,
-        scrollable: drawerScrollable,
-      );
-      expect(find.text('Relationship Health'), findsOneWidget);
-    });
+        // Scroll inside drawer to find "Relationship Health"
+        final drawerScrollable = find.descendant(
+          of: find.byType(Drawer),
+          matching: find.byType(Scrollable),
+        );
+        await tester.scrollUntilVisible(
+          find.text('Relationship Health'),
+          50,
+          scrollable: drawerScrollable,
+        );
+        expect(find.text('Relationship Health'), findsOneWidget);
+      },
+    );
   });
 }

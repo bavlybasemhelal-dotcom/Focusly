@@ -11,8 +11,9 @@ final retrospectiveServiceProvider = Provider<RetrospectiveService>((ref) {
 });
 
 /// Real-time stream of all Project Retrospectives for the logged in user.
-final retrospectivesStreamProvider =
-    StreamProvider<List<RetrospectiveModel>>((ref) {
+final retrospectivesStreamProvider = StreamProvider<List<RetrospectiveModel>>((
+  ref,
+) {
   final uid = ref.watch(currentUserIdProvider);
   if (uid == null) return const Stream.empty();
 
@@ -22,23 +23,23 @@ final retrospectivesStreamProvider =
 
 /// Family provider resolving the project title for a given [projectId].
 /// Returns null if not found (e.g. if the project was deleted).
-final projectTitleResolverProvider =
-    Provider.autoDispose.family<String?, String>((ref, projectId) {
-  final allProjectsAsync = ref.watch(allParaProjectsStreamProvider);
-  final projects = allProjectsAsync.value ?? [];
+final projectTitleResolverProvider = Provider.autoDispose
+    .family<String?, String>((ref, projectId) {
+      final allProjectsAsync = ref.watch(allParaProjectsStreamProvider);
+      final projects = allProjectsAsync.value ?? [];
 
-  for (final project in projects) {
-    if (project.id == projectId) {
-      return project.title;
-    }
-  }
-  return null;
-});
+      for (final project in projects) {
+        if (project.id == projectId) {
+          return project.title;
+        }
+      }
+      return null;
+    });
 
 /// Derived provider providing a map of projectId -> ParaProjectModel for fast lookup.
 final paraProjectsMapProvider =
     Provider.autoDispose<Map<String, ParaProjectModel>>((ref) {
-  final allProjectsAsync = ref.watch(allParaProjectsStreamProvider);
-  final projects = allProjectsAsync.value ?? [];
-  return {for (var p in projects) p.id: p};
-});
+      final allProjectsAsync = ref.watch(allParaProjectsStreamProvider);
+      final projects = allProjectsAsync.value ?? [];
+      return {for (var p in projects) p.id: p};
+    });

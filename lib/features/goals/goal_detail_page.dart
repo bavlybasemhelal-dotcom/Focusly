@@ -8,6 +8,7 @@ import '../../core/theme/app_colors.dart';
 import '../para/providers/para_provider.dart';
 import 'models/goal_model.dart';
 import 'providers/goals_provider.dart';
+import 'goal_sources_page.dart';
 import 'widgets/circular_progress_ring.dart';
 import 'widgets/goal_card.dart';
 import 'widgets/goal_form_modal.dart';
@@ -17,13 +18,13 @@ class GoalDetailPage extends ConsumerWidget {
   final String goalId;
   final GoalModel? initialGoal;
 
-  const GoalDetailPage({
-    super.key,
-    required this.goalId,
-    this.initialGoal,
-  });
+  const GoalDetailPage({super.key, required this.goalId, this.initialGoal});
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, GoalModel goal) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    GoalModel goal,
+  ) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -38,10 +39,7 @@ class GoalDetailPage extends ConsumerWidget {
           ),
         ),
         content: Text(
-          context.tr(
-            'delete_goal_confirm_msg',
-            args: {'title': goal.title},
-          ),
+          context.tr('delete_goal_confirm_msg', args: {'title': goal.title}),
           style: TextStyle(color: AppColors.textSecondary(context)),
         ),
         actions: [
@@ -53,7 +51,9 @@ class GoalDetailPage extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.errorRed,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(context.tr('delete')),
@@ -65,10 +65,9 @@ class GoalDetailPage extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       final uid = ref.read(currentUserIdProvider);
       if (uid != null) {
-        await ref.read(goalsServiceProvider).deleteGoal(
-              uid: uid,
-              goalId: goal.id,
-            );
+        await ref
+            .read(goalsServiceProvider)
+            .deleteGoal(uid: uid, goalId: goal.id);
         if (context.mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -76,7 +75,9 @@ class GoalDetailPage extends ConsumerWidget {
               content: Text(context.tr('goal_deleted_toast')),
               backgroundColor: AppColors.errorRed,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -95,7 +96,8 @@ class GoalDetailPage extends ConsumerWidget {
     // Listen to goals list stream to get live goal state
     final goalsAsync = ref.watch(goalsStreamProvider);
     final allGoals = goalsAsync.value ?? [];
-    final goal = allGoals.where((g) => g.id == goalId).firstOrNull ?? initialGoal;
+    final goal =
+        allGoals.where((g) => g.id == goalId).firstOrNull ?? initialGoal;
 
     if (goal == null) {
       return Scaffold(
@@ -143,6 +145,18 @@ class GoalDetailPage extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            tooltip: Localizations.localeOf(context).languageCode == 'ar'
+                ? 'مصادر التقدم'
+                : 'Progress sources',
+            icon: const Icon(Icons.account_tree_outlined),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => GoalSourcesPage(goalId: goal.id),
+              ),
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.edit_outlined),
             color: const Color(0xFF2E6FF2),
             onPressed: () => GoalFormModal.show(context, goal: goal),
@@ -166,7 +180,8 @@ class GoalDetailPage extends ConsumerWidget {
                 gradient: LinearGradient(
                   colors: [
                     baseColor,
-                    Color.lerp(baseColor, Colors.black, isDark ? 0.45 : 0.25) ?? baseColor,
+                    Color.lerp(baseColor, Colors.black, isDark ? 0.45 : 0.25) ??
+                        baseColor,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -193,10 +208,15 @@ class GoalDetailPage extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
                         ),
                         child: Center(
-                          child: Text(goal.icon, style: const TextStyle(fontSize: 28)),
+                          child: Text(
+                            goal.icon,
+                            style: const TextStyle(fontSize: 28),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -212,14 +232,19 @@ class GoalDetailPage extends ConsumerWidget {
                                 fontSize: 20,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
-                                decoration: isDone ? TextDecoration.lineThrough : null,
+                                decoration: isDone
+                                    ? TextDecoration.lineThrough
+                                    : null,
                                 decorationColor: Colors.white70,
                                 decorationThickness: 2.0,
                               ),
                             ),
                             const SizedBox(height: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.black.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
@@ -256,16 +281,24 @@ class GoalDetailPage extends ConsumerWidget {
                     children: [
                       if (linkedArea != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.25),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.25),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(linkedArea.emoji, style: const TextStyle(fontSize: 13)),
+                              Text(
+                                linkedArea.emoji,
+                                style: const TextStyle(fontSize: 13),
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 linkedArea.title,
@@ -281,16 +314,25 @@ class GoalDetailPage extends ConsumerWidget {
 
                       if (targetDateDisplay != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.25),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.25),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.event_rounded, size: 14, color: Colors.white),
+                              const Icon(
+                                Icons.event_rounded,
+                                size: 14,
+                                color: Colors.white,
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 targetDateDisplay,
@@ -321,8 +363,12 @@ class GoalDetailPage extends ConsumerWidget {
               child: Row(
                 children: [
                   Icon(
-                    isDone ? Icons.check_circle_rounded : Icons.pending_outlined,
-                    color: isDone ? const Color(0xFF10B981) : const Color(0xFF2E6FF2),
+                    isDone
+                        ? Icons.check_circle_rounded
+                        : Icons.pending_outlined,
+                    color: isDone
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF2E6FF2),
                     size: 24,
                   ),
                   const SizedBox(width: 12),
@@ -344,7 +390,10 @@ class GoalDetailPage extends ConsumerWidget {
                           isDone
                               ? context.tr('goal_completed_desc')
                               : context.tr('goal_in_progress_desc'),
-                          style: TextStyle(fontSize: 12, color: secondaryTextColor),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: secondaryTextColor,
+                          ),
                         ),
                       ],
                     ),
@@ -355,7 +404,9 @@ class GoalDetailPage extends ConsumerWidget {
                       final uid = ref.read(currentUserIdProvider);
                       if (uid != null) {
                         final newStatus = isDone ? 'active' : 'done';
-                        await ref.read(goalsServiceProvider).setGoalStatus(
+                        await ref
+                            .read(goalsServiceProvider)
+                            .setGoalStatus(
                               uid: uid,
                               goalId: goal.id,
                               status: newStatus,
@@ -365,14 +416,22 @@ class GoalDetailPage extends ConsumerWidget {
                             SnackBar(
                               content: Text(
                                 newStatus == 'done'
-                                    ? context.tr('goal_completed_toast', args: {'title': goal.title})
-                                    : context.tr('goal_restored_toast', args: {'title': goal.title}),
+                                    ? context.tr(
+                                        'goal_completed_toast',
+                                        args: {'title': goal.title},
+                                      )
+                                    : context.tr(
+                                        'goal_restored_toast',
+                                        args: {'title': goal.title},
+                                      ),
                               ),
                               backgroundColor: newStatus == 'done'
                                   ? const Color(0xFF10B981)
                                   : const Color(0xFF2E6FF2),
                               behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           );
                         }
@@ -383,7 +442,9 @@ class GoalDetailPage extends ConsumerWidget {
                           ? const Color(0xFF2E6FF2)
                           : const Color(0xFF10B981),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     child: Text(
                       isDone
@@ -457,7 +518,10 @@ class GoalDetailPage extends ConsumerWidget {
                 final milestone = entry.value;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -473,7 +537,9 @@ class GoalDetailPage extends ConsumerWidget {
                       final uid = ref.read(currentUserIdProvider);
                       if (uid != null) {
                         final willBeDone = !milestone.done;
-                        await ref.read(goalsServiceProvider).toggleMilestone(
+                        await ref
+                            .read(goalsServiceProvider)
+                            .toggleMilestone(
                               uid: uid,
                               goalId: goal.id,
                               milestoneIndex: index,
@@ -489,7 +555,9 @@ class GoalDetailPage extends ConsumerWidget {
                               ),
                               backgroundColor: const Color(0xFF10B981),
                               behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           );
                         }
@@ -502,7 +570,9 @@ class GoalDetailPage extends ConsumerWidget {
                           milestone.done
                               ? Icons.check_box_rounded
                               : Icons.check_box_outline_blank_rounded,
-                          color: milestone.done ? const Color(0xFF10B981) : secondaryTextColor,
+                          color: milestone.done
+                              ? const Color(0xFF10B981)
+                              : secondaryTextColor,
                           size: 22,
                         ),
                         const SizedBox(width: 12),
@@ -513,7 +583,9 @@ class GoalDetailPage extends ConsumerWidget {
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: primaryTextColor,
-                              decoration: milestone.done ? TextDecoration.lineThrough : null,
+                              decoration: milestone.done
+                                  ? TextDecoration.lineThrough
+                                  : null,
                               decorationColor: secondaryTextColor,
                             ),
                           ),

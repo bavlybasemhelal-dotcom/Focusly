@@ -98,10 +98,7 @@ void main() {
     });
 
     test('copyWith updates specified dimensions correctly', () {
-      final updated = testAssessment1.copyWith(
-        career: 10,
-        fun: 8,
-      );
+      final updated = testAssessment1.copyWith(career: 10, fun: 8);
       expect(updated.career, equals(10));
       expect(updated.fun, equals(8));
       expect(updated.finance, equals(7)); // Unchanged
@@ -109,7 +106,9 @@ void main() {
   });
 
   group('WheelOfLifeRadarChart Tests', () {
-    testWidgets('WheelOfLifeRadarChart paints single and comparison polygons', (tester) async {
+    testWidgets('WheelOfLifeRadarChart paints single and comparison polygons', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createLifeAreasTestWidget(
           child: Scaffold(
@@ -144,7 +143,9 @@ void main() {
       expect(find.text('Start Assessment'), findsOneWidget);
     });
 
-    testWidgets('Renders Radar Card with dropdown selectors and History Card', (tester) async {
+    testWidgets('Renders Radar Card with dropdown selectors and History Card', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createLifeAreasTestWidget(
           child: const LifeAreasPage(),
@@ -170,27 +171,32 @@ void main() {
       expect(find.text('Aug 25, 2026'), findsWidgets);
     });
 
-    testWidgets('Navigation Drawer includes Wheel of Life item in Analytics section', (tester) async {
-      await tester.pumpWidget(
-        createLifeAreasTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            lifeAreasStreamProvider.overrideWith((ref) => Stream.value([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer includes Wheel of Life item in Analytics section',
+      (tester) async {
+        await tester.pumpWidget(
+          createLifeAreasTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              lifeAreasStreamProvider.overrideWith((ref) => Stream.value([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      expect(find.text('ANALYTICS'), findsOneWidget);
-      expect(find.text('Wheel of Life'), findsOneWidget);
-    });
+        expect(find.text('ANALYTICS'), findsOneWidget);
+        expect(find.text('Wheel of Life'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Arabic localization renders all Wheel of Life texts', (tester) async {
+    testWidgets('Arabic localization renders all Wheel of Life texts', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createLifeAreasTestWidget(
           locale: const Locale('ar'),
@@ -220,9 +226,7 @@ void main() {
       await tester.pumpWidget(
         createLifeAreasTestWidget(
           child: Scaffold(
-            body: AssessmentFormModal(
-              assessmentToEdit: testAssessment1,
-            ),
+            body: AssessmentFormModal(assessmentToEdit: testAssessment1),
           ),
         ),
       );
@@ -240,7 +244,10 @@ void main() {
       expect(find.byType(Slider), findsNWidgets(8));
 
       // Scroll to reveal save and delete buttons
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -800));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -800),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Save Assessment'), findsOneWidget);

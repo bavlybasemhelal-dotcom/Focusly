@@ -1,6 +1,8 @@
+import '../../../core/notifications/platform_senders/mobile_notification_sender.dart';
+import '../../../core/notifications/managed_notification_sender.dart';
+import '../../../core/data/completion_ledger.dart';
 import '../../../core/notifications/platform_senders/platform_notification_sender.dart';
 import '../../../core/services/notification_init_service.dart';
-import '../../notifications/services/notification_logger.dart';
 import '../models/habit_model.dart';
 
 /// Service responsible for managing local notifications for daily Habits in Focusly.
@@ -18,14 +20,17 @@ class HabitNotificationService {
 
   /// Generates a stable 32-bit positive integer ID for the habit notification
   static int getNotificationId(String habitId) {
-    return habitId.hashCode.abs() & 0x7FFFFFFF;
+    return ManagedNotificationSender.stableId('habit:$habitId');
   }
 
   /// Schedules or reschedules a daily recurring notification for a habit
   Future<void> scheduleHabitReminder({
     required HabitModel habit,
     required String notificationTitle,
+    String? uid,
   }) async {
+    final account = uid ?? ManagedNotificationSender.uid;
+    if (account == null || ManagedNotificationSender.uid != account) return;
     if (habit.time == null) {
       await cancelHabitReminder(habit.id);
       return;
@@ -35,43 +40,49 @@ class HabitNotificationService {
       await NotificationInitService.initializeAppNotifications();
       await NotificationInitService.requestPermissions();
 
-      final int notificationId = getNotificationId(habit.id);
-
-      // Cancel previous notification if any
-      await _platformSender.cancelNotification(notificationId);
-
+      if (ManagedNotificationSender.uid != account) return;
+      await cancelHabitReminder(habit.id);
       final now = DateTime.now();
-      var scheduledDate = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        habit.time!.hour,
-        habit.time!.minute,
-      );
-
-      // If scheduled time has already passed today, schedule for tomorrow
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      final mobile =
+          NotificationInitService.platformSender.delegate
+              is MobileNotificationSender;
+      final daily = mobile && habit.weekdays.length == 7;
+      final first =
+          DateTime(
+            now.year,
+            now.month,
+            now.day,
+            habit.time!.hour,
+            habit.time!.minute,
+          ).isAfter(now)
+          ? 0
+          : 1;
+      for (var day = first; day < first + (daily ? 1 : 30); day++) {
+        if (ManagedNotificationSender.uid != account) return;
+        final scheduledDate = DateTime(
+          now.year,
+          now.month,
+          now.day + day,
+          habit.time!.hour,
+          habit.time!.minute,
+        );
+        if (!scheduledDate.isAfter(now) ||
+            !habit.weekdays.contains(scheduledDate.weekday)) {
+          continue;
+        }
+        final id = ManagedNotificationSender.stableId(
+          'habit:${habit.id}:${CompletionLedger.dateKey(scheduledDate)}',
+        );
+        await _platformSender.scheduleNotification(
+          id: id,
+          title: notificationTitle,
+          body: habit.title,
+          scheduledDate: scheduledDate,
+          channelId: daily ? 'focusly_habits_daily' : 'focusly_habits_channel',
+          channelName: 'Habit Reminders',
+          payload: 'habit:${habit.id}',
+        );
       }
-
-      await _platformSender.scheduleNotification(
-        id: notificationId,
-        title: notificationTitle,
-        body: habit.title,
-        scheduledDate: scheduledDate,
-        channelId: 'focusly_habits_channel',
-        channelName: 'Habit Reminders',
-        payload: habit.id,
-      );
-
-      await NotificationLogger.logNotification(
-        title: notificationTitle,
-        body: habit.title,
-        type: 'habit_reminder',
-        relatedId: habit.id,
-        isScheduled: true,
-        scheduledFor: scheduledDate,
-      );
     } catch (_) {
       // Graceful fallback if device permissions are not yet granted
     }
@@ -80,8 +91,10 @@ class HabitNotificationService {
   /// Cancels any scheduled notification for a given habit ID
   Future<void> cancelHabitReminder(String habitId) async {
     try {
-      final int notificationId = getNotificationId(habitId);
-      await _platformSender.cancelNotification(notificationId);
+      await NotificationInitService.platformSender.cancelSource(
+        'habit:$habitId',
+      );
+      await _platformSender.cancelNotification(getNotificationId(habitId));
     } catch (_) {}
   }
 }

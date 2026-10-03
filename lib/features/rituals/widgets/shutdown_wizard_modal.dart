@@ -14,10 +14,7 @@ import '../providers/rituals_provider.dart';
 class ShutdownWizardModal extends ConsumerStatefulWidget {
   final RitualModel? existingRitual;
 
-  const ShutdownWizardModal({
-    super.key,
-    this.existingRitual,
-  });
+  const ShutdownWizardModal({super.key, this.existingRitual});
 
   static Future<void> show(BuildContext context) async {
     HapticFeedback.lightImpact();
@@ -37,7 +34,9 @@ class ShutdownWizardModal extends ConsumerStatefulWidget {
         context: context,
         builder: (dialogCtx) => AlertDialog(
           backgroundColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Text(
             dialogCtx.tr('early_shutdown_warning_title'),
             style: TextStyle(
@@ -61,7 +60,9 @@ class ShutdownWizardModal extends ConsumerStatefulWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () => Navigator.of(dialogCtx).pop(true),
               child: Text(dialogCtx.tr('continue_btn')),
@@ -84,11 +85,13 @@ class ShutdownWizardModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<ShutdownWizardModal> createState() => _ShutdownWizardModalState();
+  ConsumerState<ShutdownWizardModal> createState() =>
+      _ShutdownWizardModalState();
 }
 
 class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
-  int _currentStep = 0; // 0 = Review, 1 = Plan, 2 = Checkin, 3 = Lesson, 4 = Gratitude
+  int _currentStep =
+      0; // 0 = Review, 1 = Plan, 2 = Checkin, 3 = Lesson, 4 = Gratitude
   bool _isSaving = false;
 
   // Step 2: Plan Tomorrow
@@ -110,11 +113,31 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
   String? _gratitudeError;
 
   static const List<Map<String, dynamic>> _energyOptions = [
-    {'level': 1, 'icon': Icons.battery_1_bar_rounded, 'color': Color(0xFFEF4444)},
-    {'level': 2, 'icon': Icons.battery_2_bar_rounded, 'color': Color(0xFFF97316)},
-    {'level': 3, 'icon': Icons.battery_4_bar_rounded, 'color': Color(0xFFFBBF24)},
-    {'level': 4, 'icon': Icons.battery_5_bar_rounded, 'color': Color(0xFF10B981)},
-    {'level': 5, 'icon': Icons.battery_full_rounded, 'color': Color(0xFF06B6D4)},
+    {
+      'level': 1,
+      'icon': Icons.battery_1_bar_rounded,
+      'color': Color(0xFFEF4444),
+    },
+    {
+      'level': 2,
+      'icon': Icons.battery_2_bar_rounded,
+      'color': Color(0xFFF97316),
+    },
+    {
+      'level': 3,
+      'icon': Icons.battery_4_bar_rounded,
+      'color': Color(0xFFFBBF24),
+    },
+    {
+      'level': 4,
+      'icon': Icons.battery_5_bar_rounded,
+      'color': Color(0xFF10B981),
+    },
+    {
+      'level': 5,
+      'icon': Icons.battery_full_rounded,
+      'color': Color(0xFF06B6D4),
+    },
   ];
 
   static const List<String> _moodOptions = ['😞', '😐', '🙂', '😊', '🤩'];
@@ -155,22 +178,26 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
     if (uid == null) return;
 
     HapticFeedback.selectionClick();
-    final count = await ref.read(ritualsServiceProvider).postponeUnfinishedTasksToTomorrow(
-          uid: uid,
-          tasks: todayTasks,
-        );
+    final count = await ref
+        .read(ritualsServiceProvider)
+        .postponeUnfinishedTasksToTomorrow(uid: uid, tasks: todayTasks);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             count > 0
-                ? context.tr('tasks_postponed_toast', args: {'count': count.toString()})
+                ? context.tr(
+                    'tasks_postponed_toast',
+                    args: {'count': count.toString()},
+                  )
                 : context.tr('no_unfinished_tasks_toast'),
           ),
           backgroundColor: const Color(0xFF10B981),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -198,7 +225,9 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
       _gratitudeError = null;
     });
 
-    final success = await ref.read(ritualsServiceProvider).finishShutdownRitual(
+    final success = await ref
+        .read(ritualsServiceProvider)
+        .finishShutdownRitual(
           uid: uid,
           dateStr: dateStr,
           energyLevel: _energyLevel,
@@ -228,7 +257,9 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
             content: Text(context.tr('shutdown_completed_celebration_toast')),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -309,8 +340,13 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2E6FF2),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
                 child: Text(
                   context.tr('close'),
@@ -390,9 +426,14 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.14),
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.14),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -428,8 +469,12 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
                   value: (_currentStep + 1) / 5.0,
-                  backgroundColor: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E6FF2)),
+                  backgroundColor: isDark
+                      ? Colors.white10
+                      : const Color(0xFFE2E8F0),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF2E6FF2),
+                  ),
                   minHeight: 6,
                 ),
               ),
@@ -491,8 +536,13 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: primaryTextColor,
                         side: BorderSide(color: borderColor),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       child: Text(
                         context.tr('back_btn'),
@@ -508,7 +558,9 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF2563EB).withValues(alpha: 0.35),
+                            color: const Color(
+                              0xFF2563EB,
+                            ).withValues(alpha: 0.35),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),
@@ -521,7 +573,9 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          foregroundColor: isDark ? const Color(0xFF060B24) : Colors.white,
+                          foregroundColor: isDark
+                              ? const Color(0xFF060B24)
+                              : Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -532,7 +586,9 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                                 height: 22,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : Text(
@@ -611,15 +667,24 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
         // Postpone action button
         OutlinedButton.icon(
           onPressed: () => _handlePostponeTasks(todayTasks),
-          icon: const Icon(Icons.forward_rounded, size: 18, color: Color(0xFF2E6FF2)),
+          icon: const Icon(
+            Icons.forward_rounded,
+            size: 18,
+            color: Color(0xFF2E6FF2),
+          ),
           label: Text(
             context.tr('postpone_tasks_btn'),
-            style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF2E6FF2)),
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF2E6FF2),
+            ),
           ),
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Color(0xFF2E6FF2)),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         ),
       ],
@@ -683,13 +748,24 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
   }) {
     return TextFormField(
       controller: controller,
-      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: primaryTextColor,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor.withValues(alpha: 0.6)),
+        hintStyle: TextStyle(
+          fontSize: 13,
+          color: secondaryTextColor.withValues(alpha: 0.6),
+        ),
         filled: true,
         fillColor: inputBg,
-        prefixIcon: const Icon(Icons.check_box_outline_blank_rounded, size: 20, color: Color(0xFF2E6FF2)),
+        prefixIcon: const Icon(
+          Icons.check_box_outline_blank_rounded,
+          size: 20,
+          color: Color(0xFF2E6FF2),
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: borderColor),
@@ -702,7 +778,10 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
       ),
     );
   }
@@ -728,7 +807,11 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
         // Energy Selector
         Text(
           context.tr('energy_level_title'),
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: primaryTextColor),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            color: primaryTextColor,
+          ),
         ),
         const SizedBox(height: 10),
         Row(
@@ -758,7 +841,11 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                     width: isSelected ? 2 : 1,
                   ),
                 ),
-                child: Icon(icon, color: isSelected ? color : secondaryTextColor, size: 24),
+                child: Icon(
+                  icon,
+                  color: isSelected ? color : secondaryTextColor,
+                  size: 24,
+                ),
               ),
             );
           }).toList(),
@@ -768,7 +855,11 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
         // Mood Selector
         Text(
           context.tr('mood_title'),
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: primaryTextColor),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            color: primaryTextColor,
+          ),
         ),
         const SizedBox(height: 10),
         Row(
@@ -787,7 +878,9 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF2E6FF2).withValues(alpha: 0.15) : inputBg,
+                  color: isSelected
+                      ? const Color(0xFF2E6FF2).withValues(alpha: 0.15)
+                      : inputBg,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: isSelected ? const Color(0xFF2E6FF2) : borderColor,
@@ -824,10 +917,17 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
         TextFormField(
           controller: _lessonController,
           maxLines: 3,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: primaryTextColor,
+          ),
           decoration: InputDecoration(
             hintText: context.tr('lesson_learned_hint'),
-            hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor.withValues(alpha: 0.6)),
+            hintStyle: TextStyle(
+              fontSize: 13,
+              color: secondaryTextColor.withValues(alpha: 0.6),
+            ),
             filled: true,
             fillColor: inputBg,
             border: OutlineInputBorder(
@@ -840,7 +940,10 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFF2E6FF2),
+                width: 1.5,
+              ),
             ),
             contentPadding: const EdgeInsets.all(14),
           ),
@@ -868,7 +971,11 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
           const SizedBox(height: 8),
           Text(
             _gratitudeError!,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFEF4444)),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFEF4444),
+            ),
           ),
         ],
         const SizedBox(height: 16),
@@ -917,10 +1024,17 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
   }) {
     return TextFormField(
       controller: controller,
-      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: primaryTextColor),
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: primaryTextColor,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(fontSize: 13, color: secondaryTextColor.withValues(alpha: 0.6)),
+        hintStyle: TextStyle(
+          fontSize: 13,
+          color: secondaryTextColor.withValues(alpha: 0.6),
+        ),
         filled: true,
         fillColor: inputBg,
         prefixIcon: Container(
@@ -947,7 +1061,10 @@ class _ShutdownWizardModalState extends ConsumerState<ShutdownWizardModal> {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
       ),
     );
   }

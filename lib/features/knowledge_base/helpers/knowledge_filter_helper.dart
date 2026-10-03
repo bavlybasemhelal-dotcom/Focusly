@@ -15,11 +15,13 @@ class KnowledgeFilterHelper {
     required String selectedType,
   }) {
     final cleanQuery = query.trim().toLowerCase();
-    final isTypeFiltered = selectedType.isNotEmpty && selectedType.toLowerCase() != 'all';
+    final isTypeFiltered =
+        selectedType.isNotEmpty && selectedType.toLowerCase() != 'all';
 
     return entries.where((entry) {
       // 1. Type Match
-      if (isTypeFiltered && entry.type.toLowerCase() != selectedType.toLowerCase()) {
+      if (isTypeFiltered &&
+          entry.type.toLowerCase() != selectedType.toLowerCase()) {
         return false;
       }
 
@@ -28,8 +30,12 @@ class KnowledgeFilterHelper {
 
       final matchesTitle = entry.title.toLowerCase().contains(cleanQuery);
       final matchesContent = entry.content.toLowerCase().contains(cleanQuery);
-      final matchesSource = (entry.source?.toLowerCase() ?? '').contains(cleanQuery);
-      final matchesTag = entry.tags.any((t) => t.toLowerCase().contains(cleanQuery));
+      final matchesSource = (entry.source?.toLowerCase() ?? '').contains(
+        cleanQuery,
+      );
+      final matchesTag = entry.tags.any(
+        (t) => t.toLowerCase().contains(cleanQuery),
+      );
 
       return matchesTitle || matchesContent || matchesSource || matchesTag;
     }).toList();

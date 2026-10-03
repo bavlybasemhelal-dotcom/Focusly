@@ -1,0 +1,11 @@
+{
+  "name": "focusly-desktop",
+  "productName": "Focusly",
+  "version": "1.1.0",
+  "private": true,
+  "main": "main.cjs",
+  "license": "UNLICENSED",
+  "scripts": {"start": "electron .", "test": "node --test test/*.test.cjs", "bundle-sdk": "node build-sdk.cjs"},
+  "dependencies": {"firebase": "12.18.0"},
+  "devDependencies": {"electron": "44.5.1", "@electron/packager": "20.3.0", "esbuild": "0.28.1"}
+}

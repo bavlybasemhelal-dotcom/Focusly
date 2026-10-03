@@ -11,10 +11,7 @@ import '../providers/budget_provider.dart';
 class BudgetConfigModal extends ConsumerStatefulWidget {
   final BudgetConfigModel initialConfig;
 
-  const BudgetConfigModal({
-    super.key,
-    required this.initialConfig,
-  });
+  const BudgetConfigModal({super.key, required this.initialConfig});
 
   /// Static helper to open the config modal.
   static Future<void> show(
@@ -43,7 +40,9 @@ class _BudgetConfigModalState extends ConsumerState<BudgetConfigModal> {
     for (final cat in BudgetCategory.expenseCategories) {
       final existingLimit = widget.initialConfig.limits[cat.id];
       final text = existingLimit != null && existingLimit > 0
-          ? existingLimit.toStringAsFixed(existingLimit.truncateToDouble() == existingLimit ? 0 : 2)
+          ? existingLimit.toStringAsFixed(
+              existingLimit.truncateToDouble() == existingLimit ? 0 : 2,
+            )
           : '';
       _controllers[cat.id] = TextEditingController(text: text);
     }
@@ -83,7 +82,9 @@ class _BudgetConfigModalState extends ConsumerState<BudgetConfigModal> {
             content: Text(context.tr('budget_config_saved_toast')),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -105,7 +106,9 @@ class _BudgetConfigModalState extends ConsumerState<BudgetConfigModal> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final modalBg = isDark ? const Color(0xFF08123A) : Colors.white;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
 
@@ -156,7 +159,9 @@ class _BudgetConfigModalState extends ConsumerState<BudgetConfigModal> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.12),
+                        color: const Color(
+                          0xFF6366F1,
+                        ).withValues(alpha: isDark ? 0.2 : 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(
@@ -204,7 +209,10 @@ class _BudgetConfigModalState extends ConsumerState<BudgetConfigModal> {
             ...BudgetCategory.expenseCategories.map((cat) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: cardBg,
                   borderRadius: BorderRadius.circular(16),
@@ -228,7 +236,9 @@ class _BudgetConfigModalState extends ConsumerState<BudgetConfigModal> {
                       width: 100,
                       child: TextField(
                         controller: _controllers[cat.id],
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         textAlign: TextAlign.end,
                         style: TextStyle(
                           fontSize: 14,
@@ -238,9 +248,14 @@ class _BudgetConfigModalState extends ConsumerState<BudgetConfigModal> {
                         decoration: InputDecoration(
                           prefixText: '\$ ',
                           isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
                           filled: true,
-                          fillColor: isDark ? const Color(0xFF141F48) : Colors.white,
+                          fillColor: isDark
+                              ? const Color(0xFF141F48)
+                              : Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(color: borderColor),

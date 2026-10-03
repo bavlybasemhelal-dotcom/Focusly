@@ -8,16 +8,13 @@ import '../../tasks/providers/tasks_provider.dart';
 import '../models/skill_model.dart';
 import 'skill_form_modal.dart';
 import 'skill_quick_update_dialog.dart';
-import 'sparkline_widget.dart';
+import 'dated_skill_sparkline.dart';
 
 /// Card widget representing an individual skill with its level, XP bar, 7-day sparkline, and actions.
 class SkillCard extends ConsumerWidget {
   final SkillModel skill;
 
-  const SkillCard({
-    super.key,
-    required this.skill,
-  });
+  const SkillCard({super.key, required this.skill});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -81,7 +78,10 @@ class SkillCard extends ConsumerWidget {
                             Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 3,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: skillColor.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(8),
@@ -89,7 +89,11 @@ class SkillCard extends ConsumerWidget {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.folder_special_rounded, size: 12, color: skillColor),
+                                      Icon(
+                                        Icons.folder_special_rounded,
+                                        size: 12,
+                                        color: skillColor,
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         categoryName,
@@ -122,7 +126,10 @@ class SkillCard extends ConsumerWidget {
 
                       // Level Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: skillColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
@@ -206,8 +213,12 @@ class SkillCard extends ConsumerWidget {
                               child: LinearProgressIndicator(
                                 value: skill.xpProgress,
                                 minHeight: 6,
-                                backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                                valueColor: AlwaysStoppedAnimation<Color>(skillColor),
+                                backgroundColor: isDark
+                                    ? Colors.white12
+                                    : const Color(0xFFE2E8F0),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  skillColor,
+                                ),
                               ),
                             ),
                           ],
@@ -228,11 +239,9 @@ class SkillCard extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          SparklineWidget(
-                            history: skill.history,
+                          DatedSkillSparkline(
+                            skillId: skill.id,
                             color: skillColor,
-                            width: 80,
-                            height: 28,
                           ),
                         ],
                       ),

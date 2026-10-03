@@ -4,7 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 ///
 /// If milestones exist, they act as the single source of truth for progress.
 /// If no milestones exist, the user's manual slider progress is preserved.
-int calculateMilestoneProgress(List<GoalMilestone> milestones, [int manualProgress = 0]) {
+int calculateMilestoneProgress(
+  List<GoalMilestone> milestones, [
+  int manualProgress = 0,
+]) {
   if (milestones.isEmpty) {
     return manualProgress.clamp(0, 100);
   }
@@ -27,11 +30,7 @@ class GoalMilestone {
   final bool done;
   final DateTime? date;
 
-  const GoalMilestone({
-    required this.title,
-    this.done = false,
-    this.date,
-  });
+  const GoalMilestone({required this.title, this.done = false, this.date});
 
   Map<String, dynamic> toMap() {
     return {

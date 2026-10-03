@@ -12,13 +12,13 @@ import '../providers/knowledge_base_provider.dart';
 class EntryFormModal extends ConsumerStatefulWidget {
   final KnowledgeEntryModel? entryToEdit;
 
-  const EntryFormModal({
-    super.key,
-    this.entryToEdit,
-  });
+  const EntryFormModal({super.key, this.entryToEdit});
 
   /// Static helper to open the modal bottom sheet.
-  static Future<void> show(BuildContext context, {KnowledgeEntryModel? entryToEdit}) {
+  static Future<void> show(
+    BuildContext context, {
+    KnowledgeEntryModel? entryToEdit,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -123,7 +123,9 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
               content: Text(context.tr('knowledge_created_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -139,10 +141,7 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
         tags: tags,
       );
 
-      final success = await service.updateEntry(
-        uid: uid,
-        entry: updated,
-      );
+      final success = await service.updateEntry(uid: uid, entry: updated);
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -153,7 +152,9 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
               content: Text(context.tr('knowledge_updated_toast')),
               backgroundColor: const Color(0xFF2E6FF2),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -173,7 +174,11 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -206,7 +211,9 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -228,7 +235,9 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
               content: Text(context.tr('knowledge_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -332,7 +341,10 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -389,7 +401,10 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -427,28 +442,48 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
                 child: DropdownButton<String>(
                   value: _type,
                   isExpanded: true,
-                  dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
-                  icon: Icon(Icons.keyboard_arrow_down_rounded, color: secondaryTextColor),
+                  dropdownColor: isDark
+                      ? const Color(0xFF0F1B4C)
+                      : Colors.white,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: secondaryTextColor,
+                  ),
                   items: [
                     DropdownMenuItem(
                       value: 'note',
-                      child: Text(context.tr('knowledge_type_note_opt'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('knowledge_type_note_opt'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'idea',
-                      child: Text(context.tr('knowledge_type_idea_opt'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('knowledge_type_idea_opt'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'quote',
-                      child: Text(context.tr('knowledge_type_quote_opt'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('knowledge_type_quote_opt'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'link',
-                      child: Text(context.tr('knowledge_type_link_opt'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('knowledge_type_link_opt'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'summary',
-                      child: Text(context.tr('knowledge_type_summary_opt'), style: TextStyle(color: primaryTextColor)),
+                      child: Text(
+                        context.tr('knowledge_type_summary_opt'),
+                        style: TextStyle(color: primaryTextColor),
+                      ),
                     ),
                   ],
                   onChanged: (val) {
@@ -490,7 +525,10 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -519,10 +557,7 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
             const SizedBox(height: 6),
             TextField(
               controller: _tagsController,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('knowledge_tags_hint'),
                 hintStyle: TextStyle(
@@ -531,7 +566,10 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -560,10 +598,7 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
             const SizedBox(height: 6),
             TextField(
               controller: _sourceController,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('knowledge_source_hint'),
                 hintStyle: TextStyle(
@@ -572,7 +607,10 @@ class _EntryFormModalState extends ConsumerState<EntryFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),

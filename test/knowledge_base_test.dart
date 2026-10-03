@@ -67,7 +67,8 @@ void main() {
         id: '2',
         title: 'Riverpod State Management',
         type: 'note',
-        content: 'Use Notifier and AsyncNotifier for declarative Flutter architecture.',
+        content:
+            'Use Notifier and AsyncNotifier for declarative Flutter architecture.',
         source: 'Flutter Docs',
         tags: const ['flutter', 'dart', 'architecture'],
         createdAt: now,
@@ -85,43 +86,46 @@ void main() {
       ),
     ];
 
-    test('filterKnowledgeEntries filters by search query across title, content, source, and tags', () {
-      // Search in title
-      final byTitle = KnowledgeFilterHelper.filterKnowledgeEntries(
-        entries: sampleEntries,
-        query: 'principles',
-        selectedType: 'all',
-      );
-      expect(byTitle.length, equals(1));
-      expect(byTitle.first.id, equals('1'));
+    test(
+      'filterKnowledgeEntries filters by search query across title, content, source, and tags',
+      () {
+        // Search in title
+        final byTitle = KnowledgeFilterHelper.filterKnowledgeEntries(
+          entries: sampleEntries,
+          query: 'principles',
+          selectedType: 'all',
+        );
+        expect(byTitle.length, equals(1));
+        expect(byTitle.first.id, equals('1'));
 
-      // Search in content
-      final byContent = KnowledgeFilterHelper.filterKnowledgeEntries(
-        entries: sampleEntries,
-        query: 'declarative',
-        selectedType: 'all',
-      );
-      expect(byContent.length, equals(1));
-      expect(byContent.first.id, equals('2'));
+        // Search in content
+        final byContent = KnowledgeFilterHelper.filterKnowledgeEntries(
+          entries: sampleEntries,
+          query: 'declarative',
+          selectedType: 'all',
+        );
+        expect(byContent.length, equals(1));
+        expect(byContent.first.id, equals('2'));
 
-      // Search in source
-      final bySource = KnowledgeFilterHelper.filterKnowledgeEntries(
-        entries: sampleEntries,
-        query: 'Dijkstra',
-        selectedType: 'all',
-      );
-      expect(bySource.length, equals(1));
-      expect(bySource.first.id, equals('3'));
+        // Search in source
+        final bySource = KnowledgeFilterHelper.filterKnowledgeEntries(
+          entries: sampleEntries,
+          query: 'Dijkstra',
+          selectedType: 'all',
+        );
+        expect(bySource.length, equals(1));
+        expect(bySource.first.id, equals('3'));
 
-      // Search in tags
-      final byTag = KnowledgeFilterHelper.filterKnowledgeEntries(
-        entries: sampleEntries,
-        query: 'mental-models',
-        selectedType: 'all',
-      );
-      expect(byTag.length, equals(1));
-      expect(byTag.first.id, equals('1'));
-    });
+        // Search in tags
+        final byTag = KnowledgeFilterHelper.filterKnowledgeEntries(
+          entries: sampleEntries,
+          query: 'mental-models',
+          selectedType: 'all',
+        );
+        expect(byTag.length, equals(1));
+        expect(byTag.first.id, equals('1'));
+      },
+    );
 
     test('filterKnowledgeEntries filters strictly by entry type', () {
       final ideas = KnowledgeFilterHelper.filterKnowledgeEntries(
@@ -149,12 +153,18 @@ void main() {
       expect(quotes.first.type, equals('quote'));
     });
 
-    test('parseTags splits comma-separated string, trims, and cleans # symbols', () {
-      const raw = ' flutter , #dart, state-management ,  #architecture, , ';
-      final parsed = KnowledgeFilterHelper.parseTags(raw);
+    test(
+      'parseTags splits comma-separated string, trims, and cleans # symbols',
+      () {
+        const raw = ' flutter , #dart, state-management ,  #architecture, , ';
+        final parsed = KnowledgeFilterHelper.parseTags(raw);
 
-      expect(parsed, equals(['flutter', 'dart', 'state-management', 'architecture']));
-    });
+        expect(
+          parsed,
+          equals(['flutter', 'dart', 'state-management', 'architecture']),
+        );
+      },
+    );
   });
 
   group('KnowledgeEntryModel Serialization Tests', () {
@@ -186,35 +196,43 @@ void main() {
   });
 
   group('Knowledge Base UI & Widget Tests', () {
-    testWidgets('KnowledgeEntryCard renders type badge, title, content, source, and tag chips', (tester) async {
-      final now = DateTime.now();
-      final entry = KnowledgeEntryModel(
-        id: 'k_1',
-        title: 'Atomic Habits Rule 1',
-        type: 'note',
-        content: 'Make it obvious by setting implementation intentions.',
-        source: 'Atomic Habits Ch. 4',
-        tags: const ['habits', 'psychology'],
-        createdAt: now,
-        updatedAt: now,
-      );
+    testWidgets(
+      'KnowledgeEntryCard renders type badge, title, content, source, and tag chips',
+      (tester) async {
+        final now = DateTime.now();
+        final entry = KnowledgeEntryModel(
+          id: 'k_1',
+          title: 'Atomic Habits Rule 1',
+          type: 'note',
+          content: 'Make it obvious by setting implementation intentions.',
+          source: 'Atomic Habits Ch. 4',
+          tags: const ['habits', 'psychology'],
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        createKnowledgeBaseTestWidget(
-          child: Scaffold(body: KnowledgeEntryCard(entry: entry)),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createKnowledgeBaseTestWidget(
+            child: Scaffold(body: KnowledgeEntryCard(entry: entry)),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Atomic Habits Rule 1'), findsOneWidget);
-      expect(find.text('Note'), findsOneWidget);
-      expect(find.text('Make it obvious by setting implementation intentions.'), findsOneWidget);
-      expect(find.text('Source: Atomic Habits Ch. 4'), findsOneWidget);
-      expect(find.text('#habits'), findsOneWidget);
-      expect(find.text('#psychology'), findsOneWidget);
-    });
+        expect(find.text('Atomic Habits Rule 1'), findsOneWidget);
+        expect(find.text('Note'), findsOneWidget);
+        expect(
+          find.text('Make it obvious by setting implementation intentions.'),
+          findsOneWidget,
+        );
+        expect(find.text('Source: Atomic Habits Ch. 4'), findsOneWidget);
+        expect(find.text('#habits'), findsOneWidget);
+        expect(find.text('#psychology'), findsOneWidget);
+      },
+    );
 
-    testWidgets('EntryFormModal validates required title and content fields', (tester) async {
+    testWidgets('EntryFormModal validates required title and content fields', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createKnowledgeBaseTestWidget(
           child: const Scaffold(body: EntryFormModal()),
@@ -232,76 +250,89 @@ void main() {
       expect(find.text('Title and content are required'), findsOneWidget);
     });
 
-    testWidgets('KnowledgeBasePage renders empty state and switches to entries list', (tester) async {
-      // 1. Empty state
-      await tester.pumpWidget(
-        createKnowledgeBaseTestWidget(
-          child: const KnowledgeBasePage(),
-          overrides: [
-            knowledgeEntriesStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'KnowledgeBasePage renders empty state and switches to entries list',
+      (tester) async {
+        // 1. Empty state
+        await tester.pumpWidget(
+          createKnowledgeBaseTestWidget(
+            child: const KnowledgeBasePage(),
+            overrides: [
+              knowledgeEntriesStreamProvider.overrideWithValue(
+                const AsyncData([]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Knowledge Base'), findsOneWidget);
-      expect(find.text('🧠 Capture your first note or idea'), findsOneWidget);
+        expect(find.text('Knowledge Base'), findsOneWidget);
+        expect(find.text('🧠 Capture your first note or idea'), findsOneWidget);
 
-      // 2. Populated state
-      final now = DateTime.now();
-      final entries = [
-        KnowledgeEntryModel(
-          id: 'k1',
-          title: 'System Design Patterns',
-          type: 'note',
-          content: 'Event-driven architecture decouples producers from consumers.',
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
+        // 2. Populated state
+        final now = DateTime.now();
+        final entries = [
+          KnowledgeEntryModel(
+            id: 'k1',
+            title: 'System Design Patterns',
+            type: 'note',
+            content:
+                'Event-driven architecture decouples producers from consumers.',
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      await tester.pumpWidget(
-        createKnowledgeBaseTestWidget(
-          child: const KnowledgeBasePage(),
-          overrides: [
-            knowledgeEntriesStreamProvider.overrideWithValue(AsyncData(entries)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createKnowledgeBaseTestWidget(
+            child: const KnowledgeBasePage(),
+            overrides: [
+              knowledgeEntriesStreamProvider.overrideWithValue(
+                AsyncData(entries),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('System Design Patterns'), findsOneWidget);
-      expect(find.byType(TextField), findsOneWidget); // Search bar
-    });
+        expect(find.text('System Design Patterns'), findsOneWidget);
+        expect(find.byType(TextField), findsOneWidget); // Search bar
+      },
+    );
 
-    testWidgets('Navigation Drawer contains Knowledge Base item in Learning section', (tester) async {
-      await tester.pumpWidget(
-        createKnowledgeBaseTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            knowledgeEntriesStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer contains Knowledge Base item in Learning section',
+      (tester) async {
+        await tester.pumpWidget(
+          createKnowledgeBaseTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              knowledgeEntriesStreamProvider.overrideWithValue(
+                const AsyncData([]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Open Navigation Drawer
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        // Open Navigation Drawer
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      // Scroll inside drawer to find "Knowledge Base"
-      final drawerScrollable = find.descendant(
-        of: find.byType(Drawer),
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(
-        find.text('Knowledge Base'),
-        50,
-        scrollable: drawerScrollable,
-      );
-      expect(find.text('Knowledge Base'), findsOneWidget);
-    });
+        // Scroll inside drawer to find "Knowledge Base"
+        final drawerScrollable = find.descendant(
+          of: find.byType(Drawer),
+          matching: find.byType(Scrollable),
+        );
+        await tester.scrollUntilVisible(
+          find.text('Knowledge Base'),
+          50,
+          scrollable: drawerScrollable,
+        );
+        expect(find.text('Knowledge Base'), findsOneWidget);
+      },
+    );
   });
 }

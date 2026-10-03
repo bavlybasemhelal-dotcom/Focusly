@@ -13,10 +13,7 @@ import '../widgets/add_edit_event_sheet.dart';
 class WeekView extends ConsumerWidget {
   final List<EventModel> events;
 
-  const WeekView({
-    super.key,
-    required this.events,
-  });
+  const WeekView({super.key, required this.events});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -84,7 +81,8 @@ class WeekView extends ConsumerWidget {
               final isSelected = DateUtils.isSameDay(day, selectedDate);
               final isToday = DateUtils.isSameDay(day, DateTime.now());
               final count =
-                  (weekOccurrencesMap[RecurrenceHelper.normalizeDate(day)] ?? [])
+                  (weekOccurrencesMap[RecurrenceHelper.normalizeDate(day)] ??
+                          [])
                       .length;
 
               return GestureDetector(
@@ -94,15 +92,18 @@ class WeekView extends ConsumerWidget {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? brandPrimary
                         : (isToday
-                            ? (isDark
-                                ? const Color(0xFF08123A)
-                                : const Color(0xFFEFF6FF))
-                            : Colors.transparent),
+                              ? (isDark
+                                    ? const Color(0xFF08123A)
+                                    : const Color(0xFFEFF6FF))
+                              : Colors.transparent),
                     borderRadius: BorderRadius.circular(14),
                     border: isToday && !isSelected
                         ? Border.all(

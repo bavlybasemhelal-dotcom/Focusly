@@ -25,12 +25,13 @@ class GroupFeedService {
     required String type,
     required String message,
     required String icon,
+    String? uid,
   }) async {
-    String? uid;
     String name = 'Member';
     try {
       final user = FirebaseAuth.instance.currentUser;
-      uid = user?.uid;
+      uid ??= user?.uid;
+      if (user?.uid != uid) return;
       name = user?.displayName?.trim().isNotEmpty == true
           ? user!.displayName!
           : 'Member';
@@ -44,6 +45,14 @@ class GroupFeedService {
     try {
       // 1. Get all group IDs for user
       final userDoc = await firestore.collection('users').doc(uid).get();
+      if (userDoc.data()?['sharePersonalActivity'] != true) return;
+      // Personal titles stay private even when activity sharing is enabled.
+      message = switch (type) {
+        'task_milestone' => 'Completed a task 🎯',
+        'habit_streak' => 'Made progress on a habit 🔥',
+        'level_up' => 'Reached a new level ⭐',
+        _ => 'Made progress 🌱',
+      };
       final groupIds = List<String>.from(userDoc.data()?['groupIds'] ?? []);
 
       if (groupIds.isEmpty) return;
@@ -86,12 +95,14 @@ class GroupFeedService {
     required String type,
     required String message,
     required String icon,
+    String? uid,
+    String? eventId,
   }) async {
-    String? uid;
     String name = 'Member';
     try {
       final user = FirebaseAuth.instance.currentUser;
-      uid = user?.uid;
+      uid ??= user?.uid;
+      if (user?.uid != uid) return;
       name = user?.displayName?.trim().isNotEmpty == true
           ? user!.displayName!
           : 'Member';
@@ -107,7 +118,7 @@ class GroupFeedService {
           .collection('groups')
           .doc(groupId)
           .collection('feed')
-          .doc();
+          .doc(eventId);
 
       final feedItem = GroupFeedModel(
         id: feedRef.id,
@@ -121,7 +132,10 @@ class GroupFeedService {
         createdAt: DateTime.now(),
       );
 
-      await feedRef.set(feedItem.toMap());
+      await firestore.runTransaction((transaction) async {
+        final previous = await transaction.get(feedRef);
+        if (!previous.exists) transaction.set(feedRef, feedItem.toMap());
+      });
     } catch (e) {
       debugPrint('Error posting feed item: $e');
     }
@@ -169,7 +183,10 @@ class GroupFeedService {
         if (previousReaction == emojiType) {
           // User is removing their existing reaction
           reactedBy.remove(uid);
-          reactions[emojiType] = ((reactions[emojiType] ?? 1) - 1).clamp(0, 999999);
+          reactions[emojiType] = ((reactions[emojiType] ?? 1) - 1).clamp(
+            0,
+            999999,
+          );
         } else {
           // User is switching or adding a new reaction
           if (previousReaction != null) {
@@ -183,6 +200,7 @@ class GroupFeedService {
         transaction.update(docRef, {
           'reactions': reactions,
           'reactedBy': reactedBy,
+          'reactionUids': reactedBy.keys.toList(),
         });
       });
     } catch (e) {
@@ -195,7 +213,7 @@ class GroupFeedService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(
-        'group_last_viewed_$groupId',
+        'group_last_viewed_${FirebaseAuth.instance.currentUser?.uid}_$groupId',
         DateTime.now().millisecondsSinceEpoch,
       );
     } catch (_) {}
@@ -205,7 +223,9 @@ class GroupFeedService {
   Future<DateTime?> getGroupLastViewed(String groupId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final millis = prefs.getInt('group_last_viewed_$groupId');
+      final millis = prefs.getInt(
+        'group_last_viewed_${FirebaseAuth.instance.currentUser?.uid}_$groupId',
+      );
       if (millis != null) {
         return DateTime.fromMillisecondsSinceEpoch(millis);
       }

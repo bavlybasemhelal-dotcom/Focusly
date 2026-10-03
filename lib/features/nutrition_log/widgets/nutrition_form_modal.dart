@@ -13,11 +13,7 @@ class NutritionFormModal extends ConsumerStatefulWidget {
   final NutritionLogModel? logToEdit;
   final DateTime? initialDate;
 
-  const NutritionFormModal({
-    super.key,
-    this.logToEdit,
-    this.initialDate,
-  });
+  const NutritionFormModal({super.key, this.logToEdit, this.initialDate});
 
   /// Static helper to open the modal bottom sheet.
   static Future<void> show(
@@ -29,10 +25,8 @@ class NutritionFormModal extends ConsumerStatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => NutritionFormModal(
-        logToEdit: logToEdit,
-        initialDate: initialDate,
-      ),
+      builder: (_) =>
+          NutritionFormModal(logToEdit: logToEdit, initialDate: initialDate),
     );
   }
 
@@ -119,7 +113,9 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
               content: Text(context.tr('nutrition_saved_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         } else {
@@ -173,7 +169,9 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete_workout_confirm_title')),
@@ -200,7 +198,9 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
               content: Text(context.tr('nutrition_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }
@@ -214,10 +214,14 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
     final isEdit = widget.logToEdit != null;
     final modalBg = isDark ? const Color(0xFF08123A) : Colors.white;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : const Color(0xFFE2E8F0);
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
-    final brandAccent = isDark ? AppColors.cyanElectric : const Color(0xFF10B981);
+    final brandAccent = isDark
+        ? AppColors.cyanElectric
+        : const Color(0xFF10B981);
 
     final ratingOptions = [
       {'val': 5, 'emoji': '😊', 'labelKey': 'nutrition_rating_5'},
@@ -274,7 +278,9 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.2 : 0.12),
+                        color: const Color(
+                          0xFF10B981,
+                        ).withValues(alpha: isDark ? 0.2 : 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(
@@ -320,7 +326,10 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: cardBg,
                   borderRadius: BorderRadius.circular(14),
@@ -379,19 +388,22 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
                     },
                     borderRadius: BorderRadius.circular(14),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? (isDark
-                                ? const Color(0xFF162B64)
-                                : const Color(0xFFECFDF5))
+                                  ? const Color(0xFF162B64)
+                                  : const Color(0xFFECFDF5))
                             : cardBg,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: isSelected
                               ? (isDark
-                                  ? const Color(0xFF10B981)
-                                  : const Color(0xFF10B981))
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFF10B981))
                               : borderColor,
                           width: isSelected ? 1.8 : 1,
                         ),
@@ -399,10 +411,7 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
                       child: Row(
                         children: [
                           // Emoji
-                          Text(
-                            emoji,
-                            style: const TextStyle(fontSize: 22),
-                          ),
+                          Text(emoji, style: const TextStyle(fontSize: 22)),
                           const SizedBox(width: 12),
 
                           // Rating Value & Label
@@ -411,9 +420,13 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
                               context.tr(labelKey),
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
                                 color: isSelected
-                                    ? (isDark ? Colors.white : const Color(0xFF065F46))
+                                    ? (isDark
+                                          ? Colors.white
+                                          : const Color(0xFF065F46))
                                     : primaryTextColor,
                               ),
                             ),
@@ -431,7 +444,9 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
                                     : secondaryTextColor.withValues(alpha: 0.4),
                                 width: isSelected ? 5.5 : 1.5,
                               ),
-                              color: isSelected ? Colors.white : Colors.transparent,
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.transparent,
                             ),
                           ),
                         ],
@@ -476,7 +491,10 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.5),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF10B981),
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -500,7 +518,10 @@ class _NutritionFormModalState extends ConsumerState<NutritionFormModal> {
                       icon: const Icon(Icons.delete_outline_rounded, size: 18),
                       label: Text(
                         context.tr('delete_workout_confirm_title'), // or Delete
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
                       ),
                       onPressed: _isLoading ? null : _onDelete,
                     ),

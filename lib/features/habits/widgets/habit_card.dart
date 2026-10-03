@@ -154,14 +154,22 @@ class HabitCard extends ConsumerWidget {
                         )
                       : LinearGradient(
                           colors: isDark
-                              ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
-                              : [const Color(0xFFE2E8F0), const Color(0xFFCBD5E1)],
+                              ? [
+                                  const Color(0xFF1E293B),
+                                  const Color(0xFF0F172A),
+                                ]
+                              : [
+                                  const Color(0xFFE2E8F0),
+                                  const Color(0xFFCBD5E1),
+                                ],
                         ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: habit.streak > 0
                       ? [
                           BoxShadow(
-                            color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+                            color: const Color(
+                              0xFFF59E0B,
+                            ).withValues(alpha: 0.35),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -226,16 +234,30 @@ class HabitCard extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.edit_outlined, size: 18, color: secondaryTextColor),
+                    icon: Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: secondaryTextColor,
+                    ),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
                     tooltip: context.tr('edit'),
                     onPressed: () => _openEditSheet(context),
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.errorRed),
+                    icon: Icon(
+                      Icons.delete_outline_rounded,
+                      size: 18,
+                      color: AppColors.errorRed,
+                    ),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
                     tooltip: context.tr('delete'),
                     onPressed: () => _showDeleteConfirmation(context, ref),
                   ),
@@ -253,10 +275,15 @@ class HabitCard extends ConsumerWidget {
             children: [
               // Streak Pill
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: habit.streak > 0
-                      ? const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.2 : 0.12)
+                      ? const Color(
+                          0xFFF59E0B,
+                        ).withValues(alpha: isDark ? 0.2 : 0.12)
                       : (isDark ? Colors.white10 : const Color(0xFFF1F5F9)),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
@@ -280,7 +307,9 @@ class HabitCard extends ConsumerWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                         color: habit.streak > 0
-                            ? (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706))
+                            ? (isDark
+                                  ? const Color(0xFFFBBF24)
+                                  : const Color(0xFFD97706))
                             : secondaryTextColor,
                       ),
                     ),
@@ -291,7 +320,10 @@ class HabitCard extends ConsumerWidget {
               // Reminder Time Chip (if set)
               if (habit.time != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark
                         ? const Color(0xFF38BDF8).withValues(alpha: 0.15)
@@ -325,9 +357,14 @@ class HabitCard extends ConsumerWidget {
               // Group Assigned Badge
               if (habit.isGroupAssigned)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.22 : 0.12),
+                    color: const Color(
+                      0xFF0284C7,
+                    ).withValues(alpha: isDark ? 0.22 : 0.12),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: const Color(0xFF0284C7).withValues(alpha: 0.35),
@@ -343,7 +380,8 @@ class HabitCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        habit.assignedByName != null && habit.assignedByName!.isNotEmpty
+                        habit.assignedByName != null &&
+                                habit.assignedByName!.isNotEmpty
                             ? '${context.tr('assigned_by_badge')}: ${habit.assignedByName}'
                             : context.tr('group_assigned_badge'),
                         style: const TextStyle(
@@ -374,9 +412,14 @@ class HabitCard extends ConsumerWidget {
                 final progress = (current / target).clamp(0.0, 1.0);
 
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF08123A) : const Color(0xFFF8FAFC),
+                    color: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isDone
@@ -396,7 +439,9 @@ class HabitCard extends ConsumerWidget {
                                     ? Icons.check_circle_rounded
                                     : Icons.track_changes_rounded,
                                 size: 18,
-                                color: isDone ? const Color(0xFF10B981) : brandPrimary,
+                                color: isDone
+                                    ? const Color(0xFF10B981)
+                                    : brandPrimary,
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -406,7 +451,9 @@ class HabitCard extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w800,
-                                  color: isDone ? const Color(0xFF10B981) : primaryTextColor,
+                                  color: isDone
+                                      ? const Color(0xFF10B981)
+                                      : primaryTextColor,
                                 ),
                               ),
                             ],
@@ -416,7 +463,9 @@ class HabitCard extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: isDone ? const Color(0xFF10B981) : brandPrimary,
+                              color: isDone
+                                  ? const Color(0xFF10B981)
+                                  : brandPrimary,
                             ),
                           ),
                         ],
@@ -442,9 +491,13 @@ class HabitCard extends ConsumerWidget {
                           if (current > 0)
                             IconButton(
                               onPressed: () {
-                                ref.read(habitsControllerProvider).decrementHabitCount(habit, context);
+                                ref
+                                    .read(habitsControllerProvider)
+                                    .decrementHabitCount(habit, context);
                               },
-                              icon: const Icon(Icons.remove_circle_outline_rounded),
+                              icon: const Icon(
+                                Icons.remove_circle_outline_rounded,
+                              ),
                               color: secondaryTextColor,
                               iconSize: 22,
                               tooltip: context.tr('decrement_count'),
@@ -454,23 +507,35 @@ class HabitCard extends ConsumerWidget {
                             onPressed: isDone
                                 ? null
                                 : () {
-                                    ref.read(habitsControllerProvider).incrementHabitCount(habit, context);
+                                    ref
+                                        .read(habitsControllerProvider)
+                                        .incrementHabitCount(habit, context);
                                   },
                             icon: Icon(
-                              isDone ? Icons.done_all_rounded : Icons.add_rounded,
+                              isDone
+                                  ? Icons.done_all_rounded
+                                  : Icons.add_rounded,
                               size: 16,
                             ),
                             label: Text(
                               isDone
                                   ? context.tr('done')
                                   : context.tr('log_habit_btn'),
-                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 12,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: isDone ? const Color(0xFF10B981) : brandPrimary,
+                              backgroundColor: isDone
+                                  ? const Color(0xFF10B981)
+                                  : brandPrimary,
                               foregroundColor: Colors.white,
                               elevation: 0,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -494,11 +559,9 @@ class HabitCard extends ConsumerWidget {
 
                 return InkWell(
                   onTap: () {
-                    ref.read(habitsControllerProvider).toggleDay(
-                          habit,
-                          dayIdx,
-                          context,
-                        );
+                    ref
+                        .read(habitsControllerProvider)
+                        .toggleDay(habit, dayIdx, context);
                   },
                   borderRadius: BorderRadius.circular(14),
                   child: AnimatedContainer(
@@ -512,24 +575,30 @@ class HabitCard extends ConsumerWidget {
                           : null,
                       color: !isDone
                           ? (isDark
-                              ? (isToday ? const Color(0xFF1E2958) : const Color(0xFF0A1238))
-                              : (isToday ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC)))
+                                ? (isToday
+                                      ? const Color(0xFF1E2958)
+                                      : const Color(0xFF0A1238))
+                                : (isToday
+                                      ? const Color(0xFFEFF6FF)
+                                      : const Color(0xFFF8FAFC)))
                           : null,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: isDone
                             ? Colors.transparent
-                            : (isToday
-                                ? brandPrimary
-                                : borderColor),
+                            : (isToday ? brandPrimary : borderColor),
                         width: isToday ? 1.8 : 1,
                       ),
                       boxShadow: isDone
                           ? [
                               BoxShadow(
                                 color: isDark
-                                    ? AppColors.cyanElectric.withValues(alpha: 0.35)
-                                    : const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                                    ? AppColors.cyanElectric.withValues(
+                                        alpha: 0.35,
+                                      )
+                                    : const Color(
+                                        0xFF2E6FF2,
+                                      ).withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -546,7 +615,9 @@ class HabitCard extends ConsumerWidget {
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
                             color: isDone
-                                ? (isDark ? const Color(0xFF060B24) : Colors.white)
+                                ? (isDark
+                                      ? const Color(0xFF060B24)
+                                      : Colors.white)
                                 : (isToday ? brandPrimary : secondaryTextColor),
                           ),
                         ),
@@ -559,7 +630,9 @@ class HabitCard extends ConsumerWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: isDone
-                                ? (isDark ? const Color(0xFF060B24) : Colors.white)
+                                ? (isDark
+                                      ? const Color(0xFF060B24)
+                                      : Colors.white)
                                 : Colors.transparent,
                           ),
                           child: Center(
@@ -572,15 +645,15 @@ class HabitCard extends ConsumerWidget {
                                         : brandPrimary,
                                   )
                                 : (isToday
-                                    ? Container(
-                                        width: 6,
-                                        height: 6,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: brandPrimary,
-                                        ),
-                                      )
-                                    : const SizedBox.shrink()),
+                                      ? Container(
+                                          width: 6,
+                                          height: 6,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: brandPrimary,
+                                          ),
+                                        )
+                                      : const SizedBox.shrink()),
                           ),
                         ),
                       ],

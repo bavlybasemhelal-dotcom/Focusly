@@ -69,9 +69,14 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                     children: [
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(Icons.arrow_back_rounded, color: primaryTextColor),
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          color: primaryTextColor,
+                        ),
                         style: IconButton.styleFrom(
-                          backgroundColor: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                          backgroundColor: isDark
+                              ? Colors.white10
+                              : const Color(0xFFF1F5F9),
                           padding: const EdgeInsets.all(8),
                         ),
                       ),
@@ -111,7 +116,9 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                              color: const Color(
+                                0xFF2E6FF2,
+                              ).withValues(alpha: 0.3),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -119,7 +126,11 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                         ),
                         child: IconButton(
                           onPressed: () => QuickCaptureSheet.show(context),
-                          icon: const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
+                          icon: const Icon(
+                            Icons.bolt_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                           tooltip: context.tr('quick_capture_title'),
                         ),
                       ),
@@ -131,7 +142,10 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                 // 2. FILTER CHIPS (All / Unprocessed / Processed)
                 // -------------------------------------------------------------
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
                       _buildFilterChip(
@@ -163,7 +177,8 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                 // -------------------------------------------------------------
                 Expanded(
                   child: inboxAsync.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, _) => Center(
                       child: Text(
                         context.tr('inbox_load_error'),
@@ -183,17 +198,30 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                       }).toList();
 
                       if (filteredItems.isEmpty) {
-                        return _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor);
+                        return _buildEmptyState(
+                          context,
+                          isDark,
+                          primaryTextColor,
+                          secondaryTextColor,
+                        );
                       }
 
                       return ListView.separated(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.fromLTRB(20, 8, 20, 90),
                         itemCount: filteredItems.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 10),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 10),
                         itemBuilder: (context, index) {
                           final item = filteredItems[index];
-                          return _buildInboxRow(context, item, isDark, primaryTextColor, secondaryTextColor, brandPrimary);
+                          return _buildInboxRow(
+                            context,
+                            item,
+                            isDark,
+                            primaryTextColor,
+                            secondaryTextColor,
+                            brandPrimary,
+                          );
                         },
                       );
                     },
@@ -274,7 +302,9 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
         border: Border.all(color: borderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : const Color(0xFF2E6FF2).withValues(alpha: 0.04),
+            color: isDark
+                ? Colors.black26
+                : const Color(0xFF2E6FF2).withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -293,7 +323,9 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: item.processed ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                  color: item.processed
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFFF59E0B),
                 ),
               ),
               const SizedBox(width: 10),
@@ -303,20 +335,33 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: item.processed ? secondaryTextColor : primaryTextColor,
-                    decoration: item.processed ? TextDecoration.lineThrough : null,
+                    color: item.processed
+                        ? secondaryTextColor
+                        : primaryTextColor,
+                    decoration: item.processed
+                        ? TextDecoration.lineThrough
+                        : null,
                     height: 1.3,
                   ),
                 ),
               ),
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert_rounded, size: 18, color: secondaryTextColor),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                icon: Icon(
+                  Icons.more_vert_rounded,
+                  size: 18,
+                  color: secondaryTextColor,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 onSelected: (value) async {
                   if (value == 'delete') {
                     await GTDService().deleteInboxItem(item.id);
                   } else if (value == 'toggle') {
-                    await GTDService().markInboxProcessed(item.id, processed: !item.processed);
+                    await GTDService().markInboxProcessed(
+                      item.id,
+                      processed: !item.processed,
+                    );
                   }
                 },
                 itemBuilder: (ctx) => [
@@ -325,12 +370,18 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          item.processed ? Icons.replay_rounded : Icons.check_circle_outline_rounded,
+                          item.processed
+                              ? Icons.replay_rounded
+                              : Icons.check_circle_outline_rounded,
                           size: 18,
                           color: primaryTextColor,
                         ),
                         const SizedBox(width: 8),
-                        Text(item.processed ? ctx.tr('mark_unprocessed') : ctx.tr('mark_processed')),
+                        Text(
+                          item.processed
+                              ? ctx.tr('mark_unprocessed')
+                              : ctx.tr('mark_processed'),
+                        ),
                       ],
                     ),
                   ),
@@ -338,9 +389,16 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                        const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                          color: Color(0xFFEF4444),
+                        ),
                         const SizedBox(width: 8),
-                        Text(ctx.tr('delete'), style: const TextStyle(color: Color(0xFFEF4444))),
+                        Text(
+                          ctx.tr('delete'),
+                          style: const TextStyle(color: Color(0xFFEF4444)),
+                        ),
                       ],
                     ),
                   ),
@@ -354,11 +412,19 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.schedule_rounded, size: 13, color: secondaryTextColor),
+                  Icon(
+                    Icons.schedule_rounded,
+                    size: 13,
+                    color: secondaryTextColor,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     _formatRelativeTime(item.createdAt, context),
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: secondaryTextColor),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: secondaryTextColor,
+                    ),
                   ),
                 ],
               ),
@@ -366,7 +432,10 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                 GestureDetector(
                   onTap: () => ClarifyWizardSheet.show(context, item),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF2E6FF2), Color(0xFF00D2FF)],
@@ -374,7 +443,9 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.25),
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.25),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -383,7 +454,11 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.auto_fix_high_rounded, size: 13, color: Colors.white),
+                        const Icon(
+                          Icons.auto_fix_high_rounded,
+                          size: 13,
+                          color: Colors.white,
+                        ),
                         const SizedBox(width: 5),
                         Text(
                           context.tr('inbox_clarify_btn'),
@@ -422,7 +497,11 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                 shape: BoxShape.circle,
                 color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
               ),
-              child: const Icon(Icons.inbox_rounded, size: 48, color: Color(0xFF2E6FF2)),
+              child: const Icon(
+                Icons.inbox_rounded,
+                size: 48,
+                color: Color(0xFF2E6FF2),
+              ),
             ),
             const SizedBox(height: 18),
             Text(
@@ -453,8 +532,13 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
             ),
           ],

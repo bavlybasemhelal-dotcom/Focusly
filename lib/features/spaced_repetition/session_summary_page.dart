@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../progress/constants/xp_constants.dart';
 import '../progress/services/progress_service.dart';
 import 'controllers/review_session_controller.dart';
+import '../../core/data/completion_ledger.dart';
 
 /// Screen displayed upon finishing a review session showing recall stats and points.
 class SessionSummaryPage extends ConsumerStatefulWidget {
@@ -19,17 +20,24 @@ class _SessionSummaryPageState extends ConsumerState<SessionSummaryPage> {
   void initState() {
     super.initState();
     // XP hook: Award +2 XP per card reviewed in the session
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       final session = ref.read(reviewSessionControllerProvider);
-      if (session.totalReviewed > 0) {
-        final xpEarned = session.totalReviewed * XpConstants.flashcardReviewPerCard;
-        ProgressService().awardXp(
-          xpEarned,
-          source: 'Flashcards reviewed: ${session.totalReviewed} card${session.totalReviewed > 1 ? "s" : ""}',
-          sourceType: 'flashcards',
-          context: context,
-          ref: ref,
-        );
+      if (session.totalReviewed > 0 && session.uid != null) {
+        for (final card in session.queue.take(session.totalReviewed)) {
+          await ProgressService().awardXp(
+            XpConstants.flashcardReviewPerCard,
+            uid: session.uid,
+            sourceId: card.id,
+            eventId:
+                'flashcards_${card.id}_${CompletionLedger.dateKey(DateTime.now())}',
+            source:
+                'Flashcards reviewed: ${session.totalReviewed} card${session.totalReviewed > 1 ? "s" : ""}',
+            sourceType: 'flashcards',
+            context: mounted ? context : null,
+            ref: ref,
+          );
+        }
       }
     });
   }
@@ -89,7 +97,9 @@ class _SessionSummaryPageState extends ConsumerState<SessionSummaryPage> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                              color: const Color(
+                                0xFF10B981,
+                              ).withValues(alpha: 0.3),
                               blurRadius: 18,
                               offset: const Offset(0, 6),
                             ),
@@ -132,7 +142,10 @@ class _SessionSummaryPageState extends ConsumerState<SessionSummaryPage> {
                         // Cards Reviewed
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 14,
+                            ),
                             decoration: BoxDecoration(
                               color: cardBg,
                               borderRadius: BorderRadius.circular(18),
@@ -167,7 +180,10 @@ class _SessionSummaryPageState extends ConsumerState<SessionSummaryPage> {
                         // Points Earned
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 14,
+                            ),
                             decoration: BoxDecoration(
                               color: cardBg,
                               borderRadius: BorderRadius.circular(18),

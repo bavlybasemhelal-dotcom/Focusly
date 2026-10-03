@@ -134,7 +134,9 @@ class BodyMetricsHelpers {
 
     return validLogs.map((l) {
       final val = l.weight!;
-      final str = val % 1 == 0 ? val.toInt().toString() : val.toStringAsFixed(1);
+      final str = val % 1 == 0
+          ? val.toInt().toString()
+          : val.toStringAsFixed(1);
       return ChartDataPoint(
         date: l.date,
         value: val,

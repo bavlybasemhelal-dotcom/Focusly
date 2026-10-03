@@ -10,7 +10,8 @@ class FlashcardModel {
   final int interval; // Days until next review (starts at 0 for new cards)
   final int repetitions; // Consecutive successful reviews (starts at 0)
   final double easeFactor; // SM-2 ease multiplier (starts at 2.5)
-  final String dueDate; // Formatted 'yyyy-MM-dd', defaults to today for new cards
+  final String
+  dueDate; // Formatted 'yyyy-MM-dd', defaults to today for new cards
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -27,9 +28,11 @@ class FlashcardModel {
   });
 
   /// Helper getter returning whether the card is due for review today or overdue.
-  bool get isDue {
-    final now = DateTime.now();
-    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  bool get isDue => isDueOn(DateTime.now());
+
+  bool isDueOn(DateTime now) {
+    final todayStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     return dueDate.compareTo(todayStr) <= 0;
   }
 
@@ -60,7 +63,9 @@ class FlashcardModel {
   factory FlashcardModel.fromMap(Map<String, dynamic> map, String docId) {
     DateTime parseDate(dynamic val, [DateTime? fallback]) {
       if (val is Timestamp) return val.toDate();
-      if (val is String) return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      if (val is String) {
+        return DateTime.tryParse(val) ?? fallback ?? DateTime.now();
+      }
       return fallback ?? DateTime.now();
     }
 
@@ -68,7 +73,8 @@ class FlashcardModel {
     final parsedCreatedAt = parseDate(map['createdAt'], now);
     final parsedUpdatedAt = parseDate(map['updatedAt'], parsedCreatedAt);
 
-    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     return FlashcardModel(
       id: docId,

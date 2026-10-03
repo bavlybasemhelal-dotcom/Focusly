@@ -11,22 +11,24 @@ import '../providers/life_areas_provider.dart';
 class AssessmentFormModal extends ConsumerStatefulWidget {
   final LifeAreaAssessmentModel? assessmentToEdit;
 
-  const AssessmentFormModal({
-    super.key,
-    this.assessmentToEdit,
-  });
+  const AssessmentFormModal({super.key, this.assessmentToEdit});
 
-  static Future<void> show(BuildContext context, {LifeAreaAssessmentModel? assessmentToEdit}) {
+  static Future<void> show(
+    BuildContext context, {
+    LifeAreaAssessmentModel? assessmentToEdit,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AssessmentFormModal(assessmentToEdit: assessmentToEdit),
+      builder: (context) =>
+          AssessmentFormModal(assessmentToEdit: assessmentToEdit),
     );
   }
 
   @override
-  ConsumerState<AssessmentFormModal> createState() => _AssessmentFormModalState();
+  ConsumerState<AssessmentFormModal> createState() =>
+      _AssessmentFormModalState();
 }
 
 class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
@@ -194,12 +196,24 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
     final secondaryTextColor = AppColors.textSecondary(context);
     final modalBg = isDark ? const Color(0xFF0F172A) : Colors.white;
     final cardBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final isEdit = widget.assessmentToEdit != null;
 
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final formattedDate =
         '${months[_selectedDate.month - 1]} ${_selectedDate.day}, ${_selectedDate.year}';
@@ -240,7 +254,9 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
                   children: [
                     Text(
                       context.tr(
-                        isEdit ? 'edit_assessment_title' : 'add_assessment_title',
+                        isEdit
+                            ? 'edit_assessment_title'
+                            : 'add_assessment_title',
                       ),
                       style: TextStyle(
                         fontSize: 20,
@@ -266,7 +282,10 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
                     borderRadius: BorderRadius.circular(16),
                     onTap: _pickDate,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         color: cardBg,
                         borderRadius: BorderRadius.circular(16),
@@ -274,8 +293,11 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today_rounded,
-                              size: 20, color: Color(0xFF6366F1)),
+                          const Icon(
+                            Icons.calendar_today_rounded,
+                            size: 20,
+                            color: Color(0xFF6366F1),
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -296,8 +318,11 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          Icon(Icons.chevron_right_rounded,
-                              size: 18, color: secondaryTextColor),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: 18,
+                            color: secondaryTextColor,
+                          ),
                         ],
                       ),
                     ),
@@ -396,7 +421,9 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : Text(
@@ -414,7 +441,10 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
                           foregroundColor: const Color(0xFFEF4444),
                           minimumSize: const Size(double.infinity, 44),
                         ),
-                        icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                        ),
                         label: Text(
                           context.tr('delete_assessment_btn'),
                           style: const TextStyle(fontWeight: FontWeight.w700),
@@ -465,7 +495,10 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: isDark ? 0.25 : 0.12),
                   borderRadius: BorderRadius.circular(10),
@@ -484,7 +517,9 @@ class _AssessmentFormModalState extends ConsumerState<AssessmentFormModal> {
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: color,
-              inactiveTrackColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+              inactiveTrackColor: isDark
+                  ? Colors.white12
+                  : const Color(0xFFE2E8F0),
               thumbColor: color,
               overlayColor: color.withValues(alpha: 0.2),
               trackHeight: 5,

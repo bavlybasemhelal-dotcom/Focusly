@@ -9,7 +9,7 @@ class FlashcardsService {
   final FirebaseFirestore _firestore;
 
   FlashcardsService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _flashcardsCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('flashcards');
@@ -17,10 +17,9 @@ class FlashcardsService {
 
   /// Streams all flashcards for [uid] ordered by createdAt descending.
   Stream<List<FlashcardModel>> streamFlashcards(String uid) {
-    return _flashcardsCollection(uid)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _flashcardsCollection(
+      uid,
+    ).orderBy('createdAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => FlashcardModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -33,6 +32,7 @@ class FlashcardsService {
     required String front,
     required String back,
   }) async {
+    if (uid.isEmpty || front.trim().isEmpty || back.trim().isEmpty) return null;
     try {
       final docRef = _flashcardsCollection(uid).doc();
       final now = DateTime.now();
@@ -66,15 +66,16 @@ class FlashcardsService {
     required String newFront,
     required String newBack,
   }) async {
+    if (uid.isEmpty || newFront.trim().isEmpty || newBack.trim().isEmpty) {
+      return false;
+    }
     try {
       final now = DateTime.now();
-      final updated = currentCard.copyWith(
-        front: newFront.trim(),
-        back: newBack.trim(),
-        updatedAt: now,
-      );
-
-      await _flashcardsCollection(uid).doc(updated.id).update(updated.toMap());
+      await _flashcardsCollection(uid).doc(currentCard.id).update({
+        'front': newFront.trim(),
+        'back': newBack.trim(),
+        'updatedAt': Timestamp.fromDate(now),
+      });
       return true;
     } catch (e) {
       debugPrint('Error updating flashcard: $e');
@@ -88,7 +89,17 @@ class FlashcardsService {
     required FlashcardModel updatedCard,
   }) async {
     try {
-      await _flashcardsCollection(uid).doc(updatedCard.id).update(updatedCard.toMap());
+      final data = updatedCard.toMap();
+      await _flashcardsCollection(uid).doc(updatedCard.id).update({
+        for (final key in [
+          'interval',
+          'repetitions',
+          'easeFactor',
+          'dueDate',
+          'updatedAt',
+        ])
+          key: data[key],
+      });
       return true;
     } catch (e) {
       debugPrint('Error saving flashcard review progress: $e');

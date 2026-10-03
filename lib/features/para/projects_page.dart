@@ -33,7 +33,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
 
   Future<void> _handleArchiveProject(ParaProjectModel project) async {
     HapticFeedback.lightImpact();
-    await ref.read(paraServiceProvider).setProjectArchived(project.id, archived: true);
+    await ref
+        .read(paraServiceProvider)
+        .setProjectArchived(project.id, archived: true);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -57,10 +59,16 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Text(
           context.tr('delete_project_confirm_title'),
-          style: TextStyle(fontWeight: FontWeight.w900, color: primaryTextColor),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: primaryTextColor,
+          ),
         ),
         content: Text(
-          context.tr('delete_project_confirm_msg', args: {'title': project.title}),
+          context.tr(
+            'delete_project_confirm_msg',
+            args: {'title': project.title},
+          ),
           style: TextStyle(color: secondaryTextColor, height: 1.4),
         ),
         actions: [
@@ -73,7 +81,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.errorRed,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(context.tr('delete_group_btn')),
           ),
@@ -101,13 +111,19 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
     final diffDays = target.difference(today).inDays;
 
     if (diffDays < 0) {
-      return context.tr('deadline_overdue', args: {'days': (-diffDays).toString()});
+      return context.tr(
+        'deadline_overdue',
+        args: {'days': (-diffDays).toString()},
+      );
     } else if (diffDays == 0) {
       return context.tr('deadline_today');
     } else if (diffDays == 1) {
       return context.tr('deadline_tomorrow');
     } else {
-      return context.tr('deadline_in_days', args: {'days': diffDays.toString()});
+      return context.tr(
+        'deadline_in_days',
+        args: {'days': diffDays.toString()},
+      );
     }
   }
 
@@ -117,7 +133,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
     final brandPrimary = AppColors.brandPrimary(context);
-    final scaffoldBg = isDark ? const Color(0xFF070D28) : const Color(0xFFF8FAFC);
+    final scaffoldBg = isDark
+        ? const Color(0xFF070D28)
+        : const Color(0xFFF8FAFC);
 
     final projectsAsync = ref.watch(paraProjectsStreamProvider);
     final areasAsync = ref.watch(paraAreasStreamProvider);
@@ -156,8 +174,13 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: brandPrimary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -170,7 +193,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
           // Filter by area if selected
           final filteredProjects = _selectedFilterAreaId == null
               ? projects
-              : projects.where((p) => p.areaId == _selectedFilterAreaId).toList();
+              : projects
+                    .where((p) => p.areaId == _selectedFilterAreaId)
+                    .toList();
 
           return Column(
             children: [
@@ -186,7 +211,8 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                         _buildAreaFilterChip(
                           label: context.tr('all_areas_filter'),
                           isSelected: _selectedFilterAreaId == null,
-                          onTap: () => setState(() => _selectedFilterAreaId = null),
+                          onTap: () =>
+                              setState(() => _selectedFilterAreaId = null),
                           isDark: isDark,
                           brandPrimary: brandPrimary,
                         ),
@@ -200,7 +226,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                               isSelected: isSelected,
                               onTap: () {
                                 setState(() {
-                                  _selectedFilterAreaId = isSelected ? null : area.id;
+                                  _selectedFilterAreaId = isSelected
+                                      ? null
+                                      : area.id;
                                 });
                               },
                               isDark: isDark,
@@ -216,17 +244,27 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
               // Main Projects List
               Expanded(
                 child: filteredProjects.isEmpty
-                    ? _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor)
+                    ? _buildEmptyState(
+                        context,
+                        isDark,
+                        primaryTextColor,
+                        secondaryTextColor,
+                      )
                     : ListView.separated(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.fromLTRB(20, 6, 20, 90),
                         itemCount: filteredProjects.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 12),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final project = filteredProjects[index];
                           final linkedArea = areaMap[project.areaId];
-                          final isExpanded = _expandedProjectIds.contains(project.id);
-                          final linkedTasks = ref.watch(projectTasksProvider(project.id));
+                          final isExpanded = _expandedProjectIds.contains(
+                            project.id,
+                          );
+                          final linkedTasks = ref.watch(
+                            projectTasksProvider(project.id),
+                          );
 
                           return _buildProjectCard(
                             context,
@@ -276,14 +314,18 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
           border: Border.all(
             color: isSelected
                 ? brandPrimary
-                : (isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F5)),
+                : (isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : const Color(0xFFE2E8F5)),
           ),
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF475569)),
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : const Color(0xFF475569)),
               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               fontSize: 12.5,
             ),
@@ -309,7 +351,8 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
         ? Colors.white.withValues(alpha: 0.1)
         : const Color(0xFFE2E8F5);
 
-    final bool isOverdue = project.deadline != null &&
+    final bool isOverdue =
+        project.deadline != null &&
         DateTime.now().isAfter(project.deadline!) &&
         !DateUtils.isSameDay(DateTime.now(), project.deadline!);
 
@@ -340,15 +383,23 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                   children: [
                     if (linkedArea != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(linkedArea.emoji, style: const TextStyle(fontSize: 13)),
+                            Text(
+                              linkedArea.emoji,
+                              style: const TextStyle(fontSize: 13),
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               linkedArea.title,
@@ -363,9 +414,15 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                       ),
                     const Spacer(),
                     PopupMenuButton<String>(
-                      icon: Icon(Icons.more_horiz_rounded, color: secondaryTextColor, size: 22),
+                      icon: Icon(
+                        Icons.more_horiz_rounded,
+                        color: secondaryTextColor,
+                        size: 22,
+                      ),
                       color: cardBg,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       onSelected: (val) {
                         if (val == 'edit') {
                           AddEditProjectSheet.show(context, project: project);
@@ -380,7 +437,11 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                           value: 'edit',
                           child: Row(
                             children: [
-                              const Icon(Icons.edit_outlined, size: 18, color: Color(0xFF2E6FF2)),
+                              const Icon(
+                                Icons.edit_outlined,
+                                size: 18,
+                                color: Color(0xFF2E6FF2),
+                              ),
                               const SizedBox(width: 8),
                               Text(context.tr('edit_waiting_title')),
                             ],
@@ -390,7 +451,11 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                           value: 'archive',
                           child: Row(
                             children: [
-                              const Icon(Icons.archive_outlined, size: 18, color: Color(0xFF8B5CF6)),
+                              const Icon(
+                                Icons.archive_outlined,
+                                size: 18,
+                                color: Color(0xFF8B5CF6),
+                              ),
                               const SizedBox(width: 8),
                               Text(context.tr('archive_action_btn')),
                             ],
@@ -400,9 +465,18 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                           value: 'delete',
                           child: Row(
                             children: [
-                              const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.errorRed),
+                              const Icon(
+                                Icons.delete_outline_rounded,
+                                size: 18,
+                                color: AppColors.errorRed,
+                              ),
                               const SizedBox(width: 8),
-                              Text(context.tr('delete_group_btn'), style: const TextStyle(color: AppColors.errorRed)),
+                              Text(
+                                context.tr('delete_group_btn'),
+                                style: const TextStyle(
+                                  color: AppColors.errorRed,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -428,13 +502,24 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                   children: [
                     if (project.deadline != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 3.5,
+                        ),
                         decoration: BoxDecoration(
                           color: isOverdue
                               ? AppColors.errorRed.withValues(alpha: 0.14)
-                              : (isDark ? Colors.white10 : const Color(0xFFF1F5F9)),
+                              : (isDark
+                                    ? Colors.white10
+                                    : const Color(0xFFF1F5F9)),
                           borderRadius: BorderRadius.circular(8),
-                          border: isOverdue ? Border.all(color: AppColors.errorRed.withValues(alpha: 0.4)) : null,
+                          border: isOverdue
+                              ? Border.all(
+                                  color: AppColors.errorRed.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                )
+                              : null,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -442,15 +527,22 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                             Icon(
                               Icons.event_rounded,
                               size: 13,
-                              color: isOverdue ? AppColors.errorRed : secondaryTextColor,
+                              color: isOverdue
+                                  ? AppColors.errorRed
+                                  : secondaryTextColor,
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              _formatRelativeDeadline(context, project.deadline!),
+                              _formatRelativeDeadline(
+                                context,
+                                project.deadline!,
+                              ),
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
-                                color: isOverdue ? AppColors.errorRed : secondaryTextColor,
+                                color: isOverdue
+                                    ? AppColors.errorRed
+                                    : secondaryTextColor,
                               ),
                             ),
                           ],
@@ -471,26 +563,38 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.task_alt_rounded,
                               size: 15,
-                              color: linkedTasks.isNotEmpty ? const Color(0xFF10B981) : secondaryTextColor,
+                              color: linkedTasks.isNotEmpty
+                                  ? const Color(0xFF10B981)
+                                  : secondaryTextColor,
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              context.tr('linked_tasks_count', args: {'count': linkedTasks.length.toString()}),
+                              context.tr(
+                                'linked_tasks_count',
+                                args: {'count': linkedTasks.length.toString()},
+                              ),
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: linkedTasks.isNotEmpty ? primaryTextColor : secondaryTextColor,
+                                color: linkedTasks.isNotEmpty
+                                    ? primaryTextColor
+                                    : secondaryTextColor,
                               ),
                             ),
                             Icon(
-                              isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                              isExpanded
+                                  ? Icons.keyboard_arrow_up_rounded
+                                  : Icons.keyboard_arrow_down_rounded,
                               size: 18,
                               color: secondaryTextColor,
                             ),
@@ -513,7 +617,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                 color: isDark
                     ? Colors.black.withValues(alpha: 0.15)
                     : const Color(0xFFF8FAFC),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(20),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,10 +636,17 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                         ),
                       ),
                       InkWell(
-                        onTap: () => AddEditTaskSheet.show(context, initialProjectId: project.id),
+                        onTap: () => AddEditTaskSheet.show(
+                          context,
+                          initialProjectId: project.id,
+                        ),
                         child: Row(
                           children: [
-                            const Icon(Icons.add_rounded, size: 14, color: Color(0xFF2E6FF2)),
+                            const Icon(
+                              Icons.add_rounded,
+                              size: 14,
+                              color: Color(0xFF2E6FF2),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               context.tr('add_task_to_project'),
@@ -566,13 +679,19 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: linkedTasks.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: 6),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 6),
                       itemBuilder: (context, index) {
                         final task = linkedTasks[index];
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                            color: isDark
+                                ? const Color(0xFF0F1B4C)
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: borderColor),
                           ),
@@ -583,8 +702,12 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                                     .read(tasksControllerProvider)
                                     .toggleTaskDone(task, context),
                                 child: Icon(
-                                  task.done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                                  color: task.done ? const Color(0xFF10B981) : secondaryTextColor,
+                                  task.done
+                                      ? Icons.check_circle_rounded
+                                      : Icons.radio_button_unchecked_rounded,
+                                  color: task.done
+                                      ? const Color(0xFF10B981)
+                                      : secondaryTextColor,
                                   size: 18,
                                 ),
                               ),
@@ -595,8 +718,12 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: task.done ? secondaryTextColor : primaryTextColor,
-                                    decoration: task.done ? TextDecoration.lineThrough : null,
+                                    color: task.done
+                                        ? secondaryTextColor
+                                        : primaryTextColor,
+                                    decoration: task.done
+                                        ? TextDecoration.lineThrough
+                                        : null,
                                   ),
                                 ),
                               ),
@@ -676,8 +803,13 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ],

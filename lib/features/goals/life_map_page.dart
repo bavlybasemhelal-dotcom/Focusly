@@ -70,8 +70,12 @@ class _LifeMapPageState extends ConsumerState<LifeMapPage>
           // Show / Hide Completed Goals Toggle
           IconButton(
             icon: Icon(
-              showCompleted ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-              color: showCompleted ? const Color(0xFF2E6FF2) : secondaryTextColor,
+              showCompleted
+                  ? Icons.visibility_rounded
+                  : Icons.visibility_off_rounded,
+              color: showCompleted
+                  ? const Color(0xFF2E6FF2)
+                  : secondaryTextColor,
             ),
             tooltip: showCompleted
                 ? context.tr('hide_completed_goals_btn')
@@ -114,8 +118,14 @@ class _LifeMapPageState extends ConsumerState<LifeMapPage>
               ),
               labelColor: Colors.white,
               unselectedLabelColor: secondaryTextColor,
-              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-              unselectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              labelStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
               dividerColor: Colors.transparent,
               tabs: _timeframeKeys.map((key) {
                 final count = allGoals.where((g) {
@@ -132,14 +142,20 @@ class _LifeMapPageState extends ConsumerState<LifeMapPage>
                       if (count > 0) ...[
                         const SizedBox(width: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.25),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             '$count',
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ),
                       ],
@@ -243,8 +259,13 @@ class _LifeMapPageState extends ConsumerState<LifeMapPage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ],

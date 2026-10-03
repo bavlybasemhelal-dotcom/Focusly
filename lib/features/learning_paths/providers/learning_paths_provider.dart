@@ -11,7 +11,9 @@ final learningPathsServiceProvider = Provider<LearningPathsService>((ref) {
 /// Stream provider for all learning paths for the active user.
 ///
 /// Strictly scoped to `users/{uid}/learningPaths`.
-final learningPathsStreamProvider = StreamProvider<List<LearningPathModel>>((ref) {
+final learningPathsStreamProvider = StreamProvider<List<LearningPathModel>>((
+  ref,
+) {
   final uid = ref.watch(currentUserIdProvider);
   if (uid == null || uid.isEmpty) return const Stream.empty();
 
@@ -39,5 +41,5 @@ class ExpandedPathIdsNotifier extends Notifier<Set<String>> {
 
 final expandedPathIdsProvider =
     NotifierProvider<ExpandedPathIdsNotifier, Set<String>>(
-  ExpandedPathIdsNotifier.new,
-);
+      ExpandedPathIdsNotifier.new,
+    );

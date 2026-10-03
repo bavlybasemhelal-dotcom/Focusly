@@ -38,5 +38,6 @@ class ContactsFilterNotifier extends Notifier<String> {
   }
 }
 
-final contactsFilterProvider =
-    NotifierProvider<ContactsFilterNotifier, String>(ContactsFilterNotifier.new);
+final contactsFilterProvider = NotifierProvider<ContactsFilterNotifier, String>(
+  ContactsFilterNotifier.new,
+);

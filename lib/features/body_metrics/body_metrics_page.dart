@@ -52,7 +52,9 @@ class BodyMetricsPage extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete_workout_confirm_title')),
@@ -75,7 +77,9 @@ class BodyMetricsPage extends ConsumerWidget {
             content: Text(context.tr('metric_deleted_toast')),
             backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -120,9 +124,7 @@ class BodyMetricsPage extends ConsumerWidget {
                   color: iconColor.withValues(alpha: isDark ? 0.2 : 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Center(
-                  child: Icon(icon, size: 16, color: iconColor),
-                ),
+                child: Center(child: Icon(icon, size: 16, color: iconColor)),
               ),
               const SizedBox(width: 10),
               Text(
@@ -150,10 +152,14 @@ class BodyMetricsPage extends ConsumerWidget {
       height: 90,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFF8FAFC),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.03)
+            : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : const Color(0xFFF1F5F9),
         ),
       ),
       child: Row(
@@ -185,7 +191,9 @@ class BodyMetricsPage extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final allMetricsAsync = ref.watch(bodyMetricsStreamProvider);
     final latestReadings = ref.watch(latestBodyReadingsProvider);
@@ -227,7 +235,10 @@ class BodyMetricsPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF10B981)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF10B981),
+            ),
             tooltip: context.tr('add_metric_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -270,7 +281,10 @@ class BodyMetricsPage extends ConsumerWidget {
             return Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -279,17 +293,16 @@ class BodyMetricsPage extends ConsumerWidget {
                       height: 90,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.15 : 0.1),
+                        color: const Color(
+                          0xFF10B981,
+                        ).withValues(alpha: isDark ? 0.15 : 0.1),
                         border: Border.all(
                           color: const Color(0xFF10B981).withValues(alpha: 0.3),
                           width: 2,
                         ),
                       ),
                       child: const Center(
-                        child: Text(
-                          '⚖️',
-                          style: TextStyle(fontSize: 44),
-                        ),
+                        child: Text('⚖️', style: TextStyle(fontSize: 44)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -320,7 +333,10 @@ class BodyMetricsPage extends ConsumerWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF10B981),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -329,7 +345,10 @@ class BodyMetricsPage extends ConsumerWidget {
                       icon: const Icon(Icons.add_rounded, size: 20),
                       label: Text(
                         context.tr('add_metric_btn'),
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
                       ),
                       onPressed: () {
                         HapticFeedback.selectionClick();
@@ -344,24 +363,31 @@ class BodyMetricsPage extends ConsumerWidget {
 
           // Format latest readings strings
           final weightDisplay = latestReadings.hasWeight
-              ? context.tr('weight_val_format', args: {
-                  'val': latestReadings.latestWeight! % 1 == 0
-                      ? latestReadings.latestWeight!.toInt().toString()
-                      : latestReadings.latestWeight!.toStringAsFixed(1)
-                })
+              ? context.tr(
+                  'weight_val_format',
+                  args: {
+                    'val': latestReadings.latestWeight! % 1 == 0
+                        ? latestReadings.latestWeight!.toInt().toString()
+                        : latestReadings.latestWeight!.toStringAsFixed(1),
+                  },
+                )
               : '−';
 
           final bpDisplay = latestReadings.hasBp
-              ? context.tr('bp_val_format', args: {
-                  'sys': latestReadings.latestSystolic.toString(),
-                  'dia': latestReadings.latestDiastolic.toString(),
-                })
+              ? context.tr(
+                  'bp_val_format',
+                  args: {
+                    'sys': latestReadings.latestSystolic.toString(),
+                    'dia': latestReadings.latestDiastolic.toString(),
+                  },
+                )
               : '−';
 
           final pulseDisplay = latestReadings.hasPulse
-              ? context.tr('pulse_val_format', args: {
-                  'val': latestReadings.latestPulse.toString(),
-                })
+              ? context.tr(
+                  'pulse_val_format',
+                  args: {'val': latestReadings.latestPulse.toString()},
+                )
               : '−';
 
           final weightDateStr = latestReadings.weightDate != null
@@ -413,10 +439,14 @@ class BodyMetricsPage extends ConsumerWidget {
                   Expanded(
                     child: BodyMetricStatCard(
                       icon: Icons.bolt_rounded,
-                      iconColor: isDark ? AppColors.cyanElectric : const Color(0xFF0EA5E9),
+                      iconColor: isDark
+                          ? AppColors.cyanElectric
+                          : const Color(0xFF0EA5E9),
                       label: context.tr('latest_pulse_label'),
                       value: pulseDisplay,
-                      valueColor: isDark ? AppColors.cyanElectric : const Color(0xFF0EA5E9),
+                      valueColor: isDark
+                          ? AppColors.cyanElectric
+                          : const Color(0xFF0EA5E9),
                       dateSubtitle: pulseDateStr,
                     ),
                   ),
@@ -485,7 +515,9 @@ class BodyMetricsPage extends ConsumerWidget {
                 context: context,
                 title: context.tr('pulse_trend_title'),
                 icon: Icons.bolt_rounded,
-                iconColor: isDark ? AppColors.cyanElectric : const Color(0xFF0EA5E9),
+                iconColor: isDark
+                    ? AppColors.cyanElectric
+                    : const Color(0xFF0EA5E9),
                 isDark: isDark,
                 cardBg: cardBg,
                 borderColor: borderColor,
@@ -494,7 +526,9 @@ class BodyMetricsPage extends ConsumerWidget {
                         seriesList: [
                           TrendSeries(
                             points: pulsePoints,
-                            color: isDark ? AppColors.cyanElectric : const Color(0xFF0EA5E9),
+                            color: isDark
+                                ? AppColors.cyanElectric
+                                : const Color(0xFF0EA5E9),
                             label: context.tr('latest_pulse_label'),
                           ),
                         ],
@@ -535,7 +569,9 @@ class BodyMetricsPage extends ConsumerWidget {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.2 : 0.12),
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: isDark ? 0.2 : 0.12),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: const Center(
@@ -561,7 +597,10 @@ class BodyMetricsPage extends ConsumerWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF10B981),
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             visualDensity: VisualDensity.compact,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
@@ -571,7 +610,10 @@ class BodyMetricsPage extends ConsumerWidget {
                           icon: const Icon(Icons.add_rounded, size: 16),
                           label: Text(
                             context.tr('add_metric_btn'),
-                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12,
+                            ),
                           ),
                           onPressed: () {
                             HapticFeedback.selectionClick();
@@ -588,13 +630,17 @@ class BodyMetricsPage extends ConsumerWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: allMetrics.length,
                       separatorBuilder: (context, index) => Divider(
-                        color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF1F5F9),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : const Color(0xFFF1F5F9),
                         height: 16,
                         thickness: 1,
                       ),
                       itemBuilder: (context, index) {
                         final item = allMetrics[index];
-                        final dateStr = BodyMetricsHelpers.formatDateKey(item.date);
+                        final dateStr = BodyMetricsHelpers.formatDateKey(
+                          item.date,
+                        );
 
                         // Build inline measurement chips
                         final List<Widget> chips = [];
@@ -629,7 +675,9 @@ class BodyMetricsPage extends ConsumerWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: isDark ? AppColors.cyanElectric : const Color(0xFF0EA5E9),
+                                color: isDark
+                                    ? AppColors.cyanElectric
+                                    : const Color(0xFF0EA5E9),
                               ),
                             ),
                           );
@@ -661,7 +709,8 @@ class BodyMetricsPage extends ConsumerWidget {
                                         : Wrap(
                                             spacing: 6,
                                             runSpacing: 4,
-                                            crossAxisAlignment: WrapCrossAlignment.center,
+                                            crossAxisAlignment:
+                                                WrapCrossAlignment.center,
                                             children: List.generate(
                                               chips.length * 2 - 1,
                                               (chipIdx) {
@@ -670,7 +719,10 @@ class BodyMetricsPage extends ConsumerWidget {
                                                     '•',
                                                     style: TextStyle(
                                                       fontSize: 12,
-                                                      color: secondaryTextColor.withValues(alpha: 0.5),
+                                                      color: secondaryTextColor
+                                                          .withValues(
+                                                            alpha: 0.5,
+                                                          ),
                                                     ),
                                                   );
                                                 }
@@ -712,7 +764,8 @@ class BodyMetricsPage extends ConsumerWidget {
                                         padding: const EdgeInsets.all(6),
                                         constraints: const BoxConstraints(),
                                         tooltip: 'Delete',
-                                        onPressed: () => _confirmDelete(context, ref, item),
+                                        onPressed: () =>
+                                            _confirmDelete(context, ref, item),
                                       ),
                                     ],
                                   ),
@@ -720,19 +773,27 @@ class BodyMetricsPage extends ConsumerWidget {
                               ),
 
                               // Optional Note Panel (Inset/Quoted)
-                              if (item.note != null && item.note!.isNotEmpty) ...[
+                              if (item.note != null &&
+                                  item.note!.isNotEmpty) ...[
                                 const SizedBox(height: 6),
                                 Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: isDark
-                                        ? const Color(0xFF0B1438).withValues(alpha: 0.6)
+                                        ? const Color(
+                                            0xFF0B1438,
+                                          ).withValues(alpha: 0.6)
                                         : const Color(0xFFF8FAFC),
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border(
                                       left: BorderSide(
-                                        color: const Color(0xFF10B981).withValues(alpha: 0.7),
+                                        color: const Color(
+                                          0xFF10B981,
+                                        ).withValues(alpha: 0.7),
                                         width: 3,
                                       ),
                                     ),

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
-import 'models/learning_path_model.dart';
 import 'providers/learning_paths_provider.dart';
 import 'widgets/path_card.dart';
 import 'widgets/path_form_modal.dart';

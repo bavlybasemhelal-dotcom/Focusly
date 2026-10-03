@@ -12,10 +12,7 @@ import 'course_form_modal.dart';
 class CourseCard extends ConsumerWidget {
   final CourseModel course;
 
-  const CourseCard({
-    super.key,
-    required this.course,
-  });
+  const CourseCard({super.key, required this.course});
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
@@ -41,7 +38,11 @@ class CourseCard extends ConsumerWidget {
     }
   }
 
-  Future<void> _adjustStepper(BuildContext context, WidgetRef ref, int delta) async {
+  Future<void> _adjustStepper(
+    BuildContext context,
+    WidgetRef ref,
+    int delta,
+  ) async {
     HapticFeedback.selectionClick();
     final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
@@ -67,7 +68,11 @@ class CourseCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -100,7 +105,9 @@ class CourseCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -121,7 +128,9 @@ class CourseCard extends ConsumerWidget {
               content: Text(context.tr('course_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -136,7 +145,9 @@ class CourseCard extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final borderColor = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
-    final stepperBg = isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9);
+    final stepperBg = isDark
+        ? const Color(0xFF08123A)
+        : const Color(0xFFF1F5F9);
 
     final statusColor = _getStatusColor(course.status);
     final statusLabelKey = _getStatusLabelKey(course.status);
@@ -188,7 +199,10 @@ class CourseCard extends ConsumerWidget {
                     children: [
                       // Status Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: statusColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
@@ -205,11 +219,17 @@ class CourseCard extends ConsumerWidget {
                       const SizedBox(width: 8),
 
                       // Platform Tag
-                      if (course.platform != null && course.platform!.isNotEmpty)
+                      if (course.platform != null &&
+                          course.platform!.isNotEmpty)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                            color: isDark
+                                ? Colors.white10
+                                : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -240,7 +260,10 @@ class CourseCard extends ConsumerWidget {
 
                       // Delete Button
                       IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                        ),
                         color: const Color(0xFFEF4444),
                         tooltip: context.tr('delete'),
                         constraints: const BoxConstraints(),
@@ -309,9 +332,13 @@ class CourseCard extends ConsumerWidget {
                     child: LinearProgressIndicator(
                       value: pct / 100.0,
                       minHeight: 6,
-                      backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                      backgroundColor: isDark
+                          ? Colors.white12
+                          : const Color(0xFFE2E8F0),
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        isDone ? const Color(0xFF10B981) : const Color(0xFF0EA5E9),
+                        isDone
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF0EA5E9),
                       ),
                     ),
                   ),
@@ -333,7 +360,9 @@ class CourseCard extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
-                          color: isDone ? const Color(0xFF10B981) : secondaryTextColor,
+                          color: isDone
+                              ? const Color(0xFF10B981)
+                              : secondaryTextColor,
                         ),
                       ),
 
@@ -351,36 +380,49 @@ class CourseCard extends ConsumerWidget {
                               onTap: course.completedLessons > 0
                                   ? () => _adjustStepper(context, ref, -1)
                                   : null,
-                              borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
+                              borderRadius: const BorderRadius.horizontal(
+                                left: Radius.circular(10),
+                              ),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
                                 child: Icon(
                                   Icons.remove_rounded,
                                   size: 16,
                                   color: course.completedLessons > 0
                                       ? primaryTextColor
-                                      : secondaryTextColor.withValues(alpha: 0.3),
+                                      : secondaryTextColor.withValues(
+                                          alpha: 0.3,
+                                        ),
                                 ),
                               ),
                             ),
-                            Container(
-                              width: 1,
-                              height: 16,
-                              color: borderColor,
-                            ),
+                            Container(width: 1, height: 16, color: borderColor),
                             InkWell(
-                              onTap: course.completedLessons < course.totalLessons
+                              onTap:
+                                  course.completedLessons < course.totalLessons
                                   ? () => _adjustStepper(context, ref, 1)
                                   : null,
-                              borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
+                              borderRadius: const BorderRadius.horizontal(
+                                right: Radius.circular(10),
+                              ),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
                                 child: Icon(
                                   Icons.add_rounded,
                                   size: 16,
-                                  color: course.completedLessons < course.totalLessons
+                                  color:
+                                      course.completedLessons <
+                                          course.totalLessons
                                       ? const Color(0xFF0EA5E9)
-                                      : secondaryTextColor.withValues(alpha: 0.3),
+                                      : secondaryTextColor.withValues(
+                                          alpha: 0.3,
+                                        ),
                                 ),
                               ),
                             ),

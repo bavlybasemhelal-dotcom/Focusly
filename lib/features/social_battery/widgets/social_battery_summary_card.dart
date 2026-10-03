@@ -19,7 +19,9 @@ class SocialBatterySummaryCard extends ConsumerWidget {
     final summary = ref.watch(socialBatterySummaryProvider);
 
     final isPositiveOrZero = summary.netEnergyBalance >= 0;
-    final balanceColor = isPositiveOrZero ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+    final balanceColor = isPositiveOrZero
+        ? const Color(0xFF10B981)
+        : const Color(0xFFEF4444);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

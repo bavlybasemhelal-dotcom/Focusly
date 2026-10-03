@@ -14,11 +14,15 @@ class ReviewSessionPage extends ConsumerWidget {
   const ReviewSessionPage({super.key});
 
   /// Static helper to start a session and push this page.
-  static Future<void> start(BuildContext context, WidgetRef ref, List<FlashcardModel> cards) async {
+  static Future<void> start(
+    BuildContext context,
+    WidgetRef ref,
+    List<FlashcardModel> cards,
+  ) async {
     ref.read(reviewSessionControllerProvider.notifier).startSession(cards);
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ReviewSessionPage()),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const ReviewSessionPage()));
   }
 
   Future<void> _confirmEndSession(BuildContext context, WidgetRef ref) async {
@@ -60,7 +64,9 @@ class ReviewSessionPage extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2E6FF2),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('end_session_btn')),
@@ -86,11 +92,20 @@ class ReviewSessionPage extends ConsumerWidget {
     final service = ref.read(flashcardsServiceProvider);
     final controller = ref.read(reviewSessionControllerProvider.notifier);
 
-    await controller.submitRating(
+    final saved = await controller.submitRating(
       quality: quality,
       uid: uid,
       service: service,
     );
+
+    if (!saved) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.tr('save_failed'))));
+      }
+      return;
+    }
 
     final session = ref.read(reviewSessionControllerProvider);
     if (session.isCompleted && context.mounted) {
@@ -104,7 +119,6 @@ class ReviewSessionPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryTextColor = AppColors.textPrimary(context);
-    final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final borderColor = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
@@ -167,8 +181,12 @@ class ReviewSessionPage extends ConsumerWidget {
                 child: LinearProgressIndicator(
                   value: session.currentDisplayNumber / session.totalCards,
                   minHeight: 6,
-                  backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E6FF2)),
+                  backgroundColor: isDark
+                      ? Colors.white12
+                      : const Color(0xFFE2E8F0),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF2E6FF2),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -197,9 +215,14 @@ class ReviewSessionPage extends ConsumerWidget {
                     children: [
                       // FRONT Section (Question / Concept)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
+                          color: const Color(
+                            0xFF2E6FF2,
+                          ).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -237,9 +260,14 @@ class ReviewSessionPage extends ConsumerWidget {
                       if (session.isAnswerRevealed) ...[
                         const Divider(height: 24),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                            color: const Color(
+                              0xFF10B981,
+                            ).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -380,9 +408,7 @@ class ReviewSessionPage extends ConsumerWidget {
         backgroundColor: color,
         foregroundColor: Colors.white,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       onPressed: onTap,
       child: Column(
@@ -390,10 +416,7 @@ class ReviewSessionPage extends ConsumerWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-            ),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Text(

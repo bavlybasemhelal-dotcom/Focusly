@@ -1,3 +1,6 @@
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:focusly/core/data/firestore_provider.dart';
+import 'package:focusly/features/skills/widgets/dated_skill_sparkline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,9 +17,7 @@ import 'package:focusly/features/skills/widgets/radar_chart_widget.dart';
 import 'package:focusly/features/skills/widgets/skill_card.dart';
 import 'package:focusly/features/skills/widgets/skill_form_modal.dart';
 import 'package:focusly/features/skills/widgets/skill_quick_update_dialog.dart';
-import 'package:focusly/features/skills/widgets/sparkline_widget.dart';
 import 'package:focusly/features/tasks/models/task_model.dart';
-import 'package:focusly/features/tasks/widgets/add_edit_task_sheet.dart';
 import 'package:focusly/screens/home_screen.dart';
 
 class MockDismissedNotifier extends MorningIntentionDismissedNotifier {
@@ -31,6 +32,7 @@ Widget createSkillsTestWidget({
 }) {
   return ProviderScope(
     overrides: [
+      firestoreProvider.overrideWithValue(FakeFirebaseFirestore()),
       authStateStreamProvider.overrideWith((ref) => Stream.value(null)),
       currentUserIdProvider.overrideWithValue('test_user_skills'),
       morningIntentionPromptSettingProvider.overrideWith(
@@ -56,44 +58,53 @@ Widget createSkillsTestWidget({
 
 void main() {
   group('Skill Math Helper Pure Function Tests', () {
-    test('computeXpProgress handles normal XP progression without level-up', () {
-      final res = SkillMathHelper.computeXpProgress(
-        currentLevel: 1,
-        currentXp: 40,
-        addedXp: 30,
-      );
+    test(
+      'computeXpProgress handles normal XP progression without level-up',
+      () {
+        final res = SkillMathHelper.computeXpProgress(
+          currentLevel: 1,
+          currentXp: 40,
+          addedXp: 30,
+        );
 
-      expect(res.newLevel, equals(1));
-      expect(res.newXp, equals(70));
-      expect(res.levelGain, equals(0));
-      expect(res.didLevelUp, isFalse);
-    });
+        expect(res.newLevel, equals(1));
+        expect(res.newXp, equals(70));
+        expect(res.levelGain, equals(0));
+        expect(res.didLevelUp, isFalse);
+      },
+    );
 
-    test('computeXpProgress triggers level-up when XP reaches or exceeds 100', () {
-      final res = SkillMathHelper.computeXpProgress(
-        currentLevel: 2,
-        currentXp: 85,
-        addedXp: 25, // 85 + 25 = 110
-      );
+    test(
+      'computeXpProgress triggers level-up when XP reaches or exceeds 100',
+      () {
+        final res = SkillMathHelper.computeXpProgress(
+          currentLevel: 2,
+          currentXp: 85,
+          addedXp: 25, // 85 + 25 = 110
+        );
 
-      expect(res.newLevel, equals(3));
-      expect(res.newXp, equals(10));
-      expect(res.levelGain, equals(1));
-      expect(res.didLevelUp, isTrue);
-    });
+        expect(res.newLevel, equals(3));
+        expect(res.newXp, equals(10));
+        expect(res.levelGain, equals(1));
+        expect(res.didLevelUp, isTrue);
+      },
+    );
 
-    test('computeXpProgress handles multiple level jumps for large XP additions', () {
-      final res = SkillMathHelper.computeXpProgress(
-        currentLevel: 1,
-        currentXp: 10,
-        addedXp: 250, // 260 total -> 2 levels + 60 xp
-      );
+    test(
+      'computeXpProgress handles multiple level jumps for large XP additions',
+      () {
+        final res = SkillMathHelper.computeXpProgress(
+          currentLevel: 1,
+          currentXp: 10,
+          addedXp: 250, // 260 total -> 2 levels + 60 xp
+        );
 
-      expect(res.newLevel, equals(3));
-      expect(res.newXp, equals(60));
-      expect(res.levelGain, equals(2));
-      expect(res.didLevelUp, isTrue);
-    });
+        expect(res.newLevel, equals(3));
+        expect(res.newXp, equals(60));
+        expect(res.levelGain, equals(2));
+        expect(res.didLevelUp, isTrue);
+      },
+    );
 
     test('normalizeDirectInput handles direct user inputs with overflow', () {
       final res = SkillMathHelper.normalizeDirectInput(
@@ -172,34 +183,39 @@ void main() {
   });
 
   group('Skills Board UI & Widget Tests', () {
-    testWidgets('SkillCard renders name, category, level badge, XP, and sparkline', (tester) async {
-      final now = DateTime.now();
-      final skill = SkillModel(
-        id: 's1',
-        name: 'Public Speaking',
-        category: 'work',
-        level: 3,
-        xp: 45,
-        color: 0xFF10B981,
-        history: const [1, 1, 2, 2, 2, 3, 3],
-        createdAt: now,
-        updatedAt: now,
-      );
+    testWidgets(
+      'SkillCard renders name, category, level badge, XP, and sparkline',
+      (tester) async {
+        final now = DateTime.now();
+        final skill = SkillModel(
+          id: 's1',
+          name: 'Public Speaking',
+          category: 'work',
+          level: 3,
+          xp: 45,
+          color: 0xFF10B981,
+          history: const [1, 1, 2, 2, 2, 3, 3],
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        createSkillsTestWidget(
-          child: Scaffold(body: SkillCard(skill: skill)),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createSkillsTestWidget(
+            child: Scaffold(body: SkillCard(skill: skill)),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Public Speaking'), findsOneWidget);
-      expect(find.text('Level 3'), findsOneWidget);
-      expect(find.text('45 / 100 XP'), findsOneWidget);
-      expect(find.byType(SparklineWidget), findsOneWidget);
-    });
+        expect(find.text('Public Speaking'), findsOneWidget);
+        expect(find.text('Level 3'), findsOneWidget);
+        expect(find.text('45 / 100 XP'), findsOneWidget);
+        expect(find.byType(DatedSkillSparkline), findsOneWidget);
+      },
+    );
 
-    testWidgets('RadarChartWidget renders without errors for skills list', (tester) async {
+    testWidgets('RadarChartWidget renders without errors for skills list', (
+      tester,
+    ) async {
       final now = DateTime.now();
       final skills = [
         SkillModel(
@@ -242,35 +258,36 @@ void main() {
       expect(find.byType(CustomPaint), findsWidgets);
     });
 
-    testWidgets('SkillQuickUpdateDialog renders level and XP fields and handles edits', (tester) async {
-      final now = DateTime.now();
-      final skill = SkillModel(
-        id: 's1',
-        name: 'Design',
-        category: 'work',
-        level: 2,
-        xp: 30,
-        createdAt: now,
-        updatedAt: now,
-      );
+    testWidgets(
+      'SkillQuickUpdateDialog renders level and XP fields and handles edits',
+      (tester) async {
+        final now = DateTime.now();
+        final skill = SkillModel(
+          id: 's1',
+          name: 'Design',
+          category: 'work',
+          level: 2,
+          xp: 30,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        createSkillsTestWidget(
-          child: Scaffold(body: SkillQuickUpdateDialog(skill: skill)),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createSkillsTestWidget(
+            child: Scaffold(body: SkillQuickUpdateDialog(skill: skill)),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Quick Skill Update'), findsOneWidget);
-      expect(find.text('2'), findsOneWidget);
-      expect(find.text('30'), findsOneWidget);
-    });
+        expect(find.text('Quick Skill Update'), findsOneWidget);
+        expect(find.text('2'), findsOneWidget);
+        expect(find.text('30'), findsOneWidget);
+      },
+    );
 
     testWidgets('SkillFormModal validates required name field', (tester) async {
       await tester.pumpWidget(
-        createSkillsTestWidget(
-          child: const Scaffold(body: SkillFormModal()),
-        ),
+        createSkillsTestWidget(child: const Scaffold(body: SkillFormModal())),
       );
       await tester.pumpAndSettle();
 
@@ -284,78 +301,84 @@ void main() {
       expect(find.text('Skill name is required'), findsOneWidget);
     });
 
-    testWidgets('SkillsBoardPage renders empty state and switches to skills list when populated', (tester) async {
-      // 1. Empty state
-      await tester.pumpWidget(
-        createSkillsTestWidget(
-          child: const SkillsBoardPage(),
-          overrides: [
-            skillsStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'SkillsBoardPage renders empty state and switches to skills list when populated',
+      (tester) async {
+        // 1. Empty state
+        await tester.pumpWidget(
+          createSkillsTestWidget(
+            child: const SkillsBoardPage(),
+            overrides: [
+              skillsStreamProvider.overrideWithValue(const AsyncData([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Skills Board'), findsOneWidget);
-      expect(find.text('No skills added yet 🎯'), findsOneWidget);
+        expect(find.text('Skills Board'), findsOneWidget);
+        expect(find.text('No skills added yet 🎯'), findsOneWidget);
 
-      // 2. Populated list
-      final now = DateTime.now();
-      final skills = [
-        SkillModel(
-          id: 's1',
-          name: 'Architecture',
-          category: 'work',
-          level: 4,
-          xp: 75,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
+        // 2. Populated list
+        final now = DateTime.now();
+        final skills = [
+          SkillModel(
+            id: 's1',
+            name: 'Architecture',
+            category: 'work',
+            level: 4,
+            xp: 75,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      await tester.pumpWidget(
-        createSkillsTestWidget(
-          child: const SkillsBoardPage(),
-          overrides: [
-            skillsStreamProvider.overrideWithValue(AsyncData(skills)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createSkillsTestWidget(
+            child: const SkillsBoardPage(),
+            overrides: [
+              skillsStreamProvider.overrideWithValue(AsyncData(skills)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Architecture'), findsOneWidget);
-      expect(find.text('Level 4'), findsOneWidget);
-      expect(find.text('All Skills'), findsOneWidget);
-    });
+        expect(find.text('Architecture'), findsOneWidget);
+        expect(find.text('Level 4'), findsOneWidget);
+        expect(find.text('All Skills'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Navigation Drawer contains Skills Board item in Learning section', (tester) async {
-      await tester.pumpWidget(
-        createSkillsTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            skillsStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer contains Skills Board item in Learning section',
+      (tester) async {
+        await tester.pumpWidget(
+          createSkillsTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              skillsStreamProvider.overrideWithValue(const AsyncData([])),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Open Navigation Drawer
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        // Open Navigation Drawer
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      // Scroll inside drawer to find "Skills Board"
-      final drawerScrollable = find.descendant(
-        of: find.byType(Drawer),
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(
-        find.text('Skills Board'),
-        50,
-        scrollable: drawerScrollable,
-      );
-      expect(find.text('Skills Board'), findsOneWidget);
-    });
+        // Scroll inside drawer to find "Skills Board"
+        final drawerScrollable = find.descendant(
+          of: find.byType(Drawer),
+          matching: find.byType(Scrollable),
+        );
+        await tester.scrollUntilVisible(
+          find.text('Skills Board'),
+          50,
+          scrollable: drawerScrollable,
+        );
+        expect(find.text('Skills Board'), findsOneWidget);
+      },
+    );
   });
 }

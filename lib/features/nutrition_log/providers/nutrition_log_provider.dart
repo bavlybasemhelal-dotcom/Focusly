@@ -12,7 +12,9 @@ final nutritionLogServiceProvider = Provider<NutritionLogService>((ref) {
 /// Stream provider for all nutrition logs belonging to the authenticated user.
 ///
 /// Strictly isolated to `users/{uid}/nutritionLog`.
-final nutritionLogsStreamProvider = StreamProvider<List<NutritionLogModel>>((ref) {
+final nutritionLogsStreamProvider = StreamProvider<List<NutritionLogModel>>((
+  ref,
+) {
   final uid = ref.watch(currentUserIdProvider);
   if (uid == null || uid.isEmpty) return const Stream.empty();
 
@@ -33,7 +35,9 @@ final nutrition7DayTimelineProvider = Provider<List<NutritionDayCell>>((ref) {
 });
 
 /// Derived provider: Week-over-week rating averages comparison.
-final nutritionWeeklyComparisonProvider = Provider<NutritionWeeklyComparison>((ref) {
+final nutritionWeeklyComparisonProvider = Provider<NutritionWeeklyComparison>((
+  ref,
+) {
   final logs = ref.watch(nutritionLogsStreamProvider).value ?? [];
   return NutritionLogHelpers.computeWeeklyComparison(logs);
 });

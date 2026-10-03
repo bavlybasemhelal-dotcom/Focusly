@@ -11,10 +11,7 @@ import '../providers/flashcards_provider.dart';
 class FlashcardFormModal extends ConsumerStatefulWidget {
   final FlashcardModel? cardToEdit;
 
-  const FlashcardFormModal({
-    super.key,
-    this.cardToEdit,
-  });
+  const FlashcardFormModal({super.key, this.cardToEdit});
 
   /// Static helper to open the modal bottom sheet.
   static Future<void> show(BuildContext context, {FlashcardModel? cardToEdit}) {
@@ -92,7 +89,9 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
               content: Text(context.tr('flashcard_created_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -115,7 +114,9 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
               content: Text(context.tr('flashcard_updated_toast')),
               backgroundColor: const Color(0xFF2E6FF2),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -135,7 +136,11 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -165,7 +170,9 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -187,7 +194,9 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
               content: Text(context.tr('flashcard_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -290,7 +299,10 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -348,7 +360,10 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -359,7 +374,10 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -378,10 +396,7 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
             TextField(
               controller: _backController,
               maxLines: 4,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('flashcard_back_hint'),
                 hintStyle: TextStyle(
@@ -390,7 +405,10 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: borderColor),
@@ -401,7 +419,10 @@ class _FlashcardFormModalState extends ConsumerState<FlashcardFormModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),

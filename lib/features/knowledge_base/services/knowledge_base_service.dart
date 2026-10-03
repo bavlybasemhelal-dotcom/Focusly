@@ -9,7 +9,7 @@ class KnowledgeBaseService {
   final FirebaseFirestore _firestore;
 
   KnowledgeBaseService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _knowledgeCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('knowledge');
@@ -17,10 +17,9 @@ class KnowledgeBaseService {
 
   /// Streams all knowledge entries for [uid] ordered by updatedAt descending.
   Stream<List<KnowledgeEntryModel>> streamEntries(String uid) {
-    return _knowledgeCollection(uid)
-        .orderBy('updatedAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _knowledgeCollection(
+      uid,
+    ).orderBy('updatedAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => KnowledgeEntryModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -45,7 +44,9 @@ class KnowledgeBaseService {
         title: title.trim(),
         type: type.trim(),
         content: content.trim(),
-        source: (source != null && source.trim().isNotEmpty) ? source.trim() : null,
+        source: (source != null && source.trim().isNotEmpty)
+            ? source.trim()
+            : null,
         tags: tags,
         createdAt: now,
         updatedAt: now,

@@ -65,132 +65,135 @@ void main() {
   );
 
   group('YearStatsCalculator Pure Logic Tests', () {
-    test('calculateYearStats computes counts and average energy accurately', () {
-      final tasks = [
-        TaskModel(
-          id: 't1',
-          title: 'Done 2026 Task',
-          categoryId: 'cat1',
-          date: DateTime(2026, 3, 10),
-          done: true,
-          createdAt: DateTime(2026, 3, 10),
-        ),
-        TaskModel(
-          id: 't2',
-          title: 'Pending 2026 Task',
-          categoryId: 'cat1',
-          date: DateTime(2026, 4, 15),
-          done: false,
-          createdAt: DateTime(2026, 4, 15),
-        ),
-        TaskModel(
-          id: 't3',
-          title: 'Done 2025 Task',
-          categoryId: 'cat1',
-          date: DateTime(2025, 11, 1),
-          done: true,
-          createdAt: DateTime(2025, 11, 1),
-        ),
-      ];
+    test(
+      'calculateYearStats computes counts and average energy accurately',
+      () {
+        final tasks = [
+          TaskModel(
+            id: 't1',
+            title: 'Done 2026 Task',
+            categoryId: 'cat1',
+            date: DateTime(2026, 3, 10),
+            done: true,
+            createdAt: DateTime(2026, 3, 10),
+          ),
+          TaskModel(
+            id: 't2',
+            title: 'Pending 2026 Task',
+            categoryId: 'cat1',
+            date: DateTime(2026, 4, 15),
+            done: false,
+            createdAt: DateTime(2026, 4, 15),
+          ),
+          TaskModel(
+            id: 't3',
+            title: 'Done 2025 Task',
+            categoryId: 'cat1',
+            date: DateTime(2025, 11, 1),
+            done: true,
+            createdAt: DateTime(2025, 11, 1),
+          ),
+        ];
 
-      final workouts = [
-        WorkoutModel(
-          id: 'w1',
-          type: 'gym',
-          durationMin: 45,
-          date: DateTime(2026, 2, 14),
-          createdAt: DateTime(2026, 2, 14),
-          updatedAt: DateTime(2026, 2, 14),
-        ),
-        WorkoutModel(
-          id: 'w2',
-          type: 'running',
-          durationMin: 30,
-          date: DateTime(2026, 7, 20),
-          createdAt: DateTime(2026, 7, 20),
-          updatedAt: DateTime(2026, 7, 20),
-        ),
-        WorkoutModel(
-          id: 'w3',
-          type: 'swim',
-          durationMin: 60,
-          date: DateTime(2025, 8, 10),
-          createdAt: DateTime(2025, 8, 10),
-          updatedAt: DateTime(2025, 8, 10),
-        ),
-      ];
+        final workouts = [
+          WorkoutModel(
+            id: 'w1',
+            type: 'gym',
+            durationMin: 45,
+            date: DateTime(2026, 2, 14),
+            createdAt: DateTime(2026, 2, 14),
+            updatedAt: DateTime(2026, 2, 14),
+          ),
+          WorkoutModel(
+            id: 'w2',
+            type: 'running',
+            durationMin: 30,
+            date: DateTime(2026, 7, 20),
+            createdAt: DateTime(2026, 7, 20),
+            updatedAt: DateTime(2026, 7, 20),
+          ),
+          WorkoutModel(
+            id: 'w3',
+            type: 'swim',
+            durationMin: 60,
+            date: DateTime(2025, 8, 10),
+            createdAt: DateTime(2025, 8, 10),
+            updatedAt: DateTime(2025, 8, 10),
+          ),
+        ];
 
-      final books = [
-        BookModel(
-          id: 'b1',
-          title: 'Deep Work',
-          author: 'Cal Newport',
-          status: 'done',
-          finishDate: DateTime(2026, 5, 20),
-          createdAt: DateTime(2026, 5, 1),
-          updatedAt: DateTime(2026, 5, 20),
-        ),
-        BookModel(
-          id: 'b2',
-          title: 'Atomic Habits',
-          author: 'James Clear',
-          status: 'reading',
-          createdAt: DateTime(2026, 6, 1),
-          updatedAt: DateTime(2026, 6, 1),
-        ),
-        BookModel(
-          id: 'b3',
-          title: 'Essentialism',
-          author: 'Greg McKeown',
-          status: 'done',
-          finishDate: DateTime(2025, 12, 15),
-          createdAt: DateTime(2025, 12, 1),
-          updatedAt: DateTime(2025, 12, 15),
-        ),
-      ];
+        final books = [
+          BookModel(
+            id: 'b1',
+            title: 'Deep Work',
+            author: 'Cal Newport',
+            status: 'done',
+            finishDate: DateTime(2026, 5, 20),
+            createdAt: DateTime(2026, 5, 1),
+            updatedAt: DateTime(2026, 5, 20),
+          ),
+          BookModel(
+            id: 'b2',
+            title: 'Atomic Habits',
+            author: 'James Clear',
+            status: 'reading',
+            createdAt: DateTime(2026, 6, 1),
+            updatedAt: DateTime(2026, 6, 1),
+          ),
+          BookModel(
+            id: 'b3',
+            title: 'Essentialism',
+            author: 'Greg McKeown',
+            status: 'done',
+            finishDate: DateTime(2025, 12, 15),
+            createdAt: DateTime(2025, 12, 1),
+            updatedAt: DateTime(2025, 12, 15),
+          ),
+        ];
 
-      final checkins = [
-        CheckinModel(
-          date: '2026-03-01',
-          energy: 4,
-          mood: '😊',
-          createdAt: DateTime(2026, 3, 1),
-          updatedAt: DateTime(2026, 3, 1),
-        ),
-        CheckinModel(
-          date: '2026-03-02',
-          energy: 5,
-          mood: '🤩',
-          createdAt: DateTime(2026, 3, 2),
-          updatedAt: DateTime(2026, 3, 2),
-        ),
-        CheckinModel(
-          date: '2025-05-01',
-          energy: 2,
-          mood: '😞',
-          createdAt: DateTime(2025, 5, 1),
-          updatedAt: DateTime(2025, 5, 1),
-        ),
-      ];
+        final checkins = [
+          CheckinModel(
+            date: '2026-03-01',
+            energy: 4,
+            mood: '😊',
+            createdAt: DateTime(2026, 3, 1),
+            updatedAt: DateTime(2026, 3, 1),
+          ),
+          CheckinModel(
+            date: '2026-03-02',
+            energy: 5,
+            mood: '🤩',
+            createdAt: DateTime(2026, 3, 2),
+            updatedAt: DateTime(2026, 3, 2),
+          ),
+          CheckinModel(
+            date: '2025-05-01',
+            energy: 2,
+            mood: '😞',
+            createdAt: DateTime(2025, 5, 1),
+            updatedAt: DateTime(2025, 5, 1),
+          ),
+        ];
 
-      final stats2026 = calculateYearStats(
-        2026,
-        tasks: tasks,
-        workouts: workouts,
-        books: books,
-        checkins: checkins,
-      );
+        final stats2026 = calculateYearStats(
+          2026,
+          tasks: tasks,
+          workouts: workouts,
+          books: books,
+          checkins: checkins,
+        );
 
-      expect(stats2026.tasks, equals(1));
-      expect(stats2026.workouts, equals(2));
-      expect(stats2026.books, equals(1));
-      expect(stats2026.avgEnergy, equals(4.5));
-      expect(stats2026.formattedEnergy, equals('4.5'));
+        expect(stats2026.tasks, equals(1));
+        expect(stats2026.workouts, equals(2));
+        expect(stats2026.books, equals(1));
+        expect(stats2026.avgEnergy, equals(4.5));
+        expect(stats2026.formattedEnergy, equals('4.5'));
 
-      // Test year with 0 checkins returns dash
-      final statsEmpty = calculateYearStats(2024);
-      expect(statsEmpty.formattedEnergy, equals('−'));
-    });
+        // Test year with 0 checkins returns dash
+        final statsEmpty = calculateYearStats(2024);
+        expect(statsEmpty.formattedEnergy, equals('−'));
+      },
+    );
   });
 
   group('AnnualReviewModel Unit Tests', () {
@@ -227,68 +230,85 @@ void main() {
       expect(find.text('Start Review'), findsWidgets);
     });
 
-    testWidgets('Renders review card with 4-cell stats strip and 4 reflection blocks', (tester) async {
-      await tester.pumpWidget(
-        createAnnualReviewTestWidget(
-          child: const AnnualReviewPage(),
-          overrides: [
-            annualReviewsStreamProvider.overrideWith(
-              (ref) => Stream.value([review2026]),
-            ),
-            yearStatsProvider.overrideWith((ref, year) => const YearStatsData(
+    testWidgets(
+      'Renders review card with 4-cell stats strip and 4 reflection blocks',
+      (tester) async {
+        await tester.pumpWidget(
+          createAnnualReviewTestWidget(
+            child: const AnnualReviewPage(),
+            overrides: [
+              annualReviewsStreamProvider.overrideWith(
+                (ref) => Stream.value([review2026]),
+              ),
+              yearStatsProvider.overrideWith(
+                (ref, year) => const YearStatsData(
                   tasks: 124,
                   workouts: 88,
                   books: 12,
                   avgEnergy: 4.2,
-                )),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+                ),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('2026'), findsOneWidget);
-      expect(find.text('Workouts'), findsOneWidget);
-      expect(find.text('88'), findsOneWidget);
-      expect(find.text('Tasks Done'), findsOneWidget);
-      expect(find.text('124'), findsOneWidget);
-      expect(find.text('Books Read'), findsOneWidget);
-      expect(find.text('12'), findsOneWidget);
-      expect(find.text('Avg Energy'), findsOneWidget);
-      expect(find.text('4.2'), findsOneWidget);
+        expect(find.text('2026'), findsOneWidget);
+        expect(find.text('Workouts'), findsOneWidget);
+        expect(find.text('88'), findsOneWidget);
+        expect(find.text('Tasks Done'), findsOneWidget);
+        expect(find.text('124'), findsOneWidget);
+        expect(find.text('Books Read'), findsOneWidget);
+        expect(find.text('12'), findsOneWidget);
+        expect(find.text('Avg Energy'), findsOneWidget);
+        expect(find.text('4.2'), findsOneWidget);
 
-      expect(find.text('Biggest Achievement:'), findsOneWidget);
-      expect(find.text('Built and completed the Focusly platform with 35 rich features!'), findsOneWidget);
+        expect(find.text('Biggest Achievement:'), findsOneWidget);
+        expect(
+          find.text(
+            'Built and completed the Focusly platform with 35 rich features!',
+          ),
+          findsOneWidget,
+        );
 
-      // Scroll to view subsequent reflection blocks
-      await tester.drag(find.byType(ListView), const Offset(0, -400));
-      await tester.pumpAndSettle();
+        // Scroll to view subsequent reflection blocks
+        await tester.drag(find.byType(ListView), const Offset(0, -400));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Biggest Obstacle & How Handled:'), findsOneWidget);
-      expect(find.text('Top Lessons Learned:'), findsOneWidget);
-      expect(find.text('Plan & Vision for Next Year:'), findsOneWidget);
-    });
+        expect(find.text('Biggest Obstacle & How Handled:'), findsOneWidget);
+        expect(find.text('Top Lessons Learned:'), findsOneWidget);
+        expect(find.text('Plan & Vision for Next Year:'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Navigation Drawer includes Annual Review in Analytics section', (tester) async {
-      await tester.pumpWidget(
-        createAnnualReviewTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            annualReviewsStreamProvider.overrideWith((ref) => Stream.value([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation Drawer includes Annual Review in Analytics section',
+      (tester) async {
+        await tester.pumpWidget(
+          createAnnualReviewTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              annualReviewsStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
 
-      expect(find.text('ANALYTICS'), findsOneWidget);
-      expect(find.text('Annual Review'), findsOneWidget);
-    });
+        expect(find.text('ANALYTICS'), findsOneWidget);
+        expect(find.text('Annual Review'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Arabic localization renders all Annual Review texts', (tester) async {
+    testWidgets('Arabic localization renders all Annual Review texts', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createAnnualReviewTestWidget(
           locale: const Locale('ar'),
@@ -297,12 +317,14 @@ void main() {
             annualReviewsStreamProvider.overrideWith(
               (ref) => Stream.value([review2026]),
             ),
-            yearStatsProvider.overrideWith((ref, year) => const YearStatsData(
-                  tasks: 50,
-                  workouts: 30,
-                  books: 5,
-                  avgEnergy: 4.0,
-                )),
+            yearStatsProvider.overrideWith(
+              (ref, year) => const YearStatsData(
+                tasks: 50,
+                workouts: 30,
+                books: 5,
+                avgEnergy: 4.0,
+              ),
+            ),
           ],
         ),
       );
@@ -321,9 +343,7 @@ void main() {
     testWidgets('Validates required reflection fields', (tester) async {
       await tester.pumpWidget(
         createAnnualReviewTestWidget(
-          child: const Scaffold(
-            body: AnnualReviewFormModal(),
-          ),
+          child: const Scaffold(body: AnnualReviewFormModal()),
         ),
       );
       await tester.pumpAndSettle();
@@ -331,7 +351,10 @@ void main() {
       expect(find.text('New Annual Review'), findsOneWidget);
 
       // Scroll to save button and tap
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -600));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -600),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Save Review'));
@@ -340,26 +363,35 @@ void main() {
       expect(find.text('All reflection fields are required'), findsWidgets);
     });
 
-    testWidgets('Renders pre-filled fields in edit mode and shows delete button', (tester) async {
-      await tester.pumpWidget(
-        createAnnualReviewTestWidget(
-          child: Scaffold(
-            body: AnnualReviewFormModal(
-              reviewToEdit: review2026,
+    testWidgets(
+      'Renders pre-filled fields in edit mode and shows delete button',
+      (tester) async {
+        await tester.pumpWidget(
+          createAnnualReviewTestWidget(
+            child: Scaffold(
+              body: AnnualReviewFormModal(reviewToEdit: review2026),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Edit Annual Review'), findsOneWidget);
-      expect(find.text('Built and completed the Focusly platform with 35 rich features!'), findsOneWidget);
+        expect(find.text('Edit Annual Review'), findsOneWidget);
+        expect(
+          find.text(
+            'Built and completed the Focusly platform with 35 rich features!',
+          ),
+          findsOneWidget,
+        );
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -600));
-      await tester.pumpAndSettle();
+        await tester.drag(
+          find.byType(SingleChildScrollView),
+          const Offset(0, -600),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Save Review'), findsOneWidget);
-      expect(find.text('Delete Review'), findsOneWidget);
-    });
+        expect(find.text('Save Review'), findsOneWidget);
+        expect(find.text('Delete Review'), findsOneWidget);
+      },
+    );
   });
 }

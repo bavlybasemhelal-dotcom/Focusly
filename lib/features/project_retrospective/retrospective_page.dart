@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
-import 'models/retrospective_model.dart';
 import 'providers/retrospective_provider.dart';
 import 'widgets/retrospective_card.dart';
 import 'widgets/retrospective_form_modal.dart';
@@ -55,7 +54,10 @@ class RetrospectivePage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF2E6FF2)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF2E6FF2),
+            ),
             tooltip: context.tr('new_retrospective_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -138,15 +140,14 @@ class RetrospectivePage extends ConsumerWidget {
                           const Color(0xFF1E3A8A).withValues(alpha: 0.5),
                           const Color(0xFF0F1B4C),
                         ]
-                      : [
-                          const Color(0xFFDBEAFE),
-                          const Color(0xFFEFF6FF),
-                        ],
+                      : [const Color(0xFFDBEAFE), const Color(0xFFEFF6FF)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF2E6FF2).withValues(alpha: 0.3) : const Color(0xFFBFDBFE),
+                  color: isDark
+                      ? const Color(0xFF2E6FF2).withValues(alpha: 0.3)
+                      : const Color(0xFFBFDBFE),
                   width: 2,
                 ),
               ),
@@ -182,7 +183,10 @@ class RetrospectivePage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),

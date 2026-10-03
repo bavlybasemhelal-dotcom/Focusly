@@ -1,3 +1,4 @@
+import '../notification_navigation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -51,10 +52,10 @@ class MobileNotificationSender implements PlatformNotificationSender {
 
       const DarwinInitializationSettings iosSettings =
           DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-      );
+            requestAlertPermission: false,
+            requestBadgePermission: false,
+            requestSoundPermission: false,
+          );
 
       const InitializationSettings initSettings = InitializationSettings(
         android: androidSettings,
@@ -64,14 +65,15 @@ class MobileNotificationSender implements PlatformNotificationSender {
       await _plugin.initialize(
         initSettings,
         onDidReceiveNotificationResponse: (response) {
-          debugPrint('==> Mobile notification tapped with payload: ${response.payload}');
+          NotificationNavigation.open(response.payload);
         },
       );
 
       // Explicitly register all native Android notification channels
-      final androidImpl =
-          _plugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+      final androidImpl = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       if (androidImpl != null) {
         await _createAndroidChannels(androidImpl);
       }
@@ -150,7 +152,9 @@ class MobileNotificationSender implements PlatformNotificationSender {
       for (final channel in channels) {
         await androidImpl.createNotificationChannel(channel);
       }
-      debugPrint('==> Registered ${channels.length} native Android notification channels with Importance.max');
+      debugPrint(
+        '==> Registered ${channels.length} native Android notification channels with Importance.max',
+      );
     } catch (e) {
       debugPrint('==> Error creating Android notification channels: $e');
     }
@@ -161,17 +165,19 @@ class MobileNotificationSender implements PlatformNotificationSender {
     await initialize();
 
     try {
-      final androidImpl =
-          _plugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+      final androidImpl = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       if (androidImpl != null) {
         final granted = await androidImpl.requestNotificationsPermission();
         return granted ?? false;
       }
 
-      final iosImpl =
-          _plugin.resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>();
+      final iosImpl = _plugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
       if (iosImpl != null) {
         final granted = await iosImpl.requestPermissions(
           alert: true,
@@ -212,10 +218,14 @@ class MobileNotificationSender implements PlatformNotificationSender {
     }
 
     final int diffSeconds = tzScheduled.difference(nowTz).inSeconds;
-    debugPrint('==> [MobileNotificationSender.scheduleNotification] ID: $id | Title: "$title" | Target: $tzScheduled (Local: $nowTz, Delay: ${diffSeconds}s, TimeZone: ${tz.local.name})');
+    debugPrint(
+      '==> [MobileNotificationSender.scheduleNotification] ID: $id | Title: "$title" | Target: $tzScheduled (Local: $nowTz, Delay: ${diffSeconds}s, TimeZone: ${tz.local.name})',
+    );
 
     if (diffSeconds < 0) {
-      debugPrint('==> Warning: Attempted to schedule notification in past. Showing immediately.');
+      debugPrint(
+        '==> Warning: Attempted to schedule notification in past. Showing immediately.',
+      );
       await showInstantNotification(
         id: id,
         title: title,
@@ -244,10 +254,17 @@ class MobileNotificationSender implements PlatformNotificationSender {
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
         payload: payload,
+        matchDateTimeComponents: channelId == 'focusly_habits_daily'
+            ? DateTimeComponents.time
+            : null,
       );
-      debugPrint('==> [MobileNotificationSender] Notification #$id successfully scheduled via exactAllowWhileIdle');
+      debugPrint(
+        '==> [MobileNotificationSender] Notification #$id successfully scheduled via exactAllowWhileIdle',
+      );
     } catch (e) {
-      debugPrint('==> [MobileNotificationSender] exactAllowWhileIdle failed ($e). Retrying with inexactAllowWhileIdle...');
+      debugPrint(
+        '==> [MobileNotificationSender] exactAllowWhileIdle failed ($e). Retrying with inexactAllowWhileIdle...',
+      );
       try {
         // 2. Safe fallback: Schedule with inexactAllowWhileIdle if exact alarm was denied/unsupported
         await _plugin.zonedSchedule(
@@ -260,10 +277,18 @@ class MobileNotificationSender implements PlatformNotificationSender {
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
           payload: payload,
+          matchDateTimeComponents: channelId == 'focusly_habits_daily'
+              ? DateTimeComponents.time
+              : null,
         );
-        debugPrint('==> [MobileNotificationSender] Notification #$id successfully scheduled via inexact fallback');
+        debugPrint(
+          '==> [MobileNotificationSender] Notification #$id successfully scheduled via inexact fallback',
+        );
       } catch (fallbackError, stack) {
-        debugPrint('==> [MobileNotificationSender] Inexact fallback failed: $fallbackError\n$stack');
+        debugPrint(
+          '==> [MobileNotificationSender] Inexact fallback failed: $fallbackError\n$stack',
+        );
+        rethrow;
       }
     }
   }
@@ -284,19 +309,19 @@ class MobileNotificationSender implements PlatformNotificationSender {
       channelName ?? 'Focusly Notifications',
     );
 
-    debugPrint('==> [MobileNotificationSender] Showing instant notification #$id ("$title")');
+    debugPrint(
+      '==> [MobileNotificationSender] Showing instant notification #$id ("$title")',
+    );
 
     try {
-      await _plugin.show(
-        id,
-        title,
-        body,
-        details,
-        payload: payload,
+      await _plugin.show(id, title, body, details, payload: payload);
+      debugPrint(
+        '==> [MobileNotificationSender] Instant notification #$id displayed successfully',
       );
-      debugPrint('==> [MobileNotificationSender] Instant notification #$id displayed successfully');
     } catch (e, stack) {
-      debugPrint('==> [MobileNotificationSender.showInstantNotification] Error: $e\n$stack');
+      debugPrint(
+        '==> [MobileNotificationSender.showInstantNotification] Error: $e\n$stack',
+      );
     }
   }
 
@@ -316,7 +341,9 @@ class MobileNotificationSender implements PlatformNotificationSender {
       await _plugin.cancelAll();
       debugPrint('==> [MobileNotificationSender] Cancelled all notifications');
     } catch (e) {
-      debugPrint('==> [MobileNotificationSender.cancelAllNotifications] error: $e');
+      debugPrint(
+        '==> [MobileNotificationSender.cancelAllNotifications] error: $e',
+      );
     }
   }
 

@@ -12,10 +12,7 @@ import 'workout_form_modal.dart';
 class WorkoutCard extends ConsumerWidget {
   final WorkoutModel workout;
 
-  const WorkoutCard({
-    super.key,
-    required this.workout,
-  });
+  const WorkoutCard({super.key, required this.workout});
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     HapticFeedback.heavyImpact();
@@ -29,7 +26,11 @@ class WorkoutCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -59,7 +60,9 @@ class WorkoutCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -80,7 +83,9 @@ class WorkoutCard extends ConsumerWidget {
               content: Text(context.tr('workout_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           );
         }
@@ -161,11 +166,7 @@ class WorkoutCard extends ConsumerWidget {
               color: const Color(0xFF10B981).withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              typeIcon,
-              size: 20,
-              color: const Color(0xFF10B981),
-            ),
+            child: Icon(typeIcon, size: 20, color: const Color(0xFF10B981)),
           ),
           const SizedBox(width: 12),
 
@@ -196,7 +197,10 @@ class WorkoutCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      context.tr('workout_min_format', args: {'min': workout.durationMin.toString()}),
+                      context.tr(
+                        'workout_min_format',
+                        args: {'min': workout.durationMin.toString()},
+                      ),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -241,7 +245,10 @@ class WorkoutCard extends ConsumerWidget {
             children: [
               if (workout.calories > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF10B981).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
@@ -250,7 +257,10 @@ class WorkoutCard extends ConsumerWidget {
                     ),
                   ),
                   child: Text(
-                    context.tr('workout_kcal_format', args: {'kcal': workout.calories.toString()}),
+                    context.tr(
+                      'workout_kcal_format',
+                      args: {'kcal': workout.calories.toString()},
+                    ),
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,

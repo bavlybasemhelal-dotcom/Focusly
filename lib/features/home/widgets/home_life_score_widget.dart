@@ -15,7 +15,8 @@ class HomeLifeScoreWidget extends ConsumerWidget {
     final score = ref.watch(currentLiveLifeScoreProvider);
 
     // Skip entirely on fresh account with zero activity this week
-    final hasAnyData = score.total > 0 ||
+    final hasAnyData =
+        score.total > 0 ||
         score.breakdown.tasks > 0 ||
         score.breakdown.habits > 0 ||
         score.breakdown.energy > 0 ||

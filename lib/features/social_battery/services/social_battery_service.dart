@@ -9,7 +9,7 @@ class SocialBatteryService {
   final FirebaseFirestore _firestore;
 
   SocialBatteryService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _batteryCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('socialBattery');
@@ -17,10 +17,9 @@ class SocialBatteryService {
 
   /// Streams all Social Battery entries for [uid] ordered by date descending.
   Stream<List<SocialBatteryEntryModel>> streamEntries(String uid) {
-    return _batteryCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _batteryCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => SocialBatteryEntryModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -76,7 +75,9 @@ class SocialBatteryService {
         type: (newType.toLowerCase() == 'drainer') ? 'drainer' : 'energizer',
         impact: newImpact.clamp(1, 5),
         date: newDate,
-        notes: newNotes != null && newNotes.trim().isNotEmpty ? newNotes.trim() : null,
+        notes: newNotes != null && newNotes.trim().isNotEmpty
+            ? newNotes.trim()
+            : null,
         clearNotes: newNotes == null || newNotes.trim().isEmpty,
         updatedAt: now,
       );

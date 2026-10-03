@@ -100,7 +100,10 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
 
           SafeArea(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 16.0,
+              ),
               children: [
                 // -------------------------------------------------------------
                 // SECTION 1: CONNECTED ACCOUNTS
@@ -257,9 +260,7 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
                     width: 1,
                   ),
                 ),
-                child: Center(
-                  child: _buildGoogleGIcon(),
-                ),
+                child: Center(child: _buildGoogleGIcon()),
               ),
               const SizedBox(width: 14),
 
@@ -283,8 +284,12 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
                           : context.tr('google_account_desc'),
                       style: TextStyle(
                         fontSize: 12,
-                        color: isLinked ? const Color(0xFF10B981) : secondaryTextColor,
-                        fontWeight: isLinked ? FontWeight.w700 : FontWeight.w500,
+                        color: isLinked
+                            ? const Color(0xFF10B981)
+                            : secondaryTextColor,
+                        fontWeight: isLinked
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -295,13 +300,16 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
 
               // Status Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: isLinked
                       ? const Color(0xFF10B981).withValues(alpha: 0.12)
                       : (isDark
-                          ? Colors.white.withValues(alpha: 0.08)
-                          : const Color(0xFFF1F5F9)),
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : const Color(0xFFF1F5F9)),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isLinked
@@ -333,7 +341,9 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
                         fontWeight: FontWeight.w800,
                         color: isLinked
                             ? const Color(0xFF10B981)
-                            : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                            : (isDark
+                                  ? Colors.white70
+                                  : const Color(0xFF64748B)),
                       ),
                     ),
                   ],
@@ -359,59 +369,59 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
                     ),
                   )
                 : isLinked
-                    ? OutlinedButton.icon(
-                        onPressed: () => _confirmDisconnectGoogle(context),
-                        icon: const Icon(
-                          Icons.link_off_rounded,
-                          color: Color(0xFFEF4444),
-                          size: 18,
-                        ),
-                        label: Text(
-                          context.tr('disconnect_google_btn'),
-                          style: const TextStyle(
-                            color: Color(0xFFEF4444),
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: const Color(0xFFEF4444).withValues(alpha: 0.4),
-                            width: 1.2,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                      )
-                    : ElevatedButton.icon(
-                        onPressed: () {
-                          HapticFeedback.mediumImpact();
-                          ref
-                              .read(connectedAccountsControllerProvider)
-                              .connectGoogle(context);
-                        },
-                        icon: const Icon(
-                          Icons.link_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        label: Text(
-                          context.tr('connect_google_btn'),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: brandPrimary,
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
+                ? OutlinedButton.icon(
+                    onPressed: () => _confirmDisconnectGoogle(context),
+                    icon: const Icon(
+                      Icons.link_off_rounded,
+                      color: Color(0xFFEF4444),
+                      size: 18,
+                    ),
+                    label: Text(
+                      context.tr('disconnect_google_btn'),
+                      style: const TextStyle(
+                        color: Color(0xFFEF4444),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
                       ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.4),
+                        width: 1.2,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  )
+                : ElevatedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      ref
+                          .read(connectedAccountsControllerProvider)
+                          .connectGoogle(context);
+                    },
+                    icon: const Icon(
+                      Icons.link_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    label: Text(
+                      context.tr('connect_google_btn'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: brandPrimary,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
           ),
         ],
       ),
@@ -485,7 +495,10 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
                 value: selectedGroup.id,
                 isExpanded: true,
                 dropdownColor: cardBg,
-                icon: Icon(Icons.keyboard_arrow_down_rounded, color: brandPrimary),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: brandPrimary,
+                ),
                 items: groups.map((g) {
                   return DropdownMenuItem<String>(
                     value: g.id,
@@ -591,7 +604,9 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
                     );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Code ${selectedGroup.inviteCode} copied!'),
+                        content: Text(
+                          'Code ${selectedGroup.inviteCode} copied!',
+                        ),
                         duration: const Duration(seconds: 2),
                         behavior: SnackBarBehavior.floating,
                       ),
@@ -664,11 +679,7 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Icon(
-                Icons.groups_rounded,
-                color: brandPrimary,
-                size: 28,
-              ),
+              child: Icon(Icons.groups_rounded, color: brandPrimary, size: 28),
             ),
           ),
           const SizedBox(height: 14),
@@ -687,12 +698,14 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
             child: OutlinedButton.icon(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const GroupsHomePage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const GroupsHomePage()),
                 );
               },
-              icon: Icon(Icons.arrow_forward_rounded, size: 16, color: brandPrimary),
+              icon: Icon(
+                Icons.arrow_forward_rounded,
+                size: 16,
+                color: brandPrimary,
+              ),
               label: Text(
                 context.tr('go_to_groups_btn'),
                 style: TextStyle(
@@ -719,16 +732,10 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
     HapticFeedback.lightImpact();
     final message = context.tr(
       'group_invite_msg_template',
-      args: {
-        'groupName': group.name,
-        'inviteCode': group.inviteCode,
-      },
+      args: {'groupName': group.name, 'inviteCode': group.inviteCode},
     );
 
-    Share.share(
-      message,
-      subject: 'Focusly Group Invite: ${group.name}',
-    );
+    Share.share(message, subject: 'Focusly Group Invite: ${group.name}');
   }
 
   /// Displays confirmation dialog before disconnecting Google account.
@@ -774,10 +781,8 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
       },
     );
 
-    if (confirmed == true && mounted) {
-      ref
-          .read(connectedAccountsControllerProvider)
-          .disconnectGoogle(context);
+    if (confirmed == true && context.mounted) {
+      ref.read(connectedAccountsControllerProvider).disconnectGoogle(context);
     }
   }
 
@@ -807,9 +812,9 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
               height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF4285F4).withValues(
-                  alpha: isDark ? 0.08 : 0.05,
-                ),
+                color: const Color(
+                  0xFF4285F4,
+                ).withValues(alpha: isDark ? 0.08 : 0.05),
               ),
             ),
           ),
@@ -821,9 +826,9 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
               height: 160,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF10B981).withValues(
-                  alpha: isDark ? 0.08 : 0.04,
-                ),
+                color: const Color(
+                  0xFF10B981,
+                ).withValues(alpha: isDark ? 0.08 : 0.04),
               ),
             ),
           ),

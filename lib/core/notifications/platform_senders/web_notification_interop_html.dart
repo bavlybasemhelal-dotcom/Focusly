@@ -1,18 +1,25 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'package:flutter/foundation.dart';
+
+@JS('Notification')
+extension type _BrowserNotification._(JSObject _) implements JSObject {
+  external factory _BrowserNotification(JSString title, JSObject options);
+  external static JSString get permission;
+  external static JSPromise<JSString> requestPermission();
+}
 
 /// Browser HTML5 Notification API implementation for Web builds.
 class WebNotificationInterop {
   static bool isSupported() {
-    return html.Notification.supported;
+    return globalContext.has('Notification');
   }
 
   static Future<bool> requestPermission() async {
     try {
-      if (!html.Notification.supported) return false;
-      final permission = await html.Notification.requestPermission();
-      return permission == 'granted';
+      if (!isSupported()) return false;
+      final permission = await _BrowserNotification.requestPermission().toDart;
+      return permission.toDart == 'granted';
     } catch (e) {
       debugPrint('WebNotificationInterop.requestPermission error: $e');
       return false;
@@ -26,13 +33,16 @@ class WebNotificationInterop {
     String? tag,
   }) {
     try {
-      if (!html.Notification.supported) return;
-      if (html.Notification.permission == 'granted') {
-        html.Notification(
-          title,
-          body: body,
-          icon: icon ?? 'icons/Icon-192.png',
-          tag: tag,
+      if (!isSupported()) return;
+      if (_BrowserNotification.permission.toDart == 'granted') {
+        _BrowserNotification(
+          title.toJS,
+          {
+                'body': body,
+                'icon': icon ?? 'icons/Icon-192.png',
+                'tag': ?tag,
+              }.jsify()
+              as JSObject,
         );
       }
     } catch (e) {

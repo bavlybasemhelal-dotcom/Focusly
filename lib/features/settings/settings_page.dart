@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'link_password_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +32,16 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
+  bool get _canLinkPassword {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      return user != null &&
+          !user.providerData.any((p) => p.providerId == 'password');
+    } catch (_) {
+      return false;
+    }
+  }
+
   bool _notificationsEnabled = true;
   bool _groupActivityBadgesEnabled = true;
 
@@ -94,7 +106,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           // Scrollable Settings Sections
           SafeArea(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 16.0,
+              ),
               children: [
                 // -------------------------------------------------------------
                 // 1. ACCOUNT SECTION
@@ -119,11 +134,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       brandPrimary: brandPrimary,
                       onTap: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const ProfilePage()),
+                          MaterialPageRoute(
+                            builder: (_) => const ProfilePage(),
+                          ),
                         );
                       },
                     ),
                     _buildDivider(borderColor),
+                    if (_canLinkPassword)
+                      ListTile(
+                        leading: const Icon(Icons.key),
+                        title: Text(
+                          Localizations.localeOf(context).languageCode == 'ar'
+                              ? 'إضافة دخول بكلمة سر'
+                              : 'Add password sign-in',
+                        ),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LinkPasswordPage(),
+                          ),
+                        ),
+                      ),
                     _buildSettingsRow(
                       icon: Icons.lock_outline_rounded,
                       iconBg: const Color(0xFF8B5CF6),
@@ -177,7 +209,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       icon: Icons.palette_outlined,
                       iconBg: const Color(0xFFEC4899),
                       title: context.tr('theme'),
-                      trailingText: _getThemeModeLabel(context, currentThemeMode),
+                      trailingText: _getThemeModeLabel(
+                        context,
+                        currentThemeMode,
+                      ),
                       primaryColor: primaryTextColor,
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
@@ -196,7 +231,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           Container(
                             padding: const EdgeInsets.all(9),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.14),
+                              color: const Color(
+                                0xFF10B981,
+                              ).withValues(alpha: 0.14),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -255,7 +292,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           Container(
                             padding: const EdgeInsets.all(9),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF38BDF8).withValues(alpha: 0.14),
+                              color: const Color(
+                                0xFF38BDF8,
+                              ).withValues(alpha: 0.14),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -296,8 +335,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 _groupActivityBadgesEnabled = val;
                               });
                               try {
-                                final prefs = await SharedPreferences.getInstance();
-                                await prefs.setBool('group_activity_badges_enabled', val);
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setBool(
+                                  'group_activity_badges_enabled',
+                                  val,
+                                );
                               } catch (_) {}
                               // TODO: True cross-device push notifications for group activity while the app is closed would require Firebase Cloud Messaging + a Cloud Function trigger on new feed entries, which needs the Firebase Blaze (paid) plan. Out of scope for now; real-time Firestore listeners cover the live feel while the app is open.
                             },
@@ -332,20 +375,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       primaryColor: primaryTextColor,
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
-                      onTap: () => _pickReminderTime(context, currentReminderTime),
+                      onTap: () =>
+                          _pickReminderTime(context, currentReminderTime),
                     ),
                     _buildDivider(borderColor),
 
                     // Daily Check-in Reminder Toggle
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
                       child: Row(
                         children: [
                           Container(
                             width: 38,
                             height: 38,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF4F46E5).withValues(alpha: 0.15),
+                              color: const Color(
+                                0xFF4F46E5,
+                              ).withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -369,7 +418,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  context.tr('daily_checkin_reminder_setting_desc'),
+                                  context.tr(
+                                    'daily_checkin_reminder_setting_desc',
+                                  ),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: secondaryTextColor,
@@ -382,7 +433,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             value: ref.watch(dailyCheckinReminderProvider),
                             activeThumbColor: brandPrimary,
                             onChanged: (val) {
-                              ref.read(dailyCheckinReminderProvider.notifier).setEnabled(val);
+                              ref
+                                  .read(dailyCheckinReminderProvider.notifier)
+                                  .setEnabled(val);
                             },
                           ),
                         ],
@@ -396,7 +449,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       iconBg: const Color(0xFF06B6D4),
                       title: context.tr('water_target_setting'),
                       subtitle: context.tr('water_target_setting_desc'),
-                      trailingText: '${ref.watch(dailyWaterTargetProvider)} ${context.tr('glasses_unit')}',
+                      trailingText:
+                          '${ref.watch(dailyWaterTargetProvider)} ${context.tr('glasses_unit')}',
                       primaryColor: primaryTextColor,
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
@@ -406,7 +460,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
                     // Morning Intention Prompt Toggle
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ),
                       child: Row(
                         children: [
                           Container(
@@ -428,7 +485,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  context.tr('morning_intention_prompt_setting'),
+                                  context.tr(
+                                    'morning_intention_prompt_setting',
+                                  ),
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
@@ -437,7 +496,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  context.tr('morning_intention_prompt_setting_desc'),
+                                  context.tr(
+                                    'morning_intention_prompt_setting_desc',
+                                  ),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: secondaryTextColor,
@@ -447,12 +508,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ),
                           Switch.adaptive(
-                            value: ref.watch(morningIntentionPromptSettingProvider),
+                            value: ref.watch(
+                              morningIntentionPromptSettingProvider,
+                            ),
                             activeTrackColor: brandPrimary,
                             activeThumbColor: Colors.white,
                             onChanged: (val) {
                               ref
-                                  .read(morningIntentionPromptSettingProvider.notifier)
+                                  .read(
+                                    morningIntentionPromptSettingProvider
+                                        .notifier,
+                                  )
                                   .setEnabled(val);
                             },
                           ),
@@ -466,20 +532,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       icon: Icons.nightlight_round,
                       iconBg: const Color(0xFF8B5CF6),
                       title: context.tr('preferred_shutdown_time_setting'),
-                      subtitle: context.tr('preferred_shutdown_time_setting_desc'),
-                      trailingText: ref.watch(preferredShutdownTimeSettingProvider).format(context),
+                      subtitle: context.tr(
+                        'preferred_shutdown_time_setting_desc',
+                      ),
+                      trailingText: ref
+                          .watch(preferredShutdownTimeSettingProvider)
+                          .format(context),
                       primaryColor: primaryTextColor,
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
                       onTap: () async {
-                        final current = ref.read(preferredShutdownTimeSettingProvider);
+                        final current = ref.read(
+                          preferredShutdownTimeSettingProvider,
+                        );
                         final picked = await showTimePicker(
                           context: context,
                           initialTime: current,
                         );
                         if (picked != null) {
                           await ref
-                              .read(preferredShutdownTimeSettingProvider.notifier)
+                              .read(
+                                preferredShutdownTimeSettingProvider.notifier,
+                              )
                               .setTime(picked);
                         }
                       },
@@ -598,7 +672,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       icon: Icons.notifications_active_rounded,
                       iconBg: const Color(0xFF10B981),
                       title: context.tr('test_instant_notification_btn'),
-                      subtitle: 'Verify heads-up banner and notification channel immediately',
+                      subtitle:
+                          'Verify heads-up banner and notification channel immediately',
                       primaryColor: primaryTextColor,
                       secondaryColor: secondaryTextColor,
                       brandPrimary: brandPrimary,
@@ -608,10 +683,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(context.tr('test_instant_notification_toast')),
+                              content: Text(
+                                context.tr('test_instant_notification_toast'),
+                              ),
                               backgroundColor: const Color(0xFF10B981),
                               behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           );
                         }
@@ -630,14 +709,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       brandPrimary: brandPrimary,
                       onTap: () async {
                         HapticFeedback.lightImpact();
-                        await NotificationInitService.scheduleTestNotification(seconds: 10);
+                        await NotificationInitService.scheduleTestNotification(
+                          seconds: 10,
+                        );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(context.tr('test_notification_scheduled_toast')),
+                              content: Text(
+                                context.tr('test_notification_scheduled_toast'),
+                              ),
                               backgroundColor: const Color(0xFF8B5CF6),
                               behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           );
                         }
@@ -710,7 +795,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // ===========================================================================
 
   /// Opens the native TimePicker to select and persist default daily reminder time
-  Future<void> _pickReminderTime(BuildContext context, TimeOfDay initialTime) async {
+  Future<void> _pickReminderTime(
+    BuildContext context,
+    TimeOfDay initialTime,
+  ) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
@@ -784,7 +872,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     title: Text(
                       context.tr(option.titleKey),
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        fontWeight: isSelected
+                            ? FontWeight.w800
+                            : FontWeight.w600,
                       ),
                     ),
                     trailing: isSelected
@@ -817,15 +907,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         await launchUrl(storeUri, mode: LaunchMode.externalApplication);
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.tr('rate_app_error'))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.tr('rate_app_error'))));
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.tr('rate_app_error'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.tr('rate_app_error'))));
     }
   }
 
@@ -847,9 +937,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             height: 340,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -861,9 +949,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [greenGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [greenGlow, Colors.transparent]),
             ),
           ),
         ),
@@ -920,7 +1006,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.light_mode_rounded, color: Color(0xFFF59E0B)),
+                    child: const Icon(
+                      Icons.light_mode_rounded,
+                      color: Color(0xFFF59E0B),
+                    ),
                   ),
                   title: Text(
                     context.tr('theme_light'),
@@ -943,7 +1032,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       color: const Color(0xFF6366F1).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.dark_mode_rounded, color: Color(0xFF6366F1)),
+                    child: const Icon(
+                      Icons.dark_mode_rounded,
+                      color: Color(0xFF6366F1),
+                    ),
                   ),
                   title: Text(
                     context.tr('theme_dark'),
@@ -966,7 +1058,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       color: const Color(0xFF0EA5E9).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.brightness_auto_rounded, color: Color(0xFF0EA5E9)),
+                    child: const Icon(
+                      Icons.brightness_auto_rounded,
+                      color: Color(0xFF0EA5E9),
+                    ),
                   ),
                   title: Text(
                     context.tr('theme_system'),
@@ -1028,7 +1123,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.language_rounded, color: Color(0xFF3B82F6)),
+                    child: const Icon(
+                      Icons.language_rounded,
+                      color: Color(0xFF3B82F6),
+                    ),
                   ),
                   title: Text(
                     context.tr('lang_en'),
@@ -1038,9 +1136,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       ? Icon(Icons.check_circle_rounded, color: brandPrimary)
                       : null,
                   onTap: () {
-                    ref
-                        .read(localeControllerProvider.notifier)
-                        .setLocale('en');
+                    ref.read(localeControllerProvider.notifier).setLocale('en');
                     Navigator.of(sheetContext).pop();
                   },
                 ),
@@ -1051,7 +1147,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       color: const Color(0xFF10B981).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.translate_rounded, color: Color(0xFF10B981)),
+                    child: const Icon(
+                      Icons.translate_rounded,
+                      color: Color(0xFF10B981),
+                    ),
                   ),
                   title: Text(
                     context.tr('lang_ar'),
@@ -1061,9 +1160,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       ? Icon(Icons.check_circle_rounded, color: brandPrimary)
                       : null,
                   onTap: () {
-                    ref
-                        .read(localeControllerProvider.notifier)
-                        .setLocale('ar');
+                    ref.read(localeControllerProvider.notifier).setLocale('ar');
                     Navigator.of(sheetContext).pop();
                   },
                 ),
@@ -1195,8 +1292,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
               ),
               child: Text(
                 context.tr('delete_permanently'),
@@ -1543,7 +1642,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           builder: (context, setDialogState) {
             return AlertDialog(
               backgroundColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               title: Text(
                 context.tr('water_target_setting'),
                 style: TextStyle(
@@ -1560,7 +1661,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             setDialogState(() => current--);
                           }
                         : null,
-                    icon: const Icon(Icons.remove_circle_outline_rounded, size: 28),
+                    icon: const Icon(
+                      Icons.remove_circle_outline_rounded,
+                      size: 28,
+                    ),
                     color: const Color(0xFF06B6D4),
                   ),
                   const SizedBox(width: 16),
@@ -1588,7 +1692,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             setDialogState(() => current++);
                           }
                         : null,
-                    icon: const Icon(Icons.add_circle_outline_rounded, size: 28),
+                    icon: const Icon(
+                      Icons.add_circle_outline_rounded,
+                      size: 28,
+                    ),
                     color: const Color(0xFF06B6D4),
                   ),
                 ],
@@ -1602,10 +1709,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF06B6D4),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () {
-                    ref.read(dailyWaterTargetProvider.notifier).setTarget(current);
+                    ref
+                        .read(dailyWaterTargetProvider.notifier)
+                        .setTarget(current);
                     Navigator.of(ctx).pop();
                   },
                   child: Text(context.tr('save')),
@@ -1624,13 +1735,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEC4899).withOpacity(0.12),
+                  color: const Color(0xFFEC4899).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -1665,7 +1778,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () => Navigator.of(ctx).pop(),
               child: Text(context.tr('got_it_btn')),

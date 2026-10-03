@@ -46,7 +46,10 @@ class ContactsPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF2E6FF2)),
+            icon: const Icon(
+              Icons.person_add_alt_1_rounded,
+              color: Color(0xFF2E6FF2),
+            ),
             tooltip: context.tr('add_contact_title'),
             onPressed: () => AddEditContactSheet.show(context),
           ),
@@ -94,8 +97,9 @@ class ContactsPage extends ConsumerWidget {
             child: contactsAsync.when(
               data: (contacts) {
                 final displayedContacts = filter == 'due'
-                    ? (contacts.where((c) => c.isDue).toList()
-                      ..sort((a, b) => b.overdueByDays.compareTo(a.overdueByDays)))
+                    ? (contacts.where((c) => c.isDue).toList()..sort(
+                        (a, b) => b.overdueByDays.compareTo(a.overdueByDays),
+                      ))
                     : contacts;
 
                 if (displayedContacts.isEmpty) {
@@ -161,7 +165,9 @@ class ContactsPage extends ConsumerWidget {
     bool isWarning = false,
   }) {
     final isSelected = currentFilter == filterKey;
-    final activeColor = isWarning ? const Color(0xFFEF4444) : const Color(0xFF2E6FF2);
+    final activeColor = isWarning
+        ? const Color(0xFFEF4444)
+        : const Color(0xFF2E6FF2);
 
     return InkWell(
       onTap: () {
@@ -188,7 +194,11 @@ class ContactsPage extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isWarning && isSelected) ...[
-              const Icon(Icons.warning_amber_rounded, size: 14, color: Color(0xFFEF4444)),
+              const Icon(
+                Icons.warning_amber_rounded,
+                size: 14,
+                color: Color(0xFFEF4444),
+              ),
               const SizedBox(width: 4),
             ],
             Text(
@@ -218,13 +228,19 @@ class ContactsPage extends ConsumerWidget {
     final badgeBg = isDue
         ? const Color(0xFFEF4444).withValues(alpha: 0.12)
         : const Color(0xFF10B981).withValues(alpha: 0.12);
-    final badgeTextColor = isDue ? const Color(0xFFEF4444) : const Color(0xFF10B981);
+    final badgeTextColor = isDue
+        ? const Color(0xFFEF4444)
+        : const Color(0xFF10B981);
     final badgeBorderColor = isDue
         ? const Color(0xFFEF4444).withValues(alpha: 0.3)
         : const Color(0xFF10B981).withValues(alpha: 0.3);
 
     final daysAgo = contact.daysSinceLast;
-    final badgeText = isDue
+    final badgeText = !contact.hasContacted
+        ? (Localizations.localeOf(context).languageCode == 'ar'
+              ? 'لم يُسجَّل تواصل بعد'
+              : 'No contact recorded yet')
+        : isDue
         ? '⚠️ $daysAgo ${context.tr('days_ago_suffix')} • +${contact.overdueByDays}d ${context.tr('overdue_label')}'
         : '✅ $daysAgo ${context.tr('days_ago_suffix')}';
 
@@ -261,12 +277,17 @@ class ContactsPage extends ConsumerWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                    color: isDark
+                        ? const Color(0xFF08123A)
+                        : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: borderColor),
                   ),
                   child: Center(
-                    child: Text(contact.emoji, style: const TextStyle(fontSize: 24)),
+                    child: Text(
+                      contact.emoji,
+                      style: const TextStyle(fontSize: 24),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -287,9 +308,14 @@ class ContactsPage extends ConsumerWidget {
                       if (contact.role != null) ...[
                         const SizedBox(height: 2),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E6FF2).withValues(alpha: 0.10),
+                            color: const Color(
+                              0xFF2E6FF2,
+                            ).withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -315,10 +341,9 @@ class ContactsPage extends ConsumerWidget {
                     HapticFeedback.lightImpact();
                     final uid = ref.read(currentUserIdProvider);
                     if (uid != null) {
-                      await ref.read(contactsServiceProvider).markContactedToday(
-                            uid: uid,
-                            contactId: contact.id,
-                          );
+                      await ref
+                          .read(contactsServiceProvider)
+                          .markContactedToday(uid: uid, contactId: contact.id);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -330,7 +355,9 @@ class ContactsPage extends ConsumerWidget {
                             ),
                             backgroundColor: const Color(0xFF10B981),
                             behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         );
                       }
@@ -343,7 +370,8 @@ class ContactsPage extends ConsumerWidget {
                   icon: const Icon(Icons.edit_outlined, size: 20),
                   color: secondaryTextColor,
                   tooltip: context.tr('edit'),
-                  onPressed: () => AddEditContactSheet.show(context, contact: contact),
+                  onPressed: () =>
+                      AddEditContactSheet.show(context, contact: contact),
                 ),
               ],
             ),
@@ -353,7 +381,11 @@ class ContactsPage extends ConsumerWidget {
             if (contact.contactInfo != null) ...[
               Row(
                 children: [
-                  Icon(Icons.alternate_email_rounded, size: 14, color: secondaryTextColor),
+                  Icon(
+                    Icons.alternate_email_rounded,
+                    size: 14,
+                    color: secondaryTextColor,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -394,7 +426,10 @@ class ContactsPage extends ConsumerWidget {
               children: [
                 // Days Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: badgeBg,
                     borderRadius: BorderRadius.circular(8),
@@ -444,8 +479,11 @@ class ContactsPage extends ConsumerWidget {
               width: 76,
               height: 76,
               decoration: BoxDecoration(
-                color: (isDueFilter ? const Color(0xFF10B981) : const Color(0xFF2E6FF2))
-                    .withValues(alpha: 0.12),
+                color:
+                    (isDueFilter
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF2E6FF2))
+                        .withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -488,8 +526,13 @@ class ContactsPage extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2E6FF2),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
               ),
             ],

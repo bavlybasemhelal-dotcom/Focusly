@@ -25,10 +25,14 @@ class AchievementCard extends StatelessWidget {
 
     final cardBg = isUnlocked
         ? (isDark ? const Color(0xFF0F1B4C) : Colors.white)
-        : (isDark ? const Color(0xFF0A102D).withValues(alpha: 0.6) : const Color(0xFFF1F5F9).withValues(alpha: 0.7));
+        : (isDark
+              ? const Color(0xFF0A102D).withValues(alpha: 0.6)
+              : const Color(0xFFF1F5F9).withValues(alpha: 0.7));
 
     final borderColor = isUnlocked
-        ? (isDark ? const Color(0xFFF59E0B).withValues(alpha: 0.35) : const Color(0xFFFDE68A))
+        ? (isDark
+              ? const Color(0xFFF59E0B).withValues(alpha: 0.35)
+              : const Color(0xFFFDE68A))
         : (isDark ? Colors.white10 : const Color(0xFFE2E8F0));
 
     return Container(
@@ -40,7 +44,9 @@ class AchievementCard extends StatelessWidget {
         boxShadow: isUnlocked
             ? [
                 BoxShadow(
-                  color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.1 : 0.06),
+                  color: const Color(
+                    0xFFF59E0B,
+                  ).withValues(alpha: isDark ? 0.1 : 0.06),
                   blurRadius: 12,
                   offset: const Offset(0, 3),
                 ),
@@ -60,8 +66,12 @@ class AchievementCard extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: isUnlocked
-                      ? const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.2 : 0.12)
-                      : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.04)),
+                      ? const Color(
+                          0xFFF59E0B,
+                        ).withValues(alpha: isDark ? 0.2 : 0.12)
+                      : (isDark
+                            ? Colors.white10
+                            : Colors.black.withValues(alpha: 0.04)),
                   shape: BoxShape.circle,
                 ),
                 child: Center(

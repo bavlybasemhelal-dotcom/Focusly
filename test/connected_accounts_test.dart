@@ -42,10 +42,7 @@ class MockAccountLinkingService extends AccountLinkingService {
   final bool isLinked;
   final String? linkedEmail;
 
-  MockAccountLinkingService({
-    this.isLinked = false,
-    this.linkedEmail,
-  });
+  MockAccountLinkingService({this.isLinked = false, this.linkedEmail});
 
   @override
   bool isGoogleLinked(User? user) => isLinked;
@@ -90,12 +87,15 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('AccountLinkingService Unit Tests', () {
-    test('isGoogleLinked correctly identifies google.com provider in providerData', () {
-      final service = AccountLinkingService();
+    test(
+      'isGoogleLinked correctly identifies google.com provider in providerData',
+      () {
+        final service = AccountLinkingService();
 
-      // No user -> false
-      expect(service.isGoogleLinked(null), isFalse);
-    });
+        // No user -> false
+        expect(service.isGoogleLinked(null), isFalse);
+      },
+    );
 
     test('AccountLinkingResult status helpers work accurately', () {
       const success = AccountLinkingResult(status: LinkingStatus.success);
@@ -112,8 +112,9 @@ void main() {
   });
 
   group('ConnectedAccountsPage UI & Widget Tests', () {
-    testWidgets('Renders in Not Connected state with Connect Google button',
-        (WidgetTester tester) async {
+    testWidgets('Renders in Not Connected state with Connect Google button', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _buildConnectedAccountsTestApp(
           overrides: [
@@ -131,36 +132,42 @@ void main() {
       expect(find.text('Google Account'), findsOneWidget);
       expect(find.text('Not Connected'), findsOneWidget);
       expect(find.text('Connect Google'), findsOneWidget);
-      expect(find.text('Join or create a group first to invite friends'), findsOneWidget);
+      expect(
+        find.text('Join or create a group first to invite friends'),
+        findsOneWidget,
+      );
       expect(find.text('Explore Groups'), findsOneWidget);
     });
 
-    testWidgets('Renders in Connected state with linked email and Disconnect button',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        _buildConnectedAccountsTestApp(
-          overrides: [
-            accountLinkingServiceProvider.overrideWithValue(
-              MockAccountLinkingService(
-                isLinked: true,
-                linkedEmail: 'user.focusly@gmail.com',
+    testWidgets(
+      'Renders in Connected state with linked email and Disconnect button',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _buildConnectedAccountsTestApp(
+            overrides: [
+              accountLinkingServiceProvider.overrideWithValue(
+                MockAccountLinkingService(
+                  isLinked: true,
+                  linkedEmail: 'user.focusly@gmail.com',
+                ),
               ),
-            ),
-            myGroupsStreamProvider.overrideWith((ref) => Stream.value([])),
-          ],
-          home: const ConnectedAccountsPage(),
-        ),
-      );
-      await tester.pumpAndSettle();
+              myGroupsStreamProvider.overrideWith((ref) => Stream.value([])),
+            ],
+            home: const ConnectedAccountsPage(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Connected Accounts'), findsOneWidget);
-      expect(find.text('user.focusly@gmail.com'), findsOneWidget);
-      expect(find.text('Connected'), findsOneWidget);
-      expect(find.text('Disconnect'), findsOneWidget);
-    });
+        expect(find.text('Connected Accounts'), findsOneWidget);
+        expect(find.text('user.focusly@gmail.com'), findsOneWidget);
+        expect(find.text('Connected'), findsOneWidget);
+        expect(find.text('Disconnect'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Tapping Disconnect shows confirmation dialog',
-        (WidgetTester tester) async {
+    testWidgets('Tapping Disconnect shows confirmation dialog', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _buildConnectedAccountsTestApp(
           overrides: [
@@ -182,14 +189,17 @@ void main() {
 
       expect(find.text('Disconnect Google Account?'), findsOneWidget);
       expect(
-        find.text('You will no longer be able to use Google to log into this Focusly account.'),
+        find.text(
+          'You will no longer be able to use Google to log into this Focusly account.',
+        ),
         findsOneWidget,
       );
       expect(find.text('Cancel'), findsOneWidget);
     });
 
-    testWidgets('Renders Group Invite section when user has joined groups',
-        (WidgetTester tester) async {
+    testWidgets('Renders Group Invite section when user has joined groups', (
+      WidgetTester tester,
+    ) async {
       final mockGroups = [
         GroupModel(
           id: 'grp_1',
@@ -209,7 +219,9 @@ void main() {
             accountLinkingServiceProvider.overrideWithValue(
               MockAccountLinkingService(isLinked: false),
             ),
-            myGroupsStreamProvider.overrideWith((ref) => Stream.value(mockGroups)),
+            myGroupsStreamProvider.overrideWith(
+              (ref) => Stream.value(mockGroups),
+            ),
           ],
           home: const ConnectedAccountsPage(),
         ),
@@ -222,8 +234,9 @@ void main() {
       expect(find.text('Share Invite'), findsOneWidget);
     });
 
-    testWidgets('Arabic localization renders Connected Accounts texts',
-        (WidgetTester tester) async {
+    testWidgets('Arabic localization renders Connected Accounts texts', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _buildConnectedAccountsTestApp(
           locale: const Locale('ar'),
@@ -246,8 +259,9 @@ void main() {
       expect(find.text('استعراض المجموعات'), findsOneWidget);
     });
 
-    testWidgets('SettingsPage navigates to ConnectedAccountsPage on row tap',
-        (WidgetTester tester) async {
+    testWidgets('SettingsPage navigates to ConnectedAccountsPage on row tap', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _buildConnectedAccountsTestApp(
           overrides: [

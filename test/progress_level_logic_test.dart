@@ -173,6 +173,7 @@ void main() {
           AchievementsData.allAchievements.firstWhere((a) => a.id == 'event_5');
 
       expect(eventFirst.isUnlocked(const AchievementContext()), isFalse);
+      expect(event5.isUnlocked(const AchievementContext()), isFalse);
     });
 
     test('xp_100 and level_5 unlock correctly', () {

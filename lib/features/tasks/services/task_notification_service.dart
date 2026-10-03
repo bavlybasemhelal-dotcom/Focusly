@@ -1,3 +1,4 @@
+import '../../../core/notifications/managed_notification_sender.dart';
 import 'package:flutter/foundation.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/notifications/platform_senders/platform_notification_sender.dart';
@@ -20,7 +21,7 @@ class TaskNotificationService {
 
   /// Generates a stable unique integer notification ID from task ID and slot (0, 1, 2)
   int _generateNotificationId(String taskId, int slot) {
-    return (taskId.hashCode ^ (slot * 31)).abs() & 0x7FFFFFFF;
+    return ManagedNotificationSender.stableId('task:$taskId:$slot');
   }
 
   /// Schedules all relevant notifications for a task:
@@ -29,18 +30,24 @@ class TaskNotificationService {
   /// 3. 1 Hour Before Deadline Notification
   Future<void> scheduleTaskNotifications(
     TaskModel task,
-    AppLocalizations localizations,
-  ) async {
+    AppLocalizations localizations, {
+    String? uid,
+  }) async {
+    final account = uid ?? ManagedNotificationSender.uid;
+    if (account == null || ManagedNotificationSender.uid != account) return;
     // Ensure core notifications and permissions are ready
     await NotificationInitService.initializeAppNotifications();
-    await NotificationInitService.requestPermissions();
 
+    if (ManagedNotificationSender.uid != account) return;
     // Always clear prior scheduled slots first to prevent duplicate or stale alerts
     await cancelTaskNotifications(task.id);
 
     // If task is completed, do not schedule any upcoming alerts
     if (task.done) return;
+    if (task.time == null && task.deadline == null) return;
+    await NotificationInitService.requestPermissions();
 
+    if (ManagedNotificationSender.uid != account) return;
     final now = DateTime.now();
 
     // -------------------------------------------------------------------------
@@ -62,6 +69,7 @@ class TaskNotificationService {
           final body =
               '${task.title} • ${task.time!.hour.toString().padLeft(2, '0')}:${task.time!.minute.toString().padLeft(2, '0')}';
 
+          if (ManagedNotificationSender.uid != account) return;
           await _platformSender.scheduleNotification(
             id: id,
             title: title,
@@ -69,11 +77,12 @@ class TaskNotificationService {
             scheduledDate: scheduledDateTime,
             channelId: 'task_reminders',
             channelName: 'Task Reminders',
-            payload: task.id,
+            payload: 'task:${task.id}',
           );
 
           // Record in notification history log with scheduled metadata
           await NotificationLogger.logNotification(
+            uid: account,
             title: title,
             body: body,
             type: 'task_reminder',
@@ -99,6 +108,7 @@ class TaskNotificationService {
           final title24 = localizations.tr('notification_deadline_24h_title');
           final body24 = task.title;
 
+          if (ManagedNotificationSender.uid != account) return;
           await _platformSender.scheduleNotification(
             id: id24,
             title: title24,
@@ -106,10 +116,11 @@ class TaskNotificationService {
             scheduledDate: deadline24h,
             channelId: 'task_deadlines',
             channelName: 'Task Deadlines',
-            payload: task.id,
+            payload: 'task:${task.id}',
           );
 
           await NotificationLogger.logNotification(
+            uid: account,
             title: title24,
             body: body24,
             type: 'task_reminder',
@@ -130,6 +141,7 @@ class TaskNotificationService {
           final title1 = localizations.tr('notification_deadline_1h_title');
           final body1 = task.title;
 
+          if (ManagedNotificationSender.uid != account) return;
           await _platformSender.scheduleNotification(
             id: id1,
             title: title1,
@@ -137,10 +149,11 @@ class TaskNotificationService {
             scheduledDate: deadline1h,
             channelId: 'task_deadlines',
             channelName: 'Task Deadlines',
-            payload: task.id,
+            payload: 'task:${task.id}',
           );
 
           await NotificationLogger.logNotification(
+            uid: account,
             title: title1,
             body: body1,
             type: 'task_reminder',
@@ -158,9 +171,15 @@ class TaskNotificationService {
   /// Cancels all scheduled notification slots for a given task ID
   Future<void> cancelTaskNotifications(String taskId) async {
     try {
-      await _platformSender.cancelNotification(_generateNotificationId(taskId, 0));
-      await _platformSender.cancelNotification(_generateNotificationId(taskId, 1));
-      await _platformSender.cancelNotification(_generateNotificationId(taskId, 2));
+      await _platformSender.cancelNotification(
+        _generateNotificationId(taskId, 0),
+      );
+      await _platformSender.cancelNotification(
+        _generateNotificationId(taskId, 1),
+      );
+      await _platformSender.cancelNotification(
+        _generateNotificationId(taskId, 2),
+      );
     } catch (e) {
       debugPrint('Error cancelling task notifications: $e');
     }

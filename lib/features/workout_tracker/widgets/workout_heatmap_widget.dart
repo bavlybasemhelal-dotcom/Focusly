@@ -15,7 +15,9 @@ class WorkoutHeatmapWidget extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
     final borderColor = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
-    final emptyCellBg = isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9);
+    final emptyCellBg = isDark
+        ? const Color(0xFF08123A)
+        : const Color(0xFFF1F5F9);
 
     final heatmapDays = ref.watch(workoutHeatmapProvider);
     final activeDaysCount = heatmapDays.where((d) => d.hasWorkout).length;
@@ -81,10 +83,7 @@ class WorkoutHeatmapWidget extends ConsumerWidget {
           const SizedBox(height: 6),
           Text(
             context.tr('streak_heatmap_subtitle'),
-            style: TextStyle(
-              fontSize: 11,
-              color: secondaryTextColor,
-            ),
+            style: TextStyle(fontSize: 11, color: secondaryTextColor),
           ),
           const SizedBox(height: 14),
 
@@ -104,8 +103,7 @@ class WorkoutHeatmapWidget extends ConsumerWidget {
               final hasWorkout = day.hasWorkout;
               final isToday = index == heatmapDays.length - 1;
 
-              final dateStr =
-                  '${day.date.month}/${day.date.day}';
+              final dateStr = '${day.date.month}/${day.date.day}';
 
               return Tooltip(
                 message: hasWorkout
@@ -113,13 +111,13 @@ class WorkoutHeatmapWidget extends ConsumerWidget {
                     : '$dateStr: Rest day',
                 child: Container(
                   decoration: BoxDecoration(
-                    color: hasWorkout
-                        ? const Color(0xFF10B981)
-                        : emptyCellBg,
+                    color: hasWorkout ? const Color(0xFF10B981) : emptyCellBg,
                     borderRadius: BorderRadius.circular(8),
                     border: isToday
                         ? Border.all(
-                            color: isDark ? Colors.white : const Color(0xFF0F1B4C),
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF0F1B4C),
                             width: 1.5,
                           )
                         : Border.all(

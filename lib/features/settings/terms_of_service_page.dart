@@ -46,7 +46,10 @@ class TermsOfServicePage extends StatelessWidget {
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -76,7 +79,9 @@ class TermsOfServicePage extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF3B82F6).withValues(alpha: 0.14),
+                                color: const Color(
+                                  0xFF3B82F6,
+                                ).withValues(alpha: 0.14),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -236,9 +241,7 @@ class TermsOfServicePage extends StatelessWidget {
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [cyanGlow, Colors.transparent],
-              ),
+              gradient: RadialGradient(colors: [cyanGlow, Colors.transparent]),
             ),
           ),
         ),

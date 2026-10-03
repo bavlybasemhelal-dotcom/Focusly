@@ -44,7 +44,9 @@ class TimeAuditPage extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.errorRed,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(context.tr('clear_all_btn')),
@@ -63,7 +65,9 @@ class TimeAuditPage extends ConsumerWidget {
               content: Text(context.tr('all_logs_cleared_toast')),
               backgroundColor: AppColors.errorRed,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -80,10 +84,7 @@ class TimeAuditPage extends ConsumerWidget {
     if (uid == null) return;
 
     HapticFeedback.selectionClick();
-    await ref.read(timeAuditServiceProvider).deleteLog(
-          uid: uid,
-          logId: log.id,
-        );
+    await ref.read(timeAuditServiceProvider).deleteLog(uid: uid, logId: log.id);
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -91,7 +92,9 @@ class TimeAuditPage extends ConsumerWidget {
           content: Text(context.tr('log_deleted_toast')),
           backgroundColor: const Color(0xFF64748B),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -108,7 +111,8 @@ class TimeAuditPage extends ConsumerWidget {
     final currentPeriod = ref.watch(timeAuditPeriodFilterProvider);
     final manualLogs = ref.watch(filteredManualLogsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
-    final allCategories = categoriesAsync.value ?? TaskCategory.defaultCategories;
+    final allCategories =
+        categoriesAsync.value ?? TaskCategory.defaultCategories;
     final categoriesMap = {for (var c in allCategories) c.id: c};
 
     final periods = [
@@ -152,7 +156,9 @@ class TimeAuditPage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF08123A) : const Color(0xFFF1F5F9),
+                color: isDark
+                    ? const Color(0xFF08123A)
+                    : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -173,12 +179,16 @@ class TimeAuditPage extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF2E6FF2) : Colors.transparent,
+                          color: isSelected
+                              ? const Color(0xFF2E6FF2)
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                                    color: const Color(
+                                      0xFF2E6FF2,
+                                    ).withValues(alpha: 0.3),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -190,8 +200,12 @@ class TimeAuditPage extends ConsumerWidget {
                             label,
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                              color: isSelected ? Colors.white : secondaryTextColor,
+                              fontWeight: isSelected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white
+                                  : secondaryTextColor,
                             ),
                           ),
                         ),
@@ -268,7 +282,8 @@ class TimeAuditPage extends ConsumerWidget {
               )
             else
               ...manualLogs.map((log) {
-                final category = categoriesMap[log.category] ??
+                final category =
+                    categoriesMap[log.category] ??
                     TaskCategory(
                       id: log.category,
                       nameKey: log.category,
@@ -327,7 +342,9 @@ class TimeAuditPage extends ConsumerWidget {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: category.color.withValues(alpha: 0.14),
+                                    color: category.color.withValues(
+                                      alpha: 0.14,
+                                    ),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -358,7 +375,10 @@ class TimeAuditPage extends ConsumerWidget {
 
                       // Hours Tag
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFF2E6FF2).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),

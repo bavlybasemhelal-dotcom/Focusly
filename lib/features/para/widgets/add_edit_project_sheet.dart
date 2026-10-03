@@ -12,11 +12,7 @@ class AddEditProjectSheet extends ConsumerStatefulWidget {
   final ParaProjectModel? project;
   final String? initialAreaId;
 
-  const AddEditProjectSheet({
-    super.key,
-    this.project,
-    this.initialAreaId,
-  });
+  const AddEditProjectSheet({super.key, this.project, this.initialAreaId});
 
   static Future<bool?> show(
     BuildContext context, {
@@ -27,10 +23,8 @@ class AddEditProjectSheet extends ConsumerStatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddEditProjectSheet(
-        project: project,
-        initialAreaId: initialAreaId,
-      ),
+      builder: (context) =>
+          AddEditProjectSheet(project: project, initialAreaId: initialAreaId),
     );
   }
 
@@ -49,8 +43,7 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
   @override
   void initState() {
     super.initState();
-    _titleController =
-        TextEditingController(text: widget.project?.title ?? '');
+    _titleController = TextEditingController(text: widget.project?.title ?? '');
     _selectedAreaId = widget.project?.areaId ?? widget.initialAreaId;
     _selectedDeadline = widget.project?.deadline;
   }
@@ -64,7 +57,8 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
   Future<void> _pickDeadline() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDeadline ?? DateTime.now().add(const Duration(days: 7)),
+      initialDate:
+          _selectedDeadline ?? DateTime.now().add(const Duration(days: 7)),
       firstDate: DateTime.now().subtract(const Duration(days: 365)),
       lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
     );
@@ -220,10 +214,15 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                 controller: _titleController,
                 autofocus: !isEdit,
                 textCapitalization: TextCapitalization.sentences,
-                style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
                   hintText: context.tr('project_title_hint'),
-                  hintStyle: TextStyle(color: secondaryTextColor.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: secondaryTextColor.withValues(alpha: 0.6),
+                  ),
                   filled: true,
                   fillColor: inputBg,
                   border: OutlineInputBorder(
@@ -236,9 +235,15 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF2E6FF2),
+                      width: 1.8,
+                    ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -276,7 +281,11 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.info_outline_rounded, color: Color(0xFFF59E0B), size: 20),
+                              const Icon(
+                                Icons.info_outline_rounded,
+                                color: Color(0xFFF59E0B),
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -295,7 +304,9 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                             height: 38,
                             child: ElevatedButton.icon(
                               onPressed: () async {
-                                final created = await AddEditAreaSheet.show(context);
+                                final created = await AddEditAreaSheet.show(
+                                  context,
+                                );
                                 if (created == true) {
                                   // Refreshes automatically via stream
                                 }
@@ -323,7 +334,10 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                   }
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: inputBg,
                       borderRadius: BorderRadius.circular(14),
@@ -336,13 +350,19 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                             : areas.first.id,
                         isExpanded: true,
                         dropdownColor: cardBg,
-                        icon: Icon(Icons.arrow_drop_down_rounded, color: secondaryTextColor),
+                        icon: Icon(
+                          Icons.arrow_drop_down_rounded,
+                          color: secondaryTextColor,
+                        ),
                         items: areas.map((area) {
                           return DropdownMenuItem<String>(
                             value: area.id,
                             child: Row(
                               children: [
-                                Text(area.emoji, style: const TextStyle(fontSize: 18)),
+                                Text(
+                                  area.emoji,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
                                 const SizedBox(width: 10),
                                 Text(
                                   area.title,
@@ -392,7 +412,10 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                 onTap: _pickDeadline,
                 borderRadius: BorderRadius.circular(14),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: inputBg,
                     borderRadius: BorderRadius.circular(14),
@@ -411,8 +434,9 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                       Expanded(
                         child: Text(
                           _selectedDeadline != null
-                              ? AppLocalizations.of(context)
-                                  .formatLocalizedDate(_selectedDeadline!)
+                              ? AppLocalizations.of(
+                                  context,
+                                ).formatLocalizedDate(_selectedDeadline!)
                               : context.tr('optional_no_deadline'),
                           style: TextStyle(
                             color: _selectedDeadline != null
@@ -427,7 +451,11 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                         IconButton(
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
-                          icon: Icon(Icons.close_rounded, color: secondaryTextColor, size: 18),
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color: secondaryTextColor,
+                            size: 18,
+                          ),
                           onPressed: () {
                             setState(() => _selectedDeadline = null);
                           },
@@ -458,7 +486,9 @@ class _AddEditProjectSheetState extends ConsumerState<AddEditProjectSheet> {
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Text(

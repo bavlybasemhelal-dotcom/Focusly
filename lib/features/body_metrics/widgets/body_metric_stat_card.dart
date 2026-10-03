@@ -24,7 +24,9 @@ class BodyMetricStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final secondaryTextColor = AppColors.textSecondary(context);
 
     return Container(
@@ -56,13 +58,7 @@ class BodyMetricStatCard extends StatelessWidget {
                   color: iconColor.withValues(alpha: isDark ? 0.2 : 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Center(
-                  child: Icon(
-                    icon,
-                    size: 16,
-                    color: iconColor,
-                  ),
-                ),
+                child: Center(child: Icon(icon, size: 16, color: iconColor)),
               ),
               const SizedBox(width: 8),
               Expanded(

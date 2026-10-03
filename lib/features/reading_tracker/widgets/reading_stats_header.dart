@@ -84,7 +84,8 @@ class ReadingStatsHeader extends ConsumerWidget {
                 icon: Icons.menu_book_rounded,
                 iconColor: const Color(0xFF8B5CF6),
                 title: context.tr('stat_pages_read'),
-                value: '${stats.totalPagesRead} pgs (${stats.overallProgressPercent}%)',
+                value:
+                    '${stats.totalPagesRead} pgs (${stats.overallProgressPercent}%)',
                 cardBg: cardBg,
                 borderColor: borderColor,
                 primaryTextColor: primaryTextColor,

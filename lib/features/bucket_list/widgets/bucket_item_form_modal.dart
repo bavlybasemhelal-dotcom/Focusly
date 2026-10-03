@@ -11,12 +11,12 @@ import '../providers/bucket_list_provider.dart';
 class BucketItemFormModal extends ConsumerStatefulWidget {
   final BucketItemModel? itemToEdit;
 
-  const BucketItemFormModal({
-    super.key,
-    this.itemToEdit,
-  });
+  const BucketItemFormModal({super.key, this.itemToEdit});
 
-  static Future<void> show(BuildContext context, {BucketItemModel? itemToEdit}) {
+  static Future<void> show(
+    BuildContext context, {
+    BucketItemModel? itemToEdit,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -26,7 +26,8 @@ class BucketItemFormModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<BucketItemFormModal> createState() => _BucketItemFormModalState();
+  ConsumerState<BucketItemFormModal> createState() =>
+      _BucketItemFormModalState();
 }
 
 class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
@@ -171,7 +172,9 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
     if (confirmed == true && mounted) {
       final uid = ref.read(currentUserIdProvider);
       if (uid != null && uid.isNotEmpty) {
-        await ref.read(bucketListServiceProvider).deleteBucketItem(uid, edit.id);
+        await ref
+            .read(bucketListServiceProvider)
+            .deleteBucketItem(uid, edit.id);
       }
       if (mounted) {
         Navigator.of(context).pop();
@@ -186,13 +189,25 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
     final secondaryTextColor = AppColors.textSecondary(context);
     final modalBg = isDark ? const Color(0xFF0F172A) : Colors.white;
     final inputBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
     final isEdit = widget.itemToEdit != null;
     final isCompleted = _status == 'completed';
 
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final formattedTargetDate = _selectedTargetDate != null
         ? '${months[_selectedTargetDate!.month - 1]} ${_selectedTargetDate!.day}, ${_selectedTargetDate!.year}'
@@ -243,7 +258,9 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                           const SizedBox(width: 10),
                           Text(
                             context.tr(
-                              isEdit ? 'edit_bucket_item_title' : 'add_bucket_item_title',
+                              isEdit
+                                  ? 'edit_bucket_item_title'
+                                  : 'add_bucket_item_title',
                             ),
                             style: TextStyle(
                               fontSize: 18,
@@ -282,10 +299,16 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                         style: TextStyle(color: primaryTextColor, fontSize: 14),
                         decoration: InputDecoration(
                           hintText: context.tr('item_title_hint'),
-                          hintStyle: TextStyle(color: secondaryTextColor, fontSize: 13),
+                          hintStyle: TextStyle(
+                            color: secondaryTextColor,
+                            fontSize: 13,
+                          ),
                           filled: true,
                           fillColor: inputBg,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(color: borderColor),
@@ -296,7 +319,10 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6366F1),
+                              width: 1.8,
+                            ),
                           ),
                         ),
                         validator: (value) {
@@ -332,7 +358,10 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                           borderRadius: BorderRadius.circular(16),
                           onTap: _pickTargetDate,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             decoration: BoxDecoration(
                               color: inputBg,
                               borderRadius: BorderRadius.circular(16),
@@ -340,8 +369,11 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.calendar_month_rounded,
-                                    size: 20, color: Color(0xFF6366F1)),
+                                const Icon(
+                                  Icons.calendar_month_rounded,
+                                  size: 20,
+                                  color: Color(0xFF6366F1),
+                                ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
@@ -360,7 +392,10 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                                 ),
                                 if (_selectedTargetDate != null)
                                   IconButton(
-                                    icon: const Icon(Icons.clear_rounded, size: 18),
+                                    icon: const Icon(
+                                      Icons.clear_rounded,
+                                      size: 18,
+                                    ),
                                     onPressed: () {
                                       setState(() {
                                         _selectedTargetDate = null;
@@ -401,7 +436,9 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                           color: inputBg,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isCompleted ? const Color(0xFF10B981) : borderColor,
+                            color: isCompleted
+                                ? const Color(0xFF10B981)
+                                : borderColor,
                           ),
                         ),
                         child: DropdownButtonHideUnderline(
@@ -415,7 +452,10 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                                 value: 'pending',
                                 child: Row(
                                   children: [
-                                    const Text('📌', style: TextStyle(fontSize: 14)),
+                                    const Text(
+                                      '📌',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       context.tr('status_pending'),
@@ -431,7 +471,10 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                                 value: 'completed',
                                 child: Row(
                                   children: [
-                                    const Text('🏆', style: TextStyle(fontSize: 14)),
+                                    const Text(
+                                      '🏆',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       context.tr('status_completed'),
@@ -483,9 +526,14 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                           if (isCompleted) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.25 : 0.12),
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: isDark ? 0.25 : 0.12),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
@@ -504,31 +552,50 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                       TextFormField(
                         controller: _memoryController,
                         maxLines: 4,
-                        style: TextStyle(color: primaryTextColor, fontSize: 13, height: 1.4),
+                        style: TextStyle(
+                          color: primaryTextColor,
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
                         decoration: InputDecoration(
                           hintText: context.tr('item_memory_hint'),
-                          hintStyle: TextStyle(color: secondaryTextColor, fontSize: 12),
+                          hintStyle: TextStyle(
+                            color: secondaryTextColor,
+                            fontSize: 12,
+                          ),
                           filled: true,
                           fillColor: isCompleted
-                              ? const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04)
+                              ? const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: isDark ? 0.08 : 0.04)
                               : inputBg,
                           contentPadding: const EdgeInsets.all(16),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(
-                              color: isCompleted ? const Color(0xFF10B981).withValues(alpha: 0.4) : borderColor,
+                              color: isCompleted
+                                  ? const Color(
+                                      0xFF10B981,
+                                    ).withValues(alpha: 0.4)
+                                  : borderColor,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(
-                              color: isCompleted ? const Color(0xFF10B981).withValues(alpha: 0.4) : borderColor,
+                              color: isCompleted
+                                  ? const Color(
+                                      0xFF10B981,
+                                    ).withValues(alpha: 0.4)
+                                  : borderColor,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(
-                              color: isCompleted ? const Color(0xFF10B981) : const Color(0xFF6366F1),
+                              color: isCompleted
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF6366F1),
                               width: 1.8,
                             ),
                           ),
@@ -562,7 +629,9 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : Text(
@@ -580,7 +649,10 @@ class _BucketItemFormModalState extends ConsumerState<BucketItemFormModal> {
                             foregroundColor: const Color(0xFFEF4444),
                             minimumSize: const Size(double.infinity, 44),
                           ),
-                          icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            size: 18,
+                          ),
                           label: Text(
                             context.tr('delete_item_btn'),
                             style: const TextStyle(fontWeight: FontWeight.w700),

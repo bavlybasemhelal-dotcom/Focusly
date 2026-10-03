@@ -9,7 +9,7 @@ class WorkoutService {
   final FirebaseFirestore _firestore;
 
   WorkoutService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _workoutsCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('workouts');
@@ -17,10 +17,9 @@ class WorkoutService {
 
   /// Streams all workouts for [uid] ordered by date descending.
   Stream<List<WorkoutModel>> streamWorkouts(String uid) {
-    return _workoutsCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _workoutsCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => WorkoutModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -76,7 +75,9 @@ class WorkoutService {
         durationMin: newDurationMin > 0 ? newDurationMin : 1,
         calories: newCalories >= 0 ? newCalories : 0,
         date: newDate,
-        note: (newNote != null && newNote.trim().isNotEmpty) ? newNote.trim() : null,
+        note: (newNote != null && newNote.trim().isNotEmpty)
+            ? newNote.trim()
+            : null,
         clearNote: newNote == null || newNote.trim().isEmpty,
         updatedAt: now,
       );

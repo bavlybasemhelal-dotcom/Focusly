@@ -20,7 +20,9 @@ class LegacyJournalPage extends ConsumerWidget {
     final secondaryTextColor = AppColors.textSecondary(context);
     final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
 
     final allEntriesAsync = ref.watch(legacyJournalStreamProvider);
     final allEntries = allEntriesAsync.value ?? <LegacyEntryModel>[];
@@ -66,77 +68,88 @@ class LegacyJournalPage extends ConsumerWidget {
               child: CircularProgressIndicator(color: Color(0xFF6366F1)),
             )
           : allEntries.isEmpty
-              ? _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor)
-              : ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    // 1. Letters to Future Self Section (Rendered only if letters exist)
-                    if (letters.isNotEmpty) ...[
-                      _buildSectionHeader(
-                        context: context,
-                        title: context.tr('legacy_section_letters'),
-                        accentColor: const Color(0xFF00E5FF),
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 12),
-                      ...letters.map((entry) => _buildEntryCard(
-                            context: context,
-                            ref: ref,
-                            entry: entry,
-                            isDark: isDark,
-                            cardBg: cardBg,
-                            borderColor: borderColor,
-                            primaryTextColor: primaryTextColor,
-                            secondaryTextColor: secondaryTextColor,
-                          )),
-                      const SizedBox(height: 24),
-                    ],
+          ? _buildEmptyState(
+              context,
+              isDark,
+              primaryTextColor,
+              secondaryTextColor,
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
+              physics: const BouncingScrollPhysics(),
+              children: [
+                // 1. Letters to Future Self Section (Rendered only if letters exist)
+                if (letters.isNotEmpty) ...[
+                  _buildSectionHeader(
+                    context: context,
+                    title: context.tr('legacy_section_letters'),
+                    accentColor: const Color(0xFF00E5FF),
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 12),
+                  ...letters.map(
+                    (entry) => _buildEntryCard(
+                      context: context,
+                      ref: ref,
+                      entry: entry,
+                      isDark: isDark,
+                      cardBg: cardBg,
+                      borderColor: borderColor,
+                      primaryTextColor: primaryTextColor,
+                      secondaryTextColor: secondaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
-                    // 2. Core Values & Beliefs Section (Rendered only if values exist)
-                    if (values.isNotEmpty) ...[
-                      _buildSectionHeader(
-                        context: context,
-                        title: context.tr('legacy_section_values'),
-                        accentColor: const Color(0xFF8B5CF6),
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 12),
-                      ...values.map((entry) => _buildEntryCard(
-                            context: context,
-                            ref: ref,
-                            entry: entry,
-                            isDark: isDark,
-                            cardBg: cardBg,
-                            borderColor: borderColor,
-                            primaryTextColor: primaryTextColor,
-                            secondaryTextColor: secondaryTextColor,
-                          )),
-                      const SizedBox(height: 24),
-                    ],
+                // 2. Core Values & Beliefs Section (Rendered only if values exist)
+                if (values.isNotEmpty) ...[
+                  _buildSectionHeader(
+                    context: context,
+                    title: context.tr('legacy_section_values'),
+                    accentColor: const Color(0xFF8B5CF6),
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 12),
+                  ...values.map(
+                    (entry) => _buildEntryCard(
+                      context: context,
+                      ref: ref,
+                      entry: entry,
+                      isDark: isDark,
+                      cardBg: cardBg,
+                      borderColor: borderColor,
+                      primaryTextColor: primaryTextColor,
+                      secondaryTextColor: secondaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
-                    // 3. Will & Philosophy Guidelines Section (Rendered only if will entries exist)
-                    if (willEntries.isNotEmpty) ...[
-                      _buildSectionHeader(
-                        context: context,
-                        title: context.tr('legacy_section_will'),
-                        accentColor: const Color(0xFFF59E0B),
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 12),
-                      ...willEntries.map((entry) => _buildEntryCard(
-                            context: context,
-                            ref: ref,
-                            entry: entry,
-                            isDark: isDark,
-                            cardBg: cardBg,
-                            borderColor: borderColor,
-                            primaryTextColor: primaryTextColor,
-                            secondaryTextColor: secondaryTextColor,
-                          )),
-                    ],
-                  ],
-                ),
+                // 3. Will & Philosophy Guidelines Section (Rendered only if will entries exist)
+                if (willEntries.isNotEmpty) ...[
+                  _buildSectionHeader(
+                    context: context,
+                    title: context.tr('legacy_section_will'),
+                    accentColor: const Color(0xFFF59E0B),
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 12),
+                  ...willEntries.map(
+                    (entry) => _buildEntryCard(
+                      context: context,
+                      ref: ref,
+                      entry: entry,
+                      isDark: isDark,
+                      cardBg: cardBg,
+                      borderColor: borderColor,
+                      primaryTextColor: primaryTextColor,
+                      secondaryTextColor: secondaryTextColor,
+                    ),
+                  ),
+                ],
+              ],
+            ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF6366F1),
         foregroundColor: Colors.white,
@@ -309,7 +322,9 @@ class LegacyJournalPage extends ConsumerWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.2 : 0.1),
+                color: const Color(
+                  0xFF6366F1,
+                ).withValues(alpha: isDark ? 0.2 : 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -342,7 +357,10 @@ class LegacyJournalPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -367,7 +385,11 @@ class LegacyJournalPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, LegacyEntryModel entry) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    LegacyEntryModel entry,
+  ) async {
     HapticFeedback.mediumImpact();
     final confirmed = await showDialog<bool>(
       context: context,

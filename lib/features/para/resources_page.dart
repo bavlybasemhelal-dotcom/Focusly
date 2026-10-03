@@ -20,7 +20,9 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
 
   Future<void> _handleArchiveResource(ParaResourceModel resource) async {
     HapticFeedback.lightImpact();
-    await ref.read(paraServiceProvider).setResourceArchived(resource.id, archived: true);
+    await ref
+        .read(paraServiceProvider)
+        .setResourceArchived(resource.id, archived: true);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -44,10 +46,16 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Text(
           context.tr('delete_resource_confirm_title'),
-          style: TextStyle(fontWeight: FontWeight.w900, color: primaryTextColor),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: primaryTextColor,
+          ),
         ),
         content: Text(
-          context.tr('delete_resource_confirm_msg', args: {'title': resource.title}),
+          context.tr(
+            'delete_resource_confirm_msg',
+            args: {'title': resource.title},
+          ),
           style: TextStyle(color: secondaryTextColor),
         ),
         actions: [
@@ -60,7 +68,9 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.errorRed,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(context.tr('delete_group_btn')),
           ),
@@ -87,7 +97,9 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
     final primaryTextColor = AppColors.textPrimary(context);
     final secondaryTextColor = AppColors.textSecondary(context);
     final brandPrimary = AppColors.brandPrimary(context);
-    final scaffoldBg = isDark ? const Color(0xFF070D28) : const Color(0xFFF8FAFC);
+    final scaffoldBg = isDark
+        ? const Color(0xFF070D28)
+        : const Color(0xFFF8FAFC);
 
     final resourcesAsync = ref.watch(paraResourcesStreamProvider);
 
@@ -117,8 +129,13 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: brandPrimary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -182,12 +199,18 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
               // Main List
               Expanded(
                 child: filteredResources.isEmpty
-                    ? _buildEmptyState(context, isDark, primaryTextColor, secondaryTextColor)
+                    ? _buildEmptyState(
+                        context,
+                        isDark,
+                        primaryTextColor,
+                        secondaryTextColor,
+                      )
                     : ListView.separated(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.fromLTRB(20, 6, 20, 90),
                         itemCount: filteredResources.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 12),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final resource = filteredResources[index];
                           return _buildResourceCard(
@@ -234,14 +257,18 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
           border: Border.all(
             color: isSelected
                 ? brandPrimary
-                : (isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F5)),
+                : (isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : const Color(0xFFE2E8F5)),
           ),
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF475569)),
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : const Color(0xFF475569)),
               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               fontSize: 12,
             ),
@@ -291,7 +318,11 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
                   color: const Color(0xFF06B6D4).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.source_rounded, color: Color(0xFF06B6D4), size: 18),
+                child: const Icon(
+                  Icons.source_rounded,
+                  color: Color(0xFF06B6D4),
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -306,7 +337,8 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
                         color: primaryTextColor,
                       ),
                     ),
-                    if (resource.notes != null && resource.notes!.isNotEmpty) ...[
+                    if (resource.notes != null &&
+                        resource.notes!.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Text(
                         resource.notes!,
@@ -324,9 +356,15 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
                 ),
               ),
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert_rounded, color: secondaryTextColor, size: 20),
+                icon: Icon(
+                  Icons.more_vert_rounded,
+                  color: secondaryTextColor,
+                  size: 20,
+                ),
                 color: cardBg,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 onSelected: (val) {
                   if (val == 'edit') {
                     AddEditResourceSheet.show(context, resource: resource);
@@ -341,7 +379,11 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        const Icon(Icons.edit_outlined, size: 18, color: Color(0xFF2E6FF2)),
+                        const Icon(
+                          Icons.edit_outlined,
+                          size: 18,
+                          color: Color(0xFF2E6FF2),
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr('edit_waiting_title')),
                       ],
@@ -351,7 +393,11 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
                     value: 'archive',
                     child: Row(
                       children: [
-                        const Icon(Icons.archive_outlined, size: 18, color: Color(0xFF8B5CF6)),
+                        const Icon(
+                          Icons.archive_outlined,
+                          size: 18,
+                          color: Color(0xFF8B5CF6),
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr('archive_action_btn')),
                       ],
@@ -361,9 +407,16 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.errorRed),
+                        const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                          color: AppColors.errorRed,
+                        ),
                         const SizedBox(width: 8),
-                        Text(context.tr('delete_group_btn'), style: const TextStyle(color: AppColors.errorRed)),
+                        Text(
+                          context.tr('delete_group_btn'),
+                          style: const TextStyle(color: AppColors.errorRed),
+                        ),
                       ],
                     ),
                   ),
@@ -380,7 +433,10 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
               runSpacing: 6,
               children: resource.tags.map((tag) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
@@ -461,8 +517,13 @@ class _ResourcesPageState extends ConsumerState<ResourcesPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ],

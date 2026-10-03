@@ -10,7 +10,7 @@ class BodyMetricsService {
   final FirebaseFirestore _firestore;
 
   BodyMetricsService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _metricsCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('bodyMetrics');
@@ -18,10 +18,9 @@ class BodyMetricsService {
 
   /// Streams all body metrics for [uid] ordered by date descending.
   Stream<List<BodyMetricModel>> streamBodyMetrics(String uid) {
-    return _metricsCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _metricsCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => BodyMetricModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -45,9 +44,13 @@ class BodyMetricsService {
       final metric = BodyMetricModel(
         id: docRef.id,
         date: BodyMetricsHelpers.toDateOnly(date),
-        weight: (weight != null && weight > 0) ? weight : null,
+        weight: (weight != null && weight.isFinite && weight > 0)
+            ? weight
+            : null,
         bpSystolic: (bpSystolic != null && bpSystolic > 0) ? bpSystolic : null,
-        bpDiastolic: (bpDiastolic != null && bpDiastolic > 0) ? bpDiastolic : null,
+        bpDiastolic: (bpDiastolic != null && bpDiastolic > 0)
+            ? bpDiastolic
+            : null,
         pulse: (pulse != null && pulse > 0) ? pulse : null,
         note: (note != null && note.trim().isNotEmpty) ? note.trim() : null,
         createdAt: now,
@@ -77,14 +80,26 @@ class BodyMetricsService {
       final now = DateTime.now();
       final updated = currentMetric.copyWith(
         date: BodyMetricsHelpers.toDateOnly(newDate),
-        weight: (newWeight != null && newWeight > 0) ? newWeight : null,
-        clearWeight: newWeight == null || newWeight <= 0,
-        bpSystolic: (newBpSystolic != null && newBpSystolic > 0) ? newBpSystolic : null,
-        bpDiastolic: (newBpDiastolic != null && newBpDiastolic > 0) ? newBpDiastolic : null,
-        clearBp: newBpSystolic == null || newBpDiastolic == null,
+        weight: (newWeight != null && newWeight.isFinite && newWeight > 0)
+            ? newWeight
+            : null,
+        clearWeight: newWeight == null || !newWeight.isFinite || newWeight <= 0,
+        bpSystolic: (newBpSystolic != null && newBpSystolic > 0)
+            ? newBpSystolic
+            : null,
+        bpDiastolic: (newBpDiastolic != null && newBpDiastolic > 0)
+            ? newBpDiastolic
+            : null,
+        clearBp:
+            newBpSystolic == null ||
+            newBpSystolic <= 0 ||
+            newBpDiastolic == null ||
+            newBpDiastolic <= 0,
         pulse: (newPulse != null && newPulse > 0) ? newPulse : null,
         clearPulse: newPulse == null || newPulse <= 0,
-        note: (newNote != null && newNote.trim().isNotEmpty) ? newNote.trim() : null,
+        note: (newNote != null && newNote.trim().isNotEmpty)
+            ? newNote.trim()
+            : null,
         clearNote: newNote == null || newNote.trim().isEmpty,
         updatedAt: now,
       );

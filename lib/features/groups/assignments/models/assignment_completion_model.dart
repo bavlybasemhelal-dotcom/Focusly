@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 ///
 /// Stored in Firestore under: `groups/{groupId}/assignments/{assignmentId}/completions/{uid}`
 class AssignmentCompletionModel {
+  final String decision;
+  final String delayReason;
   final String uid;
   final String? memberName;
   final String status; // 'pending' | 'done'
@@ -13,6 +15,8 @@ class AssignmentCompletionModel {
 
   const AssignmentCompletionModel({
     required this.uid,
+    this.decision = 'offered',
+    this.delayReason = '',
     this.memberName,
     this.status = 'pending',
     this.currentCount = 0,
@@ -28,14 +32,21 @@ class AssignmentCompletionModel {
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
+      'decision': decision,
+      'delayReason': delayReason,
       if (memberName != null) 'memberName': memberName,
       'status': status,
       'currentCount': currentCount,
-      'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
+      'completedAt': completedAt != null
+          ? Timestamp.fromDate(completedAt!)
+          : null,
     };
   }
 
-  factory AssignmentCompletionModel.fromMap(Map<String, dynamic> map, String docId) {
+  factory AssignmentCompletionModel.fromMap(
+    Map<String, dynamic> map,
+    String docId,
+  ) {
     DateTime? parsedCompletedAt;
     if (map['completedAt'] is Timestamp) {
       parsedCompletedAt = (map['completedAt'] as Timestamp).toDate();
@@ -45,6 +56,8 @@ class AssignmentCompletionModel {
 
     return AssignmentCompletionModel(
       uid: docId.isNotEmpty ? docId : (map['uid'] ?? ''),
+      decision: map['decision'] as String? ?? 'offered',
+      delayReason: map['delayReason'] as String? ?? '',
       memberName: map['memberName'] as String?,
       status: map['status'] as String? ?? 'pending',
       currentCount: (map['currentCount'] as num?)?.toInt() ?? 0,
@@ -70,6 +83,8 @@ class AssignmentCompletionModel {
     return AssignmentCompletionModel(
       uid: uid ?? this.uid,
       memberName: memberName ?? this.memberName,
+      decision: decision,
+      delayReason: delayReason,
       status: status ?? this.status,
       currentCount: currentCount ?? this.currentCount,
       completedAt: clearCompletedAt ? null : (completedAt ?? this.completedAt),

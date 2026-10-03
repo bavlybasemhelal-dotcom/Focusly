@@ -14,10 +14,7 @@ import 'decision_form_modal.dart';
 class DecisionCard extends ConsumerWidget {
   final DecisionModel decision;
 
-  const DecisionCard({
-    super.key,
-    required this.decision,
-  });
+  const DecisionCard({super.key, required this.decision});
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     HapticFeedback.heavyImpact();
@@ -31,7 +28,11 @@ class DecisionCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -64,7 +65,9 @@ class DecisionCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -84,7 +87,9 @@ class DecisionCard extends ConsumerWidget {
               content: Text(context.tr('decision_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -106,7 +111,9 @@ class DecisionCard extends ConsumerWidget {
 
     // Status colors
     final isReviewed = decision.reviewed;
-    final statusColor = isReviewed ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+    final statusColor = isReviewed
+        ? const Color(0xFF10B981)
+        : const Color(0xFFF59E0B);
     final statusText = isReviewed
         ? context.tr('status_reviewed')
         : context.tr('status_pending_review');
@@ -142,7 +149,10 @@ class DecisionCard extends ConsumerWidget {
               children: [
                 // Status Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
@@ -273,7 +283,10 @@ class DecisionCard extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(14),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: isDark
@@ -281,10 +294,7 @@ class DecisionCard extends ConsumerWidget {
                               const Color(0xFF1E3A8A).withValues(alpha: 0.4),
                               const Color(0xFF0D9488).withValues(alpha: 0.4),
                             ]
-                          : [
-                              const Color(0xFFEFF6FF),
-                              const Color(0xFFECFDF5),
-                            ],
+                          : [const Color(0xFFEFF6FF), const Color(0xFFECFDF5)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),

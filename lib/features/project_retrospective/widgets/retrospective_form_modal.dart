@@ -13,10 +13,7 @@ import '../providers/retrospective_provider.dart';
 class RetrospectiveFormModal extends ConsumerStatefulWidget {
   final RetrospectiveModel? retrospectiveToEdit;
 
-  const RetrospectiveFormModal({
-    super.key,
-    this.retrospectiveToEdit,
-  });
+  const RetrospectiveFormModal({super.key, this.retrospectiveToEdit});
 
   /// Helper static method to show the retrospective modal bottom sheet.
   static Future<void> show(
@@ -27,9 +24,8 @@ class RetrospectiveFormModal extends ConsumerStatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => RetrospectiveFormModal(
-        retrospectiveToEdit: retrospectiveToEdit,
-      ),
+      builder: (_) =>
+          RetrospectiveFormModal(retrospectiveToEdit: retrospectiveToEdit),
     );
   }
 
@@ -174,7 +170,9 @@ class _RetrospectiveFormModalState
               content: Text(context.tr('retrospective_saved_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -203,7 +201,9 @@ class _RetrospectiveFormModalState
               content: Text(context.tr('retrospective_updated_toast')),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -223,7 +223,11 @@ class _RetrospectiveFormModalState
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+            const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -253,7 +257,9 @@ class _RetrospectiveFormModalState
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: Text(dialogCtx.tr('delete')),
@@ -278,7 +284,9 @@ class _RetrospectiveFormModalState
               content: Text(context.tr('retrospective_deleted_toast')),
               backgroundColor: const Color(0xFFEF4444),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -388,7 +396,10 @@ class _RetrospectiveFormModalState
             if (_validationError != null) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -451,7 +462,9 @@ class _RetrospectiveFormModalState
                     ),
                   ),
                   isExpanded: true,
-                  dropdownColor: isDark ? const Color(0xFF0F1B4C) : Colors.white,
+                  dropdownColor: isDark
+                      ? const Color(0xFF0F1B4C)
+                      : Colors.white,
                   icon: Icon(
                     Icons.keyboard_arrow_down_rounded,
                     color: secondaryTextColor,
@@ -482,8 +495,13 @@ class _RetrospectiveFormModalState
                             ),
                             if (p.archived)
                               Container(
-                                margin: const EdgeInsetsDirectional.only(start: 6),
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                margin: const EdgeInsetsDirectional.only(
+                                  start: 6,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(6),
@@ -538,7 +556,10 @@ class _RetrospectiveFormModalState
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: inputBg,
                   borderRadius: BorderRadius.circular(14),
@@ -585,10 +606,7 @@ class _RetrospectiveFormModalState
             TextField(
               controller: _wentWellController,
               maxLines: 3,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('went_well_hint'),
                 hintStyle: TextStyle(
@@ -596,19 +614,31 @@ class _RetrospectiveFormModalState
                   fontSize: 13,
                 ),
                 filled: true,
-                fillColor: isDark ? const Color(0xFF0F1B4C) : const Color(0xFFF0FDF4),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                fillColor: isDark
+                    ? const Color(0xFF0F1B4C)
+                    : const Color(0xFFF0FDF4),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                  borderSide: BorderSide(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                  borderSide: BorderSide(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF10B981),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -627,10 +657,7 @@ class _RetrospectiveFormModalState
             TextField(
               controller: _toImproveController,
               maxLines: 3,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('to_improve_hint'),
                 hintStyle: TextStyle(
@@ -638,19 +665,31 @@ class _RetrospectiveFormModalState
                   fontSize: 13,
                 ),
                 filled: true,
-                fillColor: isDark ? const Color(0xFF0F1B4C) : const Color(0xFFFEF2F2),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                fillColor: isDark
+                    ? const Color(0xFF0F1B4C)
+                    : const Color(0xFFFEF2F2),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                  borderSide: BorderSide(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                  borderSide: BorderSide(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFEF4444),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),
@@ -669,10 +708,7 @@ class _RetrospectiveFormModalState
             TextField(
               controller: _learningsController,
               maxLines: 3,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryTextColor,
-              ),
+              style: TextStyle(fontSize: 14, color: primaryTextColor),
               decoration: InputDecoration(
                 hintText: context.tr('learnings_hint'),
                 hintStyle: TextStyle(
@@ -681,18 +717,28 @@ class _RetrospectiveFormModalState
                 ),
                 filled: true,
                 fillColor: inputBg,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: const Color(0xFF2E6FF2).withValues(alpha: 0.3)),
+                  borderSide: BorderSide(
+                    color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: const Color(0xFF2E6FF2).withValues(alpha: 0.3)),
+                  borderSide: BorderSide(
+                    color: const Color(0xFF2E6FF2).withValues(alpha: 0.3),
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E6FF2),
+                    width: 1.8,
+                  ),
                 ),
               ),
             ),

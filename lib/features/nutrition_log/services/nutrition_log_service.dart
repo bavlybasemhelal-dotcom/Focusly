@@ -11,7 +11,7 @@ class NutritionLogService {
   final FirebaseFirestore _firestore;
 
   NutritionLogService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _nutritionCollection(String uid) {
     return _firestore.collection('users').doc(uid).collection('nutritionLog');
@@ -19,10 +19,9 @@ class NutritionLogService {
 
   /// Streams all nutrition log entries for [uid] ordered by date descending.
   Stream<List<NutritionLogModel>> streamNutritionLogs(String uid) {
-    return _nutritionCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _nutritionCollection(
+      uid,
+    ).orderBy('date', descending: true).snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => NutritionLogModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -43,15 +42,19 @@ class NutritionLogService {
     try {
       final now = DateTime.now();
       final dateKey = NutritionLogHelpers.formatDateKey(date);
-      final targetDocId = existingDocId ?? dateKey;
+      final targetDocId = dateKey;
       final docRef = _nutritionCollection(uid).doc(targetDocId);
 
       // Check if document already exists
       final existingDoc = await docRef.get();
-      final DateTime createdAt = existingDoc.exists && existingDoc.data()?['createdAt'] != null
+      final DateTime createdAt =
+          existingDoc.exists && existingDoc.data()?['createdAt'] != null
           ? (existingDoc.data()!['createdAt'] is Timestamp
-              ? (existingDoc.data()!['createdAt'] as Timestamp).toDate()
-              : DateTime.tryParse(existingDoc.data()!['createdAt'].toString()) ?? now)
+                ? (existingDoc.data()!['createdAt'] as Timestamp).toDate()
+                : DateTime.tryParse(
+                        existingDoc.data()!['createdAt'].toString(),
+                      ) ??
+                      now)
           : now;
 
       final normalizedDate = NutritionLogHelpers.toDateOnly(date);
@@ -65,7 +68,24 @@ class NutritionLogService {
         updatedAt: now,
       );
 
-      await docRef.set(log.toMap(), SetOptions(merge: true));
+      await _firestore.runTransaction((transaction) async {
+        final target = await transaction.get(docRef);
+        final moved = existingDocId != null && existingDocId != dateKey;
+        final source = moved
+            ? _nutritionCollection(uid).doc(existingDocId)
+            : null;
+        if (source != null) {
+          final original = await transaction.get(source);
+          if (!original.exists) {
+            throw StateError('The original log no longer exists');
+          }
+          if (target.exists) {
+            throw StateError('The destination day already has a log');
+          }
+          transaction.delete(source);
+        }
+        transaction.set(docRef, log.toMap(), SetOptions(merge: true));
+      });
       return targetDocId;
     } catch (e) {
       debugPrint('Error upserting nutrition log: $e');

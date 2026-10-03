@@ -19,6 +19,8 @@ library;
 /// Each subcollection exists path-wise as:
 /// `users/{uid}/[collectionName]`
 const List<String> kUserDataSubcollections = [
+  'completionEvents',
+  'habitLogs',
   // 1. Annual Reviews feature
   'annualReviews',
 
@@ -147,4 +149,7 @@ const List<String> kUserDataSubcollections = [
 
   // 43. Gamification / XP: Historical XP gain events
   'xpLog',
+  // Free productivity tools: include these in export and account erasure.
+  'dailyPlans', 'productivity', 'taskRecurrences', 'recurrenceSkips',
+  'taskTemplates', 'templateRuns', 'trash', 'goalAudit',
 ];

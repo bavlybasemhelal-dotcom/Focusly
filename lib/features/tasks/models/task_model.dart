@@ -19,10 +19,7 @@ enum TaskPriority {
   final String titleKey;
   final int colorValue;
 
-  const TaskPriority({
-    required this.titleKey,
-    required this.colorValue,
-  });
+  const TaskPriority({required this.titleKey, required this.colorValue});
 
   Color get color => Color(colorValue);
 
@@ -100,11 +97,7 @@ class SubtaskModel {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'done': done,
-    };
+    return {'id': id, 'title': title, 'done': done};
   }
 
   factory SubtaskModel.fromMap(Map<String, dynamic> map) {
@@ -115,11 +108,7 @@ class SubtaskModel {
     );
   }
 
-  SubtaskModel copyWith({
-    String? id,
-    String? title,
-    bool? done,
-  }) {
+  SubtaskModel copyWith({String? id, String? title, bool? done}) {
     return SubtaskModel(
       id: id ?? this.id,
       title: title ?? this.title,
@@ -132,6 +121,7 @@ class SubtaskModel {
 class TaskModel {
   final String id;
   final String title;
+  final Map<String, dynamic>? learningSource;
   final String? notes;
   final String categoryId;
   final TaskPriority priority;
@@ -144,7 +134,8 @@ class TaskModel {
   final DateTime createdAt;
 
   // GTD Specific Optional Fields
-  final String? listType; // 'waiting' | 'someday' | 'reference' | null (standard task)
+  final String?
+  listType; // 'waiting' | 'someday' | 'reference' | null (standard task)
   final String? waitingFor; // Name of person / organization being waited on
   final DateTime? waitingSince; // Date when waiting started
 
@@ -155,17 +146,21 @@ class TaskModel {
   final String? skillId; // Explicitly linked Skill ID (optional)
 
   // Group Assignment Specific Fields
-  final String? groupAssignmentId; // Linked Group Assignment ID (null for personal tasks)
+  final String?
+  groupAssignmentId; // Linked Group Assignment ID (null for personal tasks)
   final String? assignedByGroupId; // Group ID that assigned this task
   final String? assignedByName; // Admin name who created and assigned the task
-  final bool locked; // True for group-assigned tasks (locks title and deadline from member editing)
+  final bool
+  locked; // True for group-assigned tasks (locks title and deadline from member editing)
   final String? completionMode; // 'simple' | 'count'
-  final int? targetCount; // Target repetition count when completionMode is 'count'
+  final int?
+  targetCount; // Target repetition count when completionMode is 'count'
   final int currentCount; // Current progress count towards targetCount
 
   const TaskModel({
     required this.id,
     required this.title,
+    this.learningSource,
     this.notes,
     required this.categoryId,
     this.priority = TaskPriority.medium,
@@ -191,7 +186,8 @@ class TaskModel {
   });
 
   /// True if this task originated from a group assignment
-  bool get isGroupAssigned => groupAssignmentId != null && groupAssignmentId!.isNotEmpty;
+  bool get isGroupAssigned =>
+      groupAssignmentId != null && groupAssignmentId!.isNotEmpty;
 
   /// Calculates completed subtasks count
   int get completedSubtasksCount => subtasks.where((s) => s.done).length;
@@ -215,11 +211,14 @@ class TaskModel {
     return {
       'id': id,
       'title': title,
+      if (learningSource != null) 'learningSource': learningSource,
       'notes': notes,
       'categoryId': categoryId,
       'priority': priority.name,
       'date': Timestamp.fromDate(date),
-      'time': time != null ? '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}' : null,
+      'time': time != null
+          ? '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}'
+          : null,
       'deadline': deadline != null ? Timestamp.fromDate(deadline!) : null,
       'done': done,
       'doneAt': doneAt != null ? Timestamp.fromDate(doneAt!) : null,
@@ -227,7 +226,9 @@ class TaskModel {
       'createdAt': Timestamp.fromDate(createdAt),
       'listType': listType,
       'waitingFor': waitingFor,
-      'waitingSince': waitingSince != null ? Timestamp.fromDate(waitingSince!) : null,
+      'waitingSince': waitingSince != null
+          ? Timestamp.fromDate(waitingSince!)
+          : null,
       'projectId': projectId,
       'skillId': skillId,
       'groupAssignmentId': groupAssignmentId,
@@ -299,6 +300,9 @@ class TaskModel {
 
     return TaskModel(
       id: docId,
+      learningSource: map['learningSource'] is Map
+          ? Map<String, dynamic>.from(map['learningSource'] as Map)
+          : null,
       title: map['title'] ?? '',
       notes: map['notes'],
       categoryId: map['categoryId'] ?? 'personal',
@@ -351,6 +355,7 @@ class TaskModel {
     int? targetCount,
     int? currentCount,
     bool clearTime = false,
+    bool clearNotes = false,
     bool clearDeadline = false,
     bool clearDoneAt = false,
     bool clearListType = false,
@@ -363,7 +368,8 @@ class TaskModel {
     return TaskModel(
       id: id ?? this.id,
       title: title ?? this.title,
-      notes: notes ?? this.notes,
+      learningSource: learningSource,
+      notes: clearNotes ? null : (notes ?? this.notes),
       categoryId: categoryId ?? this.categoryId,
       priority: priority ?? this.priority,
       date: date ?? this.date,
@@ -375,10 +381,14 @@ class TaskModel {
       createdAt: createdAt ?? this.createdAt,
       listType: clearListType ? null : (listType ?? this.listType),
       waitingFor: clearWaitingFor ? null : (waitingFor ?? this.waitingFor),
-      waitingSince: clearWaitingSince ? null : (waitingSince ?? this.waitingSince),
+      waitingSince: clearWaitingSince
+          ? null
+          : (waitingSince ?? this.waitingSince),
       projectId: clearProjectId ? null : (projectId ?? this.projectId),
       skillId: clearSkillId ? null : (skillId ?? this.skillId),
-      groupAssignmentId: clearGroupAssignmentId ? null : (groupAssignmentId ?? this.groupAssignmentId),
+      groupAssignmentId: clearGroupAssignmentId
+          ? null
+          : (groupAssignmentId ?? this.groupAssignmentId),
       assignedByGroupId: assignedByGroupId ?? this.assignedByGroupId,
       assignedByName: assignedByName ?? this.assignedByName,
       locked: locked ?? this.locked,
@@ -393,10 +403,15 @@ class TaskModel {
 EisenhowerQuadrant computeQuadrant(TaskModel task) {
   final now = DateTime.now();
   final todayStart = DateTime(now.year, now.month, now.day);
-  final taskDateStart = DateTime(task.date.year, task.date.month, task.date.day);
+  final taskDateStart = DateTime(
+    task.date.year,
+    task.date.month,
+    task.date.day,
+  );
 
   // Urgent condition: date is today/past OR deadline is within 48 hours
-  final bool isDateTodayOrPast = taskDateStart.isBefore(todayStart) ||
+  final bool isDateTodayOrPast =
+      taskDateStart.isBefore(todayStart) ||
       taskDateStart.isAtSameMomentAs(todayStart);
 
   bool isDeadlineUrgent = false;
@@ -411,7 +426,8 @@ EisenhowerQuadrant computeQuadrant(TaskModel task) {
 
   // Important condition: Priority is High or Medium
   final bool isImportant =
-      task.priority == TaskPriority.high || task.priority == TaskPriority.medium;
+      task.priority == TaskPriority.high ||
+      task.priority == TaskPriority.medium;
 
   if (isImportant && isUrgent) {
     return EisenhowerQuadrant.q1DoNow;
@@ -434,24 +450,15 @@ TaskModel applyQuadrantRule(TaskModel task, EisenhowerQuadrant quadrant) {
   switch (quadrant) {
     case EisenhowerQuadrant.q1DoNow:
       // Q1: Urgent + Important -> Priority = High, Date = Today
-      return task.copyWith(
-        priority: TaskPriority.high,
-        date: today,
-      );
+      return task.copyWith(priority: TaskPriority.high, date: today);
 
     case EisenhowerQuadrant.q2Schedule:
       // Q2: Not Urgent + Important -> Priority = High, Date = +7 days
-      return task.copyWith(
-        priority: TaskPriority.high,
-        date: nextWeek,
-      );
+      return task.copyWith(priority: TaskPriority.high, date: nextWeek);
 
     case EisenhowerQuadrant.q3Delegate:
       // Q3: Urgent + Not Important -> Priority = Low, Date = Today
-      return task.copyWith(
-        priority: TaskPriority.low,
-        date: today,
-      );
+      return task.copyWith(priority: TaskPriority.low, date: today);
 
     case EisenhowerQuadrant.q4Eliminate:
       // Q4: Neither -> Priority = Low, Date = +7 days, Clear deadline

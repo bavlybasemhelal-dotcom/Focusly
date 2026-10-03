@@ -210,8 +210,9 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
             height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF38BDF8)
-                  .withValues(alpha: isDark ? 0.12 : 0.14),
+              color: const Color(
+                0xFF38BDF8,
+              ).withValues(alpha: isDark ? 0.12 : 0.14),
             ),
           ),
         ),
@@ -223,8 +224,9 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
             height: 280,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFF59E0B)
-                  .withValues(alpha: isDark ? 0.08 : 0.1),
+              color: const Color(
+                0xFFF59E0B,
+              ).withValues(alpha: isDark ? 0.08 : 0.1),
             ),
           ),
         ),

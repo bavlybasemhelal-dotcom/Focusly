@@ -1,11 +1,7 @@
 import 'pomodoro_config_model.dart';
 
 /// Active phase of the Pomodoro Timer state machine
-enum PomodoroPhase {
-  work,
-  shortBreak,
-  longBreak,
-}
+enum PomodoroPhase { work, shortBreak, longBreak }
 
 /// State representation for the Pomodoro focus timer in Focusly.
 ///
@@ -37,7 +33,9 @@ class PomodoroTimerState {
   });
 
   /// Factory constructor to initialize a fresh timer in the 'work' phase
-  factory PomodoroTimerState.initial([PomodoroConfig config = const PomodoroConfig()]) {
+  factory PomodoroTimerState.initial([
+    PomodoroConfig config = const PomodoroConfig(),
+  ]) {
     return PomodoroTimerState(
       phase: PomodoroPhase.work,
       isRunning: false,
@@ -56,7 +54,8 @@ class PomodoroTimerState {
   bool get isWorkPhase => phase == PomodoroPhase.work;
 
   /// Whether current phase is any break
-  bool get isBreakPhase => phase == PomodoroPhase.shortBreak || phase == PomodoroPhase.longBreak;
+  bool get isBreakPhase =>
+      phase == PomodoroPhase.shortBreak || phase == PomodoroPhase.longBreak;
 
   /// Timer completion progress from 0.0 (just started) to 1.0 (completed)
   double get progress {
@@ -106,12 +105,15 @@ class PomodoroTimerState {
       totalSeconds: totalSeconds ?? this.totalSeconds,
       completedSessionsInCycle:
           completedSessionsInCycle ?? this.completedSessionsInCycle,
-      targetEndTime:
-          clearTargetEndTime ? null : (targetEndTime ?? this.targetEndTime),
-      selectedTaskId:
-          clearSelectedTask ? null : (selectedTaskId ?? this.selectedTaskId),
-      selectedTaskTitle:
-          clearSelectedTask ? null : (selectedTaskTitle ?? this.selectedTaskTitle),
+      targetEndTime: clearTargetEndTime
+          ? null
+          : (targetEndTime ?? this.targetEndTime),
+      selectedTaskId: clearSelectedTask
+          ? null
+          : (selectedTaskId ?? this.selectedTaskId),
+      selectedTaskTitle: clearSelectedTask
+          ? null
+          : (selectedTaskTitle ?? this.selectedTaskTitle),
       distractionCount: distractionCount ?? this.distractionCount,
       config: config ?? this.config,
     );

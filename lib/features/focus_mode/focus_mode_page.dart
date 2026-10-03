@@ -66,14 +66,19 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
               Expanded(
                 child: Text(
                   context.tr('focus_mode_locked_toast'),
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ],
           ),
           backgroundColor: const Color(0xFFEF4444),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -143,7 +148,10 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                 // 1. MINIMAL HEADER ROW
                 // -------------------------------------------------------------
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -214,7 +222,8 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                             timerState.isRunning && timerState.isWorkPhase
                                 ? Icons.lock_outline_rounded
                                 : Icons.close_rounded,
-                            color: timerState.isRunning && timerState.isWorkPhase
+                            color:
+                                timerState.isRunning && timerState.isWorkPhase
                                 ? const Color(0xFFEF4444)
                                 : secondaryTextColor,
                             size: 22,
@@ -235,7 +244,10 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -243,9 +255,22 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                         // A. TASK SELECTOR / ACTIVE TASK CARD
                         // -----------------------------------------------------
                         if (linkedTask == null)
-                          _buildTaskSelector(context, allTasks, isDark, primaryTextColor, secondaryTextColor)
+                          _buildTaskSelector(
+                            context,
+                            allTasks,
+                            isDark,
+                            primaryTextColor,
+                            secondaryTextColor,
+                          )
                         else
-                          _buildActiveTaskCard(context, linkedTask, isDark, primaryTextColor, secondaryTextColor, brandPrimary),
+                          _buildActiveTaskCard(
+                            context,
+                            linkedTask,
+                            isDark,
+                            primaryTextColor,
+                            secondaryTextColor,
+                            brandPrimary,
+                          ),
 
                         const SizedBox(height: 20),
 
@@ -267,7 +292,14 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                         // D. LIVE SUBTASKS CHECKLIST (If task linked)
                         // -----------------------------------------------------
                         if (linkedTask != null)
-                          _buildSubtasksChecklist(context, linkedTask, isDark, primaryTextColor, secondaryTextColor, brandPrimary),
+                          _buildSubtasksChecklist(
+                            context,
+                            linkedTask,
+                            isDark,
+                            primaryTextColor,
+                            secondaryTextColor,
+                            brandPrimary,
+                          ),
 
                         const SizedBox(height: 24),
                       ],
@@ -290,9 +322,13 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
     Color primaryTextColor,
     Color secondaryTextColor,
   ) {
-    final activeTasks = allTasks.where((t) => !t.done && t.listType == null).toList();
+    final activeTasks = allTasks
+        .where((t) => !t.done && t.listType == null)
+        .toList();
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F5);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F5);
 
     return Container(
       width: double.infinity,
@@ -314,7 +350,11 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.playlist_add_check_rounded, color: Color(0xFF2E6FF2), size: 20),
+              const Icon(
+                Icons.playlist_add_check_rounded,
+                color: Color(0xFF2E6FF2),
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Text(
                 context.tr('select_task_to_focus'),
@@ -347,16 +387,20 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                   return InkWell(
                     onTap: () {
                       HapticFeedback.selectionClick();
-                      ref.read(pomodoroTimerProvider.notifier).setSelectedTask(
-                            task.id,
-                            task.title,
-                          );
+                      ref
+                          .read(pomodoroTimerProvider.notifier)
+                          .setSelectedTask(task.id, task.title);
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0A1238) : const Color(0xFFF1F5F9),
+                        color: isDark
+                            ? const Color(0xFF0A1238)
+                            : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -384,14 +428,21 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                           ),
                           if (task.subtasks.isNotEmpty)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: isDark ? Colors.white12 : Colors.black12,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 '${task.completedSubtasksCount}/${task.subtasks.length}',
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: secondaryTextColor),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: secondaryTextColor,
+                                ),
                               ),
                             ),
                         ],
@@ -416,8 +467,13 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
     Color brandPrimary,
   ) {
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F5);
-    final isTaskFullyDone = task.done || (task.subtasks.isNotEmpty && task.completedSubtasksCount == task.subtasks.length);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F5);
+    final isTaskFullyDone =
+        task.done ||
+        (task.subtasks.isNotEmpty &&
+            task.completedSubtasksCount == task.subtasks.length);
 
     return Container(
       width: double.infinity,
@@ -449,7 +505,10 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: task.priority.color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
@@ -467,7 +526,10 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                   if (isTaskFullyDone) ...[
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
@@ -489,15 +551,23 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
               TextButton.icon(
                 onPressed: () {
                   HapticFeedback.selectionClick();
-                  ref.read(pomodoroTimerProvider.notifier).setSelectedTask(null, null);
+                  ref
+                      .read(pomodoroTimerProvider.notifier)
+                      .setSelectedTask(null, null);
                 },
                 icon: const Icon(Icons.swap_horiz_rounded, size: 16),
                 label: Text(
                   context.tr('choose_next_task'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   foregroundColor: brandPrimary,
                   visualDensity: VisualDensity.compact,
                 ),
@@ -512,17 +582,23 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
               InkWell(
                 onTap: () {
                   HapticFeedback.mediumImpact();
-                  ref.read(tasksControllerProvider).toggleTaskDone(task, context);
+                  ref
+                      .read(tasksControllerProvider)
+                      .toggleTaskDone(task, context);
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
                   width: 22,
                   height: 22,
                   decoration: BoxDecoration(
-                    color: task.done ? const Color(0xFF10B981) : Colors.transparent,
+                    color: task.done
+                        ? const Color(0xFF10B981)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: task.done ? const Color(0xFF10B981) : secondaryTextColor,
+                      color: task.done
+                          ? const Color(0xFF10B981)
+                          : secondaryTextColor,
                       width: 1.8,
                     ),
                   ),
@@ -555,7 +631,9 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
               decoration: BoxDecoration(
                 color: const Color(0xFF10B981).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
@@ -590,7 +668,9 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
     Color brandPrimary,
   ) {
     final cardBg = isDark ? const Color(0xFF0F1B4C) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F5);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F5);
     final subtasks = task.subtasks;
 
     return Container(
@@ -647,10 +727,16 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
-                value: subtasks.isEmpty ? 0 : task.completedSubtasksCount / subtasks.length,
+                value: subtasks.isEmpty
+                    ? 0
+                    : task.completedSubtasksCount / subtasks.length,
                 minHeight: 5,
-                backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F5),
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                backgroundColor: isDark
+                    ? Colors.white12
+                    : const Color(0xFFE2E8F5),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  Color(0xFF10B981),
+                ),
               ),
             ),
           ],
@@ -663,7 +749,11 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline_rounded, size: 16, color: secondaryTextColor),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: secondaryTextColor,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     context.tr('no_subtasks_yet'),
@@ -683,13 +773,20 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                 return InkWell(
                   onTap: () {
                     HapticFeedback.selectionClick();
-                    ref.read(tasksControllerProvider).toggleSubtask(task, subtask.id);
+                    ref
+                        .read(tasksControllerProvider)
+                        .toggleSubtask(task, subtask.id);
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0A1238) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF0A1238)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: subtask.done
@@ -704,15 +801,23 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                           width: 18,
                           height: 18,
                           decoration: BoxDecoration(
-                            color: subtask.done ? const Color(0xFF10B981) : Colors.transparent,
+                            color: subtask.done
+                                ? const Color(0xFF10B981)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(5),
                             border: Border.all(
-                              color: subtask.done ? const Color(0xFF10B981) : secondaryTextColor,
+                              color: subtask.done
+                                  ? const Color(0xFF10B981)
+                                  : secondaryTextColor,
                               width: 1.6,
                             ),
                           ),
                           child: subtask.done
-                              ? const Icon(Icons.check, size: 13, color: Colors.white)
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 13,
+                                  color: Colors.white,
+                                )
                               : null,
                         ),
                         const SizedBox(width: 10),
@@ -722,8 +827,12 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: subtask.done ? secondaryTextColor : primaryTextColor,
-                              decoration: subtask.done ? TextDecoration.lineThrough : null,
+                              color: subtask.done
+                                  ? secondaryTextColor
+                                  : primaryTextColor,
+                              decoration: subtask.done
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
                         ),
@@ -747,9 +856,15 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                     style: TextStyle(fontSize: 13, color: primaryTextColor),
                     decoration: InputDecoration(
                       hintText: context.tr('focus_add_subtask_hint'),
-                      hintStyle: TextStyle(fontSize: 12, color: secondaryTextColor),
+                      hintStyle: TextStyle(
+                        fontSize: 12,
+                        color: secondaryTextColor,
+                      ),
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(color: borderColor),
@@ -761,7 +876,9 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                     ),
                     onSubmitted: (val) async {
                       if (val.trim().isNotEmpty) {
-                        await ref.read(tasksControllerProvider).addSubtask(task, val.trim());
+                        await ref
+                            .read(tasksControllerProvider)
+                            .addSubtask(task, val.trim());
                         _newSubtaskController.clear();
                         setState(() => _isAddingSubtask = false);
                       }
@@ -770,11 +887,16 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.check_rounded, color: Color(0xFF10B981)),
+                  icon: const Icon(
+                    Icons.check_rounded,
+                    color: Color(0xFF10B981),
+                  ),
                   onPressed: () async {
                     final val = _newSubtaskController.text.trim();
                     if (val.isNotEmpty) {
-                      await ref.read(tasksControllerProvider).addSubtask(task, val);
+                      await ref
+                          .read(tasksControllerProvider)
+                          .addSubtask(task, val);
                       _newSubtaskController.clear();
                       setState(() => _isAddingSubtask = false);
                     }
@@ -795,13 +917,21 @@ class _FocusModePageState extends ConsumerState<FocusModePage> {
               icon: const Icon(Icons.add_rounded, size: 16),
               label: Text(
                 context.tr('focus_add_subtask_btn'),
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: brandPrimary,
                 side: BorderSide(color: brandPrimary.withValues(alpha: 0.4)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 visualDensity: VisualDensity.compact,
               ),
             ),

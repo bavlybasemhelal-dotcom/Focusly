@@ -45,11 +45,13 @@ class EventModel {
   final TimeOfDay time;
   final String typeId;
   final EventRecurrence recurrence;
+  final List<int> weekdays;
   final DateTime? recurrenceEnd;
   final DateTime createdAt;
 
   // Time Blocker Specific Fields
-  final String? blockType; // 'general' | 'deep' | 'shallow' | 'health' | 'leisure' | 'admin'
+  final String?
+  blockType; // 'general' | 'deep' | 'shallow' | 'health' | 'leisure' | 'admin'
   final int? durationMinutes; // Duration in minutes (e.g. 30, 60, 90, 120...)
 
   const EventModel({
@@ -60,6 +62,7 @@ class EventModel {
     required this.time,
     required this.typeId,
     this.recurrence = EventRecurrence.none,
+    this.weekdays = const [1, 2, 3, 4, 5],
     this.recurrenceEnd,
     required this.createdAt,
     this.blockType = 'general',
@@ -88,13 +91,8 @@ class EventModel {
   }
 
   /// Combined start DateTime from date and time components
-  DateTime get startDateTime => DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
+  DateTime get startDateTime =>
+      DateTime(date.year, date.month, date.day, time.hour, time.minute);
 
   Map<String, dynamic> toMap() {
     return {
@@ -102,18 +100,22 @@ class EventModel {
       'title': title,
       'note': note,
       'date': Timestamp.fromDate(DateTime(date.year, date.month, date.day)),
-      'time': '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
+      'time':
+          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
       'typeId': typeId,
       'recurrence': recurrence.name,
+      'weekdays': weekdays,
       'recurrenceEnd': recurrenceEnd != null
-          ? Timestamp.fromDate(DateTime(
-              recurrenceEnd!.year,
-              recurrenceEnd!.month,
-              recurrenceEnd!.day,
-              23,
-              59,
-              59,
-            ))
+          ? Timestamp.fromDate(
+              DateTime(
+                recurrenceEnd!.year,
+                recurrenceEnd!.month,
+                recurrenceEnd!.day,
+                23,
+                59,
+                59,
+              ),
+            )
           : null,
       'createdAt': Timestamp.fromDate(createdAt),
       'blockType': blockType ?? 'general',
@@ -172,6 +174,12 @@ class EventModel {
       time: parsedTime,
       typeId: map['typeId'] ?? 'work_meeting',
       recurrence: EventRecurrence.fromString(map['recurrence']),
+      weekdays:
+          (map['weekdays'] as List?)
+              ?.whereType<int>()
+              .where((day) => day >= 1 && day <= 7)
+              .toList() ??
+          const [1, 2, 3, 4, 5],
       recurrenceEnd: parsedRecurrenceEnd != null
           ? DateTime(
               parsedRecurrenceEnd.year,
@@ -193,9 +201,11 @@ class EventModel {
     TimeOfDay? time,
     String? typeId,
     EventRecurrence? recurrence,
+    List<int>? weekdays,
     DateTime? recurrenceEnd,
     DateTime? createdAt,
     bool clearRecurrenceEnd = false,
+    bool clearNote = false,
     String? blockType,
     bool clearBlockType = false,
     int? durationMinutes,
@@ -203,12 +213,17 @@ class EventModel {
     return EventModel(
       id: id ?? this.id,
       title: title ?? this.title,
-      note: note ?? this.note,
-      date: date != null ? DateTime(date.year, date.month, date.day) : this.date,
+      note: clearNote ? null : (note ?? this.note),
+      date: date != null
+          ? DateTime(date.year, date.month, date.day)
+          : this.date,
       time: time ?? this.time,
       typeId: typeId ?? this.typeId,
       recurrence: recurrence ?? this.recurrence,
-      recurrenceEnd: clearRecurrenceEnd ? null : (recurrenceEnd ?? this.recurrenceEnd),
+      weekdays: weekdays ?? this.weekdays,
+      recurrenceEnd: clearRecurrenceEnd
+          ? null
+          : (recurrenceEnd ?? this.recurrenceEnd),
       createdAt: createdAt ?? this.createdAt,
       blockType: clearBlockType ? null : (blockType ?? this.blockType),
       durationMinutes: durationMinutes ?? this.durationMinutes,

@@ -36,89 +36,84 @@ void main() {
       expect(halfState.formattedTime, '12:30');
     });
 
-    test('PomodoroTimerNotifier start, pause, distraction counter, and task linking', () {
+    test(
+      'PomodoroTimerNotifier start, pause, distraction counter, and task linking',
+      () {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+
+        final notifier = container.read(pomodoroTimerProvider.notifier);
+        expect(container.read(pomodoroTimerProvider).isRunning, isFalse);
+
+        // Start timer
+        notifier.start();
+        expect(container.read(pomodoroTimerProvider).isRunning, isTrue);
+        expect(container.read(pomodoroTimerProvider).targetEndTime, isNotNull);
+
+        // Pause timer
+        notifier.pause();
+        expect(container.read(pomodoroTimerProvider).isRunning, isFalse);
+
+        // Link Task
+        notifier.setSelectedTask('task_123', 'Finish Math Homework');
+        expect(
+          container.read(pomodoroTimerProvider).selectedTaskId,
+          'task_123',
+        );
+        expect(
+          container.read(pomodoroTimerProvider).selectedTaskTitle,
+          'Finish Math Homework',
+        );
+
+        // Increment Distractions
+        expect(container.read(pomodoroTimerProvider).distractionCount, 0);
+        notifier.incrementDistraction();
+        expect(container.read(pomodoroTimerProvider).distractionCount, 1);
+        notifier.incrementDistraction();
+        expect(container.read(pomodoroTimerProvider).distractionCount, 2);
+      },
+    );
+
+    test('Skipping never counts as a completed work session', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
-
       final notifier = container.read(pomodoroTimerProvider.notifier);
-      expect(container.read(pomodoroTimerProvider).isRunning, isFalse);
-
-      // Start timer
-      notifier.start();
-      expect(container.read(pomodoroTimerProvider).isRunning, isTrue);
-      expect(container.read(pomodoroTimerProvider).targetEndTime, isNotNull);
-
-      // Pause timer
-      notifier.pause();
-      expect(container.read(pomodoroTimerProvider).isRunning, isFalse);
-
-      // Link Task
-      notifier.setSelectedTask('task_123', 'Finish Math Homework');
-      expect(
-        container.read(pomodoroTimerProvider).selectedTaskId,
-        'task_123',
-      );
-      expect(
-        container.read(pomodoroTimerProvider).selectedTaskTitle,
-        'Finish Math Homework',
-      );
-
-      // Increment Distractions
-      expect(container.read(pomodoroTimerProvider).distractionCount, 0);
-      notifier.incrementDistraction();
-      expect(container.read(pomodoroTimerProvider).distractionCount, 1);
-      notifier.incrementDistraction();
-      expect(container.read(pomodoroTimerProvider).distractionCount, 2);
+      for (var i = 0; i < 8; i++) {
+        notifier.skip();
+        expect(
+          container.read(pomodoroTimerProvider).phase,
+          PomodoroPhase.shortBreak,
+        );
+        expect(
+          container.read(pomodoroTimerProvider).completedSessionsInCycle,
+          0,
+        );
+        notifier.skip();
+        expect(container.read(pomodoroTimerProvider).phase, PomodoroPhase.work);
+      }
     });
 
-    test('PomodoroTimerNotifier phase transitions and 4-session long break cycle', () {
-      final container = ProviderContainer();
+    testWidgets('Four actually completed countdowns earn a long break', (
+      tester,
+    ) async {
+      var now = DateTime(2026, 10, 3, 9);
+      final container = ProviderContainer(
+        overrides: [pomodoroNowProvider.overrideWithValue(() => now)],
+      );
       addTearDown(container.dispose);
-
       final notifier = container.read(pomodoroTimerProvider.notifier);
-
-      // 1. First Work session skipped -> Short Break (cycle count = 1)
-      notifier.skip();
-      var state = container.read(pomodoroTimerProvider);
-      expect(state.phase, PomodoroPhase.shortBreak);
-      expect(state.completedSessionsInCycle, 1);
-      expect(state.remainingSeconds, 5 * 60);
-
-      // 2. Short Break skipped -> Work session (cycle count = 1)
-      notifier.skip();
-      state = container.read(pomodoroTimerProvider);
-      expect(state.phase, PomodoroPhase.work);
-      expect(state.completedSessionsInCycle, 1);
-
-      // 3. Second Work session skipped -> Short Break (cycle count = 2)
-      notifier.skip();
-      state = container.read(pomodoroTimerProvider);
-      expect(state.phase, PomodoroPhase.shortBreak);
-      expect(state.completedSessionsInCycle, 2);
-
-      // 4. Short Break skipped -> Work session (cycle count = 2)
-      notifier.skip();
-
-      // 5. Third Work session skipped -> Short Break (cycle count = 3)
-      notifier.skip();
-      state = container.read(pomodoroTimerProvider);
-      expect(state.phase, PomodoroPhase.shortBreak);
-      expect(state.completedSessionsInCycle, 3);
-
-      // 6. Short Break skipped -> Work session (cycle count = 3)
-      notifier.skip();
-
-      // 7. Fourth Work session skipped -> Long Break (cycle count resets to 0)
-      notifier.skip();
-      state = container.read(pomodoroTimerProvider);
-      expect(state.phase, PomodoroPhase.longBreak);
-      expect(state.completedSessionsInCycle, 0);
-      expect(state.remainingSeconds, 15 * 60);
-
-      // 8. Long Break skipped -> Work session
-      notifier.skip();
-      state = container.read(pomodoroTimerProvider);
-      expect(state.phase, PomodoroPhase.work);
+      for (var i = 1; i <= 4; i++) {
+        notifier.start();
+        now = now.add(const Duration(minutes: 25));
+        await tester.pump(const Duration(seconds: 1));
+        final state = container.read(pomodoroTimerProvider);
+        expect(
+          state.phase,
+          i == 4 ? PomodoroPhase.longBreak : PomodoroPhase.shortBreak,
+        );
+        expect(state.completedSessionsInCycle, i == 4 ? 0 : i);
+        notifier.skip();
+      }
     });
 
     test('PomodoroTimerNotifier updateConfig updates durations correctly', () {

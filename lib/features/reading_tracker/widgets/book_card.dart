@@ -11,10 +11,7 @@ import 'quick_update_dialog.dart';
 class BookCard extends StatelessWidget {
   final BookModel book;
 
-  const BookCard({
-    super.key,
-    required this.book,
-  });
+  const BookCard({super.key, required this.book});
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +93,10 @@ class BookCard extends StatelessWidget {
                     top: 6,
                     start: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: isDark
                             ? const Color(0xFF0F1B4C).withValues(alpha: 0.85)
@@ -139,7 +139,9 @@ class BookCard extends StatelessWidget {
                             color: const Color(0xFF2E6FF2),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF2E6FF2).withValues(alpha: 0.4),
+                                color: const Color(
+                                  0xFF2E6FF2,
+                                ).withValues(alpha: 0.4),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -192,7 +194,9 @@ class BookCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: percent / 100.0,
                     minHeight: 5,
-                    backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                    backgroundColor: isDark
+                        ? Colors.white12
+                        : const Color(0xFFE2E8F0),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       book.isFinished
                           ? const Color(0xFF10B981)

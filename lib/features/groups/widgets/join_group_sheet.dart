@@ -49,8 +49,9 @@ class _JoinGroupSheetState extends State<JoinGroupSheet> {
       // 1. Check user group cap
       final userDocRef = firestore.collection('users').doc(user.uid);
       final userDoc = await userDocRef.get();
-      final currentGroupIds =
-          List<String>.from(userDoc.data()?['groupIds'] ?? []);
+      final currentGroupIds = List<String>.from(
+        userDoc.data()?['groupIds'] ?? [],
+      );
 
       if (currentGroupIds.length >= GroupModel.maxGroupsPerUser) {
         setState(() {
@@ -60,39 +61,27 @@ class _JoinGroupSheetState extends State<JoinGroupSheet> {
         return;
       }
 
-      // 2. Lookup group by inviteCode
-      final groupQuery = await firestore
-          .collection('groups')
-          .where('inviteCode', isEqualTo: inputCode)
-          .limit(1)
+      final invitation = await firestore
+          .collection('invites')
+          .doc(inputCode)
           .get();
-
-      if (groupQuery.docs.isEmpty) {
-        setState(() {
-          _isSubmitting = false;
-          _errorMessage = context.tr('group_not_found');
-        });
+      if (!invitation.exists) {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+            _errorMessage = context.tr('group_not_found');
+          });
+        }
         return;
       }
-
-      final groupDoc = groupQuery.docs.first;
-      final groupId = groupDoc.id;
-      final groupData = groupDoc.data();
-      final memberCount = (groupData['memberCount'] as num?)?.toInt() ?? 0;
-      final maxMembers = (groupData['maxMembers'] as num?)?.toInt() ?? 20;
-
-      // 3. Check group member cap
-      if (memberCount >= maxMembers) {
-        setState(() {
-          _isSubmitting = false;
-          _errorMessage = context.tr('group_is_full');
-        });
-        return;
-      }
+      final groupId = invitation.data()!['groupId'] as String;
 
       // 4. Check existing member or pending request
-      final memberDocRef =
-          firestore.collection('groups').doc(groupId).collection('members').doc(user.uid);
+      final memberDocRef = firestore
+          .collection('groups')
+          .doc(groupId)
+          .collection('members')
+          .doc(user.uid);
       final memberDoc = await memberDocRef.get();
 
       if (memberDoc.exists) {
@@ -125,7 +114,10 @@ class _JoinGroupSheetState extends State<JoinGroupSheet> {
         requestedAt: DateTime.now(),
       );
 
-      await memberDocRef.set(pendingMember.toMap());
+      await memberDocRef.set({
+        ...pendingMember.toMap(),
+        'inviteCode': inputCode,
+      });
 
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -314,7 +306,9 @@ class _JoinGroupSheetState extends State<JoinGroupSheet> {
                           height: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Text(

@@ -59,7 +59,10 @@ class WorkoutTrackerPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF10B981)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF10B981),
+            ),
             tooltip: context.tr('add_workout_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -109,7 +112,10 @@ class WorkoutTrackerPage extends ConsumerWidget {
                   // This Week Minutes Card
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 16,
+                      ),
                       decoration: BoxDecoration(
                         color: cardBg,
                         borderRadius: BorderRadius.circular(18),
@@ -153,7 +159,10 @@ class WorkoutTrackerPage extends ConsumerWidget {
                   // This Week Calories Card
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 16,
+                      ),
                       decoration: BoxDecoration(
                         color: cardBg,
                         borderRadius: BorderRadius.circular(18),

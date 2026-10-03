@@ -48,8 +48,7 @@ YearStatsData calculateYearStats(
   // 3. Books: Completed books ('done') finished in [year]
   final booksCount = books.where((book) {
     if (book.status != 'done') return false;
-    final finishYear = book.finishDate?.year ??
-        book.updatedAt.year;
+    final finishYear = book.finishDate?.year ?? book.updatedAt.year;
     return finishYear == year;
   }).length;
 

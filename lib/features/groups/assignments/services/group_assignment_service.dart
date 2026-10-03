@@ -11,7 +11,8 @@ import '../models/group_assignment_model.dart';
 /// Service managing Group Assignments: creation, member synchronization,
 /// individual completion tracking, and group feed announcements.
 class GroupAssignmentService {
-  static final GroupAssignmentService _instance = GroupAssignmentService._internal();
+  static final GroupAssignmentService _instance =
+      GroupAssignmentService._internal();
   factory GroupAssignmentService() => _instance;
   GroupAssignmentService._internal();
 
@@ -33,9 +34,10 @@ class GroupAssignmentService {
     required String completionMode, // 'simple' | 'count'
     required int? targetCount,
     required List<GroupMemberModel> selectedMembers,
+    String? requestId,
   }) async {
     final firestore = _firestore;
-    if (firestore == null) return;
+    if (firestore == null) throw StateError('Firebase is unavailable');
 
     final currentUser = FirebaseAuth.instance.currentUser;
     final adminUid = currentUser?.uid ?? '';
@@ -43,14 +45,26 @@ class GroupAssignmentService {
         ? currentUser!.displayName!
         : 'Admin';
 
+    if (adminUid.isEmpty ||
+        !['task', 'habit'].contains(type) ||
+        title.trim().isEmpty ||
+        !['simple', 'count'].contains(completionMode) ||
+        selectedMembers.isEmpty ||
+        selectedMembers.length > 20 ||
+        selectedMembers.map((m) => m.uid).toSet().length !=
+            selectedMembers.length ||
+        (completionMode == 'count' &&
+            (targetCount == null || targetCount < 1 || targetCount > 10000))) {
+      throw ArgumentError('Invalid assignment');
+    }
     final now = DateTime.now();
     final groupRef = firestore.collection('groups').doc(groupId);
-    final assignmentRef = groupRef.collection('assignments').doc();
+    final assignmentRef = groupRef.collection('assignments').doc(requestId);
     final assignmentId = assignmentRef.id;
 
     final assignedUids = selectedMembers.map((m) => m.uid).toList();
 
-    final assignment = GroupAssignmentModel(
+    var assignment = GroupAssignmentModel(
       id: assignmentId,
       groupId: groupId,
       type: type,
@@ -65,15 +79,43 @@ class GroupAssignmentService {
     );
 
     try {
-      // Use WriteBatch for atomic creation across the group assignment and member collections
-      final batch = firestore.batch();
-
-      // 1. Save Group Assignment Document
-      batch.set(assignmentRef, assignment.toMap());
+      await firestore.runTransaction((transaction) async {
+        final previous = await transaction.get(assignmentRef);
+        if (previous.exists) {
+          assignment = GroupAssignmentModel.fromMap(
+            previous.data()!,
+            previous.id,
+          );
+        } else {
+          transaction.set(assignmentRef, {
+            ...assignment.toMap(),
+            'distributionPending': true,
+          });
+        }
+      });
 
       // 2. Create Completion Tracker Document + Personal Task/Habit for each assigned member
-      for (final member in selectedMembers) {
-        final completionRef = assignmentRef.collection('completions').doc(member.uid);
+      // Each recipient is atomic. Deterministic IDs make interrupted distribution resumable.
+      final chosen = {for (final member in selectedMembers) member.uid: member};
+      for (final recipient in assignment.assignedTo) {
+        final membership = await groupRef
+            .collection('members')
+            .doc(recipient)
+            .get();
+        if (membership.data()?['status'] != 'approved') continue;
+        final member =
+            chosen[recipient] ??
+            GroupMemberModel.fromMap(membership.data()!, recipient);
+        final existing = await assignmentRef
+            .collection('completions')
+            .doc(member.uid)
+            .get();
+        if (existing.exists) continue;
+        final batch = firestore.batch();
+        final itemId = 'assignment_$assignmentId';
+        final completionRef = assignmentRef
+            .collection('completions')
+            .doc(member.uid);
         final completionDoc = AssignmentCompletionModel(
           uid: member.uid,
           memberName: member.name,
@@ -81,31 +123,37 @@ class GroupAssignmentService {
           currentCount: 0,
           completedAt: null,
         );
-        batch.set(completionRef, completionDoc.toMap());
+        batch.set(completionRef, {
+          ...completionDoc.toMap(),
+          'itemId': itemId,
+          'decision': 'offered',
+        });
 
-        if (type == 'task') {
+        if (assignment.type == 'task') {
           // Write locked task to member's personal collection
           final memberTaskRef = firestore
               .collection('users')
               .doc(member.uid)
               .collection('tasks')
-              .doc();
+              .doc(itemId);
 
           final memberTask = TaskModel(
             id: memberTaskRef.id,
-            title: title.trim(),
+            title: assignment.title,
             categoryId: 'work',
             priority: TaskPriority.medium,
-            date: deadline ?? now,
-            deadline: deadline,
+            date: assignment.deadline ?? now,
+            deadline: assignment.deadline,
             done: false,
             createdAt: now,
             groupAssignmentId: assignmentId,
             assignedByGroupId: groupId,
             assignedByName: adminName,
             locked: true,
-            completionMode: completionMode,
-            targetCount: completionMode == 'count' ? targetCount : null,
+            completionMode: assignment.completionMode,
+            targetCount: assignment.completionMode == 'count'
+                ? assignment.targetCount
+                : null,
             currentCount: 0,
           );
 
@@ -117,33 +165,36 @@ class GroupAssignmentService {
               .collection('users')
               .doc(member.uid)
               .collection('habits')
-              .doc();
+              .doc(itemId);
 
           final memberHabit = HabitModel(
+            deadline: assignment.deadline,
             id: memberHabitRef.id,
-            title: title.trim(),
+            title: assignment.title,
             days: List<bool>.filled(7, false),
             streak: 0,
             baseStreak: 0,
             resetDay: DateTime.saturday,
-            autoReset: false, // Bypasses normal weekly auto-reset for count mode
+            autoReset: assignment.completionMode != 'count',
             lastResetDate: now,
-            createdAt: deadline ?? now,
+            createdAt: now,
             groupAssignmentId: assignmentId,
             assignedByGroupId: groupId,
             assignedByName: adminName,
             locked: true,
-            completionMode: completionMode,
-            targetCount: completionMode == 'count' ? targetCount : null,
+            completionMode: assignment.completionMode,
+            targetCount: assignment.completionMode == 'count'
+                ? assignment.targetCount
+                : null,
             currentCount: 0,
             isCompleted: false,
           );
 
           batch.set(memberHabitRef, memberHabit.toMap());
         }
+        await batch.commit();
       }
-
-      await batch.commit();
+      await assignmentRef.update({'distributionPending': false});
 
       // 3. Post Announcement Feed Entry to the Group
       final memberCountText = selectedMembers.length == 1
@@ -152,9 +203,11 @@ class GroupAssignmentService {
 
       await GroupFeedService().postToGroup(
         groupId: groupId,
+        uid: adminUid,
         type: 'assignment',
         message: '$adminName assigned "$title" to $memberCountText 📋',
         icon: '📋',
+        eventId: 'assignment_${assignmentRef.id}',
       );
     } catch (e) {
       debugPrint('Error creating group assignment: $e');
@@ -163,10 +216,10 @@ class GroupAssignmentService {
   }
 
   /// Syncs an individual member's task completion state back to the group assignment
-  Future<void> syncTaskCompletion(TaskModel task) async {
+  Future<void> syncTaskCompletion(TaskModel task, {String? uid}) async {
     final groupId = task.assignedByGroupId;
     final assignmentId = task.groupAssignmentId;
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    uid ??= FirebaseAuth.instance.currentUser?.uid;
 
     if (groupId == null || assignmentId == null || uid == null) return;
     final firestore = _firestore;
@@ -184,18 +237,23 @@ class GroupAssignmentService {
       await completionRef.set({
         'status': task.done ? 'done' : 'pending',
         'completedAt': task.done ? Timestamp.now() : null,
-        'currentCount': task.done ? (task.targetCount ?? 1) : 0,
+        'currentCount': task.completionMode == 'count'
+            ? task.currentCount
+            : (task.done ? 1 : 0),
+        'uid': uid,
+        'itemId': task.id,
       }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Error syncing task completion back to group: $e');
+      rethrow;
     }
   }
 
   /// Syncs an individual member's habit completion / count progress back to the group assignment
-  Future<void> syncHabitCompletion(HabitModel habit) async {
+  Future<void> syncHabitCompletion(HabitModel habit, {String? uid}) async {
     final groupId = habit.assignedByGroupId;
     final assignmentId = habit.groupAssignmentId;
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    uid ??= FirebaseAuth.instance.currentUser?.uid;
 
     if (groupId == null || assignmentId == null || uid == null) return;
     final firestore = _firestore;
@@ -210,17 +268,24 @@ class GroupAssignmentService {
           .collection('completions')
           .doc(uid);
 
-      final isDone = habit.isCompleted ||
-          (habit.targetCount != null && habit.currentCount >= habit.targetCount!) ||
-          (habit.completionMode != 'count' && habit.completedThisWeekCount > 0);
+      final isDone =
+          habit.isCompleted ||
+          (habit.targetCount != null &&
+              habit.currentCount >= habit.targetCount!) ||
+          (habit.completionMode != 'count' && habit.isCompleted);
 
       await completionRef.set({
         'status': isDone ? 'done' : 'pending',
         'completedAt': isDone ? Timestamp.now() : null,
-        'currentCount': habit.currentCount,
+        'currentCount': habit.completionMode == 'count'
+            ? habit.currentCount
+            : (isDone ? 1 : 0),
+        'uid': uid,
+        'itemId': habit.id,
       }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Error syncing habit completion back to group: $e');
+      rethrow;
     }
   }
 }

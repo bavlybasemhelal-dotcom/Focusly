@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
-import 'models/knowledge_entry_model.dart';
 import 'providers/knowledge_base_provider.dart';
 import 'widgets/entry_form_modal.dart';
 import 'widgets/knowledge_entry_card.dart';
@@ -88,7 +87,10 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF2E6FF2)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF2E6FF2),
+            ),
             tooltip: context.tr('add_knowledge_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -127,7 +129,11 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
         ),
         data: (allEntries) {
           if (allEntries.isEmpty) {
-            return _buildGlobalEmptyState(context, primaryTextColor, secondaryTextColor);
+            return _buildGlobalEmptyState(
+              context,
+              primaryTextColor,
+              secondaryTextColor,
+            );
           }
 
           return Column(
@@ -148,7 +154,9 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                       decoration: InputDecoration(
                         hintText: context.tr('search_knowledge_hint'),
                         hintStyle: TextStyle(
-                          color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                          color: isDark
+                              ? Colors.white30
+                              : const Color(0xFF94A3B8),
                           fontSize: 13,
                         ),
                         prefixIcon: const Icon(
@@ -162,7 +170,9 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                                 onPressed: () {
                                   _searchController.clear();
                                   ref
-                                      .read(knowledgeSearchQueryProvider.notifier)
+                                      .read(
+                                        knowledgeSearchQueryProvider.notifier,
+                                      )
                                       .clear();
                                 },
                               )
@@ -170,7 +180,10 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                         filled: true,
                         fillColor: inputBg,
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(color: borderColor),
@@ -181,11 +194,16 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Color(0xFF2E6FF2), width: 1.8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF2E6FF2),
+                            width: 1.8,
+                          ),
                         ),
                       ),
                       onChanged: (val) {
-                        ref.read(knowledgeSearchQueryProvider.notifier).setQuery(val);
+                        ref
+                            .read(knowledgeSearchQueryProvider.notifier)
+                            .setQuery(val);
                       },
                     ),
                     const SizedBox(height: 10),
@@ -211,14 +229,19 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                               },
                               borderRadius: BorderRadius.circular(10),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? const Color(0xFF2E6FF2)
                                       : inputBg,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: isSelected ? const Color(0xFF2E6FF2) : borderColor,
+                                    color: isSelected
+                                        ? const Color(0xFF2E6FF2)
+                                        : borderColor,
                                   ),
                                 ),
                                 child: Center(
@@ -227,7 +250,9 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
-                                      color: isSelected ? Colors.white : secondaryTextColor,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : secondaryTextColor,
                                     ),
                                   ),
                                 ),
@@ -244,13 +269,19 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
               // Entries List Area
               Expanded(
                 child: filteredEntries.isEmpty
-                    ? _buildNoResultsState(context, primaryTextColor, secondaryTextColor)
+                    ? _buildNoResultsState(
+                        context,
+                        primaryTextColor,
+                        secondaryTextColor,
+                      )
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 96),
                         physics: const BouncingScrollPhysics(),
                         itemCount: filteredEntries.length,
                         itemBuilder: (context, index) {
-                          return KnowledgeEntryCard(entry: filteredEntries[index]);
+                          return KnowledgeEntryCard(
+                            entry: filteredEntries[index],
+                          );
                         },
                       ),
               ),
@@ -312,7 +343,10 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -361,10 +395,7 @@ class _KnowledgeBasePageState extends ConsumerState<KnowledgeBasePage> {
             const SizedBox(height: 6),
             Text(
               context.tr('no_knowledge_search_results_sub'),
-              style: TextStyle(
-                fontSize: 13,
-                color: secondaryTextColor,
-              ),
+              style: TextStyle(fontSize: 13, color: secondaryTextColor),
               textAlign: TextAlign.center,
             ),
           ],

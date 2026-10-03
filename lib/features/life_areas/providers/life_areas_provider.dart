@@ -11,13 +11,13 @@ final lifeAreasServiceProvider = Provider<LifeAreasService>((ref) {
 /// Real-time stream of all Wheel of Life assessments for the current authenticated user
 final lifeAreasStreamProvider =
     StreamProvider.autoDispose<List<LifeAreaAssessmentModel>>((ref) {
-  final uid = ref.watch(currentUserIdProvider);
-  if (uid == null || uid.isEmpty) {
-    return Stream.value(<LifeAreaAssessmentModel>[]);
-  }
-  final service = ref.watch(lifeAreasServiceProvider);
-  return service.getAssessmentsStream(uid);
-});
+      final uid = ref.watch(currentUserIdProvider);
+      if (uid == null || uid.isEmpty) {
+        return Stream.value(<LifeAreaAssessmentModel>[]);
+      }
+      final service = ref.watch(lifeAreasServiceProvider);
+      return service.getAssessmentsStream(uid);
+    });
 
 /// Notifier tracking the currently selected Primary assessment ID
 class SelectedPrimaryAssessmentNotifier extends Notifier<String?> {
@@ -31,8 +31,8 @@ class SelectedPrimaryAssessmentNotifier extends Notifier<String?> {
 
 final selectedPrimaryAssessmentIdProvider =
     NotifierProvider<SelectedPrimaryAssessmentNotifier, String?>(
-  SelectedPrimaryAssessmentNotifier.new,
-);
+      SelectedPrimaryAssessmentNotifier.new,
+    );
 
 /// Notifier tracking the currently selected Comparison assessment ID (null = No Comparison)
 class SelectedCompareAssessmentNotifier extends Notifier<String?> {
@@ -46,43 +46,43 @@ class SelectedCompareAssessmentNotifier extends Notifier<String?> {
 
 final selectedCompareAssessmentIdProvider =
     NotifierProvider<SelectedCompareAssessmentNotifier, String?>(
-  SelectedCompareAssessmentNotifier.new,
-);
+      SelectedCompareAssessmentNotifier.new,
+    );
 
 /// Derived provider resolving the active Primary assessment model
 final activePrimaryAssessmentProvider =
     Provider.autoDispose<LifeAreaAssessmentModel?>((ref) {
-  final assessments = ref.watch(lifeAreasStreamProvider).value ?? [];
-  if (assessments.isEmpty) return null;
+      final assessments = ref.watch(lifeAreasStreamProvider).value ?? [];
+      if (assessments.isEmpty) return null;
 
-  final selectedId = ref.watch(selectedPrimaryAssessmentIdProvider);
-  if (selectedId == null) {
-    // Defaults to the latest assessment (first in sorted list)
-    return assessments.first;
-  }
+      final selectedId = ref.watch(selectedPrimaryAssessmentIdProvider);
+      if (selectedId == null) {
+        // Defaults to the latest assessment (first in sorted list)
+        return assessments.first;
+      }
 
-  return assessments.firstWhere(
-    (a) => a.id == selectedId,
-    orElse: () => assessments.first,
-  );
-});
+      return assessments.firstWhere(
+        (a) => a.id == selectedId,
+        orElse: () => assessments.first,
+      );
+    });
 
 /// Derived provider resolving the active Comparison assessment model
 final activeCompareAssessmentProvider =
     Provider.autoDispose<LifeAreaAssessmentModel?>((ref) {
-  final assessments = ref.watch(lifeAreasStreamProvider).value ?? [];
-  if (assessments.isEmpty) return null;
+      final assessments = ref.watch(lifeAreasStreamProvider).value ?? [];
+      if (assessments.isEmpty) return null;
 
-  final selectedId = ref.watch(selectedCompareAssessmentIdProvider);
-  if (selectedId == null) return null;
+      final selectedId = ref.watch(selectedCompareAssessmentIdProvider);
+      if (selectedId == null) return null;
 
-  final primary = ref.watch(activePrimaryAssessmentProvider);
-  // Prevent comparing assessment with itself
-  if (primary != null && primary.id == selectedId) return null;
+      final primary = ref.watch(activePrimaryAssessmentProvider);
+      // Prevent comparing assessment with itself
+      if (primary != null && primary.id == selectedId) return null;
 
-  try {
-    return assessments.firstWhere((a) => a.id == selectedId);
-  } catch (_) {
-    return null;
-  }
-});
+      try {
+        return assessments.firstWhere((a) => a.id == selectedId);
+      } catch (_) {
+        return null;
+      }
+    });

@@ -120,12 +120,16 @@ class _WheelOfLifePainter extends CustomPainter {
 
     // Grid paints
     final gridLinePaint = Paint()
-      ..color = isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0)
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.12)
+          : const Color(0xFFE2E8F0)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
     final axisLinePaint = Paint()
-      ..color = isDark ? Colors.white.withValues(alpha: 0.18) : const Color(0xFFCBD5E1)
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.18)
+          : const Color(0xFFCBD5E1)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 
@@ -269,7 +273,9 @@ class _WheelOfLifePainter extends CustomPainter {
       final textSpan = TextSpan(
         text: labelText,
         style: TextStyle(
-          color: isDark ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF334155),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.85)
+              : const Color(0xFF334155),
           fontSize: 10.5,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
@@ -283,10 +289,7 @@ class _WheelOfLifePainter extends CustomPainter {
       )..layout(maxWidth: 70);
 
       // Center the text painter on the projected label point
-      final textOffset = Offset(
-        lx - tp.width / 2,
-        ly - tp.height / 2,
-      );
+      final textOffset = Offset(lx - tp.width / 2, ly - tp.height / 2);
 
       tp.paint(canvas, textOffset);
     }

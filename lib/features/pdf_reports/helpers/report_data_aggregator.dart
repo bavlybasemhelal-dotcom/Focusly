@@ -1,3 +1,5 @@
+import '../../schedule/helpers/recurrence_helper.dart';
+import '../../../core/data/calendar_clock.dart';
 import 'dart:math';
 import 'package:focusly/features/habits/models/habit_model.dart';
 import 'package:focusly/features/pomodoro/models/pomodoro_log_model.dart';
@@ -10,9 +12,12 @@ import '../models/report_models.dart';
 /// for the Advanced PDF Reports feature.
 class ReportDataAggregator {
   /// Computes the start date for the given [rangeOption] relative to [now].
-  static DateTime computeStartDate(ReportRangeOption rangeOption, DateTime now) {
+  static DateTime computeStartDate(
+    ReportRangeOption rangeOption,
+    DateTime now,
+  ) {
     final today = DateTime(now.year, now.month, now.day);
-    return today.subtract(Duration(days: rangeOption.daysCount - 1));
+    return calendarDay(today, 1 - rangeOption.daysCount);
   }
 
   /// Checks if a date falls within [start, end] inclusive (by date components).
@@ -33,7 +38,9 @@ class ReportDataAggregator {
   }) {
     // 1. Target values scaled with range length
     final double targetTasks = daysCount == 7 ? 12.0 : (daysCount * 1.5);
-    final double targetFocusMinutes = daysCount == 7 ? 300.0 : (daysCount * 40.0);
+    final double targetFocusMinutes = daysCount == 7
+        ? 300.0
+        : (daysCount * 40.0);
     final double targetHabitDays = daysCount == 7 ? 14.0 : (daysCount * 2.0);
 
     // 2. Component scores (0 to 100)
@@ -50,9 +57,11 @@ class ReportDataAggregator {
         : 0;
 
     // 3. Weighted overall score (Tasks 40%, Focus 30%, Habits 30%)
-    final int overallScore = (taskScore * 0.4 + focusScore * 0.3 + habitsScore * 0.3)
-        .round()
-        .clamp(0, 100);
+    final int overallScore =
+        (taskScore * 0.4 + focusScore * 0.3 + habitsScore * 0.3).round().clamp(
+          0,
+          100,
+        );
 
     // 4. Rating tier & colors
     final String tierKey;
@@ -93,6 +102,7 @@ class ReportDataAggregator {
     required List<HabitModel> habits,
     required List<PomodoroLogModel> pomodoroLogs,
     List<TaskCategory> categories = const [],
+    List<Map<String, dynamic>> habitLogs = const [],
     DateTime? referenceDate,
   }) {
     final now = referenceDate ?? DateTime.now();
@@ -110,13 +120,18 @@ class ReportDataAggregator {
 
     final completedTasksInRange = tasks.where((t) {
       if (!t.done) return false;
-      final completionDate = t.doneAt ?? t.date;
+      if (t.doneAt == null) return false;
+      final completionDate = t.doneAt!;
       return isDateInRange(completionDate, startDate, endDate);
     }).toList();
 
     final completedTasksCount = completedTasksInRange.length;
-    final totalTasksCount = max(tasksInRange.length, completedTasksCount);
-    final pendingTasksCount = max(0, totalTasksCount - completedTasksCount);
+    final ids = {
+      ...tasksInRange.map((task) => task.id),
+      ...completedTasksInRange.map((task) => task.id),
+    };
+    final totalTasksCount = ids.length;
+    final pendingTasksCount = tasksInRange.where((task) => !task.done).length;
 
     final completionRatePercent = totalTasksCount > 0
         ? ((completedTasksCount / totalTasksCount) * 100).round().clamp(0, 100)
@@ -155,34 +170,39 @@ class ReportDataAggregator {
           ? ((count / completedTasksCount) * 100.0 * 10).round() / 10.0
           : 0.0;
 
-      categoryStats.add(ReportCategoryStat(
-        categoryId: catId,
-        categoryName: name,
-        count: count,
-        percentage: pct,
-        colorValue: colorVal,
-      ));
+      categoryStats.add(
+        ReportCategoryStat(
+          categoryId: catId,
+          categoryName: name,
+          count: count,
+          percentage: pct,
+          colorValue: colorVal,
+        ),
+      );
     });
 
     // =========================================================================
     // 2. EVENTS AGGREGATION
     // =========================================================================
-    final eventsCount = events.where((e) {
-      return isDateInRange(e.date, startDate, endDate);
-    }).length;
+    var eventsCount = 0;
+    for (var index = 0; index < daysCount; index++) {
+      final day = calendarDay(startDate, index);
+      eventsCount += events
+          .where((event) => RecurrenceHelper.doesEventOccurOn(event, day))
+          .length;
+    }
 
-    // =========================================================================
-    // 3. HABITS AGGREGATION
-    // =========================================================================
-    int habitDaysLogged = 0;
-    for (final habit in habits) {
-      habitDaysLogged += habit.completedThisWeekCount;
-    }
-    // Scale habit completions when evaluating longer multi-week ranges
-    if (daysCount > 7) {
-      final weeksFactor = daysCount / 7.0;
-      habitDaysLogged = (habitDaysLogged * weeksFactor).round();
-    }
+    // Only dated evidence contributes. Missing historical data stays missing.
+    final habitDaysLogged = habitLogs
+        .where((log) {
+          final date = DateTime.tryParse(log['date'] as String? ?? '');
+          return log['completed'] == true &&
+              date != null &&
+              isDateInRange(date, startDate, endDate);
+        })
+        .map((log) => '${log['habitId']}_${log['date']}')
+        .toSet()
+        .length;
 
     // =========================================================================
     // 4. POMODORO / FOCUS AGGREGATION
@@ -211,48 +231,69 @@ class ReportDataAggregator {
     if (daysCount <= 30) {
       // Daily granularity
       for (int i = 0; i < daysCount; i++) {
-        final day = startDate.add(Duration(days: i));
+        final day = calendarDay(startDate, i);
         final dayTasks = completedTasksInRange.where((t) {
-          final cd = t.doneAt ?? t.date;
+          final cd = t.doneAt!;
           return isDateInRange(cd, day, day);
         }).length;
 
-        final dayFocus = focusLogsInRange.where((l) {
-          return isDateInRange(l.date, day, day);
-        }).fold<int>(0, (sum, l) => sum + l.durationMinutes);
+        final dayFocus = focusLogsInRange
+            .where((l) {
+              return isDateInRange(l.date, day, day);
+            })
+            .fold<int>(0, (sum, l) => sum + l.durationMinutes);
 
-        final months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        final months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
         final label = '${months[day.month - 1]} ${day.day}';
 
-        trendPoints.add(ReportTrendPoint(
-          label: label,
-          date: day,
-          tasksCompleted: dayTasks,
-          focusMinutes: dayFocus,
-        ));
+        trendPoints.add(
+          ReportTrendPoint(
+            label: label,
+            date: day,
+            tasksCompleted: dayTasks,
+            focusMinutes: dayFocus,
+          ),
+        );
       }
     } else {
       // Weekly granularity (TODO: Granularity can be further customized per range)
       final numWeeks = (daysCount / 7.0).ceil();
       for (int w = 0; w < numWeeks; w++) {
-        final weekStart = startDate.add(Duration(days: w * 7));
-        final weekEnd = weekStart.add(const Duration(days: 6));
+        final weekStart = calendarDay(startDate, w * 7);
+        final weekEnd = calendarDay(weekStart, 6);
 
         final weekTasks = completedTasksInRange.where((t) {
-          final cd = t.doneAt ?? t.date;
+          final cd = t.doneAt!;
           return isDateInRange(cd, weekStart, weekEnd);
         }).length;
 
-        final weekFocus = focusLogsInRange.where((l) {
-          return isDateInRange(l.date, weekStart, weekEnd);
-        }).fold<int>(0, (sum, l) => sum + l.durationMinutes);
+        final weekFocus = focusLogsInRange
+            .where((l) {
+              return isDateInRange(l.date, weekStart, weekEnd);
+            })
+            .fold<int>(0, (sum, l) => sum + l.durationMinutes);
 
-        trendPoints.add(ReportTrendPoint(
-          label: 'W${w + 1}',
-          date: weekStart,
-          tasksCompleted: weekTasks,
-          focusMinutes: weekFocus,
-        ));
+        trendPoints.add(
+          ReportTrendPoint(
+            label: 'W${w + 1}',
+            date: weekStart,
+            tasksCompleted: weekTasks,
+            focusMinutes: weekFocus,
+          ),
+        );
       }
     }
 

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
-import 'models/skill_model.dart';
 import 'providers/skills_provider.dart';
 import 'widgets/radar_chart_widget.dart';
 import 'widgets/skill_card.dart';
@@ -56,7 +55,10 @@ class SkillsBoardPage extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF2E6FF2)),
+            icon: const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Color(0xFF2E6FF2),
+            ),
             tooltip: context.tr('add_skill_btn'),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -95,7 +97,12 @@ class SkillsBoardPage extends ConsumerWidget {
         ),
         data: (skills) {
           if (skills.isEmpty) {
-            return _buildEmptyState(context, primaryTextColor, secondaryTextColor, isDark);
+            return _buildEmptyState(
+              context,
+              primaryTextColor,
+              secondaryTextColor,
+              isDark,
+            );
           }
 
           return ListView(
@@ -120,7 +127,10 @@ class SkillsBoardPage extends ConsumerWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2E6FF2).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
@@ -199,7 +209,10 @@ class SkillsBoardPage extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6FF2),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),

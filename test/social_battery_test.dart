@@ -54,74 +54,80 @@ void main() {
   group('Social Battery Pure Helper & Calculation Tests', () {
     final now = DateTime(2026, 8, 24);
 
-    test('calculateSummary accurately tallies net energy balance and counts', () {
-      final entries = [
-        SocialBatteryEntryModel(
-          id: '1',
-          name: 'Coffee with Alex',
-          type: 'energizer',
-          impact: 4,
-          date: now,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        SocialBatteryEntryModel(
-          id: '2',
-          name: 'Team Brainstorm',
-          type: 'energizer',
-          impact: 5,
-          date: now,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        SocialBatteryEntryModel(
-          id: '3',
-          name: 'Conflict Resolution Call',
-          type: 'drainer',
-          impact: 4,
-          date: now,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
+    test(
+      'calculateSummary accurately tallies net energy balance and counts',
+      () {
+        final entries = [
+          SocialBatteryEntryModel(
+            id: '1',
+            name: 'Coffee with Alex',
+            type: 'energizer',
+            impact: 4,
+            date: now,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          SocialBatteryEntryModel(
+            id: '2',
+            name: 'Team Brainstorm',
+            type: 'energizer',
+            impact: 5,
+            date: now,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          SocialBatteryEntryModel(
+            id: '3',
+            name: 'Conflict Resolution Call',
+            type: 'drainer',
+            impact: 4,
+            date: now,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      final summary = SocialBatteryHelpers.calculateSummary(entries);
-      // Energizers: 4 + 5 = 9. Drainers: 4. Net = 9 - 4 = +5.
-      expect(summary.netEnergyBalance, equals(5));
-      expect(summary.formattedBalance, equals('+5'));
-      expect(summary.energizersCount, equals(2));
-      expect(summary.drainersCount, equals(1));
-      expect(summary.totalEnergizerImpact, equals(9));
-      expect(summary.totalDrainerImpact, equals(4));
-    });
+        final summary = SocialBatteryHelpers.calculateSummary(entries);
+        // Energizers: 4 + 5 = 9. Drainers: 4. Net = 9 - 4 = +5.
+        expect(summary.netEnergyBalance, equals(5));
+        expect(summary.formattedBalance, equals('+5'));
+        expect(summary.energizersCount, equals(2));
+        expect(summary.drainersCount, equals(1));
+        expect(summary.totalEnergizerImpact, equals(9));
+        expect(summary.totalDrainerImpact, equals(4));
+      },
+    );
 
-    test('calculateSummary handles negative net balance when drainers outweigh energizers', () {
-      final entries = [
-        SocialBatteryEntryModel(
-          id: '1',
-          name: 'Quick Standup',
-          type: 'energizer',
-          impact: 2,
-          date: now,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        SocialBatteryEntryModel(
-          id: '2',
-          name: 'Tax Audit Meeting',
-          type: 'drainer',
-          impact: 5,
-          date: now,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
+    test(
+      'calculateSummary handles negative net balance when drainers outweigh energizers',
+      () {
+        final entries = [
+          SocialBatteryEntryModel(
+            id: '1',
+            name: 'Quick Standup',
+            type: 'energizer',
+            impact: 2,
+            date: now,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          SocialBatteryEntryModel(
+            id: '2',
+            name: 'Tax Audit Meeting',
+            type: 'drainer',
+            impact: 5,
+            date: now,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      final summary = SocialBatteryHelpers.calculateSummary(entries);
-      // Net = 2 - 5 = -3.
-      expect(summary.netEnergyBalance, equals(-3));
-      expect(summary.formattedBalance, equals('-3'));
-    });
+        final summary = SocialBatteryHelpers.calculateSummary(entries);
+        // Net = 2 - 5 = -3.
+        expect(summary.netEnergyBalance, equals(-3));
+        expect(summary.formattedBalance, equals('-3'));
+      },
+    );
 
     test('calculateSummary handles empty entries cleanly', () {
       final summary = SocialBatteryHelpers.calculateSummary([]);
@@ -133,167 +139,198 @@ void main() {
   });
 
   group('SocialBatteryEntryModel Serialization Tests', () {
-    test('SocialBatteryEntryModel serializes toMap and deserializes fromMap correctly', () {
-      final now = DateTime(2026, 8, 24, 12, 0);
-      final entry = SocialBatteryEntryModel(
-        id: 'sb_1',
-        name: 'Game Night with Friends',
-        type: 'energizer',
-        impact: 5,
-        date: DateTime(2026, 8, 23),
-        notes: 'Felt very energized and inspired afterwards.',
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'SocialBatteryEntryModel serializes toMap and deserializes fromMap correctly',
+      () {
+        final now = DateTime(2026, 8, 24, 12, 0);
+        final entry = SocialBatteryEntryModel(
+          id: 'sb_1',
+          name: 'Game Night with Friends',
+          type: 'energizer',
+          impact: 5,
+          date: DateTime(2026, 8, 23),
+          notes: 'Felt very energized and inspired afterwards.',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final map = entry.toMap();
-      expect(map['name'], equals('Game Night with Friends'));
-      expect(map['type'], equals('energizer'));
-      expect(map['impact'], equals(5));
-      expect(map['notes'], contains('inspired afterwards'));
+        final map = entry.toMap();
+        expect(map['name'], equals('Game Night with Friends'));
+        expect(map['type'], equals('energizer'));
+        expect(map['impact'], equals(5));
+        expect(map['notes'], contains('inspired afterwards'));
 
-      final reconstructed = SocialBatteryEntryModel.fromMap(map, 'sb_1');
-      expect(reconstructed.id, equals('sb_1'));
-      expect(reconstructed.name, equals('Game Night with Friends'));
-      expect(reconstructed.isEnergizer, isTrue);
-      expect(reconstructed.isDrainer, isFalse);
-      expect(reconstructed.signedImpact, equals(5));
-    });
+        final reconstructed = SocialBatteryEntryModel.fromMap(map, 'sb_1');
+        expect(reconstructed.id, equals('sb_1'));
+        expect(reconstructed.name, equals('Game Night with Friends'));
+        expect(reconstructed.isEnergizer, isTrue);
+        expect(reconstructed.isDrainer, isFalse);
+        expect(reconstructed.signedImpact, equals(5));
+      },
+    );
   });
 
   group('Social Battery UI & Widget Tests', () {
-    testWidgets('SocialBatteryEntryCard renders name, type emoji, impact pill, and notes', (tester) async {
-      final now = DateTime.now();
-      final entry = SocialBatteryEntryModel(
-        id: 'sb_10',
-        name: 'Sprint Retro',
-        type: 'drainer',
-        impact: 3,
-        date: now,
-        notes: 'Too much debate over minor details.',
-        createdAt: now,
-        updatedAt: now,
-      );
-
-      await tester.pumpWidget(
-        createSocialBatteryTestWidget(
-          child: Scaffold(body: SocialBatteryEntryCard(entry: entry)),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Sprint Retro'), findsOneWidget);
-      expect(find.text('🪫'), findsOneWidget);
-      expect(find.text('drainer (-3)'), findsOneWidget);
-      expect(find.text('Too much debate over minor details.'), findsOneWidget);
-    });
-
-    testWidgets('SocialBatterySummaryCard renders net balance and energizer/drainer counts', (tester) async {
-      final now = DateTime.now();
-      final entries = [
-        SocialBatteryEntryModel(
-          id: '1',
-          name: 'Lunch with Daniel',
-          type: 'energizer',
-          impact: 4,
-          date: now,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        SocialBatteryEntryModel(
-          id: '2',
-          name: 'Lengthy Commute',
+    testWidgets(
+      'SocialBatteryEntryCard renders name, type emoji, impact pill, and notes',
+      (tester) async {
+        final now = DateTime.now();
+        final entry = SocialBatteryEntryModel(
+          id: 'sb_10',
+          name: 'Sprint Retro',
           type: 'drainer',
-          impact: 2,
+          impact: 3,
           date: now,
+          notes: 'Too much debate over minor details.',
           createdAt: now,
           updatedAt: now,
-        ),
-      ];
+        );
 
-      await tester.pumpWidget(
-        createSocialBatteryTestWidget(
-          child: const Scaffold(body: SocialBatterySummaryCard()),
-          overrides: [
-            socialBatteryStreamProvider.overrideWithValue(AsyncData(entries)),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createSocialBatteryTestWidget(
+            child: Scaffold(body: SocialBatteryEntryCard(entry: entry)),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('+2'), findsOneWidget); // 4 - 2 = +2
-      expect(find.text('Net Energy Balance'), findsOneWidget);
-      expect(find.text('Energizers Count'), findsOneWidget);
-      expect(find.text('1'), findsNWidgets(2)); // 1 energizer, 1 drainer
-      expect(find.text('Drainers Count'), findsOneWidget);
-    });
+        expect(find.text('Sprint Retro'), findsOneWidget);
+        expect(find.text('🪫'), findsOneWidget);
+        expect(find.text('drainer (-3)'), findsOneWidget);
+        expect(
+          find.text('Too much debate over minor details.'),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('SocialBatteryFormModal validates required name field and toggles type', (tester) async {
-      await tester.pumpWidget(
-        createSocialBatteryTestWidget(
-          child: const Scaffold(body: SocialBatteryFormModal()),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'SocialBatterySummaryCard renders net balance and energizer/drainer counts',
+      (tester) async {
+        final now = DateTime.now();
+        final entries = [
+          SocialBatteryEntryModel(
+            id: '1',
+            name: 'Lunch with Daniel',
+            type: 'energizer',
+            impact: 4,
+            date: now,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          SocialBatteryEntryModel(
+            id: '2',
+            name: 'Lengthy Commute',
+            type: 'drainer',
+            impact: 2,
+            date: now,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
 
-      expect(find.text('Log Social Energy'), findsOneWidget);
-      expect(find.text('Energizer'), findsOneWidget);
-      expect(find.text('Drainer'), findsOneWidget);
+        await tester.pumpWidget(
+          createSocialBatteryTestWidget(
+            child: const Scaffold(body: SocialBatterySummaryCard()),
+            overrides: [
+              socialBatteryStreamProvider.overrideWithValue(AsyncData(entries)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.ensureVisible(find.text('Save'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Save'));
-      await tester.pumpAndSettle();
+        expect(find.text('+2'), findsOneWidget); // 4 - 2 = +2
+        expect(find.text('Net Energy Balance'), findsOneWidget);
+        expect(find.text('Energizers Count'), findsOneWidget);
+        expect(find.text('1'), findsNWidgets(2)); // 1 energizer, 1 drainer
+        expect(find.text('Drainers Count'), findsOneWidget);
+      },
+    );
 
-      expect(find.text('Name or event title is required'), findsOneWidget);
-    });
+    testWidgets(
+      'SocialBatteryFormModal validates required name field and toggles type',
+      (tester) async {
+        await tester.pumpWidget(
+          createSocialBatteryTestWidget(
+            child: const Scaffold(body: SocialBatteryFormModal()),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-    testWidgets('SocialBatteryPage renders log section, summary card, and empty states', (tester) async {
-      await tester.pumpWidget(
-        createSocialBatteryTestWidget(
-          child: const SocialBatteryPage(),
-          overrides: [
-            socialBatteryStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        expect(find.text('Log Social Energy'), findsOneWidget);
+        expect(find.text('Energizer'), findsOneWidget);
+        expect(find.text('Drainer'), findsOneWidget);
 
-      expect(find.text('Social Battery'), findsOneWidget);
-      expect(find.text('Social Battery Log'), findsOneWidget);
-      expect(find.text('Energy Summary'), findsOneWidget);
-      expect(find.text('🔋 Log your first social interaction'), findsOneWidget);
-      expect(find.text('0'), findsNWidgets(3)); // Net balance 0, Energizers 0, Drainers 0
-    });
+        await tester.ensureVisible(find.text('Save'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Save'));
+        await tester.pumpAndSettle();
 
-    testWidgets('Navigation Drawer contains Social Battery item in Relationships section', (tester) async {
-      await tester.pumpWidget(
-        createSocialBatteryTestWidget(
-          child: const HomeScreen(),
-          overrides: [
-            socialBatteryStreamProvider.overrideWithValue(const AsyncData([])),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        expect(find.text('Name or event title is required'), findsOneWidget);
+      },
+    );
 
-      // Open Navigation Drawer
-      final menuButton = find.byTooltip('Open navigation menu');
-      expect(menuButton, findsOneWidget);
-      await tester.tap(menuButton);
-      await tester.pumpAndSettle();
+    testWidgets(
+      'SocialBatteryPage renders log section, summary card, and empty states',
+      (tester) async {
+        await tester.pumpWidget(
+          createSocialBatteryTestWidget(
+            child: const SocialBatteryPage(),
+            overrides: [
+              socialBatteryStreamProvider.overrideWithValue(
+                const AsyncData([]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Scroll inside drawer to find "Social Battery"
-      final drawerScrollable = find.descendant(
-        of: find.byType(Drawer),
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(
-        find.text('Social Battery'),
-        50,
-        scrollable: drawerScrollable,
-      );
-      expect(find.text('Social Battery'), findsOneWidget);
-    });
+        expect(find.text('Social Battery'), findsOneWidget);
+        expect(find.text('Social Battery Log'), findsOneWidget);
+        expect(find.text('Energy Summary'), findsOneWidget);
+        expect(
+          find.text('🔋 Log your first social interaction'),
+          findsOneWidget,
+        );
+        expect(
+          find.text('0'),
+          findsNWidgets(3),
+        ); // Net balance 0, Energizers 0, Drainers 0
+      },
+    );
+
+    testWidgets(
+      'Navigation Drawer contains Social Battery item in Relationships section',
+      (tester) async {
+        await tester.pumpWidget(
+          createSocialBatteryTestWidget(
+            child: const HomeScreen(),
+            overrides: [
+              socialBatteryStreamProvider.overrideWithValue(
+                const AsyncData([]),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Open Navigation Drawer
+        final menuButton = find.byTooltip('Open navigation menu');
+        expect(menuButton, findsOneWidget);
+        await tester.tap(menuButton);
+        await tester.pumpAndSettle();
+
+        // Scroll inside drawer to find "Social Battery"
+        final drawerScrollable = find.descendant(
+          of: find.byType(Drawer),
+          matching: find.byType(Scrollable),
+        );
+        await tester.scrollUntilVisible(
+          find.text('Social Battery'),
+          50,
+          scrollable: drawerScrollable,
+        );
+        expect(find.text('Social Battery'), findsOneWidget);
+      },
+    );
   });
 }

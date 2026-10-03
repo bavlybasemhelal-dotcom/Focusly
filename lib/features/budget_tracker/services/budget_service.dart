@@ -11,7 +11,7 @@ class BudgetService {
   final FirebaseFirestore _firestore;
 
   BudgetService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _txCollection(String uid) {
     return _firestore
@@ -30,14 +30,13 @@ class BudgetService {
 
   /// Streams all budget transactions for [uid] ordered by date descending.
   Stream<List<BudgetTransactionModel>> streamTransactions(String uid) {
-    return _txCollection(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => BudgetTransactionModel.fromMap(doc.data(), doc.id))
-          .toList();
-    });
+    return _txCollection(uid).orderBy('date', descending: true).snapshots().map(
+      (snapshot) {
+        return snapshot.docs
+            .map((doc) => BudgetTransactionModel.fromMap(doc.data(), doc.id))
+            .toList();
+      },
+    );
   }
 
   /// Streams the budget config document for [uid].
@@ -56,6 +55,12 @@ class BudgetService {
     required DateTime date,
     String? note,
   }) async {
+    if (uid.isEmpty ||
+        !amount.isFinite ||
+        amount <= 0 ||
+        category.trim().isEmpty) {
+      return null;
+    }
     try {
       final docRef = _txCollection(uid).doc();
       final now = DateTime.now();
@@ -89,14 +94,20 @@ class BudgetService {
     required DateTime date,
     String? note,
   }) async {
+    if (uid.isEmpty ||
+        !amount.isFinite ||
+        amount <= 0 ||
+        category.trim().isEmpty) {
+      return false;
+    }
     try {
       final docRef = _txCollection(uid).doc(id);
       final existing = await docRef.get();
       final now = DateTime.now();
       final createdAt = existing.exists && existing.data()?['createdAt'] != null
           ? (existing.data()!['createdAt'] is Timestamp
-              ? (existing.data()!['createdAt'] as Timestamp).toDate()
-              : now)
+                ? (existing.data()!['createdAt'] as Timestamp).toDate()
+                : now)
           : now;
 
       final model = BudgetTransactionModel(
@@ -110,7 +121,7 @@ class BudgetService {
         updatedAt: now,
       );
 
-      await docRef.set(model.toMap(), SetOptions(merge: true));
+      await docRef.update(model.toMap());
       return true;
     } catch (e) {
       debugPrint('Error updating budget transaction: $e');

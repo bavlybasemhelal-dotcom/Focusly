@@ -46,7 +46,8 @@ class CircularProgressRing extends StatelessWidget {
           if (showPercentage)
             Text(
               '$effectiveProgress%',
-              style: textStyle ??
+              style:
+                  textStyle ??
                   TextStyle(
                     fontSize: size * 0.26,
                     fontWeight: FontWeight.w900,
